@@ -44,7 +44,7 @@ Required GitHub secrets (Settings → Secrets and variables → Actions):
 | `MATCH_GIT_BASIC_AUTHORIZATION` | base64 of `githubusername:personal_access_token` (PAT with repo scope) |
 | `MATCH_PASSWORD` | new passphrase; store it in your password manager |
 
-Run: Actions → **iOS** → Run workflow → branch → `testflight = true`. The lane increments the build number from the latest TestFlight build, archives Release, uploads, and skips waiting for processing (check App Store Connect 5–30 min later).
+Run: Actions → **iOS** → Run workflow → branch → `testflight = true`, **or** push a tag `tf-<n>` (`git tag tf-2 && git push origin tf-2`) — the tag route is what the coding agent uses, since its GitHub integration cannot press Run workflow. The lane increments the build number from the latest TestFlight build, archives Release, uploads, and skips waiting for processing (check App Store Connect 5–30 min later).
 
 The Fastfile (already committed) has this shape:
 ```ruby
