@@ -62,6 +62,7 @@ targets:
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
+        NSCameraUsageDescription: FunctionAlps uses the camera to photograph your meals so they can be analysed.
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
         # Environment values injected from Config/*.xcconfig at build time.

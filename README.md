@@ -54,3 +54,12 @@ open FunctionAlps.xcodeproj      # or: xcodebuild -scheme FunctionAlps -destinat
 Launch → (Keychain session?) → Login (email + password against the existing
 FunctionAlps account) → Home (real member data) → Profile → Logout.
 Acceptance criteria: PRD §23. Tracking: `docs/IOS_MIGRATION_MAP.md`.
+
+## Food tab (Phase D, step 1 — 2026-09-03)
+Food → **Photo** (camera or library) or **describe** → `CaptureView` ("Your plate, read."): the `nb_meal_logs` row is
+inserted `queued` first, the JPEG goes to the private `meal-images` bucket under the auth uid, then `analyze-meal`
+is invoked with `mealLogId` so the server writes the result onto the row; the screen polls the row every 3 s until
+`complete` / `needs_input` / `failed` (retry with words) and shows dish, macros, items and the three food scores.
+Meal detail: signed photo, macros, scores + verdicts, items, "In your words" note (edit), delete. Same wire shapes as
+the Expo app (`lib/meal-log/async-capture.ts`, `save-meal.ts`) — see `docs/IOS_MIGRATION_MAP.md` Phase D.
+

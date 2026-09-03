@@ -4,15 +4,17 @@ import SwiftUI
 enum Route: Hashable {
     case profile
     case settings
+    case meal(String)
 }
 
 @MainActor
 @Observable
 final class AppRouter {
     var homePath: [Route] = []
+    var foodPath: [Route] = []
     var profilePath: [Route] = []
 
-    enum Tab: Hashable { case home, profile }
+    enum Tab: Hashable { case home, food, profile }
     var tab: Tab = .home
 }
 
@@ -28,6 +30,13 @@ struct MainTabView: View {
             .tabItem { Label(String(localized: "tab.today", defaultValue: "Today"), systemImage: "sun.max") }
             .tag(AppRouter.Tab.home)
 
+            NavigationStack(path: $router.foodPath) {
+                FoodView()
+                    .navigationDestination(for: Route.self, destination: destination)
+            }
+            .tabItem { Label(String(localized: "tab.food", defaultValue: "Food"), systemImage: "fork.knife") }
+            .tag(AppRouter.Tab.food)
+
             NavigationStack(path: $router.profilePath) {
                 ProfileView()
                     .navigationDestination(for: Route.self, destination: destination)
@@ -35,6 +44,7 @@ struct MainTabView: View {
             .tabItem { Label(String(localized: "tab.profile", defaultValue: "Profile"), systemImage: "person.crop.circle") }
             .tag(AppRouter.Tab.profile)
         }
+        .tint(FAColor.brand)
         .environment(router)
     }
 
@@ -43,6 +53,7 @@ struct MainTabView: View {
         switch route {
         case .profile: ProfileView()
         case .settings: SettingsView()
+        case .meal(let id): MealDetailView(mealId: id)
         }
     }
 }

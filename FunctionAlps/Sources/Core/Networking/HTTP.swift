@@ -16,9 +16,11 @@ struct HTTPRequest: Sendable, Equatable {
         self.body = body
     }
 
-    static func json(_ method: Method, _ url: URL, headers: [String: String] = [:], body: some Encodable) throws -> HTTPRequest {
+    /// `snakeCase` converts Swift property names to the backend's column style (PostgREST/GoTrue).
+    /// Pass `false` for endpoints that speak camelCase (Edge Functions, Storage).
+    static func json(_ method: Method, _ url: URL, headers: [String: String] = [:], body: some Encodable, snakeCase: Bool = true) throws -> HTTPRequest {
         let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        if snakeCase { encoder.keyEncodingStrategy = .convertToSnakeCase }
         var h = headers
         h["Content-Type"] = "application/json"
         return HTTPRequest(method, url, headers: h, body: try encoder.encode(body))

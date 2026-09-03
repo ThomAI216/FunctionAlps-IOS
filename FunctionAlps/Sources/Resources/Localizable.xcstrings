@@ -2,66 +2,66 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "app.loading": {
+    "action.cancel": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading FunctionAlps"
+            "value": "Cancel"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chargement de FunctionAlps"
+            "value": "Annuler"
           }
         }
       }
     },
-    "tab.today": {
+    "action.close": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today"
+            "value": "Close"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aujourd'hui"
+            "value": "Fermer"
           }
         }
       }
     },
-    "tab.profile": {
+    "action.done": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profile"
+            "value": "Done"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profil"
+            "value": "Terminé"
           }
         }
       }
     },
-    "state.loading": {
+    "action.ok": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading…"
+            "value": "OK"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chargement…"
+            "value": "OK"
           }
         }
       }
@@ -82,146 +82,50 @@
         }
       }
     },
-    "common.cancel": {
+    "action.save": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "Save"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Annuler"
+            "value": "Enregistrer"
           }
         }
       }
     },
-    "error.offline": {
+    "action.tryAgain": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You appear to be offline. Check your connection and try again."
+            "value": "Try again"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous semblez hors ligne. Vérifiez votre connexion et réessayez."
+            "value": "Réessayer"
           }
         }
       }
     },
-    "error.unauthorized": {
+    "app.loading": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your session has expired. Please sign in again."
+            "value": "Loading FunctionAlps"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre session a expiré. Veuillez vous reconnecter."
-          }
-        }
-      }
-    },
-    "error.forbidden": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You don't have access to this."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous n'avez pas accès à cet élément."
-          }
-        }
-      }
-    },
-    "error.notFound": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "We couldn't find what you were looking for."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nous n'avons pas trouvé ce que vous cherchiez."
-          }
-        }
-      }
-    },
-    "error.server": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FunctionAlps is having a problem right now. Please try again shortly."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FunctionAlps rencontre un problème pour le moment. Réessayez dans un instant."
-          }
-        }
-      }
-    },
-    "error.generic": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Something went wrong. Please try again."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une erreur s'est produite. Veuillez réessayer."
-          }
-        }
-      }
-    },
-    "error.validation": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Please check what you entered."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Veuillez vérifier votre saisie."
-          }
-        }
-      }
-    },
-    "error.invalidCredentials": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Email or password is incorrect."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "E-mail ou mot de passe incorrect."
+            "value": "Chargement de FunctionAlps"
           }
         }
       }
@@ -258,167 +162,295 @@
         }
       }
     },
-    "login.subtitle": {
+    "capture.done.kicker": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect what you eat and do to how you feel."
+            "value": "Logged"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reliez ce que vous mangez et faites à ce que vous ressentez."
+            "value": "Enregistré"
           }
         }
       }
     },
-    "login.email": {
+    "capture.failed.short": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Email"
+            "value": "We couldn't read this meal"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "E-mail"
+            "value": "Nous n'avons pas pu lire ce repas"
           }
         }
       }
     },
-    "login.password": {
+    "capture.failed.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Password"
+            "value": "Couldn't save this meal"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mot de passe"
+            "value": "Impossible d'enregistrer ce repas"
           }
         }
       }
     },
-    "login.submit": {
+    "capture.keep": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in"
+            "value": "Keep it as is"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se connecter"
+            "value": "Garder tel quel"
           }
         }
       }
     },
-    "login.help": {
+    "capture.leaveHint": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use the same account as the FunctionAlps app and members site."
+            "value": "You can close this — the meal keeps being analysed and updates in your list."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilisez le même compte que l'app FunctionAlps et l'espace membres."
+            "value": "Vous pouvez fermer — l'analyse continue et le repas se met à jour dans votre liste."
           }
         }
       }
     },
-    "login.errorPrefix": {
+    "capture.needsInput.message": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign-in error:"
+            "value": "What was on the plate? A few words are enough — we'll read it again."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erreur de connexion :"
+            "value": "Qu'y avait-il dans l'assiette ? Quelques mots suffisent — on relit."
           }
         }
       }
     },
-    "member.fallbackName": {
+    "capture.needsInput.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Client"
+            "value": "Tell us a little more"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Client"
+            "value": "Dites-nous en un peu plus"
           }
         }
       }
     },
-    "home.greeting.morning": {
+    "capture.photo.a11y": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Good morning"
+            "value": "Your meal photo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bonjour"
+            "value": "La photo de votre repas"
           }
         }
       }
     },
-    "home.greeting.afternoon": {
+    "capture.reading": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Good afternoon"
+            "value": "Your plate, read."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bon après-midi"
+            "value": "Votre assiette, décodée."
           }
         }
       }
     },
-    "home.greeting.evening": {
+    "capture.slow.message": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Good evening"
+            "value": "Your meal is saved. The analysis finishes in the background and shows up in your list."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bonsoir"
+            "value": "Votre repas est enregistré. L'analyse se termine en arrière-plan et apparaît dans votre liste."
           }
         }
       }
     },
-    "home.today": {
+    "capture.slow.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still working on it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toujours en cours"
+          }
+        }
+      }
+    },
+    "capture.step.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        }
+      }
+    },
+    "capture.step.identifying": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading what's on the plate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de l'assiette"
+          }
+        }
+      }
+    },
+    "capture.step.pricing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding calories & macros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajout des calories et macros"
+          }
+        }
+      }
+    },
+    "capture.step.saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal saved"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas enregistré"
+          }
+        }
+      }
+    },
+    "capture.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre repas"
+          }
+        }
+      }
+    },
+    "capture.youSaid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You said"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez dit"
+          }
+        }
+      }
+    },
+    "common.cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        }
+      }
+    },
+    "day.today": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -434,66 +466,466 @@
         }
       }
     },
-    "home.error.title": {
+    "day.yesterday": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't load today"
+            "value": "Yesterday"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de charger la journée"
+            "value": "Hier"
           }
         }
       }
     },
-    "home.notRegistered.title": {
+    "error.forbidden": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Almost there"
+            "value": "You don't have access to this."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presque prêt"
+            "value": "Vous n'avez pas accès à cet élément."
           }
         }
       }
     },
-    "home.notRegistered.message": {
+    "error.generic": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This account isn't linked to a FunctionAlps client profile yet. Finish onboarding on the FunctionAlps web app, then come back."
+            "value": "Something went wrong. Please try again."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce compte n'est pas encore relié à un profil client FunctionAlps. Terminez l'intégration sur l'app web FunctionAlps, puis revenez."
+            "value": "Une erreur s'est produite. Veuillez réessayer."
           }
         }
       }
     },
-    "home.checkin.title": {
+    "error.invalidCredentials": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daily check-in"
+            "value": "Email or password is incorrect."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilan du jour"
+            "value": "E-mail ou mot de passe incorrect."
+          }
+        }
+      }
+    },
+    "error.notFound": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't find what you were looking for."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n'avons pas trouvé ce que vous cherchiez."
+          }
+        }
+      }
+    },
+    "error.offline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You appear to be offline. Check your connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous semblez hors ligne. Vérifiez votre connexion et réessayez."
+          }
+        }
+      }
+    },
+    "error.server": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps is having a problem right now. Please try again shortly."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps rencontre un problème pour le moment. Réessayez dans un instant."
+          }
+        }
+      }
+    },
+    "error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un problème est survenu"
+          }
+        }
+      }
+    },
+    "error.unauthorized": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has expired. Please sign in again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre session a expiré. Veuillez vous reconnecter."
+          }
+        }
+      }
+    },
+    "error.validation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please check what you entered."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez vérifier votre saisie."
+          }
+        }
+      }
+    },
+    "food.describe.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyser"
+          }
+        }
+      }
+    },
+    "food.describe.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The meal slot (breakfast, lunch, snack, dinner) follows the time of day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le créneau (petit-déjeuner, déjeuner, collation, dîner) suit l'heure de la journée."
+          }
+        }
+      }
+    },
+    "food.describe.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. grilled chicken, sweet potato, salad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ex. poulet grillé, patate douce, salade"
+          }
+        }
+      }
+    },
+    "food.describe.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or describe it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou décrivez-le"
+          }
+        }
+      }
+    },
+    "food.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your first plate is one photo away."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre première assiette est à une photo près."
+          }
+        }
+      }
+    },
+    "food.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No meals yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun repas pour l'instant"
+          }
+        }
+      }
+    },
+    "food.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger vos repas"
+          }
+        }
+      }
+    },
+    "food.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition"
+          }
+        }
+      }
+    },
+    "food.photo.camera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prendre une photo"
+          }
+        }
+      }
+    },
+    "food.photo.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        }
+      }
+    },
+    "food.photo.errorTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        }
+      }
+    },
+    "food.photo.headline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snap your plate. We read it for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez votre assiette. On la lit pour vous."
+          }
+        }
+      }
+    },
+    "food.photo.library": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose from library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir dans la photothèque"
+          }
+        }
+      }
+    },
+    "food.photo.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foods, portions, calories, macros and how the meal is likely to sit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments, portions, calories, macros et la façon dont le repas se digère."
+          }
+        }
+      }
+    },
+    "food.photo.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add your meal by photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter votre repas par photo"
+          }
+        }
+      }
+    },
+    "food.photo.unreadable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That photo couldn't be read. Try another one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette photo n'a pas pu être lue. Essayez-en une autre."
+          }
+        }
+      }
+    },
+    "food.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What did you eat?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu'avez-vous mangé ?"
+          }
+        }
+      }
+    },
+    "food.today.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld repas"
+          }
+        }
+      }
+    },
+    "food.today.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today so far"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui jusqu'ici"
           }
         }
       }
@@ -530,114 +962,82 @@
         }
       }
     },
-    "marker.energy": {
+    "home.checkin.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Energy"
+            "value": "Daily check-in"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Énergie"
+            "value": "Bilan du jour"
           }
         }
       }
     },
-    "marker.mood": {
+    "home.error.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mood"
+            "value": "Couldn't load today"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Humeur"
+            "value": "Impossible de charger la journée"
           }
         }
       }
     },
-    "marker.sleep": {
+    "home.greeting.afternoon": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep"
+            "value": "Good afternoon"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil"
+            "value": "Bon après-midi"
           }
         }
       }
     },
-    "marker.calm": {
+    "home.greeting.evening": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calm"
+            "value": "Good evening"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calme"
+            "value": "Bonsoir"
           }
         }
       }
     },
-    "marker.none": {
+    "home.greeting.morning": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "not recorded"
+            "value": "Good morning"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "non renseigné"
-          }
-        }
-      }
-    },
-    "home.meals.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Today's meals"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Repas du jour"
-          }
-        }
-      }
-    },
-    "home.meals.empty.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing logged yet"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rien d'enregistré pour l'instant"
+            "value": "Bonjour"
           }
         }
       }
@@ -658,18 +1058,34 @@
         }
       }
     },
-    "home.messages.unread": {
+    "home.meals.empty.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld unread from your practitioner"
+            "value": "Nothing logged yet"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld message(s) non lu(s) de votre praticien·ne"
+            "value": "Rien d'enregistré pour l'instant"
+          }
+        }
+      }
+    },
+    "home.meals.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas du jour"
           }
         }
       }
@@ -690,34 +1106,322 @@
         }
       }
     },
-    "macros.energy": {
+    "home.messages.unread": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Energy"
+            "value": "%lld unread from your practitioner"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Énergie"
+            "value": "%lld message(s) non lu(s) de votre praticien·ne"
           }
         }
       }
     },
-    "macros.protein": {
+    "home.notRegistered.message": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protein"
+            "value": "This account isn't linked to a FunctionAlps client profile yet. Finish onboarding on the FunctionAlps web app, then come back."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protéines"
+            "value": "Ce compte n'est pas encore relié à un profil client FunctionAlps. Terminez l'intégration sur l'app web FunctionAlps, puis revenez."
+          }
+        }
+      }
+    },
+    "home.notRegistered.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almost there"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presque prêt"
+          }
+        }
+      }
+    },
+    "home.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui"
+          }
+        }
+      }
+    },
+    "login.email": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
+          }
+        }
+      }
+    },
+    "login.errorPrefix": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign-in error:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur de connexion :"
+          }
+        }
+      }
+    },
+    "login.google": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec Google"
+          }
+        }
+      }
+    },
+    "login.headline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Functional Health Space"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre espace de santé fonctionnelle"
+          }
+        }
+      }
+    },
+    "login.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the same account as the FunctionAlps app and members site."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez le même compte que l'app FunctionAlps et l'espace membres."
+          }
+        }
+      }
+    },
+    "login.hidePassword": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer le mot de passe"
+          }
+        }
+      }
+    },
+    "login.or": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "or"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ou"
+          }
+        }
+      }
+    },
+    "login.password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe"
+          }
+        }
+      }
+    },
+    "login.showPassword": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le mot de passe"
+          }
+        }
+      }
+    },
+    "login.submit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        }
+      }
+    },
+    "login.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect what you eat and do to how you feel."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reliez ce que vous mangez et faites à ce que vous ressentez."
+          }
+        }
+      }
+    },
+    "login.technicalDetails": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Technical details (TestFlight only)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails techniques (TestFlight uniquement)"
+          }
+        }
+      }
+    },
+    "login.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        }
+      }
+    },
+    "login.welcomeBack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome back."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content de vous revoir."
+          }
+        }
+      }
+    },
+    "login.welcomeTo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue dans"
+          }
+        }
+      }
+    },
+    "macros.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kilocalories, protein %lld grams, carbs %lld grams, fat %lld grams"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kilocalories, protéines %lld grammes, glucides %lld grammes, lipides %lld grammes"
           }
         }
       }
@@ -734,6 +1438,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Glucides"
+          }
+        }
+      }
+    },
+    "macros.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
           }
         }
       }
@@ -770,6 +1490,38 @@
         }
       }
     },
+    "macros.of": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "of %lld %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sur %lld %@"
+          }
+        }
+      }
+    },
+    "macros.protein": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protéines"
+          }
+        }
+      }
+    },
     "macros.target": {
       "localizations": {
         "en": {
@@ -786,82 +1538,338 @@
         }
       }
     },
-    "meal.type.breakfast": {
+    "marker.calm": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Breakfast"
+            "value": "Calm"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petit-déjeuner"
+            "value": "Calme"
           }
         }
       }
     },
-    "meal.type.lunch": {
+    "marker.energy": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lunch"
+            "value": "Energy"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Déjeuner"
+            "value": "Énergie"
           }
         }
       }
     },
-    "meal.type.dinner": {
+    "marker.mood": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dinner"
+            "value": "Mood"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dîner"
+            "value": "Humeur"
           }
         }
       }
     },
-    "meal.type.snack": {
+    "marker.none": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Snack"
+            "value": "not recorded"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collation"
+            "value": "non renseigné"
           }
         }
       }
     },
-    "meal.type.other": {
+    "marker.sleep": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meal"
+            "value": "Sleep"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repas"
+            "value": "Sommeil"
+          }
+        }
+      }
+    },
+    "meal.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer ce repas"
+          }
+        }
+      }
+    },
+    "meal.delete.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this meal? This can't be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer ce repas ? Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "meal.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load this meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger ce repas"
+          }
+        }
+      }
+    },
+    "meal.item.unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliment"
+          }
+        }
+      }
+    },
+    "meal.items.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the plate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans l'assiette"
+          }
+        }
+      }
+    },
+    "meal.missing.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It may have been deleted."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il a peut-être été supprimé."
+          }
+        }
+      }
+    },
+    "meal.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal not found"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas introuvable"
+          }
+        }
+      }
+    },
+    "meal.note.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter"
+          }
+        }
+      }
+    },
+    "meal.note.edit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier"
+          }
+        }
+      }
+    },
+    "meal.note.limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld"
+          }
+        }
+      }
+    },
+    "meal.note.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How did it feel? Where were you? Anything you want your nutritionist to know."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment l'avez-vous ressenti ? Où étiez-vous ? Tout ce que vous voulez dire à votre nutritionniste."
+          }
+        }
+      }
+    },
+    "meal.note.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In your words"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec vos mots"
+          }
+        }
+      }
+    },
+    "meal.score.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        }
+      }
+    },
+    "meal.score.glycemic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glycemic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glycémie"
+          }
+        }
+      }
+    },
+    "meal.score.inflammation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        }
+      }
+    },
+    "meal.scores.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How this meal reads"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que ce repas révèle"
           }
         }
       }
@@ -882,6 +1890,22 @@
         }
       }
     },
+    "meal.status.analyzingLong": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still being analysed — this page updates by itself."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse en cours — cette page se met à jour toute seule."
+          }
+        }
+      }
+    },
     "meal.status.failed": {
       "localizations": {
         "en": {
@@ -898,114 +1922,146 @@
         }
       }
     },
-    "profile.title": {
+    "meal.status.failedLong": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profile"
+            "value": "The analysis failed. You can delete this meal and log it again."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profil"
+            "value": "L'analyse a échoué. Vous pouvez supprimer ce repas et le réenregistrer."
           }
         }
       }
     },
-    "profile.error.title": {
+    "meal.status.needsInput": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't load your profile"
+            "value": "Needs your input"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de charger votre profil"
+            "value": "Besoin de votre aide"
           }
         }
       }
     },
-    "profile.client": {
+    "meal.status.needsInputLong": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FunctionAlps client"
+            "value": "We couldn't read this meal fully. Log it again with a few words to get the numbers."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Client·e FunctionAlps"
+            "value": "Nous n'avons pas pu lire ce repas entièrement. Enregistrez-le à nouveau avec quelques mots pour obtenir les chiffres."
           }
         }
       }
     },
-    "profile.details": {
+    "meal.type.breakfast": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your baseline"
+            "value": "Breakfast"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre base"
+            "value": "Petit-déjeuner"
           }
         }
       }
     },
-    "profile.age": {
+    "meal.type.dinner": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Age"
+            "value": "Dinner"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Âge"
+            "value": "Dîner"
           }
         }
       }
     },
-    "profile.height": {
+    "meal.type.lunch": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Height"
+            "value": "Lunch"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Taille"
+            "value": "Déjeuner"
           }
         }
       }
     },
-    "profile.weight": {
+    "meal.type.other": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weight"
+            "value": "Meal"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poids"
+            "value": "Repas"
+          }
+        }
+      }
+    },
+    "meal.type.snack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation"
+          }
+        }
+      }
+    },
+    "member.fallbackName": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client"
           }
         }
       }
@@ -1026,50 +2082,34 @@
         }
       }
     },
-    "profile.goal": {
+    "profile.age": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Goal"
+            "value": "Age"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Objectif"
+            "value": "Âge"
           }
         }
       }
     },
-    "profile.diet": {
+    "profile.client": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diet"
+            "value": "FunctionAlps client"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alimentation"
-          }
-        }
-      }
-    },
-    "profile.goals": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Health goals"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Objectifs santé"
+            "value": "Client·e FunctionAlps"
           }
         }
       }
@@ -1090,18 +2130,98 @@
         }
       }
     },
-    "profile.noProfile.title": {
+    "profile.details": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No baseline yet"
+            "value": "Your baseline"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pas encore de base"
+            "value": "Votre base"
+          }
+        }
+      }
+    },
+    "profile.diet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation"
+          }
+        }
+      }
+    },
+    "profile.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger votre profil"
+          }
+        }
+      }
+    },
+    "profile.goal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif"
+          }
+        }
+      }
+    },
+    "profile.goals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs santé"
+          }
+        }
+      }
+    },
+    "profile.height": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Height"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille"
           }
         }
       }
@@ -1118,6 +2238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terminez l'intégration dans FunctionAlps pour voir votre base ici."
+          }
+        }
+      }
+    },
+    "profile.noProfile.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No baseline yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de base"
           }
         }
       }
@@ -1170,18 +2306,34 @@
         }
       }
     },
-    "settings.title": {
+    "profile.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Settings"
+            "value": "Profile"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réglages"
+            "value": "Profil"
+          }
+        }
+      }
+    },
+    "profile.weight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids"
           }
         }
       }
@@ -1198,38 +2350,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "À propos"
-          }
-        }
-      }
-    },
-    "settings.version": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version"
-          }
-        }
-      }
-    },
-    "settings.environment": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Environment"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Environnement"
           }
         }
       }
@@ -1282,146 +2402,258 @@
         }
       }
     },
-    "login.welcomeTo": {
+    "settings.environment": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcome to"
+            "value": "Environment"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bienvenue dans"
+            "value": "Environnement"
           }
         }
       }
     },
-    "login.headline": {
+    "settings.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your Functional Health Space"
+            "value": "Settings"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre espace de santé fonctionnelle"
+            "value": "Réglages"
           }
         }
       }
     },
-    "login.title": {
+    "settings.version": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in"
+            "value": "Version"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se connecter"
+            "value": "Version"
           }
         }
       }
     },
-    "login.welcomeBack": {
+    "state.loading": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcome back."
+            "value": "Loading…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Content de vous revoir."
+            "value": "Chargement…"
           }
         }
       }
     },
-    "login.showPassword": {
+    "tab.food": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show password"
+            "value": "Food"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afficher le mot de passe"
+            "value": "Repas"
           }
         }
       }
     },
-    "login.hidePassword": {
+    "tab.profile": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hide password"
+            "value": "Profile"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Masquer le mot de passe"
+            "value": "Profil"
           }
         }
       }
     },
-    "login.technicalDetails": {
+    "tab.today": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Technical details (TestFlight only)"
+            "value": "Today"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Détails techniques (TestFlight uniquement)"
+            "value": "Aujourd'hui"
           }
         }
       }
     },
-    "login.google": {
+    "verdict.digestion.high": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continue with Google"
+            "value": "Fibre-rich, with good plant variety."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continuer avec Google"
+            "value": "Riche en fibres, avec une bonne variété végétale."
           }
         }
       }
     },
-    "login.or": {
+    "verdict.digestion.low": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "or"
+            "value": "Little fibre or plant variety in this meal."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ou"
+            "value": "Peu de fibres ou de variété végétale dans ce repas."
+          }
+        }
+      }
+    },
+    "verdict.digestion.mid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some fibre and plant variety · one more plant would lift it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un peu de fibres et de végétaux · un végétal de plus l'améliorerait."
+          }
+        }
+      }
+    },
+    "verdict.glycemic.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrate arrives largely with its fibre intact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les glucides arrivent en grande partie avec leurs fibres."
+          }
+        }
+      }
+    },
+    "verdict.glycemic.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrate here is mostly refined or sweetened."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les glucides sont surtout raffinés ou sucrés."
+          }
+        }
+      }
+    },
+    "verdict.glycemic.mid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A mix of intact and refined carbohydrate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mélange de glucides complets et raffinés."
+          }
+        }
+      }
+    },
+    "verdict.inflammation.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat here comes mostly from whole-food sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les graisses viennent surtout d'aliments bruts."
+          }
+        }
+      }
+    },
+    "verdict.inflammation.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat here comes mostly from processed or refined sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les graisses viennent surtout de sources transformées ou raffinées."
+          }
+        }
+      }
+    },
+    "verdict.inflammation.mid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A mixed picture of fat sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des sources de graisses mélangées."
           }
         }
       }

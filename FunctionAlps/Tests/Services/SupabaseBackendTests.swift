@@ -10,7 +10,8 @@ struct SupabaseBackendTests {
         let requester = AuthorizedRequester(sessions: sessions, transport: transport)
         return SupabaseBackend(
             rest: PostgRESTClient(environment: Fixtures.environment, requester: requester),
-            functions: EdgeFunctionClient(environment: Fixtures.environment, requester: requester)
+            functions: EdgeFunctionClient(environment: Fixtures.environment, requester: requester),
+            storage: StorageClient(environment: Fixtures.environment, requester: requester)
         )
     }
 
@@ -45,7 +46,7 @@ struct SupabaseBackendTests {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: """
         [{"id":"m1","logged_at":"2026-09-02T07:15:00+00:00","meal_type":"breakfast","name":"Oats","source":"photo","analysis_status":"complete","total_calories":420.5,"total_protein_g":18,"total_carbs_g":60,"total_fat_g":12,"photo_url":"uid/m1.jpg"},
-         {"id":"m2","logged_at":"2026-09-02T12:05:00+00:00","meal_type":"lunch","name":null,"source":"text","analysis_status":"analyzing","total_calories":null,"total_protein_g":null,"total_carbs_g":null,"total_fat_g":null,"photo_url":null}]
+         {"id":"m2","logged_at":"2026-09-02T12:05:00+00:00","meal_type":"lunch","name":null,"source":"text","analysis_status":"identifying","total_calories":null,"total_protein_g":null,"total_carbs_g":null,"total_fat_g":null,"photo_url":null}]
         """)
         let since = Date(timeIntervalSince1970: 1_788_307_200) // 2026-09-02T00:00:00Z
         let meals = try await make(transport).meals(patientId: "p1", since: since)
@@ -53,7 +54,7 @@ struct SupabaseBackendTests {
         #expect(meals[0].mealType == .breakfast)
         #expect(meals[0].totalCalories == 420.5)
         #expect(meals[0].isAnalysed)
-        #expect(meals[1].analysisStatus == .analyzing)
+        #expect(meals[1].analysisStatus == .identifying)
         #expect(!meals[1].isAnalysed)
         let query = try #require(transport.requests.first?.url.query)
         #expect(query.contains("logged_at=gte.2026-09-02T00:00:00.000Z"))

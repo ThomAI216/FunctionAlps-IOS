@@ -53,6 +53,16 @@ struct PostgRESTClient: Sendable {
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
     }
 
+    /// `DELETE /rest/v1/{table}?{filter}` (RLS limits it to the member's own rows).
+    func delete(_ table: String, query: [URLQueryItem]) async throws {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "return=minimal"
+            return HTTPRequest(.delete, url(table, query: query), headers: h)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+    }
+
     /// Exact row count via `Prefer: count=exact` + `Content-Range` (`0-0/N` or `*/N`).
     func count(_ table: String, query: [URLQueryItem]) async throws -> Int {
         let q = query + [URLQueryItem(name: "select", value: "id"), URLQueryItem(name: "limit", value: "1")]

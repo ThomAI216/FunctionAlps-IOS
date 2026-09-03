@@ -16,6 +16,16 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func meals(patientId: String, since: Date) async throws -> [MealLog] { meals }
     func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? { checkin }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { unread }
+
+    func meal(id: String) async throws -> MealLog? { meals.first { $0.id == id } }
+    func createPendingMeal(_ input: PendingMealInput) async throws -> String { "stub" }
+    func attachMealPhotos(mealId: String, paths: [String]) async throws {}
+    func analyzeMeal(_ request: AnalyzeMealRequest) async throws {}
+    func updateMealNote(mealId: String, note: String?) async throws {}
+    func deleteMeal(id: String) async throws {}
+    func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String { "stub/photo.jpg" }
+    func mealPhotoURL(path: String) async throws -> URL { URL(string: "https://example.invalid/\(path)")! }
+    func removeMealPhotos(paths: [String]) async throws {}
 }
 
 @Suite("MemberService")

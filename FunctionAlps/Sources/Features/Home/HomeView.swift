@@ -136,17 +136,20 @@ struct HomeView: View {
     }
 
     private func mealRow(_ meal: MealLog) -> some View {
-        let title = meal.name ?? meal.mealType?.localizedName ?? String(localized: "meal.type.other", defaultValue: "Meal")
         let subtitle: String = {
-            switch meal.analysisStatus {
-            case .queued, .pending, .analyzing: return String(localized: "meal.status.analyzing", defaultValue: "Analysing…")
+            switch meal.status {
+            case .queued, .identifying, .pricing: return String(localized: "meal.status.analyzing", defaultValue: "Analysing…")
+            case .needsInput: return String(localized: "meal.status.needsInput", defaultValue: "Needs your input")
             case .failed: return String(localized: "meal.status.failed", defaultValue: "Analysis failed")
-            default:
+            case .complete:
                 let kcal = meal.totalCalories.map(Format.kcal) ?? ""
                 return [Format.time(meal.loggedAt), kcal].filter { !$0.isEmpty }.joined(separator: " · ")
             }
         }()
-        return FAListRow(title: title, subtitle: subtitle, systemImage: meal.source == .photo ? "camera" : "text.alignleft")
+        return NavigationLink(value: Route.meal(meal.id)) {
+            FAListRow(title: meal.displayName, subtitle: subtitle, systemImage: meal.source == .photo ? "camera" : "text.alignleft")
+        }
+        .buttonStyle(.plain)
     }
 
     private func messagesCard(_ count: Int) -> some View {

@@ -11,6 +11,7 @@ final class AppDependencies {
     let auth: AuthService
     let members: MemberService
     let dashboard: DashboardService
+    let meals: MealService
 
     init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore) {
         self.environment = environment
@@ -22,11 +23,13 @@ final class AppDependencies {
         let requester = AuthorizedRequester(sessions: sessions, transport: transport)
         let rest = PostgRESTClient(environment: environment, requester: requester)
         let functions = EdgeFunctionClient(environment: environment, requester: requester)
-        let backend = SupabaseBackend(rest: rest, functions: functions)
+        let storage = StorageClient(environment: environment, requester: requester)
+        let backend = SupabaseBackend(rest: rest, functions: functions, storage: storage)
 
         self.auth = AuthService(sessions: sessions, state: state)
         self.members = MemberService(sessions: sessions, backend: backend)
         self.dashboard = DashboardService(backend: backend)
+        self.meals = MealService(backend: backend)
     }
 
     /// Production wiring. Throws only on a misconfigured build (missing xcconfig values).
