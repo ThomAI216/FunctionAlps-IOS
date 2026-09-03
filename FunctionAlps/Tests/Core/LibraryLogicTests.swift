@@ -39,7 +39,7 @@ struct LibraryLogicTests {
         #expect(!LibraryLogic.isTrackUnlocked(gate, stage: .lead, doneBySlug: [:], totalBySlug: [:]))
     }
 
-    @Test func assembleBuildsTracksResourcesAndFailsAccessClosed() {
+    @Test func assembleBuildsTracksResourcesAndFailsAccessClosed() throws {
         var raw = LibraryRaw()
         raw.tracks = [
             LibraryRawTrack(id: "t1", slug: "gut-reset", title: "Gut Reset", description: "d", pillar: "intestin", coverStyle: nil, position: 1, requiresStage: nil, requiresTrackId: nil),
@@ -52,7 +52,7 @@ struct LibraryLogicTests {
             LibraryListRow(slug: "walking", title: "Post-meal walking", summary: "s", publishedAt: nil, tags: ["pillar:intestin", "supplement"], isLocked: true, coverUrl: "javascript:alert(1)"),
         ]
         raw.priorityTrackIds = ["t2", "nope"]
-        let b = try! #require(LibraryLogic.assemble(raw, stage: .lead))
+        let b = try #require(LibraryLogic.assemble(raw, stage: .lead))
         #expect(b.access == .none)
         #expect(b.tracks[0].lessons.map(\.contentSlug) == ["understand", "calm"])
         #expect(b.tracks[0].done == 1 && b.tracks[0].total == 2 && b.tracks[0].state == .inProgress)
@@ -91,14 +91,14 @@ struct LibraryLogicTests {
         if case .image(let src, let alt) = blocks[4] { #expect(src == "https://x/img.png" && alt == "Alt text") } else { Issue.record("image") }
     }
 
-    @Test func readerResolvesLessonsAndLocks() {
+    @Test func readerResolvesLessonsAndLocks() throws {
         let bundle = LibraryDemo.bundle
         let row = LibraryGetRow(title: "Calm the fire", tags: ["pair:demo-gut-reset-1"], bodyMd: "body", locked: false)
-        let r = try! #require(LibraryLogic.reader(slug: "demo-gut-reset-2", bundle: bundle, row: row))
+        let r = try #require(LibraryLogic.reader(slug: "demo-gut-reset-2", bundle: bundle, row: row))
         #expect(r.kind == .lesson && r.track?.index == 1 && r.track?.total == 6 && r.bodyMd == "body")
         #expect(r.pair?.title == "Understand your gut")
         let locked = LibraryGetRow(title: "X", tags: [], bodyMd: nil, locked: true)
-        let res = try! #require(LibraryLogic.reader(slug: "unknown", bundle: bundle, row: locked))
+        let res = try #require(LibraryLogic.reader(slug: "unknown", bundle: bundle, row: locked))
         #expect(res.kind == .resource && res.locked && res.lockReason == .programme)
         #expect(LibraryLogic.reader(slug: "unknown", bundle: bundle, row: nil) == nil)
         #expect(LibraryLogic.completionCheck(bundle: bundle, trackSlug: "demo-gut-reset", contentSlug: "demo-gut-reset-1") == .ok)

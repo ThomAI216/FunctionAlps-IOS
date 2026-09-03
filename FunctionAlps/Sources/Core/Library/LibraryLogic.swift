@@ -262,12 +262,12 @@ enum LibraryLogic {
             if let i = t.lessons.firstIndex(where: { $0.contentSlug == slug }) { hit = (t, i); break }
         }
         let tags = row?.tags ?? []
-        let pairSlug = pairSlug(fromTags: tags)
+        let companion = Self.pairSlug(fromTags: tags)
         var pair: ReaderResult.Pair?
-        if let pairSlug {
-            let lessonTitle = bundle?.tracks.flatMap(\.lessons).first { $0.contentSlug == pairSlug }?.title
-            let resourceTitle = bundle?.resources.first { $0.slug == pairSlug }?.title
-            pair = ReaderResult.Pair(slug: pairSlug, title: lessonTitle ?? resourceTitle ?? title(fromSlug: pairSlug))
+        if let companion {
+            let lessonTitle = bundle?.tracks.flatMap(\.lessons).first { $0.contentSlug == companion }?.title
+            let resourceTitle = bundle?.resources.first { $0.slug == companion }?.title
+            pair = ReaderResult.Pair(slug: companion, title: lessonTitle ?? resourceTitle ?? Self.title(fromSlug: companion))
         }
 
         if let hit {

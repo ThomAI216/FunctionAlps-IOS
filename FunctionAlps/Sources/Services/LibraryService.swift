@@ -19,23 +19,23 @@ struct LibraryService: Sendable {
     }
 
     func bundle(patientId: String) async -> LibraryBundle? {
-        let stage = await stage()
+        let current = await stage()
         guard let raw = try? await backend.libraryRaw(patientId: patientId) else { return nil }
-        return LibraryLogic.assemble(raw, stage: stage)
+        return LibraryLogic.assemble(raw, stage: current)
     }
 
     func reader(slug: String, patientId: String) async -> ReaderResult? {
         if slug.hasPrefix("demo-") { return LibraryDemo.reader(slug: slug) }
-        let bundle = await bundle(patientId: patientId)
+        let loaded = await bundle(patientId: patientId)
         let row = try? await backend.libraryItem(slug: slug)
-        return LibraryLogic.reader(slug: slug, bundle: bundle, row: row)
+        return LibraryLogic.reader(slug: slug, bundle: loaded, row: row)
     }
 
     /// Same rule as the members `completeLesson`: only the first open lesson of an unlocked track.
     func completeLesson(patientId: String, trackSlug: String, contentSlug: String) async -> LibraryLogic.CompleteOutcome {
-        let bundle = await bundle(patientId: patientId)
-        if let settled = LibraryLogic.completionCheck(bundle: bundle, trackSlug: trackSlug, contentSlug: contentSlug) { return settled }
-        guard let track = bundle?.tracks.first(where: { $0.slug == trackSlug }) else { return .notCurrent }
+        let loaded = await bundle(patientId: patientId)
+        if let settled = LibraryLogic.completionCheck(bundle: loaded, trackSlug: trackSlug, contentSlug: contentSlug) { return settled }
+        guard let track = loaded?.tracks.first(where: { $0.slug == trackSlug }) else { return .notCurrent }
         do {
             try await backend.insertLessonProgress(patientId: patientId, trackId: track.id, contentSlug: contentSlug)
             return .ok
