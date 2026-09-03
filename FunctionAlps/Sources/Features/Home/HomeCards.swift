@@ -207,7 +207,7 @@ struct CheckinPulseCard: View {
     }
 
     var body: some View {
-        FACard(padded: false, glass: .clear) {
+        FACard(padded: false) {
             GeometryReader { geo in
                 let w = geo.size.width, h = geo.size.height
                 ZStack(alignment: .bottom) {

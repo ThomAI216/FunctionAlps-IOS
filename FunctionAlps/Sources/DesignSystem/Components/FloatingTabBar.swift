@@ -53,16 +53,18 @@ struct FloatingTabBar: View {
     }
 }
 
-/// The pill's glass: Liquid Glass on iOS 26, the web's frosted white recipe before it.
+/// The pill's glass: the same see-through glass as `FACard` (clear Liquid Glass on iOS 26, the
+/// web's frosted white recipe before it) — never the tinted/regular variant, which iOS 26 renders
+/// as an opaque grey slab over the Sage wall.
 private struct FATabBarGlass: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content
-                .glassEffect(.regular.tint(Color.white.opacity(0.25)).interactive(), in: Capsule())
-                .shadow(color: .black.opacity(0.18), radius: 14, y: 8)
+                .glassEffect(.clear.interactive(), in: Capsule())
+                .shadow(color: .black.opacity(0.12), radius: 14, y: 8)
         } else {
             content
-                .background(Color.white.opacity(0.45), in: Capsule())
+                .background(Color.white.opacity(0.20), in: Capsule())
                 .overlay { Capsule().strokeBorder(Color.white.opacity(0.55), lineWidth: 1) }
                 .shadow(color: .black.opacity(0.28), radius: 14, y: 8)
         }

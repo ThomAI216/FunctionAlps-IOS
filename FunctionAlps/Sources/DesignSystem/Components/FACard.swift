@@ -1,40 +1,37 @@
 import SwiftUI
 
-/// The web app's `GlassCard` (liquid, light treatment) in native materials: blurred backdrop,
-/// white 50 % tint, radius 25, a glossy shine bevel (bright top-left → faint bottom-right) and a
-/// soft drop shadow. Every card in the app is this surface.
+/// Every card in the app is this surface, and this surface is always the see-through glass:
+/// on iOS 26 it is Apple's clear Liquid Glass (the Sage wall and its dots show through, the
+/// pane refracts what is behind it); before iOS 26 it is the web `GlassCard` "seethrough"
+/// recipe (a faint white veil + shine bevel), never an opaque material. There is deliberately
+/// no opaque or tinted variant — the owner's rule (2026-09-03) is that all cards on every screen,
+/// including future ones, and the floating tab bar use exactly this glass.
 struct FACard<Content: View>: View {
     var padded = true
-    /// `.clear` = fully see-through (the web's "seethrough" recipe); `.regular` = the light liquid glass.
-    var glass: FAGlassKind = .regular
     @ViewBuilder let content: Content
 
     var body: some View {
         content
             .padding(padded ? 18 : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .modifier(FAGlassSurface(kind: glass, cornerRadius: FACornerRadius.glass))
+            .modifier(FAGlassSurface(cornerRadius: FACornerRadius.glass))
     }
 }
 
-/// `.clear` = fully see-through (the web's "seethrough" recipe); `.regular` = the light liquid glass.
-enum FAGlassKind { case regular, clear }
-
-/// The glass itself. On iOS 26 this is Apple's Liquid Glass (real refraction of the wall behind);
-/// earlier systems get the web recipe (white tint + shine bevel) with no opaque material.
+/// The glass itself — the one recipe shared by cards and the tab bar. Use this modifier (or
+/// `FACard`) for any new surface; never `.ultraThinMaterial`, `.regularMaterial` or a solid fill.
 struct FAGlassSurface: ViewModifier {
-    let kind: FAGlassKind
     let cornerRadius: CGFloat
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         if #available(iOS 26.0, *) {
             content
-                .glassEffect(kind == .clear ? .clear : .regular.tint(Color.white.opacity(0.22)), in: shape)
-                .shadow(color: .black.opacity(kind == .clear ? 0.10 : 0.16), radius: 14, y: 8)
+                .glassEffect(.clear, in: shape)
+                .shadow(color: .black.opacity(0.10), radius: 14, y: 8)
         } else {
             content
-                .background(Color.white.opacity(kind == .clear ? 0.20 : 0.42), in: shape)
+                .background(Color.white.opacity(0.20), in: shape)
                 .overlay {
                     shape.strokeBorder(
                         LinearGradient(colors: [Color.white.opacity(0.72), Color.white.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing),

@@ -65,6 +65,8 @@ validation · invalidCredentials · server · decoding · network · configurati
 (teal `#0D9488` brand — the Expo splash/notification colour) and are corrected from
 the theme audit in `APP_MAP.md`.
 
+- **Glass rule (owner, 2026-09-03):** every card on every screen — and the floating tab bar — is the see-through glass, and only that: `FACard` / `FAGlassSurface` (clear Liquid Glass on iOS 26, the web `GlassCard` "seethrough" veil before it). No `.regularMaterial`/`.ultraThinMaterial`, no tinted `.regular` glass (iOS 26 renders it as an opaque grey slab over the Sage wall), no solid card fills. New screens get the wall (`.faWall()`) + `FACard`s, nothing else.
+
 ## 7. Environments (PRD §31)
 `Config/{Development,Staging,Production}.xcconfig` → Info.plist → `AppEnvironment`.
 Only non-secret values. Staging currently points at CM OS because no staging project
