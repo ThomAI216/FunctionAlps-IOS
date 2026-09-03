@@ -48,24 +48,23 @@ struct FloatingTabBar: View {
         }
         .padding(.horizontal, 14)
         .frame(height: 66)
-        .background {
-            ZStack {
-                Rectangle().fill(.regularMaterial)
-                Color.white.opacity(0.38)
-            }
-        }
-        .clipShape(Capsule())
-        .overlay {
-            Capsule().strokeBorder(Color.white.opacity(0.55), lineWidth: 1)
-        }
-        .overlay {
-            // the lit inner rim (the web's three white inset shadows)
-            Capsule()
-                .strokeBorder(LinearGradient(colors: [Color.white.opacity(0.45), Color.white.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 3)
-                .blur(radius: 3)
-                .clipShape(Capsule())
-        }
-        .shadow(color: .black.opacity(0.32), radius: 14, y: 8)
+        .modifier(FATabBarGlass())
         .padding(.horizontal, 16)
+    }
+}
+
+/// The pill's glass: Liquid Glass on iOS 26, the web's frosted white recipe before it.
+private struct FATabBarGlass: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular.tint(Color.white.opacity(0.25)).interactive(), in: Capsule())
+                .shadow(color: .black.opacity(0.18), radius: 14, y: 8)
+        } else {
+            content
+                .background(Color.white.opacity(0.45), in: Capsule())
+                .overlay { Capsule().strokeBorder(Color.white.opacity(0.55), lineWidth: 1) }
+                .shadow(color: .black.opacity(0.28), radius: 14, y: 8)
+        }
     }
 }

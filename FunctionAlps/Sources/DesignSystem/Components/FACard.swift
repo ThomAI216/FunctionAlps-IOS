@@ -5,27 +5,43 @@ import SwiftUI
 /// soft drop shadow. Every card in the app is this surface.
 struct FACard<Content: View>: View {
     var padded = true
+    /// `.clear` = fully see-through (the web's "seethrough" recipe); `.regular` = the light liquid glass.
+    var glass: GlassKind = .regular
     @ViewBuilder let content: Content
+
+    enum GlassKind { case regular, clear }
 
     var body: some View {
         content
             .padding(padded ? 18 : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                ZStack {
-                    Rectangle().fill(.ultraThinMaterial)
-                    Color.white.opacity(0.5)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous)
-                    .strokeBorder(
+            .modifier(FAGlassSurface(kind: glass, cornerRadius: FACornerRadius.glass))
+    }
+}
+
+/// The glass itself. On iOS 26 this is Apple's Liquid Glass (real refraction of the wall behind);
+/// earlier systems get the web recipe (white tint + shine bevel) with no opaque material.
+struct FAGlassSurface: ViewModifier {
+    let kind: FACard<EmptyView>.GlassKind
+    let cornerRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(kind == .clear ? .clear : .regular.tint(Color.white.opacity(0.22)), in: shape)
+                .shadow(color: .black.opacity(kind == .clear ? 0.10 : 0.16), radius: 14, y: 8)
+        } else {
+            content
+                .background(Color.white.opacity(kind == .clear ? 0.20 : 0.42), in: shape)
+                .overlay {
+                    shape.strokeBorder(
                         LinearGradient(colors: [Color.white.opacity(0.72), Color.white.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing),
                         lineWidth: 1.5
                     )
-            }
-            .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
+                }
+                .shadow(color: .black.opacity(0.18), radius: 14, y: 8)
+        }
     }
 }
 

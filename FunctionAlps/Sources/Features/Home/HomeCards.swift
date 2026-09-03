@@ -98,9 +98,9 @@ struct MealScanCard: View {
     @State private var scan: CGFloat = 0
     @State private var beat: Double = 0
     private static let chips: [(name: String, kcal: String, top: CGFloat, left: CGFloat?, right: CGFloat?)] = [
-        ("Avocado · 70 g", "112 kcal", 0.10, 12, nil),
-        ("Salmon · 120 g", "250 kcal", 0.37, nil, 10),
-        ("Rice · 90 g", "117 kcal", 0.64, 20, nil),
+        ("Avocado · 70 g", "112 kcal", 0.08, 12, nil),
+        ("Salmon · 120 g", "250 kcal", 0.30, nil, 10),
+        ("Rice · 90 g", "117 kcal", 0.52, 14, nil),
     ]
     private static let wheels: [(type: String, value: Int, color: Color)] = [
         ("inflammation", 72, FAColor.scoreInflammation), ("glycemic", 64, FAColor.scoreGlycemic), ("digestion", 81, FAColor.scoreDigestion),
@@ -112,9 +112,13 @@ struct MealScanCard: View {
             let band = max(1, h * 0.42)
             ZStack(alignment: .bottom) {
                 Color(hex: 0x1B1A17)
-                FABundledImage(name: "plate-demo", ext: "jpg")
-                    .frame(width: geo.size.width, height: h)
-                    .clipped()
+                if let plate = FAMedia.image("plate-demo", ext: "jpg") {
+                    Image(uiImage: plate)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: h)
+                        .clipped()
+                }
                 LinearGradient(colors: [Self.green(0), Self.green(0.22), Color.white.opacity(0.5), Self.green(0.22), Self.green(0)], startPoint: .top, endPoint: .bottom)
                     .frame(height: band)
                     .frame(maxHeight: .infinity, alignment: .top)
@@ -145,7 +149,7 @@ struct MealScanCard: View {
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, h * 0.55)
+                .padding(.top, h * 0.66)
                 LinearGradient(colors: [.black.opacity(0), .black.opacity(0.62)], startPoint: .top, endPoint: .bottom)
                     .frame(height: 64)
                     .overlay(alignment: .bottom) {
@@ -153,6 +157,8 @@ struct MealScanCard: View {
                             Text(String(localized: "home.logMeal", defaultValue: "Log a meal"))
                                 .font(FATypography.display(17, relativeTo: .headline))
                                 .foregroundStyle(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                             Spacer()
                             Text("›").font(FATypography.sans(16, .bold)).foregroundStyle(.white.opacity(0.8))
                         }
@@ -208,7 +214,7 @@ struct CheckinPulseCard: View {
     }
 
     var body: some View {
-        FACard(padded: false) {
+        FACard(padded: false, glass: .clear) {
             GeometryReader { geo in
                 let w = geo.size.width, h = geo.size.height
                 ZStack(alignment: .bottom) {
@@ -233,6 +239,8 @@ struct CheckinPulseCard: View {
                         Text(String(localized: "home.checkIn", defaultValue: "Check-In"))
                             .font(FATypography.display(17, relativeTo: .headline))
                             .foregroundStyle(FAColor.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         Spacer()
                         Text("›").font(FATypography.sans(16, .bold)).foregroundStyle(FAColor.inkSecondary)
                     }
