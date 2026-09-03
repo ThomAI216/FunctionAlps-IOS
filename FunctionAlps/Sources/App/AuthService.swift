@@ -24,7 +24,7 @@ final class AuthService {
     }
 
     func signIn(email: String, password: String) async throws {
-        let session = try await sessions.signIn(email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), password: password)
+        let session = try await sessions.signIn(email: EmailNormalizer.normalize(email), password: password)
         state.phase = .signedIn(userId: session.userId)
     }
 

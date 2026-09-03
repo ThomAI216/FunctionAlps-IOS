@@ -27,10 +27,7 @@ struct LaunchView: View {
         ZStack {
             FAColor.background.ignoresSafeArea()
             VStack(spacing: FASpacing.md) {
-                FABrandMark(size: 64)
-                Text("FunctionAlps")
-                    .font(FATypography.title)
-                    .foregroundStyle(FAColor.ink)
+                FALogo(height: 96)
                 ProgressView()
                     .tint(FAColor.brand)
                     .padding(.top, FASpacing.lg)
