@@ -39,6 +39,11 @@ protocol FunctionAlpsBackend: Sendable {
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry?
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws
+
+    // MARK: Scores (server-side engine)
+
+    /// `member-scores` for the signed-in member; `tzOffsetMinutes` = minutes east of UTC on this device.
+    func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores
 }
 
 struct PendingMealInput: Sendable, Equatable {

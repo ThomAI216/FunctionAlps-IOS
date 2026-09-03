@@ -45,6 +45,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func removeMealPhotos(paths: [String]) async throws { record("removePhotos:\(paths.joined(separator: ","))") }
 
     func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] { [] }
+    func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores { throw AppError.notFound }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

@@ -3,22 +3,15 @@ import SwiftUI
 // The Home screen's cards, matching the web app's `app/(tabs)/index.tsx` and
 // `lib/components/home/*` card for card.
 
-/// Functional hero: the ring with the day's read, 14 thin day bars, three hashed marker lines.
+/// Functional hero (web `index.tsx`): the crown ring with the server composite, 14 day bars from the
+/// same composite series, and the three pillar lines.
 struct FunctionalHeroCard: View {
     let today: TodaySnapshot
     static let green = Color(hex: 0x8FBF97)
 
-    private var value: Int? { today.checkin?.functionalMean }
-    private var series: [Int?] {
-        // 14 slots ending today; a day without a check-in is a gap, never a zero.
-        let byDay = Dictionary(uniqueKeysWithValues: today.history.map { ($0.day, $0.functionalMean) })
-        let cal = Calendar.current
-        let end = ISO8601.parse(today.day + "T00:00:00Z").map { cal.startOfDay(for: $0) } ?? Date()
-        return (0..<14).reversed().map { back in
-            let d = cal.date(byAdding: .day, value: -back, to: end) ?? end
-            return byDay[ISO8601.dayString(d, calendar: cal)] ?? nil
-        }
-    }
+    private var scores: MemberScores? { today.scores }
+    private var value: Int? { scores?.composite.intScore }
+    private var series: [Int?] { scores?.crownSeries ?? Array(repeating: nil, count: 14) }
 
     var body: some View {
         FACard {
@@ -29,7 +22,7 @@ struct FunctionalHeroCard: View {
                             Text(value.map(String.init) ?? "·")
                                 .font(FATypography.display(32, relativeTo: .title))
                                 .foregroundStyle(FAColor.ink)
-                            Text(String(localized: "home.hero.today", defaultValue: "Today").uppercased())
+                            Text(String(localized: "home.hero.functional", defaultValue: "Functional").uppercased())
                                 .font(FATypography.sans(7.5, .bold, relativeTo: .caption2))
                                 .tracking(1.2)
                                 .foregroundStyle(FAColor.inkSecondary)
@@ -40,16 +33,16 @@ struct FunctionalHeroCard: View {
                 .frame(maxWidth: .infinity)
                 .layoutPriority(0)
                 VStack(alignment: .leading, spacing: 14) {
-                    markerLine(String(localized: "marker.sleep", defaultValue: "Sleep"), today.checkin?.sleep, Color(hex: 0xA6C2E0))
-                    markerLine(String(localized: "marker.energy", defaultValue: "Energy"), today.checkin?.energy, Color(hex: 0xE6CF85))
-                    markerLine(String(localized: "marker.mood", defaultValue: "Mood"), today.checkin?.mood, Color(hex: 0xE0A0A0))
+                    ForEach(MemberScores.Pillar.allCases, id: \.self) { pillar in
+                        markerLine(pillar.title, scores?.breakdown(pillar).intScore, Color(hex: pillar.tintHex))
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .layoutPriority(1)
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "home.hero.a11y", defaultValue: "Today's functional read \(value.map(String.init) ?? "not recorded")"))
+        .accessibilityLabel(String(localized: "home.hero.a11y", defaultValue: "Functional score \(value.map(String.init) ?? "not yet available")"))
     }
 
     private func markerLine(_ name: String, _ value: Int?, _ color: Color) -> some View {

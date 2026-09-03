@@ -36,12 +36,8 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.home)
 
             NavigationStack(path: $router.trendsPath) {
-                ComingSoonView(
-                    title: String(localized: "trends.title", defaultValue: "Trends"),
-                    message: String(localized: "trends.soon", defaultValue: "Your Functional Score, pillars and 14-day trends arrive here once the scoring engine moves to the server — the same numbers on every device."),
-                    systemImage: "chart.line.uptrend.xyaxis"
-                )
-                .toolbar(.hidden, for: .tabBar)
+                TrendsView()
+                    .toolbar(.hidden, for: .tabBar)
                 .navigationDestination(for: Route.self, destination: destination)
             }
             .tag(AppRouter.Tab.trends)

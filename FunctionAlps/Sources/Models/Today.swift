@@ -11,6 +11,8 @@ struct TodaySnapshot: Sendable, Equatable {
     var moments: [CheckinMoment] = []
     /// The last 14 day rows (oldest first, today included when it exists) — the Home history bars.
     var history: [DailyCheckin] = []
+    /// Server-computed scores; nil when the engine could not be reached (Home still renders).
+    var scores: MemberScores? = nil
 
     var totalCalories: Double { meals.compactMap(\.totalCalories).reduce(0, +) }
     var totalProteinG: Double { meals.compactMap(\.totalProteinG).reduce(0, +) }

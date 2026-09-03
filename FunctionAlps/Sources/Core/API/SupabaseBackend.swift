@@ -453,6 +453,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.insertRows("nb_checkin_events", body: rows)
     }
 
+    // MARK: Scores (edge function member-scores)
+
+    private struct ScoresBody: Encodable, Sendable { let tzOffsetMinutes: Int }
+
+    func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores {
+        try await functions.invoke("member-scores", body: ScoresBody(tzOffsetMinutes: tzOffsetMinutes), snakeCase: false)
+    }
+
     // MARK: Daily check-in (patient_daily_checkins)
 
     private struct CheckinRow: Decodable, Sendable {

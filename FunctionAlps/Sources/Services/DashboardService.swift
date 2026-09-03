@@ -22,6 +22,8 @@ struct DashboardService: Sendable {
         async let moments = backend.checkinMoments(patientId: patientId, day: day)
         let since = ISO8601.dayString(calendar.date(byAdding: .day, value: -13, to: current) ?? current, calendar: calendar)
         async let history = backend.dailyCheckins(patientId: patientId, since: since)
-        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history)
+        // Best-effort: a scoring hiccup must never blank Home.
+        async let scores: MemberScores? = { try? await backend.memberScores(tzOffsetMinutes: calendar.timeZone.secondsFromGMT(for: current) / 60) }()
+        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history, scores: scores)
     }
 }

@@ -13,6 +13,8 @@ final class AppDependencies {
     let dashboard: DashboardService
     let meals: MealService
     let checkins: CheckinService
+    /// The domain seam, for screens that read a single server-computed object (Trends).
+    let backend: any FunctionAlpsBackend
 
     init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore) {
         self.environment = environment
@@ -32,6 +34,7 @@ final class AppDependencies {
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend)
         self.checkins = CheckinService(backend: backend)
+        self.backend = backend
     }
 
     /// Production wiring. Throws only on a misconfigured build (missing xcconfig values).
