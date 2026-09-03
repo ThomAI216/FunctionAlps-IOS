@@ -36,6 +36,40 @@ struct SupabaseAuthClient: Sendable {
         return try Self.session(from: response.body)
     }
 
+    /// The custom-scheme URL Supabase redirects to after a browser sign-in.
+    /// Must be listed under Authentication → URL Configuration → Redirect URLs.
+    static let oauthRedirectURL = URL(string: "functionalps://auth/callback")!
+
+    /// Browser URL for an OAuth provider (Google) using PKCE.
+    func authorizeURL(provider: String, codeChallenge: String) -> URL {
+        endpoint("authorize", query: [
+            URLQueryItem(name: "provider", value: provider),
+            URLQueryItem(name: "redirect_to", value: Self.oauthRedirectURL.absoluteString),
+            URLQueryItem(name: "code_challenge", value: codeChallenge),
+            URLQueryItem(name: "code_challenge_method", value: "s256"),
+        ])
+    }
+
+    /// Exchanges the `code` from the redirect for a session (PKCE).
+    func exchangeCode(_ authCode: String, codeVerifier: String) async throws -> AuthSession {
+        struct Body: Encodable { let authCode: String; let codeVerifier: String }
+        let url = endpoint("token", query: [URLQueryItem(name: "grant_type", value: "pkce")])
+        let request = try HTTPRequest.json(.post, url, headers: baseHeaders(), body: Body(authCode: authCode, codeVerifier: codeVerifier))
+        let response = try await transport.send(request)
+        guard response.isSuccess else { throw Self.mapAuthError(response) }
+        return try Self.session(from: response.body)
+    }
+
+    /// Native Sign in with Apple: the identity token + the raw nonce used in the request.
+    func signInWithIdToken(provider: String, idToken: String, nonce: String?) async throws -> AuthSession {
+        struct Body: Encodable { let provider: String; let idToken: String; let nonce: String? }
+        let url = endpoint("token", query: [URLQueryItem(name: "grant_type", value: "id_token")])
+        let request = try HTTPRequest.json(.post, url, headers: baseHeaders(), body: Body(provider: provider, idToken: idToken, nonce: nonce))
+        let response = try await transport.send(request)
+        guard response.isSuccess else { throw Self.mapAuthError(response) }
+        return try Self.session(from: response.body)
+    }
+
     func signOut(accessToken: String) async throws {
         let request = HTTPRequest(.post, endpoint("logout"), headers: baseHeaders(bearer: accessToken))
         let response = try await transport.send(request)

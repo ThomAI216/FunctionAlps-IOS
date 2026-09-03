@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 
 /// Mirrors the Expo app's `(auth)/login` look: cream page, the mitochondria
@@ -97,8 +98,12 @@ struct LoginView: View {
                 .foregroundStyle(stoneLight)
                 .padding(.top, 4)
 
+            socialButtons(model)
+                .padding(.top, 18)
+            orDivider
+                .padding(.vertical, 14)
+
             fieldLabel(String(localized: "login.email", defaultValue: "Email"))
-                .padding(.top, 20)
             field {
                 TextField("", text: $model.email)
                     .textContentType(.emailAddress)
@@ -169,6 +174,48 @@ struct LoginView: View {
         .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Color.white.opacity(0.6), lineWidth: 1))
         .shadow(color: FAColor.forest.opacity(0.18), radius: 24, y: 12)
+    }
+
+    private func socialButtons(_ model: LoginViewModel) -> some View {
+        VStack(spacing: 10) {
+            Button {
+                Task { await model.signInWithGoogle() }
+            } label: {
+                HStack(spacing: 10) {
+                    Image("GoogleG").resizable().frame(width: 18, height: 18)
+                    Text(String(localized: "login.google", defaultValue: "Continue with Google"))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(dark)
+                }
+                .frame(maxWidth: .infinity, minHeight: 46)
+                .background(Color.white, in: Capsule())
+                .overlay(Capsule().strokeBorder(fieldBorder, lineWidth: 1))
+            }
+            .disabled(model.isSocialBusy)
+
+            SignInWithAppleButton(.continue) { request in
+                model.prepareAppleRequest(request)
+            } onCompletion: { result in
+                Task { await model.completeAppleSignIn(result) }
+            }
+            .signInWithAppleButtonStyle(.black)
+            .frame(height: 46)
+            .clipShape(Capsule())
+            .disabled(model.isSocialBusy)
+        }
+        .overlay {
+            if model.isSocialBusy { ProgressView().tint(forestS) }
+        }
+    }
+
+    private var orDivider: some View {
+        HStack(spacing: 10) {
+            Rectangle().fill(Color.black.opacity(0.08)).frame(height: 1)
+            Text(String(localized: "login.or", defaultValue: "or"))
+                .font(.system(size: 12))
+                .foregroundStyle(stoneLight)
+            Rectangle().fill(Color.black.opacity(0.08)).frame(height: 1)
+        }
     }
 
     private func fieldLabel(_ text: String) -> some View {

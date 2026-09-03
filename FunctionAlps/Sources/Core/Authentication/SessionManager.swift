@@ -36,6 +36,27 @@ actor SessionManager {
         return fresh
     }
 
+    /// Completes a browser (PKCE) sign-in with the redirect's `code`.
+    func signIn(authCode: String, codeVerifier: String) async throws -> AuthSession {
+        let fresh = try await auth.exchangeCode(authCode, codeVerifier: codeVerifier)
+        try persist(fresh)
+        Log.auth.info("signed in via OAuth user \(fresh.userId.prefix(8), privacy: .public)…")
+        return fresh
+    }
+
+    /// Completes a native Sign in with Apple.
+    func signIn(appleIdentityToken: String, nonce: String) async throws -> AuthSession {
+        let fresh = try await auth.signInWithIdToken(provider: "apple", idToken: appleIdentityToken, nonce: nonce)
+        try persist(fresh)
+        Log.auth.info("signed in via Apple user \(fresh.userId.prefix(8), privacy: .public)…")
+        return fresh
+    }
+
+    /// Builds the Google authorize URL (the caller keeps the verifier for the exchange).
+    func googleAuthorizeURL(codeChallenge: String) -> URL {
+        auth.authorizeURL(provider: "google", codeChallenge: codeChallenge)
+    }
+
     /// Best-effort server logout, then always clears local state.
     func signOut() async {
         if let session {

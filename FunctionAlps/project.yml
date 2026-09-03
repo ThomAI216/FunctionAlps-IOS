@@ -56,6 +56,9 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIRequiresFullScreen: true
         CFBundleIconName: AppIcon
+        CFBundleURLTypes:
+          - CFBundleURLName: com.functionalps.patient
+            CFBundleURLSchemes: [functionalps]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
@@ -66,6 +69,10 @@ targets:
         FA_API_BASE_URL: $(FA_API_BASE_URL)
         FA_SUPABASE_URL: $(FA_SUPABASE_URL)
         FA_SUPABASE_PUBLISHABLE_KEY: $(FA_SUPABASE_PUBLISHABLE_KEY)
+    entitlements:
+      path: Sources/Resources/FunctionAlps.entitlements
+      properties:
+        com.apple.developer.applesignin: [Default]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(FA_BUNDLE_ID)

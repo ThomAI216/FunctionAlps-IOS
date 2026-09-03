@@ -28,6 +28,22 @@ final class AuthService {
         state.phase = .signedIn(userId: session.userId)
     }
 
+    /// Google via the system browser sheet + PKCE. Throws `WebAuthenticator.WebAuthError.cancelled` on dismiss.
+    func signInWithGoogle() async throws {
+        let verifier = PKCE.codeVerifier()
+        let url = await sessions.googleAuthorizeURL(codeChallenge: PKCE.codeChallenge(for: verifier))
+        let callback = try await WebAuthenticator().authenticate(url: url, callbackScheme: "functionalps")
+        let code = try OAuthCallback.code(from: callback)
+        let session = try await sessions.signIn(authCode: code, codeVerifier: verifier)
+        state.phase = .signedIn(userId: session.userId)
+    }
+
+    /// Native Sign in with Apple: pass the identity token and the raw nonce used for the request.
+    func signInWithApple(identityToken: String, nonce: String) async throws {
+        let session = try await sessions.signIn(appleIdentityToken: identityToken, nonce: nonce)
+        state.phase = .signedIn(userId: session.userId)
+    }
+
     func signOut() async {
         await sessions.signOut()
         state.phase = .signedOut

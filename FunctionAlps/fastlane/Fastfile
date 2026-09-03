@@ -21,7 +21,7 @@ platform :ios do
     # through the API key and stores them in the certificates repo; later runs reuse.
     # fastlane forces readonly on CI by default; the first run must be allowed to
     # create the certificate + profile, later runs simply reuse what is in the repo.
-    match(type: "appstore", api_key: api_key, app_identifier: [BUNDLE_ID], readonly: false)
+    match(type: "appstore", api_key: api_key, app_identifier: [BUNDLE_ID], readonly: false, force: true) # force: profile picks up capability changes (Sign in with Apple)
 
     update_code_signing_settings(
       path: PROJECT,
