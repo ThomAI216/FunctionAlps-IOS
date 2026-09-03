@@ -1906,6 +1906,22 @@
         }
       }
     },
+    "home.checkIn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-In"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire le point"
+          }
+        }
+      }
+    },
     "home.checkin.again": {
       "localizations": {
         "en": {
@@ -2082,6 +2098,54 @@
         }
       }
     },
+    "home.hero.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's functional read %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture fonctionnelle du jour %@"
+          }
+        }
+      }
+    },
+    "home.hero.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui"
+          }
+        }
+      }
+    },
+    "home.logMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log a meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer un repas"
+          }
+        }
+      }
+    },
     "home.meals.empty.message": {
       "localizations": {
         "en": {
@@ -2130,6 +2194,22 @@
         }
       }
     },
+    "home.messages.ask": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire à votre nutritionniste"
+          }
+        }
+      }
+    },
     "home.messages.hint": {
       "localizations": {
         "en": {
@@ -2142,6 +2222,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "À lire dans l'app FunctionAlps pour l'instant"
+          }
+        }
+      }
+    },
+    "home.messages.human": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A real person answers"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une vraie personne vous répond"
+          }
+        }
+      }
+    },
+    "home.messages.read": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez pour lire"
+          }
+        }
+      }
+    },
+    "home.messages.replied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your nutritionist replied"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nutritionniste a répondu"
           }
         }
       }
@@ -2206,6 +2334,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aujourd'hui"
+          }
+        }
+      }
+    },
+    "library.soon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracks, lessons and the reader are the next slice. Your progress from the web app carries over."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les parcours, les leçons et le lecteur arrivent à l'étape suivante. Votre progression de l'app web est conservée."
+          }
+        }
+      }
+    },
+    "library.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
           }
         }
       }
@@ -5650,6 +5810,38 @@
         }
       }
     },
+    "tab.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accueil"
+          }
+        }
+      }
+    },
+    "tab.library": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
+          }
+        }
+      }
+    },
     "tab.profile": {
       "localizations": {
         "en": {
@@ -5678,6 +5870,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aujourd'hui"
+          }
+        }
+      }
+    },
+    "tab.trends": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trends"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendances"
+          }
+        }
+      }
+    },
+    "trends.soon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Functional Score, pillars and 14-day trends arrive here once the scoring engine moves to the server — the same numbers on every device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre Score Fonctionnel, vos piliers et vos tendances sur 14 jours arriveront ici dès que le moteur de calcul passera côté serveur — les mêmes chiffres sur tous vos appareils."
+          }
+        }
+      }
+    },
+    "trends.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trends"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendances"
           }
         }
       }

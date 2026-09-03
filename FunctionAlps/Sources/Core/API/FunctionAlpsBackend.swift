@@ -9,6 +9,8 @@ protocol FunctionAlpsBackend: Sendable {
     func memberProfile(patientId: String) async throws -> MemberProfile?
     func meals(patientId: String, since: Date) async throws -> [MealLog]
     func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin?
+    /// Day rows from `since` (YYYY-MM-DD) onward, oldest first — the Home history bars.
+    func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin]
     func unreadClinicianMessageCount(patientId: String) async throws -> Int
 
     // MARK: Meals (Phase D)

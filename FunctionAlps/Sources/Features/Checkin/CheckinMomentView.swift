@@ -11,11 +11,11 @@ struct CheckinMomentView: View {
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             if let model {
                 CheckinMomentScreen(model: model) { dismiss() }
             }
         }
+        .faWall()
         .navigationTitle(slot.localizedName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)

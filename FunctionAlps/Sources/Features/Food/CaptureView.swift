@@ -10,11 +10,11 @@ struct CaptureView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                FAColor.background.ignoresSafeArea()
                 if let model {
                     CaptureContent(model: model, onFinish: onFinish)
                 }
             }
+            .faWall()
             .navigationTitle(String(localized: "capture.title", defaultValue: "Your meal"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -247,8 +247,28 @@ struct ScoreRing: View {
     let label: String
     let color: Color
     let verdict: String
+    var compact = false
 
     var body: some View {
+        if compact {
+            ZStack {
+                Circle().stroke(color.opacity(0.18), lineWidth: 3)
+                Circle()
+                    .trim(from: 0, to: CGFloat(max(0, min(100, value))) / 100)
+                    .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Text("\(value)")
+                    .font(FATypography.sans(9, .bold, relativeTo: .caption2))
+                    .foregroundStyle(FAColor.ink)
+            }
+            .frame(width: 28, height: 28)
+            .accessibilityHidden(true)
+        } else {
+            full
+        }
+    }
+
+    private var full: some View {
         VStack(spacing: 6) {
             ZStack {
                 Circle().stroke(color.opacity(0.18), lineWidth: 6)

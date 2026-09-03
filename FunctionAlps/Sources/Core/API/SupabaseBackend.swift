@@ -483,8 +483,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
             // PostgREST fails the whole select on an unknown column (pre-070 schema): retry legacy list.
             row = try await rest.selectOne("patient_daily_checkins", query: [PG.select(Self.checkinLegacyColumns)] + base)
         }
-        guard let row else { return nil }
-        // Legacy 1–10 → 0–100 only when v2 is absent; stress legacy is "stress", v2 is calmness.
+        return row.map(Self.checkin)
+    }
+
+    func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] {
+        let base = [PG.eq("patient_id", patientId), PG.gte("checkin_date", since), PG.order("checkin_date"), PG.limit(60)]
+        let rows: [CheckinRow]
+        do {
+            rows = try await rest.select("patient_daily_checkins", query: [PG.select(Self.checkinV2Columns)] + base)
+        } catch AppError.validation {
+            rows = try await rest.select("patient_daily_checkins", query: [PG.select(Self.checkinLegacyColumns)] + base)
+        }
+        return rows.map(Self.checkin)
+    }
+
+    /// Legacy 1–10 → 0–100 only when v2 is absent; stress legacy is "stress", v2 is calmness.
+    private static func checkin(_ row: CheckinRow) -> DailyCheckin {
         func scaled(_ legacy: Int?) -> Int? { legacy.map { ($0 - 1) * 100 / 9 } }
         return DailyCheckin(
             day: row.checkinDate,

@@ -63,6 +63,13 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: FunctionAlps uses the camera to photograph your meals so they can be analysed.
+        UIAppFonts:
+          - DMSerifDisplay_400Regular.ttf
+          - DMSerifDisplay_400Regular_Italic.ttf
+          - DMSans_400Regular.ttf
+          - DMSans_500Medium.ttf
+          - DMSans_600SemiBold.ttf
+          - DMSans_700Bold.ttf
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
         # Environment values injected from Config/*.xcconfig at build time.

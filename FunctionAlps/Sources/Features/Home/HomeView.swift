@@ -1,19 +1,21 @@
 import SwiftUI
 
+/// The web app's Home, card for card: functional hero → the two action squares → messages.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
+    @State private var capture = MealCaptureCoordinator()
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             if let model {
                 content(model)
             }
         }
-        .navigationTitle(String(localized: "tab.today", defaultValue: "Today"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .faWall()
+        .toolbar(.hidden, for: .navigationBar)
+        .mealCaptureHost(capture) { Task { await model?.load(refresh: true) } }
         .task {
             if model == nil {
                 let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth)
@@ -43,176 +45,78 @@ struct HomeView: View {
                 retryTitle: String(localized: "action.retry", defaultValue: "Try again")
             ) { Task { await model.load() } }
         case .loaded(let content):
-            ScrollView {
-                VStack(alignment: .leading, spacing: FASpacing.lg) {
-                    header(model, content.member)
-                    checkinCard(content.today)
-                    mealsSection(content.today, profile: content.member.profile)
-                    if content.today.unreadClinicianMessages > 0 {
-                        messagesCard(content.today.unreadClinicianMessages)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 12) {
+                    Button { router.tab = .trends } label: {
+                        FunctionalHeroCard(today: content.today)
                     }
+                    .buttonStyle(.plain)
+
+                    HStack(spacing: 12) {
+                        Button { capture.openPhotoChooser() } label: {
+                            MealScanCard()
+                        }
+                        .buttonStyle(.plain)
+                        .aspectRatio(1, contentMode: .fit)
+
+                        NavigationLink(value: Route.checkin(dependencies.checkins.currentSlot)) {
+                            CheckinPulseCard(markers: markers(content.today))
+                        }
+                        .buttonStyle(.plain)
+                        .aspectRatio(1, contentMode: .fit)
+                    }
+                    .frame(maxHeight: 230)
+
+                    momentsRow(content.today)
+
+                    MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
-                .padding(.horizontal, FASpacing.md)
+                .padding(.horizontal, 18)
+                .padding(.top, 38)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load(refresh: true) }
         }
     }
 
-    private func header(_ model: HomeViewModel, _ member: Member) -> some View {
-        VStack(alignment: .leading, spacing: FASpacing.xs) {
-            Text(model.greeting)
-                .font(FATypography.label)
-                .foregroundStyle(FAColor.accent)
-                .tracking(0.8)
-            Text(member.firstName)
-                .font(FATypography.largeTitle)
-                .foregroundStyle(FAColor.ink)
-        }
-        .padding(.top, FASpacing.md)
-        .accessibilityElement(children: .combine)
+    /// mood · sleep · energy · calmness, each with its canonical accent (the check-in hub's).
+    private func markers(_ today: TodaySnapshot) -> [CheckinPulseCard.Marker] {
+        let c = today.checkin
+        return [
+            .init(key: "mood", name: String(localized: "marker.mood", defaultValue: "Mood"), color: Color(hex: 0xDB2777), value: c?.mood),
+            .init(key: "sleep", name: String(localized: "marker.sleep", defaultValue: "Sleep"), color: Color(hex: 0x6366F1), value: c?.sleep),
+            .init(key: "energy", name: String(localized: "marker.energy", defaultValue: "Energy"), color: Color(hex: 0xD97706), value: c?.energy),
+            .init(key: "stress", name: String(localized: "marker.calm", defaultValue: "Calmness"), color: Color(hex: 0xE11D48), value: c?.calmness),
+        ]
     }
 
-    /// The day's three moments: the one "now" falls in is the primary action; the other two stay
-    /// reachable. Nobody is nagged — an unchecked slot simply reads "Open".
-    private func checkinCard(_ today: TodaySnapshot) -> some View {
-        let now = MomentSlot.current(hour: Calendar.current.component(.hour, from: Date()))
-        let reads = CheckinEngine.momentReads(today.moments)
-        return FACard {
-            VStack(alignment: .leading, spacing: FASpacing.sm) {
-                Text(String(localized: "home.checkin.title", defaultValue: "How are you feeling today?"))
-                    .font(FATypography.headline)
-                    .foregroundStyle(FAColor.ink)
-                HStack(spacing: FASpacing.sm) {
-                    ForEach(MomentSlot.order, id: \.self) { slot in
-                        momentChip(slot, isNow: slot == now, done: CheckinEngine.slotIsDone(today.moments, slot))
+    /// The day's three moments — the one "now" falls in is highlighted; saved ones re-open for editing.
+    private func momentsRow(_ today: TodaySnapshot) -> some View {
+        let now = dependencies.checkins.currentSlot
+        return HStack(spacing: 8) {
+            ForEach(MomentSlot.order, id: \.self) { slot in
+                let done = CheckinEngine.slotIsDone(today.moments, slot)
+                let isNow = slot == now
+                let status: String = isNow
+                    ? (done ? String(localized: "home.checkin.again", defaultValue: "✓ Check in again") : String(localized: "home.checkin.cta", defaultValue: "Check in"))
+                    : (done ? String(localized: "home.checkin.done", defaultValue: "✓ Done") : String(localized: "home.checkin.open", defaultValue: "Open"))
+                NavigationLink(value: Route.checkin(slot)) {
+                    VStack(spacing: 3) {
+                        Text(slot.glyph).font(.system(size: isNow ? 17 : 15)).foregroundStyle(isNow ? FAColor.accent : FAColor.inkSecondary)
+                        Text(slot.localizedName).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
+                        Text(status).font(FATypography.sans(10.5, .medium, relativeTo: .caption2)).foregroundStyle(done || isNow ? FAColor.accent : FAColor.inkSecondary).lineLimit(1).minimumScaleFactor(0.8)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                    .padding(.horizontal, 6)
+                    .background(isNow ? FAColor.accent.opacity(0.2) : Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(isNow ? FAColor.accent : FAColor.separator, lineWidth: isNow ? 1.5 : 1))
+                    .opacity(isNow ? 1 : 0.85)
                 }
-                if !reads.isEmpty {
-                    Text(String(localized: "home.checkin.daySoFar", defaultValue: "Your day so far").uppercased())
-                        .font(FATypography.label)
-                        .foregroundStyle(FAColor.inkSecondary)
-                        .tracking(0.8)
-                        .padding(.top, 4)
-                    FlowLayout(spacing: 8) {
-                        ForEach(reads) { read in
-                            HStack(spacing: 6) {
-                                Text(read.slot.glyph).foregroundStyle(FAColor.accent)
-                                Text(read.summary).font(FATypography.caption).foregroundStyle(FAColor.ink)
-                            }
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 6)
-                            .background(Color.white.opacity(0.6), in: Capsule())
-                            .overlay(Capsule().strokeBorder(FAColor.separator, lineWidth: 1))
-                            .accessibilityElement(children: .combine)
-                        }
-                    }
-                }
-                if let checkin = today.checkin, checkin.isFunctionalDone {
-                    HStack(spacing: FASpacing.md) {
-                        marker(String(localized: "marker.energy", defaultValue: "Energy"), checkin.energy)
-                        marker(String(localized: "marker.mood", defaultValue: "Mood"), checkin.mood)
-                        marker(String(localized: "marker.sleep", defaultValue: "Sleep"), checkin.sleep)
-                        marker(String(localized: "marker.calm", defaultValue: "Calm"), checkin.calmness)
-                    }
-                    .padding(.top, 4)
-                }
+                .buttonStyle(.plain)
+                .layoutPriority(isNow ? 1 : 0)
+                .accessibilityLabel("\(slot.localizedName): \(status)")
             }
         }
     }
-
-    private func momentChip(_ slot: MomentSlot, isNow: Bool, done: Bool) -> some View {
-        let status: String = isNow
-            ? (done ? String(localized: "home.checkin.again", defaultValue: "✓ Check in again") : String(localized: "home.checkin.cta", defaultValue: "Check in"))
-            : (done ? String(localized: "home.checkin.done", defaultValue: "✓ Done") : String(localized: "home.checkin.open", defaultValue: "Open"))
-        return NavigationLink(value: Route.checkin(slot)) {
-            VStack(spacing: 3) {
-                Text(slot.glyph).font(.system(size: isNow ? 17 : 15)).foregroundStyle(isNow ? FAColor.accent : FAColor.inkSecondary)
-                Text(slot.localizedName).font(FATypography.label).foregroundStyle(FAColor.ink)
-                Text(status).font(FATypography.caption).foregroundStyle(done || isNow ? FAColor.accent : FAColor.inkSecondary).lineLimit(1).minimumScaleFactor(0.8)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 11)
-            .padding(.horizontal, 6)
-            .background(isNow ? FAColor.accent.opacity(0.2) : Color.white.opacity(0.5), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(isNow ? FAColor.accent : FAColor.separator, lineWidth: isNow ? 1.5 : 1))
-            .opacity(isNow ? 1 : 0.85)
-        }
-        .buttonStyle(.plain)
-        .layoutPriority(isNow ? 1 : 0)
-        .accessibilityLabel("\(slot.localizedName): \(status)")
-    }
-
-    private func marker(_ label: String, _ value: Int?) -> some View {
-        VStack(spacing: 2) {
-            Text(value.map(String.init) ?? "–")
-                .font(FATypography.metric)
-                .foregroundStyle(FAColor.ink)
-            Text(label)
-                .font(FATypography.caption)
-                .foregroundStyle(FAColor.inkSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label): \(value.map(String.init) ?? String(localized: "marker.none", defaultValue: "not recorded"))")
-    }
-
-    private func mealsSection(_ today: TodaySnapshot, profile: MemberProfile?) -> some View {
-        FASection(title: String(localized: "home.meals.title", defaultValue: "Today's meals"), kicker: String(localized: "home.today", defaultValue: "Today")) {
-            if today.meals.isEmpty {
-                FACard {
-                    FAEmptyState(
-                        title: String(localized: "home.meals.empty.title", defaultValue: "Nothing logged yet"),
-                        message: String(localized: "home.meals.empty.message", defaultValue: "Meals you log in FunctionAlps show up here."),
-                        systemImage: "fork.knife"
-                    )
-                }
-            } else {
-                HStack(spacing: FASpacing.sm) {
-                    FAMetricCard(label: String(localized: "macros.energy", defaultValue: "Energy"), value: Format.kcal(today.totalCalories), caption: profile?.targetCalories.map { String(localized: "macros.target", defaultValue: "of \($0) target") })
-                    FAMetricCard(label: String(localized: "macros.protein", defaultValue: "Protein"), value: Format.grams(today.totalProteinG), caption: profile?.targetProteinG.map { String(localized: "macros.target", defaultValue: "of \($0) target") })
-                }
-                FACard {
-                    VStack(spacing: 0) {
-                        ForEach(today.meals) { meal in
-                            mealRow(meal)
-                            if meal.id != today.meals.last?.id { Divider().overlay(FAColor.separator) }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func mealRow(_ meal: MealLog) -> some View {
-        let subtitle: String = {
-            switch meal.status {
-            case .queued, .identifying, .pricing: return String(localized: "meal.status.analyzing", defaultValue: "Analysing…")
-            case .needsInput: return String(localized: "meal.status.needsInput", defaultValue: "Needs your input")
-            case .failed: return String(localized: "meal.status.failed", defaultValue: "Analysis failed")
-            case .complete:
-                let kcal = meal.totalCalories.map(Format.kcal) ?? ""
-                return [Format.time(meal.loggedAt), kcal].filter { !$0.isEmpty }.joined(separator: " · ")
-            }
-        }()
-        return NavigationLink(value: Route.meal(meal.id)) {
-            FAListRow(title: meal.displayName, subtitle: subtitle, systemImage: meal.source == .photo ? "camera" : "text.alignleft")
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func messagesCard(_ count: Int) -> some View {
-        FACard {
-            FAListRow(
-                title: String(localized: "home.messages.unread", defaultValue: "\(count) unread from your practitioner"),
-                subtitle: String(localized: "home.messages.hint", defaultValue: "Read them in the FunctionAlps app for now"),
-                systemImage: "envelope.badge"
-            )
-        }
-    }
-}
-
-#Preview {
-    NavigationStack { HomeView() }
-        .environment(AppDependencies.preview())
 }

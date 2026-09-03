@@ -44,6 +44,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealPhotoURL(path: String) async throws -> URL { record("sign"); signCount += 1; return URL(string: "https://example.invalid/\(path)?token=t")! }
     func removeMealPhotos(paths: [String]) async throws { record("removePhotos:\(paths.joined(separator: ","))") }
 
+    func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] { [] }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

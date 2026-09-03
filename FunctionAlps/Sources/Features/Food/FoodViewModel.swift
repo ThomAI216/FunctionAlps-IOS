@@ -23,8 +23,6 @@ final class FoodViewModel {
 
     var state: Loadable<Content> = .loading
     var description = ""
-    var captureRequest: CaptureRequest?
-    var pickerError: String?
     private(set) var isRefreshing = false
 
     private let members: MemberService
@@ -62,18 +60,15 @@ final class FoodViewModel {
 
     var canDescribe: Bool { !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
-    func startTextCapture() {
-        guard canDescribe else { return }
-        captureRequest = CaptureRequest(input: MealCaptureInput(description: description, source: .text))
+    /// Hands the typed meal to the capture flow and clears the field.
+    func takeTextCapture() -> MealCaptureInput? {
+        guard canDescribe else { return nil }
+        let input = MealCaptureInput(description: description, source: .text)
         description = ""
-    }
-
-    func startPhotoCapture(_ jpeg: Data) {
-        captureRequest = CaptureRequest(input: MealCaptureInput(photos: [jpeg], source: .photo))
+        return input
     }
 
     func captureFinished() {
-        captureRequest = nil
         Task { await load(refresh: true) }
     }
 

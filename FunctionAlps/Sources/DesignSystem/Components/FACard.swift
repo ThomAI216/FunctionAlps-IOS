@@ -1,19 +1,31 @@
 import SwiftUI
 
+/// The web app's `GlassCard` (liquid, light treatment) in native materials: blurred backdrop,
+/// white 50 % tint, radius 25, a glossy shine bevel (bright top-left → faint bottom-right) and a
+/// soft drop shadow. Every card in the app is this surface.
 struct FACard<Content: View>: View {
+    var padded = true
     @ViewBuilder let content: Content
 
     var body: some View {
         content
-            .padding(FASpacing.md)
+            .padding(padded ? 18 : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous))
-            .background(FAColor.surface, in: RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.55), lineWidth: 1)
+            .background {
+                ZStack {
+                    Rectangle().fill(.ultraThinMaterial)
+                    Color.white.opacity(0.5)
+                }
             }
-            .shadow(color: .black.opacity(0.10), radius: 16, y: 8)
+            .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(colors: [Color.white.opacity(0.72), Color.white.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: 1.5
+                    )
+            }
+            .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
     }
 }
 
@@ -83,7 +95,7 @@ struct FAListRow: View {
     }
 }
 
-/// Placeholder brand mark until the real asset lands in Assets.xcassets.
+/// Placeholder brand mark (the real logo lives in `FALogo`).
 struct FABrandMark: View {
     var size: CGFloat = 48
 

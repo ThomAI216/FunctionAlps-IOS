@@ -8,7 +8,6 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: FASpacing.lg) {
                     FASection(title: String(localized: "settings.about", defaultValue: "About")) {
@@ -35,6 +34,7 @@ struct SettingsView: View {
                 .padding(.bottom, FASpacing.navBarClearance)
             }
         }
+        .faWall()
         .navigationTitle(String(localized: "settings.title", defaultValue: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -10,11 +10,11 @@ struct MealDetailView: View {
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             if let model {
                 content(model)
             }
         }
+        .faWall()
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .task {
@@ -157,7 +157,6 @@ private struct NoteEditor: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                FAColor.background.ignoresSafeArea()
                 VStack(alignment: .leading, spacing: FASpacing.sm) {
                     TextEditor(text: $model.noteDraft)
                         .font(FATypography.body)

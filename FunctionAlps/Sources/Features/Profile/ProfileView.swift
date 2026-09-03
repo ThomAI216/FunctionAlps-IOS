@@ -7,9 +7,9 @@ struct ProfileView: View {
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             if let model { content(model) }
         }
+        .faWall()
         .navigationTitle(String(localized: "profile.title", defaultValue: "Profile"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)

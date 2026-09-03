@@ -7,14 +7,12 @@ struct FoodView: View {
 
     var body: some View {
         ZStack {
-            FAColor.background.ignoresSafeArea()
             if let model {
                 FoodScreen(model: model)
             }
         }
-        .navigationTitle(String(localized: "tab.food", defaultValue: "Food"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .faWall()
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             if model == nil {
                 let m = FoodViewModel(members: dependencies.members, meals: dependencies.meals, auth: dependencies.auth)
@@ -27,52 +25,12 @@ struct FoodView: View {
 
 private struct FoodScreen: View {
     @Bindable var model: FoodViewModel
-    @State private var showPhotoSource = false
-    @State private var showCamera = false
-    @State private var showLibrary = false
-    @State private var libraryItem: PhotosPickerItem?
+    @State private var capture = MealCaptureCoordinator()
     @FocusState private var describeFocused: Bool
 
     var body: some View {
         content
-            .confirmationDialog(String(localized: "food.photo.title", defaultValue: "Add your meal by photo"), isPresented: $showPhotoSource, titleVisibility: .visible) {
-                if CameraPicker.isAvailable {
-                    Button(String(localized: "food.photo.camera", defaultValue: "Take a photo")) { showCamera = true }
-                }
-                Button(String(localized: "food.photo.library", defaultValue: "Choose from library")) { showLibrary = true }
-            }
-            .fullScreenCover(isPresented: $showCamera) {
-                CameraPicker { image in handlePicked(image) }
-                    .ignoresSafeArea()
-            }
-            .photosPicker(isPresented: $showLibrary, selection: $libraryItem, matching: .images)
-            .onChange(of: libraryItem) { _, item in
-                guard let item else { return }
-                Task {
-                    defer { libraryItem = nil }
-                    if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                        handlePicked(image)
-                    } else {
-                        model.pickerError = String(localized: "food.photo.unreadable", defaultValue: "That photo couldn't be read. Try another one.")
-                    }
-                }
-            }
-            .fullScreenCover(item: $model.captureRequest) { request in
-                CaptureView(request: request) { model.captureFinished() }
-            }
-            .alert(String(localized: "food.photo.errorTitle", defaultValue: "Photo"), isPresented: Binding(get: { model.pickerError != nil }, set: { if !$0 { model.pickerError = nil } })) {
-                Button(String(localized: "action.ok", defaultValue: "OK"), role: .cancel) {}
-            } message: {
-                Text(model.pickerError ?? "")
-            }
-    }
-
-    private func handlePicked(_ image: UIImage) {
-        guard let jpeg = MealImage.jpeg(image) else {
-            model.pickerError = String(localized: "food.photo.unreadable", defaultValue: "That photo couldn't be read. Try another one.")
-            return
-        }
-        model.startPhotoCapture(jpeg)
+            .mealCaptureHost(capture) { model.captureFinished() }
     }
 
     @ViewBuilder
@@ -99,7 +57,8 @@ private struct FoodScreen: View {
                     MacrosTodayCard(meals: model.todayMeals(content), profile: content.member.profile)
                     history(content)
                 }
-                .padding(.horizontal, FASpacing.md)
+                .padding(.horizontal, 18)
+                .padding(.top, 22)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .scrollDismissesKeyboard(.interactively)
@@ -123,7 +82,7 @@ private struct FoodScreen: View {
 
     /// The Food tab's hero: the one-tap way in. Tapping opens the phone's own chooser.
     private var photoHero: some View {
-        Button { showPhotoSource = true } label: {
+        Button { capture.openPhotoChooser() } label: {
             ZStack(alignment: .bottomLeading) {
                 LinearGradient(colors: [FAColor.forestSoft, FAColor.forest, FAColor.forestDark], startPoint: .topLeading, endPoint: .bottomTrailing)
                 Circle()
@@ -150,7 +109,7 @@ private struct FoodScreen: View {
                 .padding(FASpacing.md)
             }
             .frame(height: 170)
-            .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
             .shadow(color: FAColor.forest.opacity(0.25), radius: 16, y: 8)
         }
         .buttonStyle(.plain)
@@ -180,7 +139,7 @@ private struct FoodScreen: View {
                 }
                 FAButton(title: String(localized: "food.describe.cta", defaultValue: "Analyse"), isEnabled: model.canDescribe) {
                     describeFocused = false
-                    model.startTextCapture()
+                    if let input = model.takeTextCapture() { capture.begin(input) }
                 }
                 Text(String(localized: "food.describe.hint", defaultValue: "The meal slot (breakfast, lunch, snack, dinner) follows the time of day."))
                     .font(FATypography.caption)

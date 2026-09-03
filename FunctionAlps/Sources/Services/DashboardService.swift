@@ -20,6 +20,8 @@ struct DashboardService: Sendable {
         async let checkin = backend.dailyCheckin(patientId: patientId, day: day)
         async let unread = backend.unreadClinicianMessageCount(patientId: patientId)
         async let moments = backend.checkinMoments(patientId: patientId, day: day)
-        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments)
+        let since = ISO8601.dayString(calendar.date(byAdding: .day, value: -13, to: current) ?? current, calendar: calendar)
+        async let history = backend.dailyCheckins(patientId: patientId, since: since)
+        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history)
     }
 }

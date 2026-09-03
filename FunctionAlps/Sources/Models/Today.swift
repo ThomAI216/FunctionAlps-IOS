@@ -9,6 +9,8 @@ struct TodaySnapshot: Sendable, Equatable {
     let unreadClinicianMessages: Int
     /// Today's saved check-in moments (morning / midday / evening), oldest first.
     var moments: [CheckinMoment] = []
+    /// The last 14 day rows (oldest first, today included when it exists) — the Home history bars.
+    var history: [DailyCheckin] = []
 
     var totalCalories: Double { meals.compactMap(\.totalCalories).reduce(0, +) }
     var totalProteinG: Double { meals.compactMap(\.totalProteinG).reduce(0, +) }
@@ -196,4 +198,12 @@ struct DailyCheckin: Sendable, Equatable {
 
     var isFunctionalDone: Bool { functionalCompletedAt != nil }
     var isGutDone: Bool { gutCompletedAt != nil }
+
+    /// Today's functional read: the mean of the answered markers (0–100). NOT the web app's
+    /// Functional Score (that composite is client-side TypeScript — PRD §41 debt); labelled "today".
+    var functionalMean: Int? {
+        let present = [energy, mood, sleep, calmness].compactMap { $0 }
+        guard !present.isEmpty else { return nil }
+        return Int((Double(present.reduce(0, +)) / Double(present.count)).rounded())
+    }
 }
