@@ -226,6 +226,22 @@
         }
       }
     },
+    "capture.goHome": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à l'accueil"
+          }
+        }
+      }
+    },
     "capture.keep": {
       "localizations": {
         "en": {
@@ -322,6 +338,86 @@
         }
       }
     },
+    "capture.reading.got": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris"
+          }
+        }
+      }
+    },
+    "capture.reading.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your meal…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de votre repas…"
+          }
+        }
+      }
+    },
+    "capture.reading.text.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it · your meal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris · votre repas."
+          }
+        }
+      }
+    },
+    "capture.reading.words": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de votre description"
+          }
+        }
+      }
+    },
+    "capture.scanning.plate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning your plate…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse de votre assiette…"
+          }
+        }
+      }
+    },
     "capture.slow.message": {
       "localizations": {
         "en": {
@@ -386,6 +482,22 @@
         }
       }
     },
+    "capture.step.nutrition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking up nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de la nutrition"
+          }
+        }
+      }
+    },
     "capture.step.pricing": {
       "localizations": {
         "en": {
@@ -402,6 +514,38 @@
         }
       }
     },
+    "capture.step.readingPlate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your plate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de votre assiette"
+          }
+        }
+      }
+    },
+    "capture.step.readingWords": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de votre description"
+          }
+        }
+      }
+    },
     "capture.step.saved": {
       "localizations": {
         "en": {
@@ -414,6 +558,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Repas enregistré"
+          }
+        }
+      }
+    },
+    "capture.tip.next": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next tip"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conseil suivant"
           }
         }
       }
@@ -1602,6 +1762,246 @@
         }
       }
     },
+    "flag.allergen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Common allergen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allergène courant"
+          }
+        }
+      }
+    },
+    "flag.antiInflammatory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anti-inflammatory"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anti-inflammatoire"
+          }
+        }
+      }
+    },
+    "flag.antioxidant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antioxidant"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antioxydant"
+          }
+        }
+      }
+    },
+    "flag.boneSupport": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bone support"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soutien osseux"
+          }
+        }
+      }
+    },
+    "flag.fastSugars": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast sugars"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sucres rapides"
+          }
+        }
+      }
+    },
+    "flag.fiber": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fiber source"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source de fibres"
+          }
+        }
+      }
+    },
+    "flag.healthyFats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Healthy fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bonnes graisses"
+          }
+        }
+      }
+    },
+    "flag.hydrating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydrating"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydratant"
+          }
+        }
+      }
+    },
+    "flag.inflammatory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammatory"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammatoire"
+          }
+        }
+      }
+    },
+    "flag.micronutrientDense": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrient dense"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dense en nutriments"
+          }
+        }
+      }
+    },
+    "flag.omega3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-3 rich"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riche en oméga-3"
+          }
+        }
+      }
+    },
+    "flag.probiotic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probiotic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probiotique"
+          }
+        }
+      }
+    },
+    "flag.protein": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein source"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source de protéines"
+          }
+        }
+      }
+    },
+    "flag.sodium": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High sodium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riche en sodium"
+          }
+        }
+      }
+    },
+    "flag.ultraProcessed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra-processed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra-transformé"
+          }
+        }
+      }
+    },
     "food.describe.cta": {
       "localizations": {
         "en": {
@@ -2354,6 +2754,726 @@
         }
       }
     },
+    "library.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à la bibliothèque"
+          }
+        }
+      }
+    },
+    "library.badge.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done ✓"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé ✓"
+          }
+        }
+      }
+    },
+    "library.badge.inProgress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In progress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cours"
+          }
+        }
+      }
+    },
+    "library.badge.new": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau"
+          }
+        }
+      }
+    },
+    "library.badge.resource": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resource"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ressource"
+          }
+        }
+      }
+    },
+    "library.continue.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue · lesson %lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer · leçon %lld sur %lld"
+          }
+        }
+      }
+    },
+    "library.continue.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld in progress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld en cours"
+          }
+        }
+      }
+    },
+    "library.continue.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        }
+      }
+    },
+    "library.done.saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nice · progress saved"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bravo · progression enregistrée"
+          }
+        }
+      }
+    },
+    "library.lesson.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        }
+      }
+    },
+    "library.lesson.now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenant"
+          }
+        }
+      }
+    },
+    "library.lesson.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        }
+      }
+    },
+    "library.lessons.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lessons"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld leçons"
+          }
+        }
+      }
+    },
+    "library.lessons.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld"
+          }
+        }
+      }
+    },
+    "library.lock.consultation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocks after your consultation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se débloque après votre consultation"
+          }
+        }
+      }
+    },
+    "library.lock.finishPrevious": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish the previous track to unlock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminez le parcours précédent pour débloquer"
+          }
+        }
+      }
+    },
+    "library.lock.finishTrack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish %@ to unlock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminez %@ pour débloquer"
+          }
+        }
+      }
+    },
+    "library.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillé"
+          }
+        }
+      }
+    },
+    "library.markDone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme terminé"
+          }
+        }
+      }
+    },
+    "library.noun.resources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "resources"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ressources"
+          }
+        }
+      }
+    },
+    "library.noun.supplements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "supplements"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "compléments"
+          }
+        }
+      }
+    },
+    "library.noun.tracks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tracks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "parcours"
+          }
+        }
+      }
+    },
+    "library.pair.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go deeper"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aller plus loin"
+          }
+        }
+      }
+    },
+    "library.pair.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to this"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En lien avec ceci"
+          }
+        }
+      }
+    },
+    "library.plan.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your care plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre plan de soins"
+          }
+        }
+      }
+    },
+    "library.plan.lessons": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld lessons"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld leçons sur %lld"
+          }
+        }
+      }
+    },
+    "library.plan.week": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Week %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Semaine %lld"
+          }
+        }
+      }
+    },
+    "library.priority.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chosen from your plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "choisi dans votre plan"
+          }
+        }
+      }
+    },
+    "library.priority.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prioritaire pour vous"
+          }
+        }
+      }
+    },
+    "library.read.lesson": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lesson %lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leçon %lld sur %lld"
+          }
+        }
+      }
+    },
+    "library.read.lock.membership": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This one comes with an active membership. The lessons you already have in this track stay open to you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celui-ci est réservé aux membres actifs. Les leçons que vous avez déjà dans ce parcours restent ouvertes."
+          }
+        }
+      }
+    },
+    "library.read.lock.programme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This one opens as part of your program · your practitioner unlocks it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celui-ci s’ouvre dans le cadre de votre programme · votre praticien le débloque."
+          }
+        }
+      }
+    },
+    "library.read.position": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · lesson %lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · leçon %lld sur %lld"
+          }
+        }
+      }
+    },
+    "library.read.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This article isn't available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet article n'est pas disponible"
+          }
+        }
+      }
+    },
+    "library.read.writing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This article is being written · check back soon."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet article est en cours de rédaction · revenez bientôt."
+          }
+        }
+      }
+    },
+    "library.resume": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lesson %lld of %lld · resume"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leçon %lld sur %lld · reprendre"
+          }
+        }
+      }
+    },
+    "library.reviewTrack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review the track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoir le parcours"
+          }
+        }
+      }
+    },
+    "library.sample": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sample preview · sign in to see your own library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu d’exemple · connectez-vous pour voir votre bibliothèque"
+          }
+        }
+      }
+    },
+    "library.samplePreview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sample preview"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu d’exemple"
+          }
+        }
+      }
+    },
+    "library.section.foundations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundations"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fondations"
+          }
+        }
+      }
+    },
+    "library.section.priority": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorité"
+          }
+        }
+      }
+    },
+    "library.section.supplements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplements"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compléments"
+          }
+        }
+      }
+    },
+    "library.section.tracks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcours"
+          }
+        }
+      }
+    },
+    "library.showAll": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show all %lld %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout voir · %lld %@"
+          }
+        }
+      }
+    },
+    "library.showFewer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show fewer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir moins"
+          }
+        }
+      }
+    },
     "library.soon": {
       "localizations": {
         "en": {
@@ -2370,6 +3490,22 @@
         }
       }
     },
+    "library.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start the track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer le parcours"
+          }
+        }
+      }
+    },
     "library.title": {
       "localizations": {
         "en": {
@@ -2382,6 +3518,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bibliothèque"
+          }
+        }
+      }
+    },
+    "library.track.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The lessons for this track are being written · check back soon."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les leçons de ce parcours sont en cours de rédaction · revenez bientôt."
+          }
+        }
+      }
+    },
+    "library.track.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This track isn't available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce parcours n'est pas disponible"
+          }
+        }
+      }
+    },
+    "library.veil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner unlocks this section as part of your program"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre praticien débloque cette section dans le cadre de votre programme"
+          }
+        }
+      }
+    },
+    "library.why.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner put this first for you · start here before the rest."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre praticien l’a placé en premier pour vous · commencez ici avant le reste."
+          }
+        }
+      }
+    },
+    "library.why.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why this is in your plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi c’est dans votre plan"
           }
         }
       }
@@ -2882,6 +4098,118 @@
         }
       }
     },
+    "meal.felt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it felt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ressenti"
+          }
+        }
+      }
+    },
+    "meal.felt.bad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rough"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difficile"
+          }
+        }
+      }
+    },
+    "meal.felt.good": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sat well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien passé"
+          }
+        }
+      }
+    },
+    "meal.felt.unrated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How did it feel?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment l’avez-vous ressenti ?"
+          }
+        }
+      }
+    },
+    "meal.felt.watch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A bit off"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un peu lourd"
+          }
+        }
+      }
+    },
+    "meal.ingredients": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingredients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingrédients"
+          }
+        }
+      }
+    },
+    "meal.ingredients.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ingredients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ingrédients"
+          }
+        }
+      }
+    },
     "meal.item.unknown": {
       "localizations": {
         "en": {
@@ -2914,6 +4242,22 @@
         }
       }
     },
+    "meal.logged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logged to your day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté à votre journée"
+          }
+        }
+      }
+    },
     "meal.missing.message": {
       "localizations": {
         "en": {
@@ -2942,6 +4286,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Repas introuvable"
+          }
+        }
+      }
+    },
+    "meal.mockup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mockup image · to illustrate your plate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image d’illustration · pour figurer votre assiette"
           }
         }
       }
@@ -3042,6 +4402,22 @@
         }
       }
     },
+    "meal.score.foodOnly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This describes the food on the plate, not your body. It changes only when the plate changes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceci décrit les aliments dans l’assiette, pas votre corps. Cela ne change que si l’assiette change."
+          }
+        }
+      }
+    },
     "meal.score.glycemic": {
       "localizations": {
         "en": {
@@ -3070,6 +4446,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inflammation"
+          }
+        }
+      }
+    },
+    "meal.score.understand": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understand ›"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprendre ›"
+          }
+        }
+      }
+    },
+    "meal.scores.curious": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curious what your plate is really doing? Tap a score and see exactly what's driving it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envie de savoir ce que votre assiette fait vraiment ? Touchez un score pour voir ce qui le détermine."
+          }
+        }
+      }
+    },
+    "meal.scores.heading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How this meal scored"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le score de ce repas"
+          }
+        }
+      }
+    },
+    "meal.scores.tapHint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap any score to understand it ↑"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez un score pour le comprendre ↑"
           }
         }
       }
@@ -3262,6 +4702,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Collation"
+          }
+        }
+      }
+    },
+    "meal.working.pricing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking up the nutrition…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche de la nutrition…"
+          }
+        }
+      }
+    },
+    "meal.working.reading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your plate…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de votre assiette…"
           }
         }
       }
@@ -5346,6 +6818,102 @@
         }
       }
     },
+    "score.digestion.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plants"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Végétaux"
+          }
+        }
+      }
+    },
+    "score.digestion.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plants & Fibre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Végétaux & fibres"
+          }
+        }
+      }
+    },
+    "score.glycemic.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glucides"
+          }
+        }
+      }
+    },
+    "score.glycemic.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carb Quality"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualité des glucides"
+          }
+        }
+      }
+    },
+    "score.inflammation.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graisses"
+          }
+        }
+      }
+    },
+    "score.inflammation.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat Quality"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualité des graisses"
+          }
+        }
+      }
+    },
     "settings.about": {
       "localizations": {
         "en": {
@@ -5906,6 +7474,22 @@
         }
       }
     },
+    "state.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement…"
+          }
+        }
+      }
+    },
     "tab.food": {
       "localizations": {
         "en": {
@@ -5998,6 +7582,1094 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tendances"
+          }
+        }
+      }
+    },
+    "tip.am_hydrate.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drink a glass of water before your coffee today and watch the fog lift."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buvez un verre d'eau avant votre café aujourd'hui et regardez le brouillard se dissiper."
+          }
+        }
+      }
+    },
+    "tip.am_hydrate.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water before coffee · much of morning fog is just mild dehydration."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De l'eau avant le café · une grande partie de la fatigue matinale n'est qu'une légère déshydratation."
+          }
+        }
+      }
+    },
+    "tip.am_light.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get 5 minutes of morning light today and fall asleep easier tonight."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profitez dès aujourd’hui de 5 minutes de lumière matinale et vous vous endormirez plus facilement ce soir."
+          }
+        }
+      }
+    },
+    "tip.am_light.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step into daylight within an hour of waking · it anchors your energy today and your sleep tonight."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exposez-vous à la lumière du jour dans l'heure qui suit votre réveil : cela vous aidera à trouver votre équilibre énergétique aujourd'hui et à bien dormir cette nuit."
+          }
+        }
+      }
+    },
+    "tip.am_mind.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make breakfast protein-first today and notice steadier focus all morning."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui, privilégiez les protéines au petit-déjeuner et constatez que votre concentration reste plus stable tout au long de la matinée."
+          }
+        }
+      }
+    },
+    "tip.am_mind.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A protein breakfast steadies mood and focus · the brain runs poorly on sugar swings."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un petit-déjeuner riche en protéines stabilise l'humeur et favorise la concentration · le cerveau fonctionne mal en cas de fluctuations glycémiques."
+          }
+        }
+      }
+    },
+    "tip.am_protein.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add eggs, yoghurt or a protein shake tomorrow morning and feel the afternoon dip fade."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demain matin, ajoutez des œufs, du yaourt ou une boisson protéinée à votre petit-déjeuner et vous verrez le coup de barre de l'après-midi s'estomper."
+          }
+        }
+      }
+    },
+    "tip.am_protein.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Front-load protein at breakfast · it steadies energy and curbs afternoon cravings."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consommez des protéines dès le petit-déjeuner : cela vous permet de maintenir un niveau d'énergie constant et de limiter les fringales de l'après-midi."
+          }
+        }
+      }
+    },
+    "tip.am_slow_sugars.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap the pastry for protein and fruit today and keep your energy flat, not spiky."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacez aujourd’hui les pâtisseries par des protéines et des fruits afin de maintenir un niveau d’énergie stable, sans pics ni creux."
+          }
+        }
+      }
+    },
+    "tip.am_slow_sugars.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go easy on fast sugars this morning · pair any carbs with protein or fat to soften the spike."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limitez votre consommation de sucres rapides ce matin · associez les glucides à des protéines ou à des lipides pour atténuer le pic glycémique."
+          }
+        }
+      }
+    },
+    "tip.any_chew.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slow down and chew fully at your next meal · digestion and fullness both improve."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenez votre temps et mâchez bien lors de votre prochain repas : cela favorisera à la fois la digestion et la sensation de satiété."
+          }
+        }
+      }
+    },
+    "tip.any_chew.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chew slowly · digestion starts in the mouth, and it gives your brain time to feel full."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mâchez lentement : la digestion commence dans la bouche, ce qui laisse le temps à votre cerveau de percevoir la sensation de satiété."
+          }
+        }
+      }
+    },
+    "tip.any_colour.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add one new colour to your plate today and widen your protective compounds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez dès aujourd'hui une nouvelle couleur à votre gamme et élargissez votre offre de composés protecteurs."
+          }
+        }
+      }
+    },
+    "tip.any_colour.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eat the rainbow · different plant colours carry different protective compounds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mangez toutes les couleurs de l'arc-en-ciel · les différentes couleurs des végétaux renferment des composés protecteurs variés."
+          }
+        }
+      }
+    },
+    "tip.any_fermented.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a spoon of kefir or kimchi today and feed a calmer gut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez aujourd'hui une cuillère de kéfir ou de kimchi et favorisez ainsi un meilleur équilibre intestinal."
+          }
+        }
+      }
+    },
+    "tip.any_fermented.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A spoon of fermented food (kefir, kimchi, yoghurt) feeds a calmer gut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une cuillère d'aliments fermentés (kéfir, kimchi, yaourt) contribue à apaiser votre intestin."
+          }
+        }
+      }
+    },
+    "tip.any_hormone_fat.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add olive oil or avocado today and give your hormones their raw materials."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez dès aujourd’hui de l’huile d’olive ou de l’avocat à votre alimentation et apportez à vos hormones les nutriments dont elles ont besoin."
+          }
+        }
+      }
+    },
+    "tip.any_hormone_fat.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don’t fear healthy fats · olive oil, avocado and eggs are raw material for hormones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne craignez pas les graisses saines : l'huile d'olive, l'avocat et les œufs constituent les éléments constitutifs des hormones."
+          }
+        }
+      }
+    },
+    "tip.any_iron.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add lentils, spinach or red meat this week and lift flagging energy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette semaine, ajoutez des lentilles, des épinards ou de la viande rouge à votre alimentation pour redynamiser votre énergie en baisse."
+          }
+        }
+      }
+    },
+    "tip.any_iron.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tired often? Iron-rich foods (red meat, lentils, spinach) feed steady energy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous vous sentez souvent fatigué ? Les aliments riches en fer (viande rouge, lentilles, épinards) vous apportent une énergie durable."
+          }
+        }
+      }
+    },
+    "tip.any_magnesium.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add greens or pumpkin seeds today and support a calmer evening."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez dès aujourd'hui des légumes verts ou des graines de potiron pour passer une soirée plus sereine."
+          }
+        }
+      }
+    },
+    "tip.any_magnesium.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leafy greens, pumpkin seeds, dark chocolate · magnesium supports calm and sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumes verts à feuilles, graines de potiron, chocolat noir · Le magnésium favorise la sérénité et le sommeil."
+          }
+        }
+      }
+    },
+    "tip.any_omega3.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add oily fish or walnuts this week and turn down the inflammation dial."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette semaine, ajoutez du poisson gras ou des noix à votre alimentation et réduisez ainsi l'inflammation."
+          }
+        }
+      }
+    },
+    "tip.any_omega3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oily fish, walnuts, flax · omega-3s quietly turn down the body’s inflammation dial."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les poissons gras, les noix, les graines de lin… Les oméga-3 réduisent en douceur le niveau d'inflammation de l'organisme."
+          }
+        }
+      }
+    },
+    "tip.any_protein_target.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchor your next meal with protein and steady your appetite for hours."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites en sorte que votre prochain repas soit riche en protéines et que votre appétit reste modéré pendant des heures."
+          }
+        }
+      }
+    },
+    "tip.any_protein_target.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aim for protein at every meal · it protects muscle and steadies appetite."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veillez à consommer des protéines à chaque repas : elles protègent la masse musculaire et stabilisent l'appétit."
+          }
+        }
+      }
+    },
+    "tip.any_spice.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add turmeric or ginger to a meal today for a quiet anti-inflammatory boost."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez du curcuma ou du gingembre à l'un de vos repas aujourd'hui pour bénéficier d'un effet anti-inflammatoire discret."
+          }
+        }
+      }
+    },
+    "tip.any_spice.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turmeric, ginger, garlic · everyday spices with quiet anti-inflammatory effects."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le curcuma, le gingembre, l'ail : des épices de tous les jours aux effets anti-inflammatoires discrets."
+          }
+        }
+      }
+    },
+    "tip.any_strength.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit in 10 minutes of resistance today and invest in decades of strength."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consacrez 10 minutes à la musculation aujourd'hui et investissez dans des décennies de force."
+          }
+        }
+      }
+    },
+    "tip.any_strength.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle is the organ of longevity · a little resistance work protects it for decades."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le muscle est l'organe de la longévité : un peu d'entraînement de résistance permet de le préserver pendant des décennies."
+          }
+        }
+      }
+    },
+    "tip.any_stress_breath.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take three slow breaths before your next meal and digest with ease."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenez trois respirations lentes avant votre prochain repas pour faciliter la digestion."
+          }
+        }
+      }
+    },
+    "tip.any_stress_breath.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress shuts digestion down · a few slow breaths reopen the gut-brain line."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress bloque la digestion · quelques respirations lentes rétablissent la connexion entre l'intestin et le cerveau."
+          }
+        }
+      }
+    },
+    "tip.eve_earlier.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eat a little earlier tonight and give your sleep room to do its work."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce soir, dînez un peu plus tôt et laissez à votre sommeil le temps de faire son effet."
+          }
+        }
+      }
+    },
+    "tip.eve_earlier.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish eating 2 to 3 hours before bed · late meals tax sleep and recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminez votre repas 2 à 3 heures avant de vous coucher · les repas pris tardivement nuisent au sommeil et à la récupération."
+          }
+        }
+      }
+    },
+    "tip.eve_lighter.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep tonight’s dinner lighter and wake up less sluggish."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optez pour un dîner plus léger ce soir et vous vous réveillerez moins courbaturé."
+          }
+        }
+      }
+    },
+    "tip.eve_lighter.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep dinner a little lighter · your gut rests best when you do."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilégiez un dîner un peu plus léger : votre intestin se repose mieux lorsque vous en faites de même."
+          }
+        }
+      }
+    },
+    "tip.eve_protein.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add protein to dinner tonight and recover stronger overnight."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des protéines à votre dîner de ce soir et récupérez mieux pendant la nuit."
+          }
+        }
+      }
+    },
+    "tip.eve_protein.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include protein at dinner · overnight is when muscle repairs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prévoyez des protéines au dîner · c'est pendant la nuit que les muscles se régénèrent."
+          }
+        }
+      }
+    },
+    "tip.eve_winddown.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dim the lights an hour before bed tonight and fall asleep faster."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce soir, tamisez les lumières une heure avant de vous coucher et vous vous endormirez plus vite."
+          }
+        }
+      }
+    },
+    "tip.eve_winddown.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dim the lights after dinner · it tells your body the day is closing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baissez la lumière après le dîner : cela indique à votre corps que la journée touche à sa fin."
+          }
+        }
+      }
+    },
+    "tip.fact_fibre.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add one fibre-rich food today and take the easiest gut win there is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez dès aujourd’hui un aliment riche en fibres à votre alimentation et profitez ainsi du moyen le plus simple qui soit d’améliorer votre santé intestinale."
+          }
+        }
+      }
+    },
+    "tip.fact_fibre.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most people get half the fibre they need · it’s the simplest gut upgrade."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La plupart des gens consomment la moitié des fibres dont ils ont besoin · c'est le moyen le plus simple d'améliorer votre santé intestinale."
+          }
+        }
+      }
+    },
+    "tip.fact_hydration.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drink water the next time you feel snacky and see if the craving fades."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La prochaine fois que vous aurez envie de grignoter, buvez de l'eau et voyez si cette envie s'estompe."
+          }
+        }
+      }
+    },
+    "tip.fact_hydration.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mild dehydration can read as hunger and fatigue · water first, snack second."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une légère déshydratation peut être confondue avec la faim et la fatigue · buvez d'abord de l'eau, puis prenez une collation."
+          }
+        }
+      }
+    },
+    "tip.fact_microbiome.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed your microbes one extra plant today and shift the balance in days."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Donnez aujourd'hui une plante supplémentaire à vos microbes et changez la donne en quelques jours."
+          }
+        }
+      }
+    },
+    "tip.fact_microbiome.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your gut hosts trillions of microbes · what you eat reshapes them within days."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre intestin abrite des milliers de milliards de microbes · votre alimentation les modifie en quelques jours seulement."
+          }
+        }
+      }
+    },
+    "tip.fact_protein_thermic.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make protein the centre of your next meal and let it work for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites des protéines le point central de votre prochain repas et tirez-en tous les bienfaits."
+          }
+        }
+      }
+    },
+    "tip.fact_protein_thermic.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein costs more energy to digest than carbs or fat · it quietly works for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La digestion des protéines demande plus d'énergie que celle des glucides ou des lipides · elles agissent discrètement pour vous."
+          }
+        }
+      }
+    },
+    "tip.fact_sleep_appetite.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protect tonight’s sleep and notice fewer cravings tomorrow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assurez-vous de bien dormir ce soir et vous constaterez que vos envies de grignoter seront moins fortes demain."
+          }
+        }
+      }
+    },
+    "tip.fact_sleep_appetite.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One short night makes the body crave more sugar the next day · sleep is appetite control."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une nuit trop courte donne envie de manger plus de sucre le lendemain · le sommeil permet de réguler l'appétit."
+          }
+        }
+      }
+    },
+    "tip.fact_walk.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk for 10 minutes after this meal and flatten the sugar curve."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marchez 10 minutes après ce repas pour stabiliser votre glycémie."
+          }
+        }
+      }
+    },
+    "tip.fact_walk.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even a slow post-meal walk can cut the blood-sugar rise by up to a third."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Même une simple promenade tranquille après le repas peut réduire la hausse de la glycémie jusqu’à un tiers."
+          }
+        }
+      }
+    },
+    "tip.kind.fact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Did you know"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le saviez-vous ?"
+          }
+        }
+      }
+    },
+    "tip.kind.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation"
+          }
+        }
+      }
+    },
+    "tip.kind.move": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouvement"
+          }
+        }
+      }
+    },
+    "tip.kind.recovery": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Récupération"
+          }
+        }
+      }
+    },
+    "tip.night_snack.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you snack tonight, reach for protein or fat and protect your sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si vous grignotez ce soir, privilégiez les protéines ou les matières grasses afin de préserver la qualité de votre sommeil."
+          }
+        }
+      }
+    },
+    "tip.night_snack.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late cravings spike you before bed · protein or a little fat won’t."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fringales de fin de journée vous donnent un coup de fouet avant de vous coucher · les protéines ou un peu de matière grasse, en revanche, n'ont pas cet effet."
+          }
+        }
+      }
+    },
+    "tip.night_tea.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap the screen for a warm tea tonight and let your system settle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce soir, troquez votre écran contre un thé bien chaud et laissez votre organisme se reposer."
+          }
+        }
+      }
+    },
+    "tip.night_tea.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A warm, caffeine-free tea can settle the nervous system before sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une tisane chaude et sans caféine peut apaiser le système nerveux avant de s'endormir."
+          }
+        }
+      }
+    },
+    "tip.pm_coffee.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip coffee after 2pm today and let tonight’s sleep reward you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évitez de boire du café après 14 h aujourd'hui et vous verrez que vous en serez récompensé(e) ce soir, au moment de vous coucher."
+          }
+        }
+      }
+    },
+    "tip.pm_coffee.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caffeine lingers 6+ hours · a late coffee quietly frays tonight’s sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La caféine reste active pendant plus de 6 heures · un café pris tardivement vient discrètement perturber le sommeil de cette nuit."
+          }
+        }
+      }
+    },
+    "tip.pm_fibre.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an extra handful of veg to lunch today and feed a calmer gut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez une poignée supplémentaire de légumes à votre déjeuner aujourd’hui pour favoriser un meilleur équilibre intestinal."
+          }
+        }
+      }
+    },
+    "tip.pm_fibre.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a handful of fibre-rich veg · your gut bugs turn it into anti-inflammatory fuel."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez une poignée de légumes riches en fibres : vos bactéries intestinales les transforment en énergie anti-inflammatoire."
+          }
+        }
+      }
+    },
+    "tip.pm_plate.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build your next plate this way and feel full without the heaviness."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Composez votre prochain repas de cette manière et vous vous sentirez rassasié(e) sans avoir l'impression d'avoir l'estomac lourd."
+          }
+        }
+      }
+    },
+    "tip.pm_plate.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build lunch around a palm of protein, a fist of veg, a thumb of healthy fat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Composez votre déjeuner en prévoyant une paume de protéines, un poing de légumes et un pouce de matières grasses saines."
+          }
+        }
+      }
+    },
+    "tip.pm_walk.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk for 10 minutes after this meal and blunt the post-lunch slump."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marchez pendant 10 minutes après ce repas pour éviter le coup de barre de l'après-déjeuner."
+          }
+        }
+      }
+    },
+    "tip.pm_walk.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A 10-minute walk after eating blunts the glucose rise and eases digestion."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une promenade de 10 minutes après le repas atténue la hausse de glycémie et facilite la digestion."
           }
         }
       }

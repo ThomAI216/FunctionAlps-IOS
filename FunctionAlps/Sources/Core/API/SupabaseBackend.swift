@@ -529,4 +529,94 @@ struct SupabaseBackend: FunctionAlpsBackend {
             URLQueryItem(name: "read_by_patient_at", value: "is.null"),
         ])
     }
+
+    // MARK: Library (library_tracks / library_track_lessons / member_lesson_progress / RPCs)
+
+    private struct EmptyBody: Encodable, Sendable {}
+    private struct SlugBody: Encodable, Sendable { let pSlug: String }
+    private struct AccessRow: Decodable, Sendable { let tracksEnabled: Bool?; let foundationsEnabled: Bool?; let supplementsEnabled: Bool? }
+    private struct PriorityRow: Decodable, Sendable { let trackId: String }
+    private struct GoalRow: Decodable, Sendable { let statement: String? }
+    private struct ProgressBody: Encodable, Sendable { let patientId: String; let trackId: String?; let contentSlug: String }
+
+    func libraryStage() async throws -> RelationshipStage {
+        let raw = try await rest.rpcScalar("member_library_stage", body: EmptyBody())
+        return raw.flatMap(RelationshipStage.init(rawValue:)) ?? .lead
+    }
+
+    /// A read that may fail without taking the library down.
+    private func soft<T: Sendable>(_ op: @Sendable () async throws -> T) async -> T? {
+        try? await op()
+    }
+
+    func libraryRaw(patientId: String) async throws -> LibraryRaw {
+        let rest = self.rest
+        async let tracks: [LibraryRawTrack] = rest.select("library_tracks", query: [
+            PG.select("id,slug,title,description,pillar,cover_style,position,requires_stage,requires_track_id"), PG.order("position"),
+        ])
+        async let lessons = soft { () -> [LibraryRawLesson] in
+            try await rest.select("library_track_lessons", query: [PG.select("track_id,position,content_slug"), PG.order("position")])
+        }
+        async let progress = soft { () -> [LibraryRawProgress] in
+            try await rest.select("member_lesson_progress", query: [PG.select("track_id,content_slug"), PG.eq("patient_id", patientId)])
+        }
+        async let list = soft { () -> [LibraryListRow] in
+            try await rest.rpc("member_library_list", body: EmptyBody())
+        }
+        async let access = soft { () -> AccessRow? in
+            try await rest.selectOne("member_library_access", query: [PG.select("tracks_enabled,foundations_enabled,supplements_enabled"), PG.eq("patient_id", patientId)])
+        }
+        async let priority = soft { () -> [PriorityRow] in
+            try await rest.select("patient_track_priority", query: [PG.select("track_id,position"), PG.eq("patient_id", patientId), PG.order("position")])
+        }
+        async let plan = soft { () -> LibraryRawPlan? in
+            try await rest.selectOne("care_plans", query: [
+                PG.select("id,title,start_date"), PG.eq("patient_id", patientId), PG.eq("status", "active"), PG.order("created_at", descending: true), PG.limit(1),
+            ])
+        }
+
+        var raw = LibraryRaw()
+        raw.tracks = try await tracks
+        raw.lessons = await lessons ?? []
+        raw.progress = await progress ?? []
+        raw.list = await list ?? []
+        if let row = await access ?? nil {
+            raw.access = LibraryAccess(tracks: row.tracksEnabled == true, foundations: row.foundationsEnabled == true, supplements: row.supplementsEnabled == true)
+        }
+        raw.priorityTrackIds = (await priority ?? []).map(\.trackId)
+        if let planRow = await plan ?? nil {
+            raw.plan = planRow
+            // Objectives arrive in a second read so a goals failure cannot take the plan title down with it.
+            let goals = await soft { () -> [GoalRow] in
+                try await rest.select("care_plan_goals", query: [
+                    PG.select("statement,sort_order"), PG.eq("care_plan_id", planRow.id),
+                    URLQueryItem(name: "visibility_class", value: "in.(patient_visible,patient_visible_after_approval)"),
+                    PG.order("sort_order"),
+                ])
+            }
+            raw.planObjectives = (goals ?? []).compactMap(\.statement).filter { !$0.isEmpty }
+        }
+        return raw
+    }
+
+    func libraryItem(slug: String) async throws -> LibraryGetRow? {
+        let rows: [LibraryGetRow] = try await rest.rpc("member_library_get", body: SlugBody(pSlug: slug))
+        return rows.first
+    }
+
+    func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {
+        try await rest.insertRows("member_lesson_progress", body: [ProgressBody(patientId: patientId, trackId: trackId, contentSlug: contentSlug)])
+    }
+
+    // MARK: Meal reactions (nb_meal_reactions)
+
+    private struct ReactionRow: Decodable, Sendable { let overall: Double?; let reactionFlags: [String]? }
+
+    func mealReaction(mealId: String) async throws -> MealReaction? {
+        let row: ReactionRow? = try await rest.selectOne("nb_meal_reactions", query: [
+            PG.select("overall,reaction_flags"), PG.eq("meal_log_id", mealId), PG.order("reaction_time", descending: true), PG.limit(1),
+        ])
+        return row.map { MealReaction(overall: $0.overall, flags: $0.reactionFlags ?? []) }
+    }
+
 }

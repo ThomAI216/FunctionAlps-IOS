@@ -50,6 +50,11 @@ struct MealService: Sendable {
         try await backend.meal(id: id)
     }
 
+    /// How the meal felt afterwards, when the member rated it (`nb_meal_reactions`).
+    func reaction(mealId: String) async -> MealReaction? {
+        try? await backend.mealReaction(mealId: mealId)
+    }
+
     // MARK: Capture
 
     /// Returns the row id once the interactive analysis call has settled. `onRowCreated` fires the

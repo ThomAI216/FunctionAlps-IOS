@@ -209,3 +209,26 @@ struct DailyCheckin: Sendable, Equatable {
         return Int((Double(present.reduce(0, +)) / Double(present.count)).rounded())
     }
 }
+
+/// A past-meal felt reaction (`nb_meal_reactions`): overall 0–10 + the flags the member ticked.
+struct MealReaction: Sendable, Equatable {
+    let overall: Double?
+    let flags: [String]
+
+    enum Sentiment: Sendable { case good, watch, bad }
+
+    /// 7+ = sat well · 4–6 = a bit off · <4 = rough. Nil = not rated.
+    var sentiment: Sentiment? {
+        guard let overall else { return nil }
+        if overall >= 7 { return .good }
+        if overall >= 4 { return .watch }
+        return .bad
+    }
+
+    /// Humanised flags for the card line; the sentiment flags are dropped, capped to `max`.
+    func flagLabels(max: Int = 3) -> [String] {
+        flags.filter { $0 != "overall_off" && $0 != "overall_rough" }
+            .map { $0.replacingOccurrences(of: "_", with: " ") }
+            .prefix(max).map { $0 }
+    }
+}

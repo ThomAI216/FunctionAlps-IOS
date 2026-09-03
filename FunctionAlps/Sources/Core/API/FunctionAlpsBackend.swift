@@ -44,6 +44,22 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// `member-scores` for the signed-in member; `tzOffsetMinutes` = minutes east of UTC on this device.
     func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores
+
+    // MARK: Library (the members catalog, read under the member's own session)
+
+    /// `member_library_stage()` — fail closed to `.lead` is the SERVICE's job; the backend reports what CM OS said.
+    func libraryStage() async throws -> RelationshipStage
+    /// Catalog + progress + list + access + priority + plan in one go; only the catalog read may throw.
+    func libraryRaw(patientId: String) async throws -> LibraryRaw
+    /// `member_library_get(p_slug)`; nil when the slug is unknown.
+    func libraryItem(slug: String) async throws -> LibraryGetRow?
+    /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
+    func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
+
+    // MARK: Meal reactions
+
+    /// The latest felt reaction for a meal (`nb_meal_reactions`), or nil when never rated.
+    func mealReaction(mealId: String) async throws -> MealReaction?
 }
 
 struct PendingMealInput: Sendable, Equatable {

@@ -6,6 +6,8 @@ enum Route: Hashable {
     case settings
     case meal(String)
     case checkin(MomentSlot)
+    case track(String)
+    case read(String)
 }
 
 @MainActor
@@ -20,6 +22,12 @@ final class AppRouter {
     /// The web app's five tabs, in its order.
     enum Tab: Hashable, CaseIterable { case home, trends, food, library, profile }
     var tab: Tab = .home
+
+    /// The reader replaces the floating navbar with its own mark-done bar.
+    var hidesTabBar: Bool {
+        if case .read = libraryPath.last { return true }
+        return false
+    }
 }
 
 /// Five stacks behind one floating glass pill (the system tab bar is hidden on every root).
@@ -50,13 +58,9 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.food)
 
             NavigationStack(path: $router.libraryPath) {
-                ComingSoonView(
-                    title: String(localized: "library.title", defaultValue: "Library"),
-                    message: String(localized: "library.soon", defaultValue: "Tracks, lessons and the reader are the next slice. Your progress from the web app carries over."),
-                    systemImage: "book"
-                )
-                .toolbar(.hidden, for: .tabBar)
-                .navigationDestination(for: Route.self, destination: destination)
+                LibraryView()
+                    .toolbar(.hidden, for: .tabBar)
+                    .navigationDestination(for: Route.self, destination: destination)
             }
             .tag(AppRouter.Tab.library)
 
@@ -69,8 +73,10 @@ struct MainTabView: View {
         }
         .tint(FAColor.brand)
         .overlay(alignment: .bottom) {
-            FloatingTabBar(selection: $router.tab)
-                .padding(.bottom, 2)
+            if !router.hidesTabBar {
+                FloatingTabBar(selection: $router.tab)
+                    .padding(.bottom, 2)
+            }
         }
         .environment(router)
     }
@@ -82,6 +88,8 @@ struct MainTabView: View {
         case .settings: SettingsView()
         case .meal(let id): MealDetailView(mealId: id)
         case .checkin(let slot): CheckinMomentView(slot: slot)
+        case .track(let slug): TrackView(slug: slug)
+        case .read(let slug): ReaderView(slug: slug)
         }
     }
 }

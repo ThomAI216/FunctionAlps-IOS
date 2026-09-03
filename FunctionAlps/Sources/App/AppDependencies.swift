@@ -13,6 +13,7 @@ final class AppDependencies {
     let dashboard: DashboardService
     let meals: MealService
     let checkins: CheckinService
+    let library: LibraryService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -34,6 +35,7 @@ final class AppDependencies {
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend)
         self.checkins = CheckinService(backend: backend)
+        self.library = LibraryService(backend: backend)
         self.backend = backend
     }
 

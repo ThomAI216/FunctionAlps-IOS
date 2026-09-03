@@ -9,6 +9,7 @@ final class MealDetailViewModel {
     var isSavingNote = false
     var isDeleting = false
     var errorMessage: String?
+    private(set) var reaction: MealReaction?
 
     private let mealId: String
     private let meals: MealService
@@ -29,6 +30,7 @@ final class MealDetailViewModel {
             }
             state = .loaded(meal)
             noteDraft = meal.patientNote ?? ""
+            reaction = await meals.reaction(mealId: mealId)
             if meal.status.isWorking { watch() }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "meal.load")

@@ -46,6 +46,11 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
 
     func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] { [] }
     func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores { throw AppError.notFound }
+    func libraryStage() async throws -> RelationshipStage { .lead }
+    func libraryRaw(patientId: String) async throws -> LibraryRaw { throw AppError.notFound }
+    func libraryItem(slug: String) async throws -> LibraryGetRow? { nil }
+    func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
+    func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

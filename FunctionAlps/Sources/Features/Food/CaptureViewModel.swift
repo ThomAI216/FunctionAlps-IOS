@@ -24,6 +24,8 @@ final class CaptureViewModel {
     var phase: Phase = .starting
     var retryDescription = ""
     private(set) var mealId: String?
+    /// The row as last read — the screen renders the row's truth, never the client's guess.
+    private(set) var latest: MealLog?
 
     private let meals: MealService
     private let members: MemberService
@@ -90,6 +92,7 @@ final class CaptureViewModel {
     }
 
     private func apply(_ meal: MealLog) {
+        latest = meal
         switch meal.status {
         case .complete: phase = .done(meal)
         case .needsInput, .failed: phase = .attention(meal)
@@ -112,6 +115,21 @@ final class CaptureViewModel {
     func cancel() {
         captureTask?.cancel()
         watchTask?.cancel()
+    }
+
+    var status: MealLog.AnalysisStatus? {
+        if case .working(let s) = phase { return s }
+        return latest?.status
+    }
+
+    /// The early hand-off: the member sees their identified food while the numbers are still being
+    /// looked up (`pricing`), and every terminal state lands on the meal page too.
+    var showsResult: Bool {
+        switch phase {
+        case .done, .attention: return true
+        case .working(let s): return s == .pricing && !(latest?.items.isEmpty ?? true)
+        case .starting, .stillWorking, .failed: return false
+        }
     }
 
     var stepIndex: Int {
