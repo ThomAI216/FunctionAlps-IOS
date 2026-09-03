@@ -19,7 +19,9 @@ platform :ios do
 
     # First run creates the Apple Distribution certificate + App Store profile
     # through the API key and stores them in the certificates repo; later runs reuse.
-    match(type: "appstore", api_key: api_key, app_identifier: [BUNDLE_ID])
+    # fastlane forces readonly on CI by default; the first run must be allowed to
+    # create the certificate + profile, later runs simply reuse what is in the repo.
+    match(type: "appstore", api_key: api_key, app_identifier: [BUNDLE_ID], readonly: false)
 
     update_code_signing_settings(
       path: PROJECT,
