@@ -70,6 +70,12 @@ end
 ```
 Then `deploy beta` in the agent maps to `fastlane beta`. Code-signing stays Xcode-automatic for an individual account; `match` is only worth it when a second machine or CI appears (it revokes/recreates certificates on adoption — do not run it casually).
 
+## 5b. What the first upload taught us (2026-09-03, build 1 accepted)
+- App Store Connect **requires the iOS 26 SDK**: both CI jobs select `Xcode_26*` on the runner. Xcode 16 builds are rejected at upload with "SDK version issue".
+- `match` must run with `readonly: false` on CI the first time (fastlane defaults to read-only when it detects CI); it created the Apple Distribution certificate + App Store profile and stored them in `FunctionAlps-CERTS`.
+- The bundle must contain a 1024×1024 icon in the asset catalog plus `CFBundleIconName`; portrait-only apps need `UIRequiresFullScreen = true` (or all four orientations). The current icon is a generated placeholder — replace `AppIcon-1024.png` with the real mark.
+- Trigger from the agent side: push to `release/testflight` (tags are blocked by the agent's git proxy; the Run-workflow button is not available to its GitHub integration).
+
 ## 6. App Store Connect API for the agent (later)
 Apple's ASC API (JWT signed with the `.p8`) can read builds, manage TestFlight groups/testers, and beta metadata. If an MCP is added for it, it runs **locally** on the Mac, reads the key from a local path, and is reviewed before use (PRD §35–36). Nothing in this repo assumes it exists.
 

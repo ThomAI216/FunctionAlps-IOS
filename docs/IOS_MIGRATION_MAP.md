@@ -14,7 +14,7 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
 | Home shows real member data | ✅ code | greeting, today's meals + macro sums vs targets, check-in status/markers, unread badge |
 | Logout works | ✅ code | server logout best-effort + Keychain clear |
 | API errors → user-safe states | ✅ | `AppError.userMessage`, `FAErrorState`, unauthorized → login exactly once |
-| Uploads to App Store Connect / TestFlight | ⬜ | DEPLOYMENT.md; bundle-id decision needed first |
+| Uploads to App Store Connect / TestFlight | ✅ | build 1 uploaded 2026-09-03 via the CI lane (Xcode 26, match-created certificate); install via internal TestFlight group |
 
 ## Phase map (PRD §24, adjusted to what exists)
 | Phase | Expo surface | Native slice | Backend prerequisite | Status |
