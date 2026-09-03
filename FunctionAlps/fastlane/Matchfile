@@ -1,0 +1,8 @@
+# Certificates + profiles live encrypted in a PRIVATE git repo (MATCH_GIT_URL),
+# never in this repo. MATCH_PASSWORD decrypts them. This is what lets a machine
+# we do not own (a GitHub macOS runner) sign the app.
+git_url(ENV["MATCH_GIT_URL"])
+storage_mode("git")
+type("appstore")
+app_identifier([ENV["FA_BUNDLE_ID"] || "com.functionalps.patient"])
+readonly(false)

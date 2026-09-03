@@ -1,0 +1,10 @@
+#include "Base.xcconfig"
+FA_ENVIRONMENT_NAME = development
+// Shared backend "CM OS". The publishable key is a CLIENT key by design (RLS
+// protects the data) and is already committed in the Expo app's client.ts.
+// Never put a secret/service-role key in any xcconfig.
+FA_SUPABASE_URL = $(FA_SCHEME)ndojytvvlvlbgtodujkf.supabase.co
+FA_SUPABASE_PUBLISHABLE_KEY = sb_publishable_LVGwAdT4rrdto0hTMHUhrw_ikue9GGM
+// Future FunctionAlps-controlled gateway (PRD §7). Empty = talk to Supabase REST directly.
+FA_API_BASE_URL =
+PRODUCT_BUNDLE_IDENTIFIER_SUFFIX = .dev

@@ -1,0 +1,291 @@
+openapi: 3.1.0
+info:
+  title: FunctionAlps Member API (v1 contract)
+  version: 1.0.0-m1
+  description: |
+    The domain contract the native iOS app codes against (PRD §8). Today every
+    operation is implemented by CM OS (Supabase Auth / PostgREST / Edge Functions);
+    the `x-implementation` field on each operation says exactly how. When
+    `api.functionalps.ch` exists it MUST serve these same paths and shapes so the
+    Swift `GatewayBackend` can replace `SupabaseBackend` without feature changes.
+    Operations marked `x-status: planned` are not yet consumed by the app.
+servers:
+  - url: https://api.functionalps.ch/api/v1
+    description: Future FunctionAlps-controlled gateway (does not exist yet)
+  - url: https://ndojytvvlvlbgtodujkf.supabase.co
+    description: Current transport (CM OS). Paths differ — see x-implementation.
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+  - name: me
+  - name: today
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: authLogin
+      security: []
+      x-status: implemented
+      x-implementation: POST {supabase}/auth/v1/token?grant_type=password with header apikey=<publishable>; body {email,password}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        '200':
+          description: Session issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/InvalidCredentials' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: authRefresh
+      security: []
+      x-status: implemented
+      x-implementation: POST {supabase}/auth/v1/token?grant_type=refresh_token; body {refresh_token}. Rotating refresh tokens — never send the same one twice concurrently.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: New session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { description: Refresh token rejected — client must sign out }
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: authLogout
+      x-status: implemented
+      x-implementation: POST {supabase}/auth/v1/logout with the access token. 401/403 are treated as already signed out.
+      responses:
+        '204': { description: Signed out }
+  /auth/signup:
+    post:
+      tags: [auth]
+      operationId: authSignup
+      security: []
+      x-status: planned
+      x-implementation: POST {supabase}/auth/v1/signup with user_metadata {first_name,last_name,phone}; then, once a session exists, POST /functions/v1/patient-register {firstName,lastName,email}
+      responses:
+        '200': { description: Email confirmation required (no session) }
+  /auth/password-reset:
+    post:
+      tags: [auth]
+      operationId: authPasswordReset
+      security: []
+      x-status: planned
+      x-implementation: POST {supabase}/auth/v1/recover {email}; native redirect functionalps://auth/reset then PUT /auth/v1/user {password}
+      responses:
+        '200': { description: Always 200 (never reveals whether the email exists) }
+  /me:
+    get:
+      tags: [me]
+      operationId: getMe
+      x-status: implemented
+      x-implementation: |
+        patient_id from the JWT user_metadata, else POST {supabase}/rest/v1/rpc/current_member_patient_id {} (null → 404 NOT_REGISTERED);
+        profile from GET {supabase}/rest/v1/nb_patient_app_profiles?select=<columns>&patient_id=eq.<id>&limit=1 (RLS: own row).
+      responses:
+        '200':
+          description: The signed-in member
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+        '404':
+          description: Account has no client profile yet (NOT_REGISTERED)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /me/today:
+    get:
+      tags: [today]
+      operationId: getToday
+      x-status: implemented
+      x-implementation: |
+        day = member-local YYYY-MM-DD (client supplies `day` and `since`).
+        meals: GET /rest/v1/nb_meal_logs?select=...&patient_id=eq.<id>&logged_at=gte.<since>&order=logged_at.desc&limit=100
+        checkin: GET /rest/v1/patient_daily_checkins?select=<v2 columns>&patient_id=eq.<id>&checkin_date=eq.<day>&limit=1 (retry with legacy columns on 400)
+        unread: GET /rest/v1/patient_messages?select=id&patient_id=eq.<id>&sender_type=eq.clinician&read_by_patient_at=is.null&limit=1 with Prefer: count=exact → Content-Range
+      parameters:
+        - in: query
+          name: day
+          required: true
+          schema: { type: string, format: date }
+          description: Member-local calendar day (YYYY-MM-DD)
+        - in: query
+          name: since
+          required: true
+          schema: { type: string, format: date-time }
+          description: Start of that day as an ISO-8601 instant
+      responses:
+        '200':
+          description: Today's snapshot
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TodaySnapshot' }
+  /me/profile:
+    put:
+      tags: [me]
+      operationId: putProfile
+      x-status: planned
+      x-implementation: Should become RPC member_save_profile — nb_patient_app_profiles has column-scoped grants (patient_id INSERT-only), so PostgREST upsert fails with 42501; the Expo app does UPDATE-then-INSERT.
+      responses:
+        '200': { description: Updated profile }
+  /me/meals:
+    post:
+      tags: [today]
+      operationId: postMeal
+      x-status: planned
+      x-implementation: Pending row INSERT into nb_meal_logs {patient_id, logged_at, meal_type, source, photo_url, name, analysis_status:'queued'} then POST /functions/v1/analyze-meal {mealLogId,...}. Should become RPC member_log_meal.
+      responses:
+        '201': { description: Meal created (analysis queued) }
+  /me/checkins:
+    post:
+      tags: [today]
+      operationId: postCheckin
+      x-status: planned
+      x-implementation: Upsert patient_checkin_moments (patient_id, checkin_date, slot) + roll-up into patient_daily_checkins; red flags MUST be evaluated server-side (today client-only).
+      responses:
+        '200': { description: Check-in saved }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: The member's session token. On the current transport every request also carries `apikey: <publishable key>`.
+  responses:
+    InvalidCredentials:
+      description: Wrong email/password (GoTrue error_code invalid_credentials / legacy invalid_grant)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Too many attempts
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      description: Union of the two error shapes seen today.
+      properties:
+        code: { oneOf: [{ type: string }, { type: integer }], description: PostgREST SQLSTATE (e.g. "42703") or GoTrue numeric status }
+        error_code: { type: string, description: GoTrue machine code (invalid_credentials, email_not_confirmed, …) }
+        msg: { type: string }
+        message: { type: string }
+        error: { type: string }
+        error_description: { type: string }
+        details: { type: [string, 'null'] }
+        hint: { type: [string, 'null'] }
+    Session:
+      type: object
+      required: [access_token, refresh_token, user]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, enum: [bearer] }
+        expires_in: { type: integer, description: seconds }
+        expires_at: { type: integer, description: epoch seconds }
+        refresh_token: { type: string }
+        user:
+          type: object
+          required: [id]
+          properties:
+            id: { type: string, format: uuid, description: auth.users.id — NOT the patient id }
+            email: { type: [string, 'null'], format: email }
+            user_metadata:
+              type: object
+              properties:
+                patient_id: { type: string, format: uuid, description: public.patients.id, stamped by patient-register }
+                role: { type: string, enum: [patient] }
+                full_name: { type: string }
+                name: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+    Member:
+      type: object
+      required: [user_id, patient_id, display_name]
+      properties:
+        user_id: { type: string, format: uuid }
+        patient_id: { type: string, format: uuid }
+        email: { type: [string, 'null'] }
+        display_name: { type: string, description: From auth metadata; never from the PII vault }
+        profile:
+          oneOf: [{ $ref: '#/components/schemas/MemberProfile' }, { type: 'null' }]
+    MemberProfile:
+      type: object
+      description: nb_patient_app_profiles (member-facing subset). All fields nullable.
+      properties:
+        app_sex: { type: [string, 'null'], enum: [male, female, other, null] }
+        app_age: { type: [integer, 'null'] }
+        app_height_cm: { type: [number, 'null'] }
+        app_weight_kg: { type: [number, 'null'] }
+        activity_level: { type: [string, 'null'] }
+        health_goals: { type: array, items: { type: string } }
+        current_complaints: { type: array, items: { type: string } }
+        dietary_pattern: { type: [string, 'null'] }
+        target_calories: { type: [integer, 'null'] }
+        target_protein_g: { type: [integer, 'null'] }
+        target_carbs_g: { type: [integer, 'null'] }
+        target_fat_g: { type: [integer, 'null'] }
+        goal_mode: { type: [string, 'null'], enum: [build, cut, maintain, null] }
+        onboarding_completed_at: { type: [string, 'null'], format: date-time }
+        locale: { type: [string, 'null'], enum: [en, fr, null] }
+    MealLog:
+      type: object
+      required: [id, logged_at]
+      properties:
+        id: { type: string, format: uuid }
+        logged_at: { type: string, format: date-time, description: ISO-8601 UTC; Postgres emits up to 6 fractional digits }
+        meal_type: { type: [string, 'null'], enum: [breakfast, lunch, dinner, snack, other, null] }
+        name: { type: [string, 'null'] }
+        source: { type: [string, 'null'], enum: [photo, text, voice, null] }
+        analysis_status: { type: [string, 'null'], enum: [queued, pending, analyzing, complete, failed, null] }
+        total_calories: { type: [number, 'null'] }
+        total_protein_g: { type: [number, 'null'] }
+        total_carbs_g: { type: [number, 'null'] }
+        total_fat_g: { type: [number, 'null'] }
+        photo_url: { type: [string, 'null'], description: Storage PATH in the private meal-images bucket, not a URL }
+    DailyCheckin:
+      type: object
+      required: [checkin_date]
+      description: patient_daily_checkins. Markers 0–100, higher = better; stress_score stores CALMNESS.
+      properties:
+        checkin_date: { type: string, format: date }
+        functional_completed_at: { type: [string, 'null'], format: date-time }
+        intelligence_completed_at: { type: [string, 'null'], format: date-time }
+        energy_overall: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+        mood_score: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+        sleep_overall: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+        stress_score: { type: [integer, 'null'], minimum: 0, maximum: 100, description: calmness }
+        gut_overall: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+        energy: { type: [integer, 'null'], minimum: 1, maximum: 10, description: legacy }
+        mood: { type: [integer, 'null'], minimum: 1, maximum: 10, description: legacy }
+        sleep: { type: [integer, 'null'], minimum: 1, maximum: 10, description: legacy }
+        stress: { type: [integer, 'null'], minimum: 1, maximum: 10, description: legacy (stress, not calmness) }
+    TodaySnapshot:
+      type: object
+      required: [day, meals, unread_clinician_messages]
+      properties:
+        day: { type: string, format: date }
+        meals: { type: array, items: { $ref: '#/components/schemas/MealLog' } }
+        checkin: { oneOf: [{ $ref: '#/components/schemas/DailyCheckin' }, { type: 'null' }] }
+        unread_clinician_messages: { type: integer, minimum: 0 }

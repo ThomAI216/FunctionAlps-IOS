@@ -1,0 +1,7 @@
+#include "Base.xcconfig"
+FA_ENVIRONMENT_NAME = production
+FA_SUPABASE_URL = $(FA_SCHEME)ndojytvvlvlbgtodujkf.supabase.co
+FA_SUPABASE_PUBLISHABLE_KEY = sb_publishable_LVGwAdT4rrdto0hTMHUhrw_ikue9GGM
+// When api.functionalps.ch exists, set it here and the SupabaseBackend is swapped
+// for GatewayBackend without touching any feature (PRD §40).
+FA_API_BASE_URL =

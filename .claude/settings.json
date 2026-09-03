@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__xcodebuildmcp__*",
+      "Read",
+      "Edit",
+      "Write",
+      "Bash(git *)",
+      "Bash(swift *)",
+      "Bash(swiftlint *)",
+      "Bash(swift-format *)",
+      "Bash(xcodegen *)",
+      "Bash(xcodebuild *)",
+      "Bash(xcrun simctl *)"
+    ],
+    "deny": [
+      "Read(**/*.p8)",
+      "Read(**/*.p12)",
+      "Read(**/*.mobileprovision)",
+      "Read(**/Local.xcconfig)",
+      "Read(**/Secrets.xcconfig)",
+      "Read(.env*)",
+      "Write(**/*.p8)",
+      "Write(**/Secrets.xcconfig)",
+      "Bash(rm -rf *)"
+    ]
+  },
+  "env": {
+    "PROJECT_NAME": "FunctionAlps",
+    "DEFAULT_SIMULATOR": "iPhone 16",
+    "SWIFT_VERSION": "6.0",
+    "IOS_DEPLOYMENT_TARGET": "17.0"
+  }
+}

@@ -1,0 +1,6 @@
+#include "Base.xcconfig"
+FA_ENVIRONMENT_NAME = staging
+// TODO(owner): point at a staging project / gateway when one exists.
+FA_SUPABASE_URL = $(FA_SCHEME)ndojytvvlvlbgtodujkf.supabase.co
+FA_SUPABASE_PUBLISHABLE_KEY = sb_publishable_LVGwAdT4rrdto0hTMHUhrw_ikue9GGM
+FA_API_BASE_URL =

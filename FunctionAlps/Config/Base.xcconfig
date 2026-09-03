@@ -1,0 +1,12 @@
+// Shared build settings. Environment-specific files include this one.
+// Per-machine values (signing team) live in Local.xcconfig, which is git-ignored.
+#include? "Local.xcconfig"
+
+// ⚠ Bundle ID decision (PRD §14): the shipped Expo app already uses
+// com.functionalps.patient. Keeping it means the native app ships as an UPDATE
+// to the same App Store Connect record (same users, same TestFlight groups).
+// Change ONLY before the first upload, then never again.
+FA_BUNDLE_ID = com.functionalps.patient
+
+// xcconfig cannot contain "//" inside a value — the $() trick keeps the URL intact.
+FA_SCHEME = https:/$()/

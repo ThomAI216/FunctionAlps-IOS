@@ -1,0 +1,4 @@
+# No Apple ID here on purpose: authentication is the App Store Connect API key
+# passed through environment variables (see .github/workflows/ios.yml).
+app_identifier(ENV["FA_BUNDLE_ID"] || "com.functionalps.patient")
+team_id(ENV["APPLE_TEAM_ID"])
