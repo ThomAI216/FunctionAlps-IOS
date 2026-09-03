@@ -63,7 +63,9 @@ struct FunctionalSliderView: View {
                     DragGesture(minimumDistance: 0)
                         .onChanged { g in
                             dragging = true
-                            value = (min(100, max(0, g.location.x / width * 100))).rounded()
+                            let fraction = Double(g.location.x) / Double(width)
+                            let next: Double = min(100, max(0, fraction * 100))
+                            value = next.rounded()
                         }
                         .onEnded { _ in dragging = false }
                 )
