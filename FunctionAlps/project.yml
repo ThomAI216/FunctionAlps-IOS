@@ -6,7 +6,7 @@ name: FunctionAlps
 options:
   deploymentTarget:
     iOS: "17.0"
-  xcodeVersion: "16.0"
+  xcodeVersion: "26.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
   groupSortPosition: top
@@ -54,6 +54,8 @@ targets:
         UILaunchScreen:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIRequiresFullScreen: true
+        CFBundleIconName: AppIcon
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
@@ -68,6 +70,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(FA_BUNDLE_ID)
         PRODUCT_NAME: FunctionAlps
+        TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: NO
     scheme:
       testTargets:
