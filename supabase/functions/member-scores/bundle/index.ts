@@ -1,1 +1,942 @@
-import"jsr:@supabase/functions-js/edge-runtime.d.ts";import{createClient}from"npm:@supabase/supabase-js@2";var SUPABASE_URL=Deno.env.get("SUPABASE_URL"),ANON_KEY=Deno.env.get("SUPABASE_ANON_KEY");function getBearerToken(req){let authHeader=req.headers.get("Authorization");return authHeader?.startsWith("Bearer ")?authHeader.slice(7):null}function createUserScopedClient(req){let token=getBearerToken(req);return createClient(SUPABASE_URL,ANON_KEY,{global:{headers:token?{Authorization:`Bearer ${token}`}:{}},auth:{persistSession:!1,autoRefreshToken:!1}})}function mountain(value,invert=!1){let pct=(invert?5-value:value-1)/4*100;return Math.round(Math.max(0,Math.min(100,pct)))}var NEUTRAL_1_5=3,HEALTH_DETAILS={digestion:{title:"Digestion",subtitle:"How calm, comfortable, and steady your gut feels",accentColor:"#0d9488",accentBg:"#f0fdfa",chartColor:"#14b8a6",chartType:"sparkline",higherIsBetter:!0,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value),getCurrentValue:checkin=>checkin?.digestion??NEUTRAL_1_5,insightTitle:"Digestion gives the clearest day-to-day feedback",explanation:"Digestion reflects how comfortably your system is handling meals, routine, and stress right now. A steadier digestion score usually means your gut is tolerating the day with less irritation and less reactivity.",focusAreas:[{title:"Meal simplicity",description:"Simpler meals often make it easier to tell which foods or habits are helping and which ones are stirring things up."},{title:"Eating pace",description:"Slowing the pace of a meal can reduce digestive load more than people expect, especially when stress is high."},{title:"Timing of symptoms",description:"Patterns become clearer when bloating, reflux, or discomfort are linked back to a meal window rather than treated as random."}],todayInContext:[{label:"Inflammation",description:"When digestion feels rough for several days in a row, inflammatory load often feels louder too."},{label:"Mood",description:"Digestive discomfort can quietly pull mood down by making the whole day feel more effortful."},{label:"Energy",description:"When meals are harder to tolerate, energy often feels less usable even if calories are technically adequate."},{label:"Sleep",description:"Late digestive discomfort or reflux can make sleep lighter and recovery weaker overnight."},{label:"Stress",description:"Stress can tighten digestion quickly, so pressure often shows up in the gut before it shows up anywhere else."}]},sleep:{title:"Sleep",subtitle:"How rested and recovered you feel",accentColor:"#6366f1",accentBg:"#eef2ff",chartColor:"#7c3aed",chartType:"bar",higherIsBetter:!0,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value),getCurrentValue:checkin=>checkin?.sleep??NEUTRAL_1_5,insightTitle:"Sleep drives the rest of the dashboard",explanation:"Sleep is your recovery foundation. When sleep is deeper and more consistent, energy, stress resilience, digestion, and overall stability usually improve with it.",focusAreas:[{title:"Wind-down consistency",description:"Keep the hour before bed quieter and dimmer so your nervous system can downshift properly."},{title:"Morning light",description:"Getting daylight early anchors circadian rhythm and makes evening sleep pressure stronger."},{title:"Late caffeine cutoff",description:"A firm cutoff earlier in the afternoon often improves sleep depth more than people expect."}],todayInContext:[{label:"Digestion",description:"A restless night often makes digestion feel more reactive and less forgiving the next day."},{label:"Inflammation",description:"Poor sleep can amplify inflammatory noise even when food choices are reasonable."},{label:"Mood",description:"Mood usually becomes less resilient when recovery is shallow or inconsistent."},{label:"Energy",description:"Energy is often the first place poor sleep becomes visible in the day."},{label:"Stress",description:"When sleep drops, the same daily load often feels much heavier than usual."}]},stress:{title:"Stress",subtitle:"Load, pressure, and recovery capacity",accentColor:"#e11d48",accentBg:"#fff1f2",chartColor:"#ec4899",chartType:"sparkline",higherIsBetter:!1,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value,!0),getCurrentValue:checkin=>checkin?.stress??NEUTRAL_1_5,insightTitle:"Stress is a multiplier, not an isolated score",explanation:"Stress is a load signal. When stress climbs, it tends to amplify digestive sensitivity, reduce emotional flexibility, and make energy less stable across the day.",focusAreas:[{title:"Short resets",description:"Two or three intentional breath or walking breaks often change the whole shape of a day."},{title:"Calendar load",description:"Back-to-back commitments can quietly keep your system in a higher-alert state for hours."},{title:"Evening decompression",description:"A calmer evening improves both stress recovery and the next night of sleep."}],todayInContext:[{label:"Digestion",description:"Stress often shows up in digestion quickly through tightness, discomfort, or symptom flares."},{label:"Inflammation",description:"Higher stress can make the whole system feel more reactive, especially when recovery is already low."},{label:"Mood",description:"When pressure stays high, mood usually gets flatter, more fragile, or less resilient."},{label:"Energy",description:"Stress can make energy feel jagged by pulling attention and recovery in too many directions at once."},{label:"Sleep",description:"A busy nervous system at night often turns into lighter sleep and weaker recovery."}]},energy:{title:"Energy",subtitle:"How steady and usable your output feels",accentColor:"#d97706",accentBg:"#fffbeb",chartColor:"#f59e0b",chartType:"sparkline",higherIsBetter:!0,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value),getCurrentValue:checkin=>checkin?.energy??NEUTRAL_1_5,insightTitle:"Energy is where nutrition becomes visible",explanation:"Energy reflects how usable your output feels, not just how awake you are. Stronger energy usually means food, recovery, and daily load are working together instead of competing.",focusAreas:[{title:"Protein first",description:"A stronger protein anchor early in the day often smooths out hunger and energy swings."},{title:"Stable blood sugar",description:"Big peaks and crashes usually feel like low energy, even when calories are technically adequate."},{title:"Recovery versus output",description:"If output keeps climbing while recovery stays flat, energy debt accumulates fast."}],todayInContext:[{label:"Digestion",description:"If digestion is unsettled, energy often feels less steady even before symptoms become obvious."},{label:"Inflammation",description:"Higher inflammatory load can make energy feel heavier, slower, and less reliable."},{label:"Mood",description:"Low or unstable energy often drags mood down because everything feels more effortful."},{label:"Sleep",description:"Sleep quality still shapes the ceiling of how strong and stable energy can feel."},{label:"Stress",description:"Stress can burn through energy by pushing the system into output mode without enough recovery."}]},inflammation:{title:"Inflammation",subtitle:"How noisy or reactive the system feels",accentColor:"#0d9488",accentBg:"#f0fdfa",chartColor:"#14b8a6",chartType:"sparkline",higherIsBetter:!1,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value,!0),getCurrentValue:checkin=>checkin?.inflammation??NEUTRAL_1_5,insightTitle:"Inflammation should feel actionable, not abstract",explanation:"Inflammation reflects how noisy or reactive the system feels in the background. It is influenced by food quality, recovery, stress load, and how well the body is handling daily demands over time.",focusAreas:[{title:"Meal simplicity",description:"Cleaner meals with fewer triggers usually make patterns easier to spot and inflammation easier to calm."},{title:"Training load",description:"Hard weeks can make inflammation scores look worse even when food is decent."},{title:"Baseline recovery",description:"Sleep, hydration, and digestion often shift inflammation more reliably than one supplement does."}],todayInContext:[{label:"Digestion",description:"Digestive irritation and inflammatory load often rise together when the system is under more pressure."},{label:"Mood",description:"When inflammation is elevated, mood can feel heavier and less adaptable even without an obvious trigger."},{label:"Energy",description:"Inflammation often lowers the quality of energy by making the whole day feel louder and less efficient."},{label:"Sleep",description:"Sleep is one of the strongest background levers for lowering inflammatory noise."},{label:"Stress",description:"Chronic pressure can keep inflammation elevated by reducing recovery and increasing system load."}]},mood:{title:"Mood",subtitle:"Emotional steadiness, resilience, and outlook",accentColor:"#db2777",accentBg:"#fdf2f8",chartColor:"#ec4899",chartType:"sparkline",higherIsBetter:!0,deltaSuffix:" pts",formatValue:value=>`${Math.round(value)}/5`,scoreFromValue:value=>mountain(value),getCurrentValue:checkin=>checkin?.mood??NEUTRAL_1_5,insightTitle:"Mood is where recovery becomes personal",explanation:"Mood reflects how emotionally steady, resilient, and flexible the day feels. It is often shaped by sleep, stress, digestion, and energy more than by one isolated event.",focusAreas:[{title:"Recovery load",description:"Mood usually gets more fragile when sleep debt and daily pressure pile up at the same time."},{title:"Food stability",description:"Regular meals with enough protein and fewer crashes often make mood feel steadier across the day."},{title:"Small lifts",description:"Light movement, daylight, and social contact can all shift mood more reliably than waiting to feel better first."}],todayInContext:[{label:"Digestion",description:"A more irritated gut can quietly lower mood by making the day feel physically harder to move through."},{label:"Inflammation",description:"Higher inflammatory load often makes mood feel flatter, heavier, or less resilient."},{label:"Energy",description:"When energy is steady, mood usually feels more flexible and easier to protect."},{label:"Sleep",description:"Sleep is one of the strongest levers for emotional steadiness across the whole day."},{label:"Stress",description:"Stress and mood move together quickly, especially when recovery is already stretched."}]}};var NUTRIENTS=[{key:"vitamin_d3",name:"Vitamin D3",groupKey:"vitamins",emoji:"\u2600\uFE0F",unit:"mcg",tagline:"The sunshine vitamin",description:"Vitamin D3 functions as a hormone, regulating calcium absorption, immune function, mood, and gene expression. Up to 80% of European adults are deficient, especially in winter.",rdaMale:50,rdaFemale:50,consumed:0,weekTrend:[7.5,11,6,12.5,9,10,7.5],foodSources:[{food:"Salmon (85g)",amount:"14 mcg",emoji:"\u{1F41F}"},{food:"Sardines (90g)",amount:"9 mcg",emoji:"\u{1F420}"},{food:"Egg yolk (1)",amount:"1.1 mcg",emoji:"\u{1F95A}"},{food:"Fortified milk (1 cup)",amount:"3 mcg",emoji:"\u{1F95B}"}],deficiencySymptoms:["fatigue","mood_swings","joint_pain","anxiety","insomnia"],aiSuggestion:"A salmon dinner tonight would add 570 IU. Combined with 20 min of midday sun, you'd close this gap significantly."},{key:"vitamin_c",name:"Vitamin C",groupKey:"vitamins",emoji:"\u{1F34A}",unit:"mg",tagline:"Master antioxidant",description:"Essential for collagen synthesis, iron absorption, immune defence, and neutralising free radicals. The body excretes excess daily, so consistent intake is needed.",rdaMale:90,rdaFemale:75,consumed:0,weekTrend:[65,45,85,55,70,60,50],foodSources:[{food:"Red bell pepper (80g)",amount:"95mg",emoji:"\u{1FAD1}"},{food:"Kiwi (1 fruit, 70g)",amount:"72mg",emoji:"\u{1F95D}"},{food:"Orange (1 medium, 130g)",amount:"70mg",emoji:"\u{1F34A}"},{food:"Broccoli (80g cooked)",amount:"51mg",emoji:"\u{1F966}"}],deficiencySymptoms:["fatigue","skin_issues","joint_pain"],aiSuggestion:"Adding a red bell pepper to lunch would put you at 100%+ instantly."},{key:"vitamin_b12",name:"Vitamin B12",groupKey:"vitamins",emoji:"\u26A1",unit:"mcg",tagline:"Nerve & energy vitamin",description:"Critical for red blood cell formation, DNA synthesis, and nervous system function. Vegans and vegetarians are at high risk of deficiency. Absorption declines with age.",rdaMale:2.4,rdaFemale:2.4,consumed:0,weekTrend:[3.2,1.8,4.5,2,2.8,1.5,2.2],foodSources:[{food:"Beef liver (85g)",amount:"70mcg",emoji:"\u{1F969}"},{food:"Salmon (85g)",amount:"4.9mcg",emoji:"\u{1F41F}"},{food:"Eggs (2 large, 100g)",amount:"1.4mcg",emoji:"\u{1F95A}"},{food:"Greek yogurt (1 cup, 245g)",amount:"1.3mcg",emoji:"\u{1FAD9}"}],deficiencySymptoms:["fatigue","brain_fog","mood_swings","anxiety"],aiSuggestion:"You're at 75% today. Adding salmon or eggs to tomorrow's breakfast would push you above target."},{key:"folate",name:"Folate (B9)",groupKey:"vitamins",emoji:"\u{1F33F}",unit:"mcg DFE",tagline:"Cell & DNA builder",description:"Folate is essential for DNA replication, cell division, amino acid metabolism, and methylation reactions. Critical during pregnancy and for anyone with MTHFR variants.",rdaMale:400,rdaFemale:400,consumed:0,weekTrend:[280,320,250,380,300,270,310],foodSources:[{food:"Spinach (180g cooked)",amount:"263mcg",emoji:"\u{1F96C}"},{food:"Lentils (100g cooked)",amount:"179mcg",emoji:"\u{1FAD8}"},{food:"Asparagus (6 spears, 90g)",amount:"134mcg",emoji:"\u{1F33F}"},{food:"Avocado (\xBD, 70g)",amount:"82mcg",emoji:"\u{1F951}"}],deficiencySymptoms:["fatigue","brain_fog","mood_swings"],aiSuggestion:"A spinach + lentil bowl for lunch would bring you to 130% coverage in one meal."},{key:"vitamin_a",name:"Vitamin A",groupKey:"vitamins",emoji:"\u{1F955}",unit:"mcg RAE",tagline:"Vision & immune function",description:"Vitamin A supports night vision, skin integrity, immune barriers, and cell differentiation. It exists as preformed (animal sources) and beta-carotene (plant sources).",rdaMale:900,rdaFemale:700,consumed:0,weekTrend:[500,850,400,1100,600,450,700],foodSources:[{food:"Sweet potato (1 medium, 130g)",amount:"1096mcg",emoji:"\u{1F360}"},{food:"Carrots (80g)",amount:"459mcg",emoji:"\u{1F955}"},{food:"Beef liver (85g)",amount:"6582mcg",emoji:"\u{1F969}"},{food:"Spinach (90g cooked)",amount:"472mcg",emoji:"\u{1F96C}"}],deficiencySymptoms:["skin_issues","fatigue"],aiSuggestion:"Half a sweet potato at dinner would take you to 180% \xB7 A is fat-soluble, add olive oil to maximise absorption."},{key:"vitamin_k2",name:"Vitamin K2",groupKey:"vitamins",emoji:"\u{1FAC0}",unit:"mcg",tagline:"Calcium director",description:"K2 activates proteins that direct calcium to bones (not arteries). Often deficient in Western diets. Works synergistically with D3 \xB7 both are needed together.",rdaMale:120,rdaFemale:90,consumed:0,weekTrend:[25,40,15,55,30,20,35],foodSources:[{food:"Natto (45g)",amount:"500mcg",emoji:"\u{1FAD8}"},{food:"Gouda cheese (30g)",amount:"76mcg",emoji:"\u{1F9C0}"},{food:"Egg yolks (2, 34g)",amount:"32mcg",emoji:"\u{1F95A}"},{food:"Pasture butter (15g)",amount:"15mcg",emoji:"\u{1F9C8}"}],deficiencySymptoms:["joint_pain"],aiSuggestion:"K2 is tricky to get from diet. Adding gouda or a fermented food daily is the most practical strategy."},{key:"vitamin_e",name:"Vitamin E",groupKey:"vitamins",emoji:"\u{1F33B}",unit:"mg",tagline:"Cell-protecting antioxidant",description:"Vitamin E is a fat-soluble antioxidant that protects cell membranes from oxidative damage. It supports immune function, skin health, and cardiovascular protection. Works synergistically with Vitamin C.",rdaMale:15,rdaFemale:15,consumed:0,weekTrend:[8,12,7,14,9,10,8],foodSources:[{food:"Sunflower seeds (30g)",amount:"10mg",emoji:"\u{1F33B}"},{food:"Almonds (30g)",amount:"7.3mg",emoji:"\u{1F95C}"},{food:"Avocado (\xBD, 70g)",amount:"2.1mg",emoji:"\u{1F951}"},{food:"Spinach (180g cooked)",amount:"3.7mg",emoji:"\u{1F96C}"}],deficiencySymptoms:["fatigue","skin_issues"],aiSuggestion:"A handful of sunflower seeds or almonds as a snack covers most of your daily Vitamin E needs."},{key:"biotin",name:"Biotin (B7)",groupKey:"vitamins",emoji:"\u{1F485}",unit:"mcg",tagline:"Hair, skin & metabolism",description:"Biotin is a B-vitamin cofactor in carboxylase enzymes involved in fatty acid synthesis, gluconeogenesis, and amino acid metabolism. Widely known for supporting hair, skin, and nail health.",rdaMale:30,rdaFemale:30,consumed:0,weekTrend:[22,15,28,18,25,20,16],foodSources:[{food:"Beef liver (85g)",amount:"35mcg",emoji:"\u{1F969}"},{food:"Eggs (2 large, 100g)",amount:"20mcg",emoji:"\u{1F95A}"},{food:"Salmon (85g)",amount:"5mcg",emoji:"\u{1F41F}"},{food:"Sweet potato (1 medium, 130g)",amount:"4.8mcg",emoji:"\u{1F360}"}],deficiencySymptoms:["skin_issues","fatigue"],aiSuggestion:"Two eggs at breakfast cover about 66% of your biotin needs. Rare to be truly deficient unless on certain medications."},{key:"magnesium",name:"Magnesium",groupKey:"minerals",emoji:"\u{1F4AA}",unit:"mg",tagline:"Master mineral \xB7 300+ reactions",description:"Magnesium is a cofactor in over 300 enzymatic reactions, including energy production, protein synthesis, muscle contraction, and nerve function. About 50% of people are deficient.",rdaMale:420,rdaFemale:320,consumed:0,weekTrend:[200,150,250,180,220,170,190],foodSources:[{food:"Spinach (180g cooked)",amount:"157mg",emoji:"\u{1F96C}"},{food:"Pumpkin seeds (30g)",amount:"156mg",emoji:"\u{1F383}"},{food:"Dark chocolate (30g)",amount:"64mg",emoji:"\u{1F36B}"},{food:"Black beans (85g cooked)",amount:"60mg",emoji:"\u{1FAD8}"}],deficiencySymptoms:["fatigue","insomnia","anxiety","headaches","muscle_pain"],aiSuggestion:"Spinach + pumpkin seeds tonight = ~313mg in one meal. That's 74% of your target in two ingredients."},{key:"iron",name:"Iron",groupKey:"minerals",emoji:"\u{1FA78}",unit:"mg",tagline:"Oxygen transporter",description:"Iron forms haemoglobin to carry oxygen through the body. Iron deficiency is the world's most common nutritional deficiency \xB7 women are particularly at risk. Heme iron (meat) absorbs 2-3x better than non-heme (plants).",rdaMale:8,rdaFemale:18,consumed:0,weekTrend:[8,6,11,7,9,7,8],foodSources:[{food:"Beef liver (85g)",amount:"5.8mg",emoji:"\u{1F969}"},{food:"Lentils (100g cooked)",amount:"3.3mg",emoji:"\u{1FAD8}"},{food:"Spinach (180g cooked)",amount:"3.2mg",emoji:"\u{1F96C}"},{food:"Dark chocolate (30g)",amount:"3.4mg",emoji:"\u{1F36B}"}],deficiencySymptoms:["fatigue","brain_fog"],aiSuggestion:"Pair plant iron with Vitamin C to boost absorption by up to 6x. Lentils + lemon juice is a great combo."},{key:"zinc",name:"Zinc",groupKey:"minerals",emoji:"\u{1F537}",unit:"mg",tagline:"Immune & hormone support",description:"Zinc is essential for immune function, wound healing, protein synthesis, DNA repair, and testosterone production. Depleted rapidly during stress or illness.",rdaMale:11,rdaFemale:8,consumed:0,weekTrend:[7,5,10,6,8,7,6],foodSources:[{food:"Oysters (85g)",amount:"74mg",emoji:"\u{1F9AA}"},{food:"Beef (85g)",amount:"7mg",emoji:"\u{1F969}"},{food:"Pumpkin seeds (30g)",amount:"2.2mg",emoji:"\u{1F383}"},{food:"Chickpeas (85g cooked)",amount:"1.3mg",emoji:"\u{1FAD8}"}],deficiencySymptoms:["skin_issues","fatigue","digestive"],aiSuggestion:"Beef or pumpkin seeds are your best non-supplement sources. Zinc from plants is less bioavailable \xB7 soak/sprout legumes to improve absorption."},{key:"calcium",name:"Calcium",groupKey:"minerals",emoji:"\u{1F9B4}",unit:"mg",tagline:"Bones, nerves & muscles",description:"The most abundant mineral in the body \xB7 99% stored in bones and teeth. Also critical for nerve transmission, muscle contraction, and blood clotting. Requires K2 and D3 for proper utilisation.",rdaMale:1e3,rdaFemale:1e3,consumed:0,weekTrend:[650,800,500,900,700,600,750],foodSources:[{food:"Greek yogurt (1 cup, 245g)",amount:"250mg",emoji:"\u{1FAD9}"},{food:"Sardines with bones (85g)",amount:"325mg",emoji:"\u{1F420}"},{food:"Kale (130g cooked)",amount:"177mg",emoji:"\u{1F96C}"},{food:"Cheddar cheese (30g)",amount:"204mg",emoji:"\u{1F9C0}"}],deficiencySymptoms:["muscle_pain","insomnia"],aiSuggestion:"You're at 74%. Greek yogurt or sardines at dinner would push you past the target."},{key:"selenium",name:"Selenium",groupKey:"minerals",emoji:"\u{1F6E1}\uFE0F",unit:"mcg",tagline:"Antioxidant & thyroid",description:"Selenium is a component of powerful antioxidant enzymes and is essential for thyroid hormone synthesis and conversion (T4\u2192T3). The EU population is often mildly deficient.",rdaMale:55,rdaFemale:55,consumed:0,weekTrend:[35,50,25,60,40,30,45],foodSources:[{food:"Brazil nuts (2 nuts, 8g)",amount:"80mcg",emoji:"\u{1F95C}"},{food:"Tuna (85g)",amount:"92mcg",emoji:"\u{1F41F}"},{food:"Turkey breast (85g)",amount:"27mcg",emoji:"\u{1F983}"},{food:"Eggs (2 large, 100g)",amount:"28mcg",emoji:"\u{1F95A}"}],deficiencySymptoms:["fatigue","brain_fog"],aiSuggestion:"1-2 Brazil nuts per day covers your entire selenium requirement. The easiest nutritional upgrade you can make."},{key:"iodine",name:"Iodine",groupKey:"minerals",emoji:"\u{1F98B}",unit:"mcg",tagline:"Thyroid health essential",description:"Iodine is required for thyroid hormone production (T3 and T4), which controls metabolism, temperature, heart rate, and energy. Deficiency is a leading cause of hypothyroidism.",rdaMale:150,rdaFemale:150,consumed:0,weekTrend:[80,110,60,130,90,75,100],foodSources:[{food:"Nori seaweed (1 sheet, 3g)",amount:"50mcg",emoji:"\u{1F33F}"},{food:"Cod (85g)",amount:"99mcg",emoji:"\u{1F41F}"},{food:"Plain yogurt (1 cup, 245g)",amount:"75mcg",emoji:"\u{1FAD9}"},{food:"Iodised salt (1.5g)",amount:"71mcg",emoji:"\u{1F9C2}"}],deficiencySymptoms:["fatigue","brain_fog","mood_swings"],aiSuggestion:"Make sure you're using iodised salt (not Himalayan or sea salt). Cod or yogurt daily would close this gap easily."},{key:"potassium",name:"Potassium",groupKey:"minerals",emoji:"\u{1F34C}",unit:"mg",tagline:"Heart & fluid balance",description:"Potassium maintains fluid balance, nerve signals, muscle contractions, and blood pressure. Most people get far less than the 3,500mg daily recommendation.",rdaMale:3400,rdaFemale:2600,consumed:0,weekTrend:[1800,2200,1500,2600,2e3,1700,1900],foodSources:[{food:"Avocado (1 medium, 150g)",amount:"975mg",emoji:"\u{1F951}"},{food:"Sweet potato (1 medium, 130g)",amount:"542mg",emoji:"\u{1F360}"},{food:"Salmon (85g)",amount:"534mg",emoji:"\u{1F41F}"},{food:"Spinach (180g cooked)",amount:"839mg",emoji:"\u{1F96C}"}],deficiencySymptoms:["fatigue","muscle_pain"],aiSuggestion:"An avocado + sweet potato combo covers nearly 50% of your daily potassium in one meal."},{key:"phosphorus",name:"Phosphorus",groupKey:"minerals",emoji:"\u{1F52C}",unit:"mg",tagline:"Bone builder & energy currency",description:"Phosphorus is the second most abundant mineral in the body. It forms the backbone of DNA and ATP (cellular energy), builds bones alongside calcium, and buffers blood pH. Deficiency is rare but can occur with excessive antacid use.",rdaMale:700,rdaFemale:700,consumed:0,weekTrend:[550,700,480,800,620,580,650],foodSources:[{food:"Pumpkin seeds (30g)",amount:"332mg",emoji:"\u{1F383}"},{food:"Salmon (85g)",amount:"214mg",emoji:"\u{1F41F}"},{food:"Lentils (100g cooked)",amount:"178mg",emoji:"\u{1FAD8}"},{food:"Greek yogurt (1 cup, 245g)",amount:"220mg",emoji:"\u{1FAD9}"}],deficiencySymptoms:["fatigue","muscle_pain","joint_pain"],aiSuggestion:"Most protein-rich foods are naturally high in phosphorus. If you eat adequate protein, you likely get enough phosphorus."},{key:"omega3",name:"Omega-3 (EPA + DHA)",groupKey:"fatty_acids",emoji:"\u{1F41F}",unit:"g",tagline:"Anti-inflammatory foundation",description:"EPA and DHA are the active forms of Omega-3 \xB7 found primarily in fatty fish. EPA reduces inflammation, DHA supports brain structure and function. Conversion from ALA (plant sources) is only 5-10% efficient.",rdaMale:1.6,rdaFemale:1.1,consumed:0,weekTrend:[.2,1.5,.3,.15,1.8,.25,.2],foodSources:[{food:"Salmon (85g)",amount:"1800mg",emoji:"\u{1F41F}"},{food:"Sardines (85g)",amount:"1480mg",emoji:"\u{1F420}"},{food:"Mackerel (85g)",amount:"2200mg",emoji:"\u{1F421}"},{food:"Anchovies (30g)",amount:"750mg",emoji:"\u{1F41F}"}],deficiencySymptoms:["brain_fog","joint_pain","mood_swings","skin_issues"],aiSuggestion:"One serving of salmon covers your entire daily Omega-3 need. Aim for 2 fatty fish meals per week."},{key:"ala",name:"ALA (Omega-3)",groupKey:"fatty_acids",emoji:"\u{1F331}",unit:"g",tagline:"Plant-based Omega-3",description:"Alpha-linolenic acid is the plant form of Omega-3. The body can convert it to EPA/DHA, but inefficiently. Still valuable for overall Omega-3 ratio improvement.",rdaMale:1.6,rdaFemale:1.1,consumed:0,weekTrend:[.8,1.2,.6,1.8,1,.9,1.1],foodSources:[{food:"Chia seeds (1 tbsp, 12g)",amount:"2.5g",emoji:"\u{1F331}"},{food:"Walnuts (30g)",amount:"2.6g",emoji:"\u{1F95C}"},{food:"Flaxseed (1 tbsp, 10g)",amount:"2.4g",emoji:"\u{1F33E}"},{food:"Hemp seeds (30g)",amount:"3g",emoji:"\u{1F33F}"}],deficiencySymptoms:["brain_fog","mood_swings"],aiSuggestion:"A tablespoon of chia or flaxseed in your morning smoothie covers your entire daily ALA target."},{key:"epa",name:"EPA (Omega-3)",groupKey:"fatty_acids",emoji:"\u{1F525}",unit:"mg",tagline:"Anti-inflammatory omega-3",description:"Eicosapentaenoic acid (EPA) is the primary anti-inflammatory omega-3 fatty acid. It competes with arachidonic acid (omega-6) to reduce pro-inflammatory eicosanoid production. Found almost exclusively in marine sources.",rdaMale:500,rdaFemale:500,consumed:0,weekTrend:[50,700,60,40,800,50,60],foodSources:[{food:"Salmon (85g)",amount:"730mg",emoji:"\u{1F41F}"},{food:"Mackerel (85g)",amount:"760mg",emoji:"\u{1F421}"},{food:"Sardines (85g)",amount:"430mg",emoji:"\u{1F420}"},{food:"Herring (85g)",amount:"600mg",emoji:"\u{1F41F}"}],deficiencySymptoms:["joint_pain","mood_swings","skin_issues"],aiSuggestion:"One portion of salmon or mackerel exceeds your daily EPA target. Aim for 2-3 fatty fish meals per week."},{key:"dha",name:"DHA (Omega-3)",groupKey:"fatty_acids",emoji:"\u{1F9E0}",unit:"mg",tagline:"Brain & eye omega-3",description:"Docosahexaenoic acid (DHA) is the most abundant omega-3 in brain tissue and retinal membranes. It is critical for cognitive function, visual acuity, and neuronal signalling. DHA needs increase during pregnancy and early childhood.",rdaMale:500,rdaFemale:500,consumed:0,weekTrend:[70,1e3,80,60,1100,70,80],foodSources:[{food:"Salmon (85g)",amount:"1020mg",emoji:"\u{1F41F}"},{food:"Mackerel (85g)",amount:"1190mg",emoji:"\u{1F421}"},{food:"Sardines (85g)",amount:"630mg",emoji:"\u{1F420}"},{food:"Anchovies (30g)",amount:"310mg",emoji:"\u{1F41F}"}],deficiencySymptoms:["brain_fog","mood_swings"],aiSuggestion:"DHA is uniquely concentrated in fatty fish. Even one salmon meal provides 2x your daily target."},{key:"choline",name:"Choline",groupKey:"fatty_acids",emoji:"\u{1FAC0}",unit:"mg",tagline:"Liver & brain essential",description:"Choline is required for cell membrane structure (phosphatidylcholine), neurotransmitter synthesis (acetylcholine), methyl donation, and liver fat metabolism. Over 90% of people do not meet the adequate intake.",rdaMale:550,rdaFemale:425,consumed:0,weekTrend:[280,350,250,400,300,320,270],foodSources:[{food:"Beef liver (85g)",amount:"356mg",emoji:"\u{1F969}"},{food:"Eggs (2 large, 100g)",amount:"294mg",emoji:"\u{1F95A}"},{food:"Salmon (85g)",amount:"77mg",emoji:"\u{1F41F}"},{food:"Chicken breast (85g)",amount:"72mg",emoji:"\u{1F357}"}],deficiencySymptoms:["fatigue","brain_fog"],aiSuggestion:"Two eggs provide ~60% of daily choline. It is one of the most under-consumed nutrients in modern diets."}];var NUTRIENT_KEY_TO_MICRO={vitamin_d3:"vitamin_d_mcg",vitamin_c:"vitamin_c_mg",vitamin_a:"vitamin_a_mcg",vitamin_e:"vitamin_e_mg",vitamin_k2:"vitamin_k2_mcg",vitamin_b12:"b12_mcg",folate:"folate_mcg",biotin:"biotin_mcg",iron:"iron_mg",magnesium:"magnesium_mg",calcium:"calcium_mg",zinc:"zinc_mg",selenium:"selenium_mcg",iodine:"iodine_mcg",potassium:"potassium_mg",phosphorus:"phosphorus_mg",omega3:"omega3_g",epa:"epa_mg",dha:"dha_mg",ala:"ala_g",choline:"choline_mg"};function getConsumedFromLogs(meals){let consumed={};for(let[nutrientKey,microField]of Object.entries(NUTRIENT_KEY_TO_MICRO))consumed[nutrientKey]=meals.reduce((sum,m)=>{let val=m.micros?.[microField];return sum+(typeof val=="number"?val:0)},0);return consumed}function getOverallCoverage(sex="female",consumedOverride){let coverages=NUTRIENTS.map(n=>{let target=sex==="male"?n.rdaMale:n.rdaFemale,consumed=consumedOverride?.[n.key]??n.consumed;return Math.min(consumed/target,1)});return Math.round(coverages.reduce((a,b)=>a+b,0)/coverages.length*100)}function getNutrientGaps(threshold=.7,sex="female",maxGaps=4,consumedOverride){return NUTRIENTS.map(n=>{let target=sex==="male"?n.rdaMale:n.rdaFemale,pct=(consumedOverride?.[n.key]??n.consumed)/target;return{...n,pct}}).filter(n=>n.pct<threshold).sort((a,b)=>a.pct-b.pct).slice(0,maxGaps)}var NEAT_FACTORS={sedentary:1.2,lightly_active:1.35,moderately_active:1.55,very_active:1.7,extremely_active:1.9};function harrisBenedictBMR(weightKg,heightCm,age,sex){return sex==="male"?88.362+13.397*weightKg+4.799*heightCm-5.677*age:447.593+9.247*weightKg+3.098*heightCm-4.33*age}function katchMcArdleBMR(weightKg,bfPercent){return 370+21.6*(weightKg*(1-bfPercent/100))}function calculateBMR(weightKg,heightCm,age,sex,bfPercent){return bfPercent!=null&&bfPercent>0?katchMcArdleBMR(weightKg,bfPercent):harrisBenedictBMR(weightKg,heightCm,age,sex)}function calculateTDEE(weightKg,heightCm,age,sex,activityLevel,bfPercent){let bmr=calculateBMR(weightKg,heightCm,age,sex,bfPercent),factor2=NEAT_FACTORS[activityLevel]??1.55;return Math.round(bmr*factor2)}function getGoalOffset(goal,bfPercent){return goal==="maintain"?0:goal==="cut"?bfPercent<18?-300:bfPercent<=25?-400:-500:bfPercent>25?150:bfPercent>=18?250:300}function calculateGoalMacros(tdee,weightKg,sex,goal,bfPercent){let offset=getGoalOffset(goal,bfPercent??22),goalCalories=tdee+offset,proteinG=Math.round(weightKg*(sex==="female"?1.5:1.8)),proteinKcal=proteinG*4,fatKcal=goalCalories*.4,fatG=Math.round(fatKcal/9),carbsKcal=goalCalories-proteinKcal-fatKcal,carbsG=Math.max(0,Math.round(carbsKcal/4));return{proteinG,carbsG,fatG,calories:Math.round(goalCalories)}}function buildNutritionSnapshot({meals,sex,weightKg,heightCm,age,activityLevel,goal,bfPercent,customMacros,customCalorieOffset,dbMacroTargets}){let computedTdee=calculateTDEE(weightKg,heightCm,age,sex,activityLevel,bfPercent??null),calculated=calculateGoalMacros(computedTdee,weightKg,sex,goal,bfPercent??null),customApplied=customMacros?{proteinG:customMacros.proteinG??calculated.proteinG,carbsG:customMacros.carbsG??calculated.carbsG,fatG:customMacros.fatG??calculated.fatG,calories:customMacros.calories??calculated.calories}:calculated,tdee=dbMacroTargets?.tdee??computedTdee,targets=dbMacroTargets?{proteinG:dbMacroTargets.proteinG,carbsG:dbMacroTargets.carbsG,fatG:dbMacroTargets.fatG,calories:dbMacroTargets.calories}:customApplied,goalCalories=dbMacroTargets?dbMacroTargets.calories:customCalorieOffset!=null?computedTdee+customCalorieOffset:customApplied.calories,consumedCalories=Math.round(meals.reduce((sum,meal)=>sum+(meal.estimatedCalories??0),0)),consumedProtein=Math.round(meals.reduce((sum,meal)=>sum+(meal.estimatedProtein??0),0)),consumedCarbs=Math.round(meals.reduce((sum,meal)=>sum+(meal.estimatedCarbs??0),0)),consumedFat=Math.round(meals.reduce((sum,meal)=>sum+(meal.estimatedFat??0),0)),consumedFiber=Math.round(meals.reduce((sum,meal)=>sum+(meal.micros?.fiber_g??0),0)),consumedMicros=getConsumedFromLogs(meals),microPct=getOverallCoverage(sex,consumedMicros),microGaps=getNutrientGaps(.7,sex,10,consumedMicros),fiberTarget=Math.max(25,Math.round(targets.calories/1e3*14));return{tdee,goalCalories,targets,consumed:{calories:consumedCalories,protein:consumedProtein,carbs:consumedCarbs,fat:consumedFat,fiber:consumedFiber,micros:consumedMicros},micronutrients:{overallPct:microPct,gaps:microGaps},fiberTarget}}var colors={forestS:"#4A8A5C",forest:"#2E5438",charcoal:"#1A1A16",stone:"#7A796F"};var clockOffsetMs=0;function setClockOffsetMinutes(minutes){clockOffsetMs=minutes*6e4}function engineNow(){return new Date(Date.now()+clockOffsetMs)}function shiftToWallClock(iso){return new Date(new Date(iso).getTime()+clockOffsetMs).toISOString()}function localDayISO(d=engineNow()){let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`}var MACRO_HUES={protein:"#E0654F",carbs:"#E8A23D",fat:"#6C8AE4"};var MACRO_RING_COLORS={kcal:colors.forestS,protein:MACRO_HUES.protein,carbs:MACRO_HUES.carbs,fat:MACRO_HUES.fat};function buildMacroStats(snapshot){let mk=(key,label,unit,current,target,color)=>({key,label,unit,current:Math.round(current),target:Math.round(target),color,pct:target>0?current/target:0});return[mk("kcal","Calories","",snapshot.consumed.calories,snapshot.goalCalories,MACRO_RING_COLORS.kcal),mk("protein","Protein","g",snapshot.consumed.protein,snapshot.targets.proteinG,MACRO_RING_COLORS.protein),mk("carbs","Carbs","g",snapshot.consumed.carbs,snapshot.targets.carbsG,MACRO_RING_COLORS.carbs),mk("fat","Fat","g",snapshot.consumed.fat,snapshot.targets.fatG,MACRO_RING_COLORS.fat)]}function macroProximityScore(stats){let pcf=stats.filter(m=>m.key!=="kcal");return pcf.length?Math.round(pcf.reduce((s,m)=>s+Math.min(1,m.pct),0)/pcf.length*100):null}var PILLAR_WEIGHTS={vitality:.42,metabolic:.33,nutrition:.25};function functionalComposite(input){let pillars={vitality:input.vitality,metabolic:input.metabolic,nutrition:input.nutrition},present=Object.keys(pillars).filter(k=>pillars[k]!==null),score=null;if(present.length){let totalW=present.reduce((s,k)=>s+PILLAR_WEIGHTS[k],0),weighted=present.reduce((s,k)=>s+pillars[k]*PILLAR_WEIGHTS[k],0);score=Math.round(weighted/totalW)}let basis="none";return present.length&&(input.hasWearable?basis="checkins+nutrition+wearable":pillars.nutrition!==null?basis="checkins+nutrition":basis="checkins"),{score,basis,pillars}}function statusFor(value){return value===null?"watch":value>=67?"good":value>=34?"watch":"bad"}function availableCaseScore(factors){let present=factors.filter(f=>f.value!==null);if(present.length===0)return null;let totalW=present.reduce((s,f)=>s+f.weight,0);if(totalW===0)return null;let weighted=present.reduce((s,f)=>s+f.value*f.weight,0);return Math.round(weighted/totalW)}function factor(key,label,value,weight,detail){return{key,label,value,weight,status:statusFor(value),detail}}var clamp=n=>Math.max(0,Math.min(100,n)),hourOf=iso=>{let d=new Date(iso);return d.getHours()+d.getMinutes()/60};function mealTimingScore(meals){if(!meals.length)return null;let hours=meals.map(m=>hourOf(m.timestamp)).sort((a,b)=>a-b),first=hours[0],last=hours[hours.length-1],breakfast=clamp(first<=10?100:100-(first-10)*(40/3)),lateNight=clamp(last<=20?100:100-(last-20)*20);if(meals.length===1)return Math.round((breakfast+lateNight)/2);let span=last-first,windowScore=clamp(span<=12?100:100-(span-12)*10);return Math.round((breakfast+lateNight+windowScore)/3)}var clamp2=n=>Math.max(0,Math.min(100,n));function mealQuality(s){return clamp2((s.inflammation+s.glycemic+s.digestion)/3)}function nutritionScore(input){let scored=input.meals.filter(m=>m.scores!=null),mealQ=scored.length?Math.round(scored.reduce((s,m)=>s+mealQuality(m.scores),0)/scored.length):null,timing=mealTimingScore(input.meals),factors=[factor("mealQuality","Meal quality",mealQ,.3),factor("micro","Micro coverage",input.microCoveragePct,.3),factor("macro","Macro proximity",input.macroProximityPct,.25),factor("timing","Meal timing",timing,.15)];return{score:availableCaseScore(factors),factors}}var round=n=>Math.round(n),mean=xs=>xs.reduce((s,v)=>s+v,0)/xs.length;function metabolicScore(input){let scored=input.meals.map(m=>m.scores).filter(s=>s!=null),mealIGD=scored.length?round(mean(scored.map(mealQuality))):null,inflammation=scored.length?round(mean(scored.map(s=>s.inflammation))):null,glycemic=scored.length?round(mean(scored.map(s=>s.glycemic))):null,digestion=null,fg=input.feltDigestion;fg!==null&&mealIGD!==null?digestion=round(.65*fg+.35*mealIGD):fg!==null?digestion=fg:mealIGD!==null&&(digestion=mealIGD);let factors=[factor("digestion","Digestion",digestion,.2),factor("inflammation","Inflammation",inflammation,.25),factor("glycemic","Glycemic",glycemic,.25),factor("energy","Energy",input.energyScore,.3)];return{score:availableCaseScore(factors),factors}}function vitalityScore(input){let factors=[factor("energy","Energy",input.energyScore,.25),factor("mood","Mood",input.moodScore,.25),factor("sleep","Sleep",input.sleepScore,.25),factor("stress","Stress",input.stressScore,.25),factor("recovery","Recovery",input.recoveryScore??null,.2)];return{score:availableCaseScore(factors),factors}}function gutScore(input){let factors=[factor("comfort","Digestion comfort",input.comfort,.4),factor("reactions","Post-meal reactions",input.reactions,.3),factor("stool","Stool quality",input.stool,.3)];return{score:availableCaseScore(factors),factors}}var clampR=n=>Math.max(0,Math.min(100,n));function mealReactionsScore(meals){let reacted=meals.filter(m=>typeof m.reactionOverall=="number");if(!reacted.length)return null;let per=reacted.map(m=>{let felt=m.reactionOverall*10,disc=[m.reactionBloating,m.reactionGasBurden,m.reactionFullness].filter(v=>typeof v=="number"),penalty=disc.length?disc.reduce((s,v)=>s+v,0)/disc.length*3:0;return clampR(felt-penalty)});return Math.round(per.reduce((s,v)=>s+v,0)/per.length)}function lastNDays(now,n){return Array.from({length:n},(_,i)=>{let d=new Date(now);return d.setDate(d.getDate()-(n-1-i)),d})}var FUNCTIONAL_MARKERS=[{key:"energy",label:"Energy",color:HEALTH_DETAILS.energy.accentColor},{key:"sleep",label:"Sleep",color:HEALTH_DETAILS.sleep.accentColor},{key:"mood",label:"Mood",color:HEALTH_DETAILS.mood.accentColor},{key:"stress",label:"Calmness",color:HEALTH_DETAILS.stress.accentColor}];var clamp01=v=>Math.min(1,Math.max(0,v));function freqBadness(perDay){return perDay>=1&&perDay<=3?0:perDay===0?.6:perDay<=5?.3:1}function gutMarkerScore(key,v){if(v==null)return null;switch(key){case"bloating":case"burns":return Math.round((1-clamp01((v-1)/9))*100);case"gasBurden":return Math.round((1-clamp01(v/10))*100);case"stoolQuality":return Math.round(clamp01((v-1)/4)*100);case"stoolFrequency":return Math.round((1-freqBadness(v))*100);default:return null}}function mean2(vals){let v=vals.filter(x=>x!==null);return v.length?Math.round(v.reduce((s,x)=>s+x,0)/v.length):null}function gutSignalsForEntry(entry,meals){let comfort=entry?.comfort??null,stool=entry?.stool??null;return stool==null&&entry&&(stool=mean2([gutMarkerScore("stoolQuality",entry.stoolQuality),gutMarkerScore("stoolFrequency",entry.stoolFrequency)])),{comfort,stool,reactions:mealReactionsScore(meals)}}function latestGutEntry(today,history){let all=today?[...history,today]:history;if(!all.length)return null;let latest=k=>{for(let i=all.length-1;i>=0;i--){let v=all[i][k];if(typeof v=="number")return v}return null};return{date:"",bloating:latest("bloating"),burns:latest("burns"),gasBurden:latest("gasBurden"),stoolQuality:latest("stoolQuality"),stoolFrequency:latest("stoolFrequency"),comfort:latest("comfort"),gutOverall:latest("gutOverall"),stool:latest("stool")}}function gutSignalsCurrent(today,history,meals){return gutSignalsForEntry(latestGutEntry(today,history),meals)}function ruleBasedTip(core){let present=core.factors.filter(f=>f.value!==null);if(core.score===null||present.length===0)return{summary:"Log a little more and your {label} reading appears here.",good:"",bad:""};let sorted=[...present].sort((a,b)=>b.value-a.value),best=sorted[0],worst=sorted[sorted.length-1],summary=core.score>=67?"Your {label} is strong today.":core.score>=34?"Your {label} is holding steady.":"Your {label} needs attention today.";if(present.length===1)return{summary,good:`${best.label} (${best.value}/100) is the only signal so far.`,bad:""};let good=`${best.label} is your strongest driver (${best.value}/100).`,bad=worst.value<67?`${worst.label} is the weak point (${worst.value}/100) \xB7 focus here.`:"Nothing's dragging it down \xB7 keep it going.";return{summary,good,bad}}function windowMeals(meals,now){if(!meals.length)return[];let dayKey=d=>d.toDateString(),byDay=new Map;for(let meal of meals){let k=dayKey(new Date(meal.timestamp)),arr=byDay.get(k);arr?arr.push(meal):byDay.set(k,[meal])}let today=byDay.get(dayKey(now));if(today&&today.length)return today;let candidates=[...byDay.keys()].map(k=>({k,t:new Date(k).getTime()})).filter(x=>x.t<=now.getTime()).sort((a,b)=>b.t-a.t);return candidates.length?byDay.get(candidates[0].k):[]}var RECOVERY_WEIGHTS={hrv:.3,sleepQuality:.25,felt:.25,stress:.2},FELT_RECOVERY_WEIGHTS={recovery:.5,soreness:.25,physicalLoad:.125,mentalLoad:.125},clamp3=(n,lo,hi)=>Math.max(lo,Math.min(hi,n)),inv=v=>v==null?null:clamp3(100-v,0,100);function hrvFactorValue(today,baseline){return today==null||baseline==null||baseline<=0?null:Math.round(clamp3(50+(today/baseline-1)*100*1.5,0,100))}function sleepQualityValue(hours,efficiencyPct){let parts=[];return efficiencyPct!=null&&parts.push(clamp3(efficiencyPct,0,100)),hours!=null&&parts.push(hours>=7.5?95:hours>=7?85:hours>=6.5?70:hours>=6?58:hours>=5?45:32),parts.length?Math.round(parts.reduce((s,v)=>s+v,0)/parts.length):null}function feltRecoveryScore(felt){if(!felt)return null;let W=FELT_RECOVERY_WEIGHTS,factors=[factor("recovery","Bounced back",felt.recovery??null,W.recovery),factor("soreness","Freshness",inv(felt.soreness),W.soreness),factor("physicalLoad","Physical load",inv(felt.physicalLoad),W.physicalLoad),factor("mentalLoad","Mental load",inv(felt.mentalLoad),W.mentalLoad)];return availableCaseScore(factors)}function recoveryScore(input){let W=RECOVERY_WEIGHTS,factors=[factor("hrv","HRV",hrvFactorValue(input.hrvRmssd,input.hrvBaseline),W.hrv),factor("sleepQuality","Sleep quality",sleepQualityValue(input.sleepHours,input.sleepEfficiencyPct),W.sleepQuality),factor("felt","How you feel",feltRecoveryScore(input.felt),W.felt),factor("stress","Calm",inv(input.avgStress),W.stress)];return{score:availableCaseScore(factors),factors}}var OVERALL_FIELD={energy:"energyOverall",mood:"moodScore",sleep:"sleepOverall",stress:"stressScore"};function feltMetric(entry,key){if(!entry)return null;let field=OVERALL_FIELD[key];if(field!==void 0){let o=entry[field];if(typeof o=="number")return o}let cfg=HEALTH_DETAILS[key];return cfg.scoreFromValue(cfg.getCurrentValue(entry))}function mealsOnDay(meals,day){let k=day.toDateString();return meals.filter(m=>new Date(m.timestamp).toDateString()===k)}function hasMicro(meals){if(!meals.length)return!1;let consumed=getConsumedFromLogs(meals);return Object.values(consumed).some(v=>typeof v=="number"&&v>0)}function snapshotSafe(meals,p){let weightKg=Number(p.weight),heightCm=Number(p.height);return!weightKg||!heightCm?null:buildNutritionSnapshot({meals,sex:p.sex??"male",weightKg,heightCm,age:Number(p.age)||34,activityLevel:p.activityLevel??"moderately_active",goal:p.goalMode??"maintain",bfPercent:p.estimatedBfPercent??18,customMacros:p.customMacros??null,customCalorieOffset:p.customCalorieOffset??null})}function nutritionPcts(meals,p){if(!meals.length)return{micro:null,macro:null};let snap=snapshotSafe(meals,p);return snap?{micro:hasMicro(meals)?snap.micronutrients.overallPct:null,macro:macroProximityScore(buildMacroStats(snap))}:{micro:null,macro:null}}var to100=v=>v==null?null:Math.round(v/10*100);function feltFrom(src){if(!src)return null;let s=src,f={recovery:to100(s.recovery),soreness:to100(s.soreness),physicalLoad:to100(s.recentLoad),mentalLoad:to100(s.recentMentalLoad)};return Object.values(f).some(v=>v!=null)?f:null}function recoveryFor(src,day,opts){let w=opts.wearableByDay?.get(day)??null,felt=feltFrom(src);if(!w&&!felt)return null;let hrvBaseline=opts.recoveryBaseline&&opts.recoveryBaseline.hrvDays>=14?opts.recoveryBaseline.hrvRmssd:null;return recoveryScore({hrvRmssd:w?.recovery?.hrvRmssd??null,hrvBaseline,sleepHours:w?.sleep?.hours??null,sleepEfficiencyPct:w?.sleep?.efficiencyPct??null,avgStress:w?.recovery?.avgStress??null,felt}).score}function dayScores(dayMeals,fnEntry,gutEntry,p,recovery){let energy=feltMetric(fnEntry,"energy"),vitality=fnEntry||recovery!=null?vitalityScore({energyScore:energy,moodScore:feltMetric(fnEntry,"mood"),sleepScore:feltMetric(fnEntry,"sleep"),stressScore:feltMetric(fnEntry,"stress"),recoveryScore:recovery}).score:null,{micro,macro}=nutritionPcts(dayMeals,p),g=gutSignalsForEntry(gutEntry,dayMeals);return{vitality,metabolic:metabolicScore({meals:dayMeals,feltDigestion:g.comfort,energyScore:energy}).score,nutrition:nutritionScore({meals:dayMeals,microCoveragePct:micro,macroProximityPct:macro}).score,gut:gutScore({comfort:g.comfort,stool:g.stool,reactions:g.reactions}).score}}function deriveTrends(input){let{meals,metricHistory,gutHistory,today,checkin,profile,now}=input,todayFn=today?.todayFunctional??null,todayGut=today?.todayGut??null,win=windowMeals(meals,now),energyToday=feltMetric(todayFn,"energy"),{micro:winMicro,macro:winMacro}=nutritionPcts(win,profile),gutNow=gutSignalsCurrent(todayGut,gutHistory,win),isoDate=d=>localDayISO(d),wopts={wearableByDay:input.wearableByDay,recoveryBaseline:input.recoveryBaseline},todayRecovery=recoveryFor(checkin,isoDate(now),wopts),vitalityCore=vitalityScore(todayFn||todayRecovery!=null?{energyScore:energyToday,moodScore:feltMetric(todayFn,"mood"),sleepScore:feltMetric(todayFn,"sleep"),stressScore:feltMetric(todayFn,"stress"),recoveryScore:todayRecovery}:{energyScore:null,moodScore:null,sleepScore:null,stressScore:null,recoveryScore:todayRecovery}),metabolicCore=metabolicScore({meals:win,feltDigestion:gutNow.comfort,energyScore:energyToday}),nutritionCore=nutritionScore({meals:win,microCoveragePct:winMicro,macroProximityPct:winMacro}),gutCore=gutScore({comfort:gutNow.comfort,stool:gutNow.stool,reactions:gutNow.reactions}),fnByDate=new Map(metricHistory.map(e=>[e.date,e])),gutByDate=new Map(gutHistory.map(e=>[e.date,e])),series={vitality:[],metabolic:[],nutrition:[],gut:[]};for(let day of lastNDays(now,14)){let isToday=day.toDateString()===now.toDateString(),fnEntry=isToday?todayFn:fnByDate.get(isoDate(day))??null,gutEntry=isToday?todayGut:gutByDate.get(isoDate(day))??null,rec=recoveryFor(isToday?checkin:fnEntry,isoDate(day),wopts),s=dayScores(mealsOnDay(meals,day),fnEntry,gutEntry,profile,rec);series.vitality.push(s.vitality),series.metabolic.push(s.metabolic),series.nutrition.push(s.nutrition),series.gut.push(s.gut)}let compositeSeries14d=series.vitality.map((v,i)=>functionalComposite({vitality:v,metabolic:series.metabolic[i],nutrition:series.nutrition[i]}).score),hasWearable=!!input.wearableByDay&&input.wearableByDay.size>0,composite=functionalComposite({vitality:vitalityCore.score,metabolic:metabolicCore.score,nutrition:nutritionCore.score,hasWearable});compositeSeries14d.length&&composite.score!=null&&(compositeSeries14d[compositeSeries14d.length-1]=composite.score);let view=(core,label,s)=>({...core,series14d:s,tip:ruleBasedTip(core)});return{vitality:view(vitalityCore,"Vitality",series.vitality),metabolic:view(metabolicCore,"Metabolic",series.metabolic),nutrition:view(nutritionCore,"Nutrition",series.nutrition),gut:view(gutCore,"Gut",series.gut),composite,compositeSeries14d}}var num=v=>typeof v=="number"?v:null;function parseTodayCheckin(row,hasV2){if(!row)return null;let functionalDoneAt=row.functional_completed_at??null,intelligenceDoneAt=row.intelligence_completed_at??null,date=row.checkin_date??"",fd=hasV2?row.functional_detail:null,functionalAnswers=fd&&typeof fd=="object"?fd:null,gd=hasV2?row.gut_detail:null,gutAnswers=gd&&gd.answers&&typeof gd.answers=="object"?gd.answers:null,notes=gd&&typeof gd.notes=="string"?gd.notes:null,todayFunctional=functionalDoneAt?{date,mood:num(row.mood),digestion:num(row.digestion),energy:num(row.energy),sleep:num(row.sleep),sleepQuality:num(row.sleep_quality),stress:num(row.stress),inflammation:num(row.inflammation),energyOverall:hasV2?num(row.energy_overall):null,sleepOverall:hasV2?num(row.sleep_overall):null,moodScore:hasV2?num(row.mood_score):null,stressScore:hasV2?num(row.stress_score):null,recovery:hasV2?num(row.recovery):null,soreness:hasV2?num(row.soreness):null,recentLoad:hasV2?num(row.recent_load):null,recentMentalLoad:hasV2?num(row.recent_mental_load):null}:null,todayGut=intelligenceDoneAt?{date,bloating:num(row.bloating),burns:num(row.burns),gasBurden:num(row.gas_burden),stoolQuality:num(row.stool_quality),stoolFrequency:num(row.stool_frequency),comfort:hasV2?num(row.gut_comfort):null,gutOverall:hasV2?num(row.gut_overall):null,stool:hasV2?num(row.gut_stool):null}:null;return{functionalDoneAt,intelligenceDoneAt,functionalAnswers,gutAnswers,notes,todayFunctional,todayGut}}function overallTrend(series){if(series.length<2)return null;let half=Math.floor(series.length/2),avg=xs=>xs.reduce((s,v)=>s+v,0)/xs.length,delta=avg(series.slice(half))-avg(series.slice(0,half));return delta>=3?"up":delta<=-3?"down":"flat"}var CORS={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"},json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{...CORS,"Content-Type":"application/json"}}),TREND_DAYS=13,MEAL_DAYS=30,num2=v=>typeof v=="number"?v:v!=null&&!Number.isNaN(Number(v))?Number(v):null,und=v=>v===null?void 0:v;Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response(null,{headers:CORS});if(req.method!=="POST")return json({error:"POST only"},405);let body={};try{body=await req.json()}catch{}let offset=Number.isFinite(body.tzOffsetMinutes)?Math.max(-840,Math.min(840,Number(body.tzOffsetMinutes))):0;setClockOffsetMinutes(offset);let db=createUserScopedClient(req),{data:patientId,error:pidErr}=await db.rpc("current_member_patient_id");if(pidErr)return json({error:pidErr.message},401);if(!patientId)return json({error:"No patient profile for this account"},404);let now=engineNow(),today=localDayISO(now),dayCutoff=back=>{let d=new Date(now);return d.setDate(d.getDate()-back),localDayISO(d)},sinceMeals=new Date(Date.now()-MEAL_DAYS*864e5).toISOString(),[mealsRes,reactionsRes,fnRes,gutRes,todayRes,profileRes]=await Promise.all([db.from("nb_meal_logs").select("id, name, meal_type, logged_at, total_calories, total_protein_g, total_carbs_g, total_fat_g, total_fiber_g, micronutrient_totals, inflammation_score, glycemic_score, gut_score, ai_identified_foods").eq("patient_id",patientId).gte("logged_at",sinceMeals).order("logged_at",{ascending:!0}).limit(100),db.from("nb_meal_reactions").select("meal_log_id, overall, bloating, gas_burden, fullness, reaction_flags").eq("patient_id",patientId).gte("reaction_time",sinceMeals),db.from("patient_daily_checkins").select("checkin_date, mood, digestion, energy, sleep, sleep_quality, stress, inflammation, energy_overall, sleep_overall, mood_score, stress_score, recovery, soreness, recent_load, recent_mental_load").eq("patient_id",patientId).not("functional_completed_at","is",null).lt("checkin_date",today).gte("checkin_date",dayCutoff(TREND_DAYS)).order("checkin_date",{ascending:!0}).limit(TREND_DAYS+1),db.from("patient_daily_checkins").select("checkin_date, bloating, burns, gas_burden, stool_quality, stool_frequency, gut_comfort, gut_overall, gut_stool").eq("patient_id",patientId).not("intelligence_completed_at","is",null).lt("checkin_date",today).gte("checkin_date",dayCutoff(TREND_DAYS)).order("checkin_date",{ascending:!0}).limit(TREND_DAYS+1),db.from("patient_daily_checkins").select("checkin_date, functional_completed_at, intelligence_completed_at, mood, digestion, energy, sleep, sleep_quality, stress, inflammation, bloating, burns, gas_burden, stool_quality, stool_frequency, energy_overall, sleep_overall, mood_score, stress_score, gut_comfort, gut_overall, gut_stool, functional_detail, gut_detail, recovery, soreness, recent_load, recent_mental_load").eq("patient_id",patientId).eq("checkin_date",today).maybeSingle(),db.from("nb_patient_app_profiles").select("app_sex, app_weight_kg, app_height_cm, app_age, activity_level, goal_mode, estimated_body_fat_percent, macros_customized, target_calories, target_protein_g, target_carbs_g, target_fat_g, custom_calorie_offset_kcal").eq("patient_id",patientId).maybeSingle()]);for(let r of[mealsRes,reactionsRes,fnRes,gutRes,todayRes,profileRes])if(r.error)return json({error:r.error.message},500);let reactions=new Map;for(let rr of reactionsRes.data??[])reactions.set(String(rr.meal_log_id),{overall:und(num2(rr.overall)),flags:Array.isArray(rr.reaction_flags)?rr.reaction_flags:void 0,bloating:und(num2(rr.bloating)),gasBurden:und(num2(rr.gas_burden)),fullness:und(num2(rr.fullness))});let meals=(mealsRes.data??[]).map(r=>{let items=Array.isArray(r.ai_identified_foods)?r.ai_identified_foods:void 0,itemSum=k=>items&&items.length?Math.round(items.reduce((a,it)=>a+(typeof it[k]=="number"?it[k]:0),0)):void 0,hasScores=r.inflammation_score!=null||r.glycemic_score!=null||r.gut_score!=null,reaction=reactions.get(String(r.id));return{id:String(r.id),dbId:String(r.id),name:r.name??"Meal",mealType:r.meal_type??"snack",estimatedCalories:itemSum("kcal")??und(num2(r.total_calories)),estimatedProtein:itemSum("protein_g")??und(num2(r.total_protein_g)),estimatedCarbs:itemSum("carbs_g")??und(num2(r.total_carbs_g)),estimatedFat:itemSum("fat_g")??und(num2(r.total_fat_g)),timestamp:shiftToWallClock(String(r.logged_at)),micros:{...r.micronutrient_totals??{},fiber_g:und(num2(r.total_fiber_g))},scores:hasScores?{inflammation:Number(r.inflammation_score??0),glycemic:Number(r.glycemic_score??0),digestion:Number(r.gut_score??0)}:void 0,reactionOverall:reaction?.overall,reactionFlags:reaction?.flags,reactionBloating:reaction?.bloating,reactionGasBurden:reaction?.gasBurden,reactionFullness:reaction?.fullness,items}}),metricHistory=(fnRes.data??[]).map(row=>({date:row.checkin_date,mood:num2(row.mood),digestion:num2(row.digestion),energy:num2(row.energy),sleep:num2(row.sleep),sleepQuality:num2(row.sleep_quality),stress:num2(row.stress),inflammation:num2(row.inflammation),energyOverall:num2(row.energy_overall),sleepOverall:num2(row.sleep_overall),moodScore:num2(row.mood_score),stressScore:num2(row.stress_score),recovery:num2(row.recovery),soreness:num2(row.soreness),recentLoad:num2(row.recent_load),recentMentalLoad:num2(row.recent_mental_load)})),gutHistory=(gutRes.data??[]).map(row=>({date:row.checkin_date,bloating:num2(row.bloating),burns:num2(row.burns),gasBurden:num2(row.gas_burden),stoolQuality:num2(row.stool_quality),stoolFrequency:num2(row.stool_frequency),comfort:num2(row.gut_comfort),gutOverall:num2(row.gut_overall),stool:num2(row.gut_stool)})),todayCheckin=parseTodayCheckin(todayRes.data??null,!0),p=profileRes.data??{},customised=p.macros_customized===!0,profile={sex:p.app_sex==="male"||p.app_sex==="female"?p.app_sex:null,weight:p.app_weight_kg!=null?String(p.app_weight_kg):"",height:p.app_height_cm!=null?String(p.app_height_cm):"",age:p.app_age!=null?String(p.app_age):"",activityLevel:p.activity_level??null,goalMode:p.goal_mode==="build"||p.goal_mode==="cut"||p.goal_mode==="maintain"?p.goal_mode:null,estimatedBfPercent:num2(p.estimated_body_fat_percent),customMacros:customised?{proteinG:und(num2(p.target_protein_g)),carbsG:und(num2(p.target_carbs_g)),fatG:und(num2(p.target_fat_g)),calories:und(num2(p.target_calories))}:null,customCalorieOffset:num2(p.custom_calorie_offset_kcal)},result=deriveTrends({meals,metricHistory,gutHistory,today:todayCheckin,checkin:null,gutCompletedToday:!!todayCheckin?.intelligenceDoneAt,profile,now}),crownSeries=result.compositeSeries14d.filter(v=>v!=null),trend=overallTrend(crownSeries);return json({day:today,tzOffsetMinutes:offset,generatedAt:new Date().toISOString(),trend,inputs:{meals:meals.length,functionalDays:metricHistory.length,gutDays:gutHistory.length,hasToday:!!todayCheckin,hasProfile:!!profileRes.data},...result})});
+// index.ts
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
+// ../_shared/supabase.ts
+import { createClient } from "npm:@supabase/supabase-js@2";
+var SUPABASE_URL = Deno.env.get("SUPABASE_URL"), ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+function getBearerToken(req) {
+  let authHeader = req.headers.get("Authorization");
+  return authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+}
+function createUserScopedClient(req) {
+  let token = getBearerToken(req);
+  return createClient(SUPABASE_URL, ANON_KEY, {
+    global: { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+    auth: { persistSession: !1, autoRefreshToken: !1 }
+  });
+}
+
+// engine/data/health-details.ts
+function mountain(value, invert = !1) {
+  let pct = (invert ? 5 - value : value - 1) / 4 * 100;
+  return Math.round(Math.max(0, Math.min(100, pct)));
+}
+var NEUTRAL_1_5 = 3, HEALTH_DETAILS = {
+  digestion: {
+    title: "Digestion",
+    accentColor: "#0d9488",
+    higherIsBetter: !0,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value),
+    getCurrentValue: (checkin) => checkin?.digestion ?? NEUTRAL_1_5,
+  },
+  sleep: {
+    title: "Sleep",
+    accentColor: "#6366f1",
+    higherIsBetter: !0,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value),
+    getCurrentValue: (checkin) => checkin?.sleep ?? NEUTRAL_1_5,
+  },
+  stress: {
+    title: "Stress",
+    accentColor: "#e11d48",
+    higherIsBetter: !1,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value, !0),
+    getCurrentValue: (checkin) => checkin?.stress ?? NEUTRAL_1_5,
+  },
+  energy: {
+    title: "Energy",
+    accentColor: "#d97706",
+    higherIsBetter: !0,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value),
+    getCurrentValue: (checkin) => checkin?.energy ?? NEUTRAL_1_5,
+  },
+  inflammation: {
+    title: "Inflammation",
+    accentColor: "#0d9488",
+    higherIsBetter: !1,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value, !0),
+    getCurrentValue: (checkin) => checkin?.inflammation ?? NEUTRAL_1_5,
+  },
+  mood: {
+    title: "Mood",
+    accentColor: "#db2777",
+    higherIsBetter: !0,
+    formatValue: (value) => `${Math.round(value)}/5`,
+    scoreFromValue: (value) => mountain(value),
+    getCurrentValue: (checkin) => checkin?.mood ?? NEUTRAL_1_5,
+  }
+};
+
+// engine/data/nutrients.ts
+var NUTRIENTS = [
+  {
+    key: "vitamin_d3",
+    name: "Vitamin D3",
+    groupKey: "vitamins",
+    unit: "mcg",
+    rdaMale: 50,
+    rdaFemale: 50,
+    consumed: 0,
+  },
+  {
+    key: "vitamin_c",
+    name: "Vitamin C",
+    groupKey: "vitamins",
+    unit: "mg",
+    rdaMale: 90,
+    rdaFemale: 75,
+    consumed: 0,
+  },
+  {
+    key: "vitamin_b12",
+    name: "Vitamin B12",
+    groupKey: "vitamins",
+    unit: "mcg",
+    rdaMale: 2.4,
+    rdaFemale: 2.4,
+    consumed: 0,
+  },
+  {
+    key: "folate",
+    name: "Folate (B9)",
+    groupKey: "vitamins",
+    unit: "mcg DFE",
+    rdaMale: 400,
+    rdaFemale: 400,
+    consumed: 0,
+  },
+  {
+    key: "vitamin_a",
+    name: "Vitamin A",
+    groupKey: "vitamins",
+    unit: "mcg RAE",
+    rdaMale: 900,
+    rdaFemale: 700,
+    consumed: 0,
+  },
+  {
+    key: "vitamin_k2",
+    name: "Vitamin K2",
+    groupKey: "vitamins",
+    unit: "mcg",
+    rdaMale: 120,
+    rdaFemale: 90,
+    consumed: 0,
+  },
+  {
+    key: "vitamin_e",
+    name: "Vitamin E",
+    groupKey: "vitamins",
+    unit: "mg",
+    rdaMale: 15,
+    rdaFemale: 15,
+    consumed: 0,
+  },
+  {
+    key: "biotin",
+    name: "Biotin (B7)",
+    groupKey: "vitamins",
+    unit: "mcg",
+    rdaMale: 30,
+    rdaFemale: 30,
+    consumed: 0,
+  },
+  {
+    key: "magnesium",
+    name: "Magnesium",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 420,
+    rdaFemale: 320,
+    consumed: 0,
+  },
+  {
+    key: "iron",
+    name: "Iron",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 8,
+    rdaFemale: 18,
+    consumed: 0,
+  },
+  {
+    key: "zinc",
+    name: "Zinc",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 11,
+    rdaFemale: 8,
+    consumed: 0,
+  },
+  {
+    key: "calcium",
+    name: "Calcium",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 1e3,
+    rdaFemale: 1e3,
+    consumed: 0,
+  },
+  {
+    key: "selenium",
+    name: "Selenium",
+    groupKey: "minerals",
+    unit: "mcg",
+    rdaMale: 55,
+    rdaFemale: 55,
+    consumed: 0,
+  },
+  {
+    key: "iodine",
+    name: "Iodine",
+    groupKey: "minerals",
+    unit: "mcg",
+    rdaMale: 150,
+    rdaFemale: 150,
+    consumed: 0,
+  },
+  {
+    key: "potassium",
+    name: "Potassium",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 3400,
+    rdaFemale: 2600,
+    consumed: 0,
+  },
+  {
+    key: "phosphorus",
+    name: "Phosphorus",
+    groupKey: "minerals",
+    unit: "mg",
+    rdaMale: 700,
+    rdaFemale: 700,
+    consumed: 0,
+  },
+  {
+    key: "omega3",
+    name: "Omega-3 (EPA + DHA)",
+    groupKey: "fatty_acids",
+    unit: "g",
+    rdaMale: 1.6,
+    rdaFemale: 1.1,
+    consumed: 0,
+  },
+  {
+    key: "ala",
+    name: "ALA (Omega-3)",
+    groupKey: "fatty_acids",
+    unit: "g",
+    rdaMale: 1.6,
+    rdaFemale: 1.1,
+    consumed: 0,
+  },
+  {
+    key: "epa",
+    name: "EPA (Omega-3)",
+    groupKey: "fatty_acids",
+    unit: "mg",
+    rdaMale: 500,
+    rdaFemale: 500,
+    consumed: 0,
+  },
+  {
+    key: "dha",
+    name: "DHA (Omega-3)",
+    groupKey: "fatty_acids",
+    unit: "mg",
+    rdaMale: 500,
+    rdaFemale: 500,
+    consumed: 0,
+  },
+  {
+    key: "choline",
+    name: "Choline",
+    groupKey: "fatty_acids",
+    unit: "mg",
+    rdaMale: 550,
+    rdaFemale: 425,
+    consumed: 0,
+  }
+];
+var NUTRIENT_KEY_TO_MICRO = {
+  vitamin_d3: "vitamin_d_mcg",
+  vitamin_c: "vitamin_c_mg",
+  vitamin_a: "vitamin_a_mcg",
+  vitamin_e: "vitamin_e_mg",
+  vitamin_k2: "vitamin_k2_mcg",
+  vitamin_b12: "b12_mcg",
+  folate: "folate_mcg",
+  biotin: "biotin_mcg",
+  iron: "iron_mg",
+  magnesium: "magnesium_mg",
+  calcium: "calcium_mg",
+  zinc: "zinc_mg",
+  selenium: "selenium_mcg",
+  iodine: "iodine_mcg",
+  potassium: "potassium_mg",
+  phosphorus: "phosphorus_mg",
+  omega3: "omega3_g",
+  epa: "epa_mg",
+  dha: "dha_mg",
+  ala: "ala_g",
+  choline: "choline_mg"
+};
+function getConsumedFromLogs(meals) {
+  let consumed = {};
+  for (let [nutrientKey, microField] of Object.entries(NUTRIENT_KEY_TO_MICRO))
+    consumed[nutrientKey] = meals.reduce((sum, m) => {
+      let val = m.micros?.[microField];
+      return sum + (typeof val == "number" ? val : 0);
+    }, 0);
+  return consumed;
+}
+function getOverallCoverage(sex = "female", consumedOverride) {
+  let coverages = NUTRIENTS.map((n) => {
+    let target = sex === "male" ? n.rdaMale : n.rdaFemale, consumed = consumedOverride?.[n.key] ?? n.consumed;
+    return Math.min(consumed / target, 1);
+  });
+  return Math.round(coverages.reduce((a, b) => a + b, 0) / coverages.length * 100);
+}
+function getNutrientGaps(threshold = 0.7, sex = "female", maxGaps = 4, consumedOverride) {
+  return NUTRIENTS.map((n) => {
+    let target = sex === "male" ? n.rdaMale : n.rdaFemale, pct = (consumedOverride?.[n.key] ?? n.consumed) / target;
+    return { ...n, pct };
+  }).filter((n) => n.pct < threshold).sort((a, b) => a.pct - b.pct).slice(0, maxGaps);
+}
+
+// engine/utils/tdee.ts
+var NEAT_FACTORS = {
+  sedentary: 1.2,
+  lightly_active: 1.35,
+  moderately_active: 1.55,
+  very_active: 1.7,
+  extremely_active: 1.9
+};
+function harrisBenedictBMR(weightKg, heightCm, age, sex) {
+  return sex === "male" ? 88.362 + 13.397 * weightKg + 4.799 * heightCm - 5.677 * age : 447.593 + 9.247 * weightKg + 3.098 * heightCm - 4.33 * age;
+}
+function katchMcArdleBMR(weightKg, bfPercent) {
+  return 370 + 21.6 * (weightKg * (1 - bfPercent / 100));
+}
+function calculateBMR(weightKg, heightCm, age, sex, bfPercent) {
+  return bfPercent != null && bfPercent > 0 ? katchMcArdleBMR(weightKg, bfPercent) : harrisBenedictBMR(weightKg, heightCm, age, sex);
+}
+function calculateTDEE(weightKg, heightCm, age, sex, activityLevel, bfPercent) {
+  let bmr = calculateBMR(weightKg, heightCm, age, sex, bfPercent), factor2 = NEAT_FACTORS[activityLevel] ?? 1.55;
+  return Math.round(bmr * factor2);
+}
+function getGoalOffset(goal, bfPercent) {
+  return goal === "maintain" ? 0 : goal === "cut" ? bfPercent < 18 ? -300 : bfPercent <= 25 ? -400 : -500 : bfPercent > 25 ? 150 : bfPercent >= 18 ? 250 : 300;
+}
+function calculateGoalMacros(tdee, weightKg, sex, goal, bfPercent) {
+  let offset = getGoalOffset(goal, bfPercent ?? 22), goalCalories = tdee + offset, proteinG = Math.round(weightKg * (sex === "female" ? 1.5 : 1.8)), proteinKcal = proteinG * 4, fatKcal = goalCalories * 0.4, fatG = Math.round(fatKcal / 9), carbsKcal = goalCalories - proteinKcal - fatKcal, carbsG = Math.max(0, Math.round(carbsKcal / 4));
+  return {
+    proteinG,
+    carbsG,
+    fatG,
+    calories: Math.round(goalCalories)
+  };
+}
+
+// engine/nutrition/snapshot.ts
+function buildNutritionSnapshot({
+  meals,
+  sex,
+  weightKg,
+  heightCm,
+  age,
+  activityLevel,
+  goal,
+  bfPercent,
+  customMacros,
+  customCalorieOffset,
+  dbMacroTargets
+}) {
+  let computedTdee = calculateTDEE(weightKg, heightCm, age, sex, activityLevel, bfPercent ?? null), calculated = calculateGoalMacros(computedTdee, weightKg, sex, goal, bfPercent ?? null), customApplied = customMacros ? {
+    proteinG: customMacros.proteinG ?? calculated.proteinG,
+    carbsG: customMacros.carbsG ?? calculated.carbsG,
+    fatG: customMacros.fatG ?? calculated.fatG,
+    calories: customMacros.calories ?? calculated.calories
+  } : calculated, tdee = dbMacroTargets?.tdee ?? computedTdee, targets = dbMacroTargets ? {
+    proteinG: dbMacroTargets.proteinG,
+    carbsG: dbMacroTargets.carbsG,
+    fatG: dbMacroTargets.fatG,
+    calories: dbMacroTargets.calories
+  } : customApplied, goalCalories = dbMacroTargets ? dbMacroTargets.calories : customCalorieOffset != null ? computedTdee + customCalorieOffset : customApplied.calories, consumedCalories = Math.round(meals.reduce((sum, meal) => sum + (meal.estimatedCalories ?? 0), 0)), consumedProtein = Math.round(meals.reduce((sum, meal) => sum + (meal.estimatedProtein ?? 0), 0)), consumedCarbs = Math.round(meals.reduce((sum, meal) => sum + (meal.estimatedCarbs ?? 0), 0)), consumedFat = Math.round(meals.reduce((sum, meal) => sum + (meal.estimatedFat ?? 0), 0)), consumedFiber = Math.round(meals.reduce((sum, meal) => sum + (meal.micros?.fiber_g ?? 0), 0)), consumedMicros = getConsumedFromLogs(meals), microPct = getOverallCoverage(sex, consumedMicros), microGaps = getNutrientGaps(0.7, sex, 10, consumedMicros), fiberTarget = Math.max(25, Math.round(targets.calories / 1e3 * 14));
+  return {
+    tdee,
+    goalCalories,
+    targets,
+    consumed: {
+      calories: consumedCalories,
+      protein: consumedProtein,
+      carbs: consumedCarbs,
+      fat: consumedFat,
+      fiber: consumedFiber,
+      micros: consumedMicros
+    },
+    micronutrients: {
+      overallPct: microPct,
+      gaps: microGaps
+    },
+    fiberTarget
+  };
+}
+
+// engine/theme/tokens.ts
+var colors = { forestS: "#4A8A5C", forest: "#2E5438", charcoal: "#1A1A16", stone: "#7A796F" };
+
+// engine/dates/local-day.ts
+var clockOffsetMs = 0;
+function setClockOffsetMinutes(minutes) {
+  clockOffsetMs = minutes * 6e4;
+}
+function engineNow() {
+  return new Date(Date.now() + clockOffsetMs);
+}
+function shiftToWallClock(iso) {
+  return new Date(new Date(iso).getTime() + clockOffsetMs).toISOString();
+}
+function localDayISO(d = engineNow()) {
+  let y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// engine/theme/nutrition-macros.ts
+var MACRO_HUES = { protein: "#E0654F", carbs: "#E8A23D", fat: "#6C8AE4" };
+
+// engine/nutrition/macros-view.ts
+var MACRO_RING_COLORS = {
+  kcal: colors.forestS,
+  protein: MACRO_HUES.protein,
+  carbs: MACRO_HUES.carbs,
+  fat: MACRO_HUES.fat
+};
+function buildMacroStats(snapshot) {
+  let mk = (key, label, unit, current, target, color) => ({
+    key,
+    label,
+    unit,
+    current: Math.round(current),
+    target: Math.round(target),
+    color,
+    pct: target > 0 ? current / target : 0
+  });
+  return [
+    mk("kcal", "Calories", "", snapshot.consumed.calories, snapshot.goalCalories, MACRO_RING_COLORS.kcal),
+    mk("protein", "Protein", "g", snapshot.consumed.protein, snapshot.targets.proteinG, MACRO_RING_COLORS.protein),
+    mk("carbs", "Carbs", "g", snapshot.consumed.carbs, snapshot.targets.carbsG, MACRO_RING_COLORS.carbs),
+    mk("fat", "Fat", "g", snapshot.consumed.fat, snapshot.targets.fatG, MACRO_RING_COLORS.fat)
+  ];
+}
+function macroProximityScore(stats) {
+  let pcf = stats.filter((m) => m.key !== "kcal");
+  return pcf.length ? Math.round(pcf.reduce((s, m) => s + Math.min(1, m.pct), 0) / pcf.length * 100) : null;
+}
+
+// engine/health/functional-score.ts
+var PILLAR_WEIGHTS = {
+  vitality: 0.42,
+  metabolic: 0.33,
+  nutrition: 0.25
+};
+function functionalComposite(input) {
+  let pillars = {
+    vitality: input.vitality,
+    metabolic: input.metabolic,
+    nutrition: input.nutrition
+  }, present = Object.keys(pillars).filter((k) => pillars[k] !== null), score = null;
+  if (present.length) {
+    let totalW = present.reduce((s, k) => s + PILLAR_WEIGHTS[k], 0), weighted = present.reduce((s, k) => s + pillars[k] * PILLAR_WEIGHTS[k], 0);
+    score = Math.round(weighted / totalW);
+  }
+  let basis = "none";
+  return present.length && (input.hasWearable ? basis = "checkins+nutrition+wearable" : pillars.nutrition !== null ? basis = "checkins+nutrition" : basis = "checkins"), { score, basis, pillars };
+}
+
+// engine/health/score-core.ts
+function statusFor(value) {
+  return value === null ? "watch" : value >= 67 ? "good" : value >= 34 ? "watch" : "bad";
+}
+function availableCaseScore(factors) {
+  let present = factors.filter((f) => f.value !== null);
+  if (present.length === 0) return null;
+  let totalW = present.reduce((s, f) => s + f.weight, 0);
+  if (totalW === 0) return null;
+  let weighted = present.reduce((s, f) => s + f.value * f.weight, 0);
+  return Math.round(weighted / totalW);
+}
+function factor(key, label, value, weight, detail) {
+  return { key, label, value, weight, status: statusFor(value), detail };
+}
+
+// engine/health/meal-timing.ts
+var clamp = (n) => Math.max(0, Math.min(100, n)), hourOf = (iso) => {
+  let d = new Date(iso);
+  return d.getHours() + d.getMinutes() / 60;
+};
+function mealTimingScore(meals) {
+  if (!meals.length) return null;
+  let hours = meals.map((m) => hourOf(m.timestamp)).sort((a, b) => a - b), first = hours[0], last = hours[hours.length - 1], breakfast = clamp(first <= 10 ? 100 : 100 - (first - 10) * (40 / 3)), lateNight = clamp(last <= 20 ? 100 : 100 - (last - 20) * 20);
+  if (meals.length === 1) return Math.round((breakfast + lateNight) / 2);
+  let span = last - first, windowScore = clamp(span <= 12 ? 100 : 100 - (span - 12) * 10);
+  return Math.round((breakfast + lateNight + windowScore) / 3);
+}
+
+// engine/health/nutrition-score.ts
+var clamp2 = (n) => Math.max(0, Math.min(100, n));
+function mealQuality(s) {
+  return clamp2((s.inflammation + s.glycemic + s.digestion) / 3);
+}
+function nutritionScore(input) {
+  let scored = input.meals.filter((m) => m.scores != null), mealQ = scored.length ? Math.round(scored.reduce((s, m) => s + mealQuality(m.scores), 0) / scored.length) : null, timing = mealTimingScore(input.meals), factors = [
+    factor("mealQuality", "Meal quality", mealQ, 0.3),
+    factor("micro", "Micro coverage", input.microCoveragePct, 0.3),
+    factor("macro", "Macro proximity", input.macroProximityPct, 0.25),
+    factor("timing", "Meal timing", timing, 0.15)
+  ];
+  return { score: availableCaseScore(factors), factors };
+}
+
+// engine/health/metabolic-score.ts
+var round = (n) => Math.round(n), mean = (xs) => xs.reduce((s, v) => s + v, 0) / xs.length;
+function metabolicScore(input) {
+  let scored = input.meals.map((m) => m.scores).filter((s) => s != null), mealIGD = scored.length ? round(mean(scored.map(mealQuality))) : null, inflammation = scored.length ? round(mean(scored.map((s) => s.inflammation))) : null, glycemic = scored.length ? round(mean(scored.map((s) => s.glycemic))) : null, digestion = null, fg = input.feltDigestion;
+  fg !== null && mealIGD !== null ? digestion = round(0.65 * fg + 0.35 * mealIGD) : fg !== null ? digestion = fg : mealIGD !== null && (digestion = mealIGD);
+  let factors = [
+    factor("digestion", "Digestion", digestion, 0.2),
+    factor("inflammation", "Inflammation", inflammation, 0.25),
+    factor("glycemic", "Glycemic", glycemic, 0.25),
+    factor("energy", "Energy", input.energyScore, 0.3)
+  ];
+  return { score: availableCaseScore(factors), factors };
+}
+
+// engine/health/vitality-score.ts
+function vitalityScore(input) {
+  let factors = [
+    factor("energy", "Energy", input.energyScore, 0.25),
+    factor("mood", "Mood", input.moodScore, 0.25),
+    factor("sleep", "Sleep", input.sleepScore, 0.25),
+    factor("stress", "Stress", input.stressScore, 0.25),
+    factor("recovery", "Recovery", input.recoveryScore ?? null, 0.2)
+  ];
+  return { score: availableCaseScore(factors), factors };
+}
+
+// engine/health/gut-breakdown.ts
+function gutScore(input) {
+  let factors = [
+    factor("comfort", "Digestion comfort", input.comfort, 0.4),
+    factor("reactions", "Post-meal reactions", input.reactions, 0.3),
+    factor("stool", "Stool quality", input.stool, 0.3)
+  ];
+  return { score: availableCaseScore(factors), factors };
+}
+var clampR = (n) => Math.max(0, Math.min(100, n));
+function mealReactionsScore(meals) {
+  let reacted = meals.filter((m) => typeof m.reactionOverall == "number");
+  if (!reacted.length) return null;
+  let per = reacted.map((m) => {
+    let felt = m.reactionOverall * 10, disc = [m.reactionBloating, m.reactionGasBurden, m.reactionFullness].filter(
+      (v) => typeof v == "number"
+    ), penalty = disc.length ? disc.reduce((s, v) => s + v, 0) / disc.length * 3 : 0;
+    return clampR(felt - penalty);
+  });
+  return Math.round(per.reduce((s, v) => s + v, 0) / per.length);
+}
+
+// engine/health/score-series.ts
+function lastNDays(now, n) {
+  return Array.from({ length: n }, (_, i) => {
+    let d = new Date(now);
+    return d.setDate(d.getDate() - (n - 1 - i)), d;
+  });
+}
+
+// engine/checkin/marker-trends.ts
+var FUNCTIONAL_MARKERS = [
+  { key: "energy", label: "Energy", color: HEALTH_DETAILS.energy.accentColor },
+  { key: "sleep", label: "Sleep", color: HEALTH_DETAILS.sleep.accentColor },
+  { key: "mood", label: "Mood", color: HEALTH_DETAILS.mood.accentColor },
+  { key: "stress", label: "Calmness", color: HEALTH_DETAILS.stress.accentColor }
+];
+var clamp01 = (v) => Math.min(1, Math.max(0, v));
+function freqBadness(perDay) {
+  return perDay >= 1 && perDay <= 3 ? 0 : perDay === 0 ? 0.6 : perDay <= 5 ? 0.3 : 1;
+}
+function gutMarkerScore(key, v) {
+  if (v == null) return null;
+  switch (key) {
+    case "bloating":
+    case "burns":
+      return Math.round((1 - clamp01((v - 1) / 9)) * 100);
+    case "gasBurden":
+      return Math.round((1 - clamp01(v / 10)) * 100);
+    case "stoolQuality":
+      return Math.round(clamp01((v - 1) / 4) * 100);
+    case "stoolFrequency":
+      return Math.round((1 - freqBadness(v)) * 100);
+    default:
+      return null;
+  }
+}
+
+// engine/health/gut-signals.ts
+function mean2(vals) {
+  let v = vals.filter((x) => x !== null);
+  return v.length ? Math.round(v.reduce((s, x) => s + x, 0) / v.length) : null;
+}
+function gutSignalsForEntry(entry, meals) {
+  let comfort = entry?.comfort ?? null, stool = entry?.stool ?? null;
+  return stool == null && entry && (stool = mean2([gutMarkerScore("stoolQuality", entry.stoolQuality), gutMarkerScore("stoolFrequency", entry.stoolFrequency)])), { comfort, stool, reactions: mealReactionsScore(meals) };
+}
+function latestGutEntry(today, history) {
+  let all = today ? [...history, today] : history;
+  if (!all.length) return null;
+  let latest = (k) => {
+    for (let i = all.length - 1; i >= 0; i--) {
+      let v = all[i][k];
+      if (typeof v == "number") return v;
+    }
+    return null;
+  };
+  return {
+    date: "",
+    bloating: latest("bloating"),
+    burns: latest("burns"),
+    gasBurden: latest("gasBurden"),
+    stoolQuality: latest("stoolQuality"),
+    stoolFrequency: latest("stoolFrequency"),
+    comfort: latest("comfort"),
+    gutOverall: latest("gutOverall"),
+    stool: latest("stool")
+  };
+}
+function gutSignalsCurrent(today, history, meals) {
+  return gutSignalsForEntry(latestGutEntry(today, history), meals);
+}
+
+// engine/health/score-tip.ts
+function ruleBasedTip(core) {
+  let present = core.factors.filter((f) => f.value !== null);
+  if (core.score === null || present.length === 0)
+    return { summary: "Log a little more and your {label} reading appears here.", good: "", bad: "" };
+  let sorted = [...present].sort((a, b) => b.value - a.value), best = sorted[0], worst = sorted[sorted.length - 1], summary = (
+    core.score >= 67 ? "Your {label} is strong today." : core.score >= 34 ? "Your {label} is holding steady." : "Your {label} needs attention today."
+  );
+  if (present.length === 1)
+    return { summary, good: `${best.label} (${best.value}/100) is the only signal so far.`, bad: "" };
+  let good = `${best.label} is your strongest driver (${best.value}/100).`, bad = worst.value < 67 ? `${worst.label} is the weak point (${worst.value}/100) \xB7 focus here.` : "Nothing's dragging it down \xB7 keep it going.";
+  return { summary, good, bad };
+}
+
+// engine/health/meal-window.ts
+function windowMeals(meals, now) {
+  if (!meals.length) return [];
+  let dayKey = (d) => d.toDateString(), byDay = /* @__PURE__ */ new Map();
+  for (let meal of meals) {
+    let k = dayKey(new Date(meal.timestamp)), arr = byDay.get(k);
+    arr ? arr.push(meal) : byDay.set(k, [meal]);
+  }
+  let today = byDay.get(dayKey(now));
+  if (today && today.length) return today;
+  let candidates = [...byDay.keys()].map((k) => ({ k, t: new Date(k).getTime() })).filter((x) => x.t <= now.getTime()).sort((a, b) => b.t - a.t);
+  return candidates.length ? byDay.get(candidates[0].k) : [];
+}
+
+// engine/health/recovery-score.ts
+var RECOVERY_WEIGHTS = { hrv: 0.3, sleepQuality: 0.25, felt: 0.25, stress: 0.2 }, FELT_RECOVERY_WEIGHTS = { recovery: 0.5, soreness: 0.25, physicalLoad: 0.125, mentalLoad: 0.125 }, clamp3 = (n, lo, hi) => Math.max(lo, Math.min(hi, n)), inv = (v) => v == null ? null : clamp3(100 - v, 0, 100);
+function hrvFactorValue(today, baseline) {
+  return today == null || baseline == null || baseline <= 0 ? null : Math.round(clamp3(50 + (today / baseline - 1) * 100 * 1.5, 0, 100));
+}
+function sleepQualityValue(hours, efficiencyPct) {
+  let parts = [];
+  return efficiencyPct != null && parts.push(clamp3(efficiencyPct, 0, 100)), hours != null && parts.push(hours >= 7.5 ? 95 : hours >= 7 ? 85 : hours >= 6.5 ? 70 : hours >= 6 ? 58 : hours >= 5 ? 45 : 32), parts.length ? Math.round(parts.reduce((s, v) => s + v, 0) / parts.length) : null;
+}
+function feltRecoveryScore(felt) {
+  if (!felt) return null;
+  let W = FELT_RECOVERY_WEIGHTS, factors = [
+    factor("recovery", "Bounced back", felt.recovery ?? null, W.recovery),
+    factor("soreness", "Freshness", inv(felt.soreness), W.soreness),
+    factor("physicalLoad", "Physical load", inv(felt.physicalLoad), W.physicalLoad),
+    factor("mentalLoad", "Mental load", inv(felt.mentalLoad), W.mentalLoad)
+  ];
+  return availableCaseScore(factors);
+}
+function recoveryScore(input) {
+  let W = RECOVERY_WEIGHTS, factors = [
+    factor("hrv", "HRV", hrvFactorValue(input.hrvRmssd, input.hrvBaseline), W.hrv),
+    factor("sleepQuality", "Sleep quality", sleepQualityValue(input.sleepHours, input.sleepEfficiencyPct), W.sleepQuality),
+    factor("felt", "How you feel", feltRecoveryScore(input.felt), W.felt),
+    factor("stress", "Calm", inv(input.avgStress), W.stress)
+  ];
+  return { score: availableCaseScore(factors), factors };
+}
+
+// engine/health/trends-derive.ts
+var OVERALL_FIELD = {
+  energy: "energyOverall",
+  mood: "moodScore",
+  sleep: "sleepOverall",
+  stress: "stressScore"
+};
+function feltMetric(entry, key) {
+  if (!entry) return null;
+  let field = OVERALL_FIELD[key];
+  if (field !== void 0) {
+    let o = entry[field];
+    if (typeof o == "number") return o;
+  }
+  let cfg = HEALTH_DETAILS[key];
+  return cfg.scoreFromValue(cfg.getCurrentValue(entry));
+}
+function mealsOnDay(meals, day) {
+  let k = day.toDateString();
+  return meals.filter((m) => new Date(m.timestamp).toDateString() === k);
+}
+function hasMicro(meals) {
+  if (!meals.length) return !1;
+  let consumed = getConsumedFromLogs(meals);
+  return Object.values(consumed).some((v) => typeof v == "number" && v > 0);
+}
+function snapshotSafe(meals, p) {
+  let weightKg = Number(p.weight), heightCm = Number(p.height);
+  return !weightKg || !heightCm ? null : buildNutritionSnapshot({
+    meals,
+    sex: p.sex ?? "male",
+    weightKg,
+    heightCm,
+    age: Number(p.age) || 34,
+    activityLevel: p.activityLevel ?? "moderately_active",
+    goal: p.goalMode ?? "maintain",
+    bfPercent: p.estimatedBfPercent ?? 18,
+    customMacros: p.customMacros ?? null,
+    customCalorieOffset: p.customCalorieOffset ?? null
+  });
+}
+function nutritionPcts(meals, p) {
+  if (!meals.length) return { micro: null, macro: null };
+  let snap = snapshotSafe(meals, p);
+  return snap ? {
+    micro: hasMicro(meals) ? snap.micronutrients.overallPct : null,
+    macro: macroProximityScore(buildMacroStats(snap))
+  } : { micro: null, macro: null };
+}
+var to100 = (v) => v == null ? null : Math.round(v / 10 * 100);
+function feltFrom(src) {
+  if (!src) return null;
+  let s = src, f = { recovery: to100(s.recovery), soreness: to100(s.soreness), physicalLoad: to100(s.recentLoad), mentalLoad: to100(s.recentMentalLoad) };
+  return Object.values(f).some((v) => v != null) ? f : null;
+}
+function recoveryFor(src, day, opts) {
+  let w = opts.wearableByDay?.get(day) ?? null, felt = feltFrom(src);
+  if (!w && !felt) return null;
+  let hrvBaseline = opts.recoveryBaseline && opts.recoveryBaseline.hrvDays >= 14 ? opts.recoveryBaseline.hrvRmssd : null;
+  return recoveryScore({
+    hrvRmssd: w?.recovery?.hrvRmssd ?? null,
+    hrvBaseline,
+    sleepHours: w?.sleep?.hours ?? null,
+    sleepEfficiencyPct: w?.sleep?.efficiencyPct ?? null,
+    avgStress: w?.recovery?.avgStress ?? null,
+    felt
+  }).score;
+}
+function dayScores(dayMeals, fnEntry, gutEntry, p, recovery) {
+  let energy = feltMetric(fnEntry, "energy"), vitality = fnEntry || recovery != null ? vitalityScore({ energyScore: energy, moodScore: feltMetric(fnEntry, "mood"), sleepScore: feltMetric(fnEntry, "sleep"), stressScore: feltMetric(fnEntry, "stress"), recoveryScore: recovery }).score : null, { micro, macro } = nutritionPcts(dayMeals, p), g = gutSignalsForEntry(gutEntry, dayMeals);
+  return {
+    vitality,
+    metabolic: metabolicScore({ meals: dayMeals, feltDigestion: g.comfort, energyScore: energy }).score,
+    nutrition: nutritionScore({ meals: dayMeals, microCoveragePct: micro, macroProximityPct: macro }).score,
+    gut: gutScore({ comfort: g.comfort, stool: g.stool, reactions: g.reactions }).score
+  };
+}
+function deriveTrends(input) {
+  let { meals, metricHistory, gutHistory, today, checkin, profile, now } = input, todayFn = today?.todayFunctional ?? null, todayGut = today?.todayGut ?? null, win = windowMeals(meals, now), energyToday = feltMetric(todayFn, "energy"), { micro: winMicro, macro: winMacro } = nutritionPcts(win, profile), gutNow = gutSignalsCurrent(todayGut, gutHistory, win), isoDate = (d) => localDayISO(d), wopts = { wearableByDay: input.wearableByDay, recoveryBaseline: input.recoveryBaseline }, todayRecovery = recoveryFor(checkin, isoDate(now), wopts), vitalityCore = vitalityScore(
+    todayFn || todayRecovery != null ? { energyScore: energyToday, moodScore: feltMetric(todayFn, "mood"), sleepScore: feltMetric(todayFn, "sleep"), stressScore: feltMetric(todayFn, "stress"), recoveryScore: todayRecovery } : { energyScore: null, moodScore: null, sleepScore: null, stressScore: null, recoveryScore: todayRecovery }
+  ), metabolicCore = metabolicScore({ meals: win, feltDigestion: gutNow.comfort, energyScore: energyToday }), nutritionCore = nutritionScore({ meals: win, microCoveragePct: winMicro, macroProximityPct: winMacro }), gutCore = gutScore({ comfort: gutNow.comfort, stool: gutNow.stool, reactions: gutNow.reactions }), fnByDate = new Map(metricHistory.map((e) => [e.date, e])), gutByDate = new Map(gutHistory.map((e) => [e.date, e])), series = { vitality: [], metabolic: [], nutrition: [], gut: [] };
+  for (let day of lastNDays(now, 14)) {
+    let isToday = day.toDateString() === now.toDateString(), fnEntry = isToday ? todayFn : fnByDate.get(isoDate(day)) ?? null, gutEntry = isToday ? todayGut : gutByDate.get(isoDate(day)) ?? null, rec = recoveryFor(isToday ? checkin : fnEntry, isoDate(day), wopts), s = dayScores(mealsOnDay(meals, day), fnEntry, gutEntry, profile, rec);
+    series.vitality.push(s.vitality), series.metabolic.push(s.metabolic), series.nutrition.push(s.nutrition), series.gut.push(s.gut);
+  }
+  let compositeSeries14d = series.vitality.map(
+    (v, i) => functionalComposite({ vitality: v, metabolic: series.metabolic[i], nutrition: series.nutrition[i] }).score
+  ), hasWearable = !!input.wearableByDay && input.wearableByDay.size > 0, composite = functionalComposite({ vitality: vitalityCore.score, metabolic: metabolicCore.score, nutrition: nutritionCore.score, hasWearable });
+  compositeSeries14d.length && composite.score != null && (compositeSeries14d[compositeSeries14d.length - 1] = composite.score);
+  let view = (core, label, s) => ({ ...core, series14d: s, tip: ruleBasedTip(core) });
+  return {
+    vitality: view(vitalityCore, "Vitality", series.vitality),
+    metabolic: view(metabolicCore, "Metabolic", series.metabolic),
+    nutrition: view(nutritionCore, "Nutrition", series.nutrition),
+    gut: view(gutCore, "Gut", series.gut),
+    composite,
+    compositeSeries14d
+  };
+}
+
+// engine/checkin/load-today.ts
+var num = (v) => typeof v == "number" ? v : null;
+function parseTodayCheckin(row, hasV2) {
+  if (!row) return null;
+  let functionalDoneAt = row.functional_completed_at ?? null, intelligenceDoneAt = row.intelligence_completed_at ?? null, date = row.checkin_date ?? "", fd = hasV2 ? row.functional_detail : null, functionalAnswers = fd && typeof fd == "object" ? fd : null, gd = hasV2 ? row.gut_detail : null, gutAnswers = gd && gd.answers && typeof gd.answers == "object" ? gd.answers : null, notes = gd && typeof gd.notes == "string" ? gd.notes : null, todayFunctional = functionalDoneAt ? {
+    date,
+    mood: num(row.mood),
+    digestion: num(row.digestion),
+    energy: num(row.energy),
+    sleep: num(row.sleep),
+    sleepQuality: num(row.sleep_quality),
+    stress: num(row.stress),
+    inflammation: num(row.inflammation),
+    energyOverall: hasV2 ? num(row.energy_overall) : null,
+    sleepOverall: hasV2 ? num(row.sleep_overall) : null,
+    moodScore: hasV2 ? num(row.mood_score) : null,
+    stressScore: hasV2 ? num(row.stress_score) : null,
+    recovery: hasV2 ? num(row.recovery) : null,
+    soreness: hasV2 ? num(row.soreness) : null,
+    recentLoad: hasV2 ? num(row.recent_load) : null,
+    recentMentalLoad: hasV2 ? num(row.recent_mental_load) : null
+  } : null, todayGut = intelligenceDoneAt ? {
+    date,
+    bloating: num(row.bloating),
+    burns: num(row.burns),
+    gasBurden: num(row.gas_burden),
+    stoolQuality: num(row.stool_quality),
+    stoolFrequency: num(row.stool_frequency),
+    comfort: hasV2 ? num(row.gut_comfort) : null,
+    gutOverall: hasV2 ? num(row.gut_overall) : null,
+    stool: hasV2 ? num(row.gut_stool) : null
+  } : null;
+  return { functionalDoneAt, intelligenceDoneAt, functionalAnswers, gutAnswers, notes, todayFunctional, todayGut };
+}
+
+// engine/health/overall-trend.ts
+function overallTrend(series) {
+  if (series.length < 2) return null;
+  let half = Math.floor(series.length / 2), avg = (xs) => xs.reduce((s, v) => s + v, 0) / xs.length, delta = avg(series.slice(half)) - avg(series.slice(0, half));
+  return delta >= 3 ? "up" : delta <= -3 ? "down" : "flat";
+}
+
+// index.ts
+var CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+}, json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } }), TREND_DAYS = 13, MEAL_DAYS = 30, num2 = (v) => typeof v == "number" ? v : v != null && !Number.isNaN(Number(v)) ? Number(v) : null, und = (v) => v === null ? void 0 : v;
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  if (req.method !== "POST") return json({ error: "POST only" }, 405);
+  let body = {};
+  try {
+    body = await req.json();
+  } catch {
+  }
+  let offset = Number.isFinite(body.tzOffsetMinutes) ? Math.max(-840, Math.min(840, Number(body.tzOffsetMinutes))) : 0;
+  setClockOffsetMinutes(offset);
+  let db = createUserScopedClient(req), { data: patientId, error: pidErr } = await db.rpc("current_member_patient_id");
+  if (pidErr) return json({ error: pidErr.message }, 401);
+  if (!patientId) return json({ error: "No patient profile for this account" }, 404);
+  let now = engineNow(), today = localDayISO(now), dayCutoff = (back) => {
+    let d = new Date(now);
+    return d.setDate(d.getDate() - back), localDayISO(d);
+  }, sinceMeals = new Date(Date.now() - MEAL_DAYS * 864e5).toISOString(), [mealsRes, reactionsRes, fnRes, gutRes, todayRes, profileRes] = await Promise.all([
+    db.from("nb_meal_logs").select("id, name, meal_type, logged_at, total_calories, total_protein_g, total_carbs_g, total_fat_g, total_fiber_g, micronutrient_totals, inflammation_score, glycemic_score, gut_score, ai_identified_foods").eq("patient_id", patientId).gte("logged_at", sinceMeals).order("logged_at", { ascending: !0 }).limit(100),
+    db.from("nb_meal_reactions").select("meal_log_id, overall, bloating, gas_burden, fullness, reaction_flags").eq("patient_id", patientId).gte("reaction_time", sinceMeals),
+    db.from("patient_daily_checkins").select("checkin_date, mood, digestion, energy, sleep, sleep_quality, stress, inflammation, energy_overall, sleep_overall, mood_score, stress_score, recovery, soreness, recent_load, recent_mental_load").eq("patient_id", patientId).not("functional_completed_at", "is", null).lt("checkin_date", today).gte("checkin_date", dayCutoff(TREND_DAYS)).order("checkin_date", { ascending: !0 }).limit(TREND_DAYS + 1),
+    db.from("patient_daily_checkins").select("checkin_date, bloating, burns, gas_burden, stool_quality, stool_frequency, gut_comfort, gut_overall, gut_stool").eq("patient_id", patientId).not("intelligence_completed_at", "is", null).lt("checkin_date", today).gte("checkin_date", dayCutoff(TREND_DAYS)).order("checkin_date", { ascending: !0 }).limit(TREND_DAYS + 1),
+    db.from("patient_daily_checkins").select("checkin_date, functional_completed_at, intelligence_completed_at, mood, digestion, energy, sleep, sleep_quality, stress, inflammation, bloating, burns, gas_burden, stool_quality, stool_frequency, energy_overall, sleep_overall, mood_score, stress_score, gut_comfort, gut_overall, gut_stool, functional_detail, gut_detail, recovery, soreness, recent_load, recent_mental_load").eq("patient_id", patientId).eq("checkin_date", today).maybeSingle(),
+    db.from("nb_patient_app_profiles").select("app_sex, app_weight_kg, app_height_cm, app_age, activity_level, goal_mode, estimated_body_fat_percent, macros_customized, target_calories, target_protein_g, target_carbs_g, target_fat_g, custom_calorie_offset_kcal").eq("patient_id", patientId).maybeSingle()
+  ]);
+  for (let r of [mealsRes, reactionsRes, fnRes, gutRes, todayRes, profileRes])
+    if (r.error) return json({ error: r.error.message }, 500);
+  let reactions = /* @__PURE__ */ new Map();
+  for (let rr of reactionsRes.data ?? [])
+    reactions.set(String(rr.meal_log_id), {
+      overall: und(num2(rr.overall)),
+      flags: Array.isArray(rr.reaction_flags) ? rr.reaction_flags : void 0,
+      bloating: und(num2(rr.bloating)),
+      gasBurden: und(num2(rr.gas_burden)),
+      fullness: und(num2(rr.fullness))
+    });
+  let meals = (mealsRes.data ?? []).map((r) => {
+    let items = Array.isArray(r.ai_identified_foods) ? r.ai_identified_foods : void 0, itemSum = (k) => items && items.length ? Math.round(items.reduce((a, it) => a + (typeof it[k] == "number" ? it[k] : 0), 0)) : void 0, hasScores = r.inflammation_score != null || r.glycemic_score != null || r.gut_score != null, reaction = reactions.get(String(r.id));
+    return {
+      id: String(r.id),
+      dbId: String(r.id),
+      name: r.name ?? "Meal",
+      mealType: r.meal_type ?? "snack",
+      estimatedCalories: itemSum("kcal") ?? und(num2(r.total_calories)),
+      estimatedProtein: itemSum("protein_g") ?? und(num2(r.total_protein_g)),
+      estimatedCarbs: itemSum("carbs_g") ?? und(num2(r.total_carbs_g)),
+      estimatedFat: itemSum("fat_g") ?? und(num2(r.total_fat_g)),
+      timestamp: shiftToWallClock(String(r.logged_at)),
+      micros: { ...r.micronutrient_totals ?? {}, fiber_g: und(num2(r.total_fiber_g)) },
+      scores: hasScores ? { inflammation: Number(r.inflammation_score ?? 0), glycemic: Number(r.glycemic_score ?? 0), digestion: Number(r.gut_score ?? 0) } : void 0,
+      reactionOverall: reaction?.overall,
+      reactionFlags: reaction?.flags,
+      reactionBloating: reaction?.bloating,
+      reactionGasBurden: reaction?.gasBurden,
+      reactionFullness: reaction?.fullness,
+      items
+    };
+  }), metricHistory = (fnRes.data ?? []).map((row) => ({
+    date: row.checkin_date,
+    mood: num2(row.mood),
+    digestion: num2(row.digestion),
+    energy: num2(row.energy),
+    sleep: num2(row.sleep),
+    sleepQuality: num2(row.sleep_quality),
+    stress: num2(row.stress),
+    inflammation: num2(row.inflammation),
+    energyOverall: num2(row.energy_overall),
+    sleepOverall: num2(row.sleep_overall),
+    moodScore: num2(row.mood_score),
+    stressScore: num2(row.stress_score),
+    recovery: num2(row.recovery),
+    soreness: num2(row.soreness),
+    recentLoad: num2(row.recent_load),
+    recentMentalLoad: num2(row.recent_mental_load)
+  })), gutHistory = (gutRes.data ?? []).map((row) => ({
+    date: row.checkin_date,
+    bloating: num2(row.bloating),
+    burns: num2(row.burns),
+    gasBurden: num2(row.gas_burden),
+    stoolQuality: num2(row.stool_quality),
+    stoolFrequency: num2(row.stool_frequency),
+    comfort: num2(row.gut_comfort),
+    gutOverall: num2(row.gut_overall),
+    stool: num2(row.gut_stool)
+  })), todayCheckin = parseTodayCheckin(todayRes.data ?? null, !0), p = profileRes.data ?? {}, customised = p.macros_customized === !0, profile = {
+    sex: p.app_sex === "male" || p.app_sex === "female" ? p.app_sex : null,
+    weight: p.app_weight_kg != null ? String(p.app_weight_kg) : "",
+    height: p.app_height_cm != null ? String(p.app_height_cm) : "",
+    age: p.app_age != null ? String(p.app_age) : "",
+    activityLevel: p.activity_level ?? null,
+    goalMode: p.goal_mode === "build" || p.goal_mode === "cut" || p.goal_mode === "maintain" ? p.goal_mode : null,
+    estimatedBfPercent: num2(p.estimated_body_fat_percent),
+    customMacros: customised ? { proteinG: und(num2(p.target_protein_g)), carbsG: und(num2(p.target_carbs_g)), fatG: und(num2(p.target_fat_g)), calories: und(num2(p.target_calories)) } : null,
+    customCalorieOffset: num2(p.custom_calorie_offset_kcal)
+  }, result = deriveTrends({
+    meals,
+    metricHistory,
+    gutHistory,
+    today: todayCheckin,
+    checkin: null,
+    gutCompletedToday: !!todayCheckin?.intelligenceDoneAt,
+    profile,
+    now
+  }), crownSeries = result.compositeSeries14d.filter((v) => v != null), trend = overallTrend(crownSeries);
+  return json({
+    day: today,
+    tzOffsetMinutes: offset,
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    trend,
+    inputs: { meals: meals.length, functionalDays: metricHistory.length, gutDays: gutHistory.length, hasToday: !!todayCheckin, hasProfile: !!profileRes.data },
+    ...result
+  });
+});

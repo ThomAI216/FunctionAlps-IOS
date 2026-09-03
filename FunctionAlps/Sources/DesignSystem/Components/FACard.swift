@@ -6,10 +6,8 @@ import SwiftUI
 struct FACard<Content: View>: View {
     var padded = true
     /// `.clear` = fully see-through (the web's "seethrough" recipe); `.regular` = the light liquid glass.
-    var glass: GlassKind = .regular
+    var glass: FAGlassKind = .regular
     @ViewBuilder let content: Content
-
-    enum GlassKind { case regular, clear }
 
     var body: some View {
         content
@@ -19,10 +17,13 @@ struct FACard<Content: View>: View {
     }
 }
 
+/// `.clear` = fully see-through (the web's "seethrough" recipe); `.regular` = the light liquid glass.
+enum FAGlassKind { case regular, clear }
+
 /// The glass itself. On iOS 26 this is Apple's Liquid Glass (real refraction of the wall behind);
 /// earlier systems get the web recipe (white tint + shine bevel) with no opaque material.
 struct FAGlassSurface: ViewModifier {
-    let kind: FACard<EmptyView>.GlassKind
+    let kind: FAGlassKind
     let cornerRadius: CGFloat
 
     func body(content: Content) -> some View {

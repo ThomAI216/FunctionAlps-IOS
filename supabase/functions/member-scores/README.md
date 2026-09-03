@@ -7,8 +7,10 @@ Expo app's pure scoring modules (`lib/health/*`, `lib/nutrition/{snapshot,macros
 `lib/utils/tdee`, `lib/dates/local-day`) with imports rewritten and the React/i18n tails removed.
 
 Re-copy after any change to those modules in `FunctionAlps-APP` (the script lives in the session
-handoff `.context/agents/2026-09-03_ios-testflight-auth-food.md` in STUDIO); deploy with the
-Supabase MCP `deploy_edge_function` (verify_jwt = true).
+handoff `.context/agents/2026-09-03_ios-testflight-auth-food.md` in STUDIO), run `./build.sh`
+(esbuild → `bundle/index.ts`, then `strip-prose.mjs` drops the screen-only copy of the nutrient
+and health-detail catalogs — the engine only reads their numbers), and deploy `bundle/index.ts`
+with the Supabase MCP `deploy_edge_function` (verify_jwt = true).
 
 Request: `POST /functions/v1/member-scores` `{ "tzOffsetMinutes": 120 }` (minutes east of UTC).
 Response: `{ day, composite, vitality, metabolic, nutrition, gut, compositeSeries14d, inputs }`.
