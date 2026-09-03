@@ -1,15 +1,15 @@
 name: iOS
 
 # The Mac we do not own. macOS runners cost 10x Linux minutes on the free tier
-# (2,000 min/month → ~200 macOS minutes), so docs-only pushes are skipped.
+# (2,000 min/month → ~200 macOS minutes): keep pushes deliberate.
 on:
   push:
     branches: ["main", "claude/**", "feat/**", "release/testflight"]
-    paths-ignore: ["docs/**", "**/*.md"]
+    # No path filter: with one, GitHub skips a push whose diff is empty (e.g. a new
+    # branch identical to main), which silently swallowed the release/testflight trigger.
     # Pushing to the `release/testflight` branch archives + uploads to TestFlight
     # (agent-drivable without the Run-workflow button; tags are blocked by the agent's git proxy).
   pull_request:
-    paths-ignore: ["docs/**", "**/*.md"]
   workflow_dispatch:
     inputs:
       testflight:
