@@ -7,6 +7,8 @@ struct TodaySnapshot: Sendable, Equatable {
     let meals: [MealLog]
     let checkin: DailyCheckin?
     let unreadClinicianMessages: Int
+    /// Today's saved check-in moments (morning / midday / evening), oldest first.
+    var moments: [CheckinMoment] = []
 
     var totalCalories: Double { meals.compactMap(\.totalCalories).reduce(0, +) }
     var totalProteinG: Double { meals.compactMap(\.totalProteinG).reduce(0, +) }

@@ -12,6 +12,7 @@ final class AppDependencies {
     let members: MemberService
     let dashboard: DashboardService
     let meals: MealService
+    let checkins: CheckinService
 
     init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore) {
         self.environment = environment
@@ -30,6 +31,7 @@ final class AppDependencies {
         self.members = MemberService(sessions: sessions, backend: backend)
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend)
+        self.checkins = CheckinService(backend: backend)
     }
 
     /// Production wiring. Throws only on a misconfigured build (missing xcconfig values).

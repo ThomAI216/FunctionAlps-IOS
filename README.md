@@ -63,3 +63,10 @@ is invoked with `mealLogId` so the server writes the result onto the row; the sc
 Meal detail: signed photo, macros, scores + verdicts, items, "In your words" note (edit), delete. Same wire shapes as
 the Expo app (`lib/meal-log/async-capture.ts`, `save-meal.ts`) — see `docs/IOS_MIGRATION_MAP.md` Phase D.
 
+## Check-in moments (Phase B, step 1 — 2026-09-03)
+Home → the three moment chips (the current one is the primary action) → `CheckinMomentView`. Morning is short by
+default (last night + how you're walking into the day) with "Tell us a bit more" for the markers and context; midday
+and evening ask the markers + context. Save = upsert `patient_checkin_moments` (on `patient_id,checkin_date,slot`) →
+re-read the day's moments → read the day row's carry columns → upsert the `patient_daily_checkins` summary (median
+markers, morning-owns-sleep, computed-null-never-wipes, legacy 1–5 columns) → insert `nb_checkin_events`. The
+scoring lives in `Core/Checkin/CheckinEngine.swift` and is unit-tested against the Expo numbers.

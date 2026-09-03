@@ -43,6 +43,27 @@ struct PostgRESTClient: Sendable {
         return row
     }
 
+    /// `POST /rest/v1/{table}` for one or many rows, no representation back.
+    func insertRows<Body: Encodable & Sendable>(_ table: String, body: Body, snakeCase: Bool = true) async throws {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "return=minimal"
+            return try HTTPRequest.json(.post, url(table), headers: h, body: body, snakeCase: snakeCase)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+    }
+
+    /// `POST /rest/v1/{table}?on_conflict=…` with `resolution=merge-duplicates`: every key in the
+    /// body is written (explicit nulls clear), keys absent from the body are left alone.
+    func upsert<Body: Encodable & Sendable>(_ table: String, onConflict: String, body: Body, snakeCase: Bool = true) async throws {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "resolution=merge-duplicates,return=minimal"
+            return try HTTPRequest.json(.post, url(table, query: [URLQueryItem(name: "on_conflict", value: onConflict)]), headers: h, body: body, snakeCase: snakeCase)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+    }
+
     /// `PATCH /rest/v1/{table}?{filter}` with a partial body.
     func update<Body: Encodable & Sendable>(_ table: String, query: [URLQueryItem], body: Body) async throws {
         let response = try await requester.send { token in

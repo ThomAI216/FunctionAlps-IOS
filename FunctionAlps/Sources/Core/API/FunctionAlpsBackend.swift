@@ -26,6 +26,17 @@ protocol FunctionAlpsBackend: Sendable {
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String
     func mealPhotoURL(path: String) async throws -> URL
     func removeMealPhotos(paths: [String]) async throws
+
+    // MARK: Check-in moments (Phase B)
+
+    /// Today's saved moments, oldest first.
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment]
+    /// One row per (patient, day, slot); re-saving a slot edits it.
+    func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws
+    /// What the day row already holds (read before the summary write — no-wipe).
+    func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry?
+    func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws
+    func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws
 }
 
 struct PendingMealInput: Sendable, Equatable {

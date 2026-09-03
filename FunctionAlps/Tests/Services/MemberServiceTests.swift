@@ -26,6 +26,11 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String { "stub/photo.jpg" }
     func mealPhotoURL(path: String) async throws -> URL { URL(string: "https://example.invalid/\(path)")! }
     func removeMealPhotos(paths: [String]) async throws {}
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
+    func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
+    func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
+    func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}
+    func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws {}
 }
 
 @Suite("MemberService")

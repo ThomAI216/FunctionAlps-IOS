@@ -273,6 +273,186 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await storage.remove(bucket: MealPhotoRef.bucket, paths: paths)
     }
 
+    // MARK: Check-in moments (patient_checkin_moments → patient_daily_checkins → nb_checkin_events)
+
+    private static let momentColumns = "slot,submitted_at,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,pills,note"
+
+    private struct MomentRow: Decodable, Sendable {
+        let slot: String
+        let submittedAt: Date
+        let energyBody: Int?
+        let energyMind: Int?
+        let energyStability: Int?
+        let energyOverall: Int?
+        let moodScore: Int?
+        let stressScore: Int?
+        let sleepOverall: Int?
+        let sleepRefreshed: Int?
+        let sleepDurationMin: Int?
+        let sleepLatencyBand: String?
+        let sleepWakeCount: String?
+        let pills: [String: [String]]?
+        let note: String?
+
+        private enum CodingKeys: String, CodingKey {
+            case slot, submittedAt, energyBody, energyMind, energyStability, energyOverall, moodScore, stressScore
+            case sleepOverall, sleepRefreshed, sleepDurationMin, sleepLatencyBand, sleepWakeCount, pills, note
+        }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            slot = try c.decode(String.self, forKey: .slot)
+            submittedAt = try c.decode(Date.self, forKey: .submittedAt)
+            energyBody = try c.decodeIfPresent(Int.self, forKey: .energyBody)
+            energyMind = try c.decodeIfPresent(Int.self, forKey: .energyMind)
+            energyStability = try c.decodeIfPresent(Int.self, forKey: .energyStability)
+            energyOverall = try c.decodeIfPresent(Int.self, forKey: .energyOverall)
+            moodScore = try c.decodeIfPresent(Int.self, forKey: .moodScore)
+            stressScore = try c.decodeIfPresent(Int.self, forKey: .stressScore)
+            sleepOverall = try c.decodeIfPresent(Int.self, forKey: .sleepOverall)
+            sleepRefreshed = try c.decodeIfPresent(Int.self, forKey: .sleepRefreshed)
+            sleepDurationMin = try c.decodeIfPresent(Int.self, forKey: .sleepDurationMin)
+            sleepLatencyBand = try c.decodeIfPresent(String.self, forKey: .sleepLatencyBand)
+            sleepWakeCount = try c.decodeIfPresent(String.self, forKey: .sleepWakeCount)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost moment.
+            pills = try? c.decodeIfPresent([String: [String]].self, forKey: .pills)
+            note = try c.decodeIfPresent(String.self, forKey: .note)
+        }
+
+        /// nil for a slot outside the vocabulary rather than letting it masquerade as a moment.
+        var model: CheckinMoment? {
+            guard let slot = MomentSlot(rawValue: slot) else { return nil }
+            return CheckinMoment(
+                slot: slot, submittedAt: submittedAt,
+                energyBody: energyBody, energyMind: energyMind, energyStability: energyStability, energyOverall: energyOverall,
+                moodScore: moodScore, stressScore: stressScore,
+                sleepOverall: sleepOverall, sleepRefreshed: sleepRefreshed, sleepDurationMin: sleepDurationMin,
+                sleepLatencyBand: sleepLatencyBand, sleepWakeCount: sleepWakeCount,
+                pills: pills ?? [:], note: note
+            )
+        }
+    }
+
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] {
+        let rows: [MomentRow] = try await rest.select("patient_checkin_moments", query: [
+            PG.select(Self.momentColumns),
+            PG.eq("patient_id", patientId),
+            PG.eq("checkin_date", day),
+            PG.order("submitted_at"),
+        ])
+        return rows.compactMap(\.model)
+    }
+
+    /// Every patient-written column, explicit nulls included: re-saving a slot REPLACES its answers.
+    func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
+        let row: ColumnPatch = [
+            "patient_id": .string(patientId),
+            "checkin_date": .string(day),
+            "slot": .string(m.slot.rawValue),
+            "submitted_at": .string(ISO8601.string(m.submittedAt)),
+            "energy_body": .int(m.energyBody),
+            "energy_mind": .int(m.energyMind),
+            "energy_stability": .int(m.energyStability),
+            "energy_overall": .int(m.energyOverall),
+            "mood_score": .int(m.moodScore),
+            "stress_score": .int(m.stressScore),
+            "sleep_overall": .int(m.sleepOverall),
+            "sleep_refreshed": .int(m.sleepRefreshed),
+            "sleep_duration_min": .int(m.sleepDurationMin),
+            "sleep_latency_band": .string(m.sleepLatencyBand),
+            "sleep_wake_count": .string(m.sleepWakeCount),
+            "pills": .pills(m.pills), // NOT NULL (default '{}') — always an object
+            "note": .string(m.note),
+        ]
+        try await rest.upsert("patient_checkin_moments", onConflict: "patient_id,checkin_date,slot", body: row, snakeCase: false)
+    }
+
+    private struct CarryRow: Decodable, Sendable {
+        let recovery: Int?
+        let soreness: Int?
+        let recentLoad: Int?
+        let recentMentalLoad: Int?
+        let energyBody: Int?
+        let energyMind: Int?
+        let energyStability: Int?
+        let energyOverall: Int?
+        let moodScore: Int?
+        let stressScore: Int?
+        let sleepOverall: Int?
+        let sleepRefreshed: Int?
+        let sleepDurationMin: Int?
+        let sleepLatencyBand: String?
+        let sleepWakeCount: String?
+        let energy: Int?
+        let mood: Int?
+        let sleep: Int?
+        let stress: Int?
+    }
+
+    private static let carryColumns = "recovery,soreness,recent_load,recent_mental_load,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,energy,mood,sleep,stress"
+
+    func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? {
+        let row: CarryRow? = try await rest.selectOne("patient_daily_checkins", query: [
+            PG.select(Self.carryColumns), PG.eq("patient_id", patientId), PG.eq("checkin_date", day),
+        ])
+        guard let r = row else { return nil }
+        return DailyCheckinCarry(
+            recovery: r.recovery, soreness: r.soreness, recentLoad: r.recentLoad, recentMentalLoad: r.recentMentalLoad,
+            energyBody: r.energyBody, energyMind: r.energyMind, energyStability: r.energyStability, energyOverall: r.energyOverall,
+            moodScore: r.moodScore, stressScore: r.stressScore,
+            sleepOverall: r.sleepOverall, sleepRefreshed: r.sleepRefreshed, sleepDurationMin: r.sleepDurationMin,
+            sleepLatencyBand: r.sleepLatencyBand, sleepWakeCount: r.sleepWakeCount,
+            energy: r.energy, mood: r.mood, sleep: r.sleep, stress: r.stress
+        )
+    }
+
+    /// `digestion` (gut territory) and `functional_detail` are never touched here.
+    func upsertDailySummary(patientId: String, day: String, patch p: DaySummaryPatch) async throws {
+        var row: ColumnPatch = [
+            "patient_id": .string(patientId),
+            "checkin_date": .string(day),
+            "energy_body": .int(p.energyBody),
+            "energy_mind": .int(p.energyMind),
+            "energy_stability": .int(p.energyStability),
+            "energy_overall": .int(p.energyOverall),
+            "mood_score": .int(p.moodScore),
+            "stress_score": .int(p.stressScore), // CALMNESS — never inverted
+            "energy": .int(p.legacyEnergy),
+            "mood": .int(p.legacyMood),
+            "stress": .int(p.legacyStress),
+            "recovery": .int(p.recovery),
+            "soreness": .int(p.soreness),
+            "recent_load": .int(p.recentLoad),
+            "recent_mental_load": .int(p.recentMentalLoad),
+            "functional_completed_at": .string(ISO8601.string(p.completedAt)),
+            "completed_at": .string(ISO8601.string(p.completedAt)),
+            "last_submission_form": .string("functional"),
+        ]
+        if let s = p.sleep {
+            row["sleep_overall"] = .int(s.sleepOverall)
+            row["sleep_refreshed"] = .int(s.sleepRefreshed)
+            row["sleep_duration_min"] = .int(s.sleepDurationMin)
+            row["sleep_latency_band"] = .string(s.sleepLatencyBand)
+            row["sleep_wake_count"] = .string(s.sleepWakeCount)
+            row["sleep"] = .int(s.legacySleep)
+        }
+        try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
+    }
+
+    private struct EventRow: Encodable, Sendable {
+        let patientId: String
+        let dimension: String
+        let value: Int
+        let source: String
+        let ts: String
+    }
+
+    func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws {
+        guard !events.isEmpty else { return }
+        let rows = events.map { EventRow(patientId: patientId, dimension: $0.dimension, value: $0.value, source: "daily", ts: ISO8601.string($0.ts)) }
+        try await rest.insertRows("nb_checkin_events", body: rows)
+    }
+
     // MARK: Daily check-in (patient_daily_checkins)
 
     private struct CheckinRow: Decodable, Sendable {

@@ -43,6 +43,17 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     }
     func mealPhotoURL(path: String) async throws -> URL { record("sign"); signCount += 1; return URL(string: "https://example.invalid/\(path)?token=t")! }
     func removeMealPhotos(paths: [String]) async throws { record("removePhotos:\(paths.joined(separator: ","))") }
+
+    var moments: [CheckinMoment] = []
+    var carry: DailyCheckinCarry?
+    private(set) var lastMoment: CheckinMoment?
+    private(set) var lastPatch: DaySummaryPatch?
+    private(set) var lastEvents: [CheckinEvent] = []
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { record("moments:\(day)"); return moments }
+    func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws { record("upsertMoment:\(moment.slot.rawValue)"); lastMoment = moment }
+    func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { record("carry"); return carry }
+    func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws { record("upsertSummary"); lastPatch = patch }
+    func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws { record("events:\(events.count)"); lastEvents = events }
 }
 
 @Suite("MealService")

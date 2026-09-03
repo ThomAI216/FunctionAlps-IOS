@@ -21,6 +21,10 @@ struct HomeView: View {
                 await m.load()
             }
         }
+        .onAppear {
+            // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
+            if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
+        }
     }
 
     @ViewBuilder
@@ -69,29 +73,74 @@ struct HomeView: View {
         .accessibilityElement(children: .combine)
     }
 
+    /// The day's three moments: the one "now" falls in is the primary action; the other two stay
+    /// reachable. Nobody is nagged — an unchecked slot simply reads "Open".
     private func checkinCard(_ today: TodaySnapshot) -> some View {
-        FACard {
+        let now = MomentSlot.current(hour: Calendar.current.component(.hour, from: Date()))
+        let reads = CheckinEngine.momentReads(today.moments)
+        return FACard {
             VStack(alignment: .leading, spacing: FASpacing.sm) {
-                Text(String(localized: "home.checkin.title", defaultValue: "Daily check-in"))
+                Text(String(localized: "home.checkin.title", defaultValue: "How are you feeling today?"))
                     .font(FATypography.headline)
                     .foregroundStyle(FAColor.ink)
+                HStack(spacing: FASpacing.sm) {
+                    ForEach(MomentSlot.order, id: \.self) { slot in
+                        momentChip(slot, isNow: slot == now, done: CheckinEngine.slotIsDone(today.moments, slot))
+                    }
+                }
+                if !reads.isEmpty {
+                    Text(String(localized: "home.checkin.daySoFar", defaultValue: "Your day so far").uppercased())
+                        .font(FATypography.label)
+                        .foregroundStyle(FAColor.inkSecondary)
+                        .tracking(0.8)
+                        .padding(.top, 4)
+                    FlowLayout(spacing: 8) {
+                        ForEach(reads) { read in
+                            HStack(spacing: 6) {
+                                Text(read.slot.glyph).foregroundStyle(FAColor.accent)
+                                Text(read.summary).font(FATypography.caption).foregroundStyle(FAColor.ink)
+                            }
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 6)
+                            .background(Color.white.opacity(0.6), in: Capsule())
+                            .overlay(Capsule().strokeBorder(FAColor.separator, lineWidth: 1))
+                            .accessibilityElement(children: .combine)
+                        }
+                    }
+                }
                 if let checkin = today.checkin, checkin.isFunctionalDone {
-                    Label(String(localized: "home.checkin.done", defaultValue: "Done for today"), systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(FAColor.success)
-                        .font(FATypography.callout)
                     HStack(spacing: FASpacing.md) {
                         marker(String(localized: "marker.energy", defaultValue: "Energy"), checkin.energy)
                         marker(String(localized: "marker.mood", defaultValue: "Mood"), checkin.mood)
                         marker(String(localized: "marker.sleep", defaultValue: "Sleep"), checkin.sleep)
                         marker(String(localized: "marker.calm", defaultValue: "Calm"), checkin.calmness)
                     }
-                } else {
-                    Label(String(localized: "home.checkin.pending", defaultValue: "Not yet today — check-ins arrive in the next release"), systemImage: "circle.dashed")
-                        .foregroundStyle(FAColor.inkSecondary)
-                        .font(FATypography.callout)
+                    .padding(.top, 4)
                 }
             }
         }
+    }
+
+    private func momentChip(_ slot: MomentSlot, isNow: Bool, done: Bool) -> some View {
+        let status: String = isNow
+            ? (done ? String(localized: "home.checkin.again", defaultValue: "✓ Check in again") : String(localized: "home.checkin.cta", defaultValue: "Check in"))
+            : (done ? String(localized: "home.checkin.done", defaultValue: "✓ Done") : String(localized: "home.checkin.open", defaultValue: "Open"))
+        return NavigationLink(value: Route.checkin(slot)) {
+            VStack(spacing: 3) {
+                Text(slot.glyph).font(.system(size: isNow ? 17 : 15)).foregroundStyle(isNow ? FAColor.accent : FAColor.inkSecondary)
+                Text(slot.localizedName).font(FATypography.label).foregroundStyle(FAColor.ink)
+                Text(status).font(FATypography.caption).foregroundStyle(done || isNow ? FAColor.accent : FAColor.inkSecondary).lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 11)
+            .padding(.horizontal, 6)
+            .background(isNow ? FAColor.accent.opacity(0.2) : Color.white.opacity(0.5), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(isNow ? FAColor.accent : FAColor.separator, lineWidth: isNow ? 1.5 : 1))
+            .opacity(isNow ? 1 : 0.85)
+        }
+        .buttonStyle(.plain)
+        .layoutPriority(isNow ? 1 : 0)
+        .accessibilityLabel("\(slot.localizedName): \(status)")
     }
 
     private func marker(_ label: String, _ value: Int?) -> some View {

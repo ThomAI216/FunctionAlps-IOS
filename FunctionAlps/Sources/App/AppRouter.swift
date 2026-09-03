@@ -5,6 +5,7 @@ enum Route: Hashable {
     case profile
     case settings
     case meal(String)
+    case checkin(MomentSlot)
 }
 
 @MainActor
@@ -54,6 +55,7 @@ struct MainTabView: View {
         case .profile: ProfileView()
         case .settings: SettingsView()
         case .meal(let id): MealDetailView(mealId: id)
+        case .checkin(let slot): CheckinMomentView(slot: slot)
         }
     }
 }
