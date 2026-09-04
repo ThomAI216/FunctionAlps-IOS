@@ -81,7 +81,7 @@ final class AppRouter {
     }
 
     /// The meal id a `meal/<id>` route names, nil otherwise.
-    static func mealId(from url: URL) -> String? {
+    nonisolated static func mealId(from url: URL) -> String? {
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
         guard parts.first == "meal" else { return nil }
         return parts.dropFirst().first
