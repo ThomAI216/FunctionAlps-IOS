@@ -74,7 +74,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument] { [] }
     func dataCount(table: String, patientId: String) async throws -> Int { 0 }
     func dataRows(table: String, patientId: String) async throws -> Data { Data("[]".utf8) }
-    func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count) }
+    func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count, connection: nil) }
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     var moments: [CheckinMoment] = []
