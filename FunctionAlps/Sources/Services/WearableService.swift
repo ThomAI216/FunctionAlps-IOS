@@ -22,6 +22,9 @@ final class WearableService {
     private let defaults: UserDefaults
     private let calendar: Calendar
     private var syncTask: Task<Void, Never>?
+    /// Set by connect(); travels with the next batch so CM OS records the connection even when
+    /// the phone has no health data yet.
+    private var pendingConnection: String?
 
     private enum Key {
         static let connected = "fa.wearables.appleHealth.connected"
@@ -50,6 +53,7 @@ final class WearableService {
     func connect() async throws {
         try await reader.requestAuthorization()
         isConnected = true
+        pendingConnection = "connected"
         defaults.set(true, forKey: Key.connected)
         await armBackgroundDelivery()
         await sync()
@@ -58,12 +62,16 @@ final class WearableService {
     /// Stops syncing from this phone. Reading permission itself is revoked in Settings → Health → Data Access.
     func disconnect() async {
         isConnected = false
+        pendingConnection = nil
         lastSyncAt = nil
         lastSyncCount = 0
+        state = .idle
         defaults.removeObject(forKey: Key.connected)
         defaults.removeObject(forKey: Key.lastSync)
         defaults.removeObject(forKey: Key.lastCount)
         await reader.disableBackgroundDelivery()
+        // Best effort: the phone is disconnected either way; CM OS just learns about it.
+        _ = try? await backend.ingestWearable(WearableBatch(connection: "disconnected"))
     }
 
     /// Called at launch: re-registers the observers when the member connected on an earlier run.
@@ -93,10 +101,12 @@ final class WearableService {
     private func runSync() async {
         state = .syncing
         do {
-            let batch = try await buildBatch()
-            if !batch.isEmpty {
+            var batch = try await buildBatch()
+            batch.connection = pendingConnection
+            if !batch.isBlank {
                 _ = try await backend.ingestWearable(batch)
             }
+            pendingConnection = nil
             lastSyncAt = Date()
             lastSyncCount = batch.count
             defaults.set(lastSyncAt, forKey: Key.lastSync)

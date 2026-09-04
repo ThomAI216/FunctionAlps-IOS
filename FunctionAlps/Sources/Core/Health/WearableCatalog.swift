@@ -117,7 +117,11 @@ struct WearableEpochRow: Encodable, Sendable, Equatable {
 struct WearableBatch: Encodable, Sendable, Equatable {
     var daily: [WearableDailyRow] = []
     var epoch: [WearableEpochRow] = []
+    /// `"connected"` / `"disconnected"` — the phone's own state, recorded in `wearable_connections` by the function.
+    var connection: String? = nil
     var isEmpty: Bool { daily.isEmpty && epoch.isEmpty }
+    /// Nothing to send at all: no rows AND no connection change.
+    var isBlank: Bool { isEmpty && connection == nil }
     var count: Int { daily.count + epoch.count }
 }
 
@@ -127,6 +131,27 @@ struct WearableIngestResult: Decodable, Sendable, Equatable {
     let rawEventId: String?
     let daily: Int?
     let epoch: Int?
+    let connection: String?
+}
+
+/// Disclosure follows the code: Apple Health can be connected only once the CURRENT APPROVED
+/// Privacy Notice (`consent_definitions` privacy_policy) describes wearable data, i.e. v9 or later.
+/// Until then the Devices screen explains and hides Connect — no member sends data under a notice
+/// that does not mention it.
+enum WearableDisclosure {
+    static let requiredNoticeVersion = 9
+
+    /// `"v9"` → 9, `"9"` → 9, `"v9.1"` → 9; anything else → nil.
+    static func noticeVersionNumber(_ version: String?) -> Int? {
+        guard let version else { return nil }
+        let digits = version.trimmingCharacters(in: .whitespaces).drop { !$0.isNumber }.prefix { $0.isNumber }
+        return Int(digits)
+    }
+
+    static func isDisclosed(noticeVersion: String?) -> Bool {
+        guard let n = noticeVersionNumber(noticeVersion) else { return false }
+        return n >= requiredNoticeVersion
+    }
 }
 
 /// One `wearable_daily_labeled` row read back (the member's own rows, any source).

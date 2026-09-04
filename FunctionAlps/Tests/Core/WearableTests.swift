@@ -90,5 +90,23 @@ struct WearableTests {
         #expect(json.contains("\"data_source_id\":1000001"))
         #expect(json.contains("\"value\":8123"))
         #expect(json.contains("\"timezone_offset\":120"))
+        #expect(!json.contains("connection"))
+        var connectOnly = WearableBatch()
+        connectOnly.connection = "connected"
+        #expect(connectOnly.isEmpty && !connectOnly.isBlank)
+        let connectJson = String(decoding: try encoder.encode(connectOnly), as: UTF8.self)
+        #expect(connectJson.contains("\"connection\":\"connected\""))
+    }
+
+    @Test("Connecting is gated on the approved Privacy Notice describing wearable data (v9+)")
+    func disclosureGate() {
+        #expect(WearableDisclosure.noticeVersionNumber("v9") == 9)
+        #expect(WearableDisclosure.noticeVersionNumber("12") == 12)
+        #expect(WearableDisclosure.noticeVersionNumber("v9.1") == 9)
+        #expect(WearableDisclosure.noticeVersionNumber("draft") == nil)
+        #expect(!WearableDisclosure.isDisclosed(noticeVersion: nil))
+        #expect(!WearableDisclosure.isDisclosed(noticeVersion: "v8"))
+        #expect(WearableDisclosure.isDisclosed(noticeVersion: "v9"))
+        #expect(WearableDisclosure.isDisclosed(noticeVersion: "v10"))
     }
 }

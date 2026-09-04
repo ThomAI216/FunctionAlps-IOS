@@ -8,6 +8,8 @@ struct WearablesView: View {
     @State private var days: [WearableDay] = []
     @State private var connections: [WearableConnectionRow] = []
     @State private var member: Member?
+    /// nil while the current Privacy Notice is being read; false = the approved notice predates wearable data.
+    @State private var disclosed: Bool?
     @State private var busy = false
     @State private var errorMessage: String?
     @State private var confirmDisconnect = false
@@ -44,12 +46,12 @@ struct WearablesView: View {
                     SettingsSectionLabel(title: String(localized: "wearables.others", defaultValue: "Other devices"))
                     FACard {
                         VStack(alignment: .leading, spacing: 6) {
-                            if connections.isEmpty {
+                            if otherConnections.isEmpty {
                                 Text(String(localized: "wearables.others.title", defaultValue: "Garmin, Oura, Fitbit, Withings, Strava, Polar")).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                                 Text(String(localized: "wearables.others.body", defaultValue: "These link through the FunctionAlps web app for now. Once linked there, their data shows up here too."))
                                     .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(5)
                             } else {
-                                ForEach(connections, id: \.dataSourceId) { c in
+                                ForEach(otherConnections, id: \.dataSourceId) { c in
                                     HStack {
                                         Text(c.dataSourceName ?? "#\(c.dataSourceId)").font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                                         Spacer()
@@ -121,10 +123,20 @@ struct WearablesView: View {
                 } else {
                     Text(String(localized: "wearables.apple.body", defaultValue: "Your Apple Watch already writes into Apple Health on this iPhone. Allow FunctionAlps to read it and your nights, steps and heart data arrive on their own, including while the app is closed."))
                         .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(5).padding(.top, 12)
-                    ForestPillButton(title: busy ? String(localized: "wearables.connecting", defaultValue: "Opening Apple Health…") : String(localized: "wearables.connect", defaultValue: "Connect Apple Health"), busy: busy) {
-                        Task { await connect() }
+                    if disclosed == true {
+                        ForestPillButton(title: busy ? String(localized: "wearables.connecting", defaultValue: "Opening Apple Health…") : String(localized: "wearables.connect", defaultValue: "Connect Apple Health"), busy: busy) {
+                            Task { await connect() }
+                        }
+                        .padding(.top, 14)
+                    } else if disclosed == false {
+                        // Disclosure follows the code: no data leaves the phone under a notice that does not describe it.
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "clock").font(.system(size: 12, weight: .semibold)).foregroundStyle(ProfilePalette.muted).padding(.top, 2)
+                            Text(String(localized: "wearables.gated", defaultValue: "Connecting opens as soon as the updated Privacy Notice, which describes this data, is published. Nothing is read until then."))
+                                .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
+                        }
+                        .padding(.top, 12)
                     }
-                    .padding(.top, 14)
                 }
                 if case .failed(let message) = service.state {
                     Text(message).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.red).lineSpacing(4).padding(.top, 10)
@@ -138,6 +150,11 @@ struct WearablesView: View {
             RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous)
                 .strokeBorder(Color(hex: 0x4A8A5C, opacity: service.isConnected ? 0.45 : 0), lineWidth: 1)
         }
+    }
+
+    /// Devices linked elsewhere (Thryve on the web app); this phone's own Apple Health row is the card above.
+    private var otherConnections: [WearableConnectionRow] {
+        connections.filter { $0.dataSourceId != WearableSource.appleHealth }
     }
 
     private var statusLine: String {
@@ -212,7 +229,10 @@ struct WearablesView: View {
         guard let member else { return }
         async let recent = service.recentDays(patientId: member.patientId)
         async let links = service.connections(patientId: member.patientId)
+        async let notice = dependencies.account.legalDocument(key: "privacy_policy")
         days = await recent
         connections = await links
+        let version = (try? await notice)?.version
+        disclosed = service.isConnected || WearableDisclosure.isDisclosed(noticeVersion: version)
     }
 }

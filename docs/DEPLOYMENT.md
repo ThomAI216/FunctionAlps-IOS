@@ -99,3 +99,25 @@ the next `release/testflight` push. `match` regenerates the provisioning profile
 add a capability; without it the archive fails with "Provisioning profile doesn't include the
 com.apple.developer.healthkit entitlement". Background delivery does not need a background mode.
 Test HealthKit on a device — background observer queries do not run on the Simulator.
+
+**2026-09-04, later — release path cleared.** The owner enabled the HealthKit capability on the App ID and
+declared **Health** + **Fitness** under App Privacy in App Store Connect (App Functionality, linked to
+identity, no tracking). Three more things ship with build 14 so that disclosure follows the code:
+
+1. **Privacy Notice v9** (`supabase/migrations/20260904_privacy_policy_v9_wearables.sql`, applied to CM OS
+   as `draft_pending_legal_review`, v8 still current): v8 + Apple Health / wearable data in §1, §4, §5, §6,
+   a new §9a and §13, both locales, built from the live v8 rows with anchor-checked `replace()`. Members
+   keep seeing v8 until the operator approves v9 (the SQL for that is in the file header).
+2. **The Connect gate** (`WearableDisclosure`): the Devices screen reads the current approved
+   `privacy_policy` row and shows **Connect Apple Health** only when its version is v9 or later; before
+   that it shows "Connecting opens as soon as the updated Privacy Notice … is published". A phone that
+   already connected keeps syncing (the member saw the sheet under the notice that was current then — v9
+   is required for NEW connections).
+3. **The connection record**: `wearable-ingest` v20 (source of truth `supabase/functions/wearable-ingest/index.ts`,
+   deployed with the Supabase MCP, verify_jwt) accepts `connection: "connected" | "disconnected"` and upserts
+   `wearable_connections` (source 1000001, name `apple_health`) — sent with the first batch after Connect and
+   on Disconnect. A batch that carries rows implies `connected`.
+
+HRV stays SDNN (catalogue 3112): the native `member-scores` does not read wearable rows yet; when it does,
+the recovery factor is a ratio to the member's own baseline, so it reads the first available series per
+member — `RmssdSleep`, then `Rmssd`, then `SDNN` — and never mixes them. No conversion.

@@ -15666,6 +15666,22 @@
         }
       }
     },
+    "wearables.gated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting opens as soon as the updated Privacy Notice, which describes this data, is published. Nothing is read until then."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion s’ouvrira dès la publication de la Déclaration de confidentialité mise à jour, qui décrit ces données. Rien n’est lu d’ici là."
+          }
+        }
+      }
+    },
     "wearables.intro": {
       "localizations": {
         "en": {
