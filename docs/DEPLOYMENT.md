@@ -7,7 +7,7 @@ reference only.
 
 ## 1. App Store Connect setup (one-time, web)
 1. developer.apple.com → Certificates, Identifiers & Profiles → Identifiers → **+ App ID**.
-   - Bundle ID: `ch.functionalps.app` (explicit). **Decide once; never change after the ASC app record exists.**
+   - Bundle ID: `com.functionalps.patient` (explicit). **Decide once; never change after the ASC app record exists.**
    - Capabilities for v0.01: none beyond defaults. (Push, HealthKit, Sign in with Apple are added later, each needs an entitlement + a product reason.)
 2. appstoreconnect.apple.com → My Apps → **+ New App**: platform iOS, name "FunctionAlps", primary language English, bundle ID above, SKU `functionalps-ios`.
 3. TestFlight → Internal Testing → create group "Team" (up to 100 internal testers, no review). External groups need Beta App Review — later.
@@ -212,13 +212,13 @@ change, a meal that needs input. The APNs token is uploaded by the app to the sa
 
 **Owner steps, once:**
 1. **Push Notifications capability on the App ID** (same place as HealthKit: https://developer.apple.com/account/resources/identifiers/list
-   → `ch.functionalps.app` → Capabilities → Push Notifications → Save). ⚠ Do this BEFORE the next
+   → `com.functionalps.patient` → Capabilities → Push Notifications → Save). ⚠ Do this BEFORE the next
    `release/testflight` push: the app now carries the `aps-environment` entitlement and the archive is refused until
    the profile includes it (match regenerates the profile, it cannot add the capability).
 2. **APNs key:** https://developer.apple.com/account/resources/authkeys/list → `+` → name "FunctionAlps APNs",
    tick Apple Push Notifications service (APNs) → Continue → Register → **Download the .p8 once** (it cannot be
    downloaded again) and note the Key ID. Supabase → Edge Functions → Secrets:
    `APNS_TEAM_ID` (Team ID), `APNS_KEY_ID`, `APNS_KEY_P8` (the .p8 file base64-encoded on one line:
-   `base64 -i AuthKey_XXXX.p8 | tr -d '\n'`), `APNS_TOPIC` = `ch.functionalps.app`. Never paste the .p8 in chat.
+   `base64 -i AuthKey_XXXX.p8 | tr -d '\n'`), `APNS_TOPIC` = `com.functionalps.patient`. Never paste the .p8 in chat.
 3. Test: send yourself a message from the practitioner side → the phone shows "New message from your practitioner"
    within seconds; `patient_notifications` has the row.
