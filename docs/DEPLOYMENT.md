@@ -87,3 +87,15 @@ Apple's ASC API (JWT signed with the `.p8`) can read builds, manage TestFlight g
 ## CI minutes (2026-09-04)
 
 The repository is **public** since 2026-09-04: GitHub Actions minutes are unlimited for public repos, including the 10× macOS runners, which is why the private-repo allowance (2,000 min/month ≈ 200 macOS minutes ≈ 20 builds) stopped every job on 2026-09-03 with "no runner assigned" failures. The workflow still keeps usage low: a Linux pre-check skips the simulator job on docs-only pushes, and a `release/testflight` push archives without re-running the unit tests (the same commit was already tested on `main`). Nothing sensitive is in the history — the app holds only the publishable Supabase key; certificates, the ASC `.p8` and the match passphrase live only in repository secrets.
+
+## HealthKit (added 2026-09-04)
+
+The target declares `com.apple.developer.healthkit` (read-only), `com.apple.developer.healthkit.access: []`
+and `com.apple.developer.healthkit.background-delivery` (XcodeGen `entitlements.properties` in `project.yml`).
+The simulator build ignores entitlements (`CODE_SIGNING_ALLOWED=NO`), but the TestFlight archive does not:
+**the App ID `com.functionalps.patient` must have the HealthKit capability enabled** in
+Certificates, Identifiers & Profiles (Identifiers → the App ID → Capabilities → HealthKit → Save) before
+the next `release/testflight` push. `match` regenerates the provisioning profile (`force: true`) but cannot
+add a capability; without it the archive fails with "Provisioning profile doesn't include the
+com.apple.developer.healthkit entitlement". Background delivery does not need a background mode.
+Test HealthKit on a device — background observer queries do not run on the Simulator.

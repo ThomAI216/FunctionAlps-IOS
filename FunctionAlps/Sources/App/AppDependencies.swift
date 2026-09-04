@@ -17,6 +17,7 @@ final class AppDependencies {
     let profile: ProfileService
     let messaging: MessagingService
     let account: AccountService
+    let wearables: WearableService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -42,6 +43,7 @@ final class AppDependencies {
         self.profile = ProfileService(backend: backend)
         self.messaging = MessagingService(backend: backend)
         self.account = AccountService(backend: backend)
+        self.wearables = WearableService(backend: backend)
         self.backend = backend
     }
 

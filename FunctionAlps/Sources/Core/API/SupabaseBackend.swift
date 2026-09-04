@@ -983,4 +983,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func dataRows(table: String, patientId: String) async throws -> Data {
         try await rest.selectRaw(table, query: [PG.select("*"), PG.eq("patient_id", patientId)])
     }
+
+    // MARK: Wearables (wearable-ingest · wearable_daily_labeled · wearable_connections)
+
+    func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult {
+        try await functions.invoke("wearable-ingest", body: batch)
+    }
+
+    func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] {
+        try await rest.select("wearable_daily_labeled", query: [
+            PG.select("day,metric,value,data_source_id,layer"), PG.eq("patient_id", patientId),
+            PG.inList("layer", ["raw", "analytics"]), PG.gte("day", since), PG.order("day"),
+        ])
+    }
+
+    func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] {
+        try await rest.select("wearable_connections", query: [
+            PG.select("data_source_id,data_source_name,status,connected_at"), PG.eq("patient_id", patientId),
+            PG.order("connected_at", descending: true),
+        ])
+    }
 }

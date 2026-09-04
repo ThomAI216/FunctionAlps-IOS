@@ -65,6 +65,8 @@ targets:
         NSCameraUsageDescription: FunctionAlps uses the camera to photograph your meals so they can be analysed.
         NSMicrophoneUsageDescription: FunctionAlps listens while you describe a meal by voice; the words are analysed, the audio stays on your phone.
         NSSpeechRecognitionUsageDescription: FunctionAlps turns your spoken meal description into text so it can be analysed.
+        NSHealthShareUsageDescription: FunctionAlps reads your steps, sleep, heart rate, heart-rate variability, breathing rate, blood oxygen, workouts and weight from Apple Health (including your Apple Watch) so your practitioner can see how your body responds alongside what you log. Nothing is written back to Health.
+        NSHealthUpdateUsageDescription: FunctionAlps does not write to Apple Health.
         UIAppFonts:
           - DMSerifDisplay_400Regular.ttf
           - DMSerifDisplay_400Regular_Italic.ttf
@@ -83,6 +85,12 @@ targets:
       path: Sources/Resources/FunctionAlps.entitlements
       properties:
         com.apple.developer.applesignin: [Default]
+        # HealthKit (read-only) + background delivery so the Watch's night arrives before the morning check-in.
+        # ⚠ The App ID must have the HealthKit capability enabled in Certificates, Identifiers & Profiles
+        # before the next release push — match regenerates the profile (force: true), but cannot add the capability.
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.developer.healthkit.background-delivery: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(FA_BUNDLE_ID)

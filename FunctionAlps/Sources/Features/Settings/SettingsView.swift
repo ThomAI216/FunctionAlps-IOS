@@ -56,6 +56,12 @@ struct SettingsView: View {
                         .padding(10)
                     }
 
+                    // Devices — Apple Health covers the Apple Watch and anything that syncs into Health.
+                    SettingsSectionLabel(title: String(localized: "settings.devices", defaultValue: "Devices"))
+                    FACard(padded: false) {
+                        SettingsRow(symbol: "applewatch", label: String(localized: "settings.wearables", defaultValue: "Apple Health & Apple Watch"), sub: String(localized: "settings.wearables.sub", defaultValue: "Steps, sleep, heart rate and recovery"), tintHex: 0x3F7FC4) { router.profilePath.append(.wearables) }
+                    }
+
                     // Account
                     SettingsSectionLabel(title: String(localized: "settings.account", defaultValue: "Account"))
                     FACard(padded: false) {

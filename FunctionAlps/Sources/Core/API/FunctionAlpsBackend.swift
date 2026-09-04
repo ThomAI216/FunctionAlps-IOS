@@ -114,6 +114,15 @@ protocol FunctionAlpsBackend: Sendable {
     func dataCount(table: String, patientId: String) async throws -> Int
     /// Every column of the member's rows in one table, as the raw JSON array (the export).
     func dataRows(table: String, patientId: String) async throws -> Data
+
+    // MARK: Wearables (Apple Health on this phone → wearable-ingest)
+
+    /// `wearable-ingest`: the raw submission is stored verbatim, the rows upserted on their natural keys.
+    func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult
+    /// The member's own `wearable_daily_labeled` rows from `since` (YYYY-MM-DD), any source.
+    func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow]
+    /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
+    func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
 }
 
 /// One consent decision in a sitting (`record_consent_batch.p_decisions[]`).

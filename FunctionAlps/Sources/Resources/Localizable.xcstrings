@@ -12722,6 +12722,22 @@
         }
       }
     },
+    "settings.devices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appareils"
+          }
+        }
+      }
+    },
     "settings.environment": {
       "localizations": {
         "en": {
@@ -12878,6 +12894,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "FunctionAlps v%@ (%@)"
+          }
+        }
+      }
+    },
+    "settings.wearables": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health & Apple Watch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé et Apple Watch"
+          }
+        }
+      }
+    },
+    "settings.wearables.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steps, sleep, heart rate and recovery"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas, sommeil, fréquence cardiaque et récupération"
           }
         }
       }
@@ -15390,6 +15438,534 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sauge"
+          }
+        }
+      }
+    },
+    "wearables.apple.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Apple Watch already writes into Apple Health on this iPhone. Allow FunctionAlps to read it and your nights, steps and heart data arrive on their own, including while the app is closed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre Apple Watch écrit déjà dans Apple Santé sur cet iPhone. Autorisez FunctionAlps à le lire et vos nuits, vos pas et vos données cardiaques arrivent d’eux-mêmes, même lorsque l’application est fermée."
+          }
+        }
+      }
+    },
+    "wearables.apple.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health & Apple Watch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé et Apple Watch"
+          }
+        }
+      }
+    },
+    "wearables.col.day": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour"
+          }
+        }
+      }
+    },
+    "wearables.col.hrv": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC"
+          }
+        }
+      }
+    },
+    "wearables.col.rhr": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RHR"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FC repos"
+          }
+        }
+      }
+    },
+    "wearables.col.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
+          }
+        }
+      }
+    },
+    "wearables.col.steps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas"
+          }
+        }
+      }
+    },
+    "wearables.connect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Apple Health"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter Apple Santé"
+          }
+        }
+      }
+    },
+    "wearables.connectFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health couldn't be opened. Check Settings → Health → Data Access & Devices and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé n’a pas pu être ouvert. Vérifiez Réglages → Santé → Accès aux données et appareils, puis réessayez."
+          }
+        }
+      }
+    },
+    "wearables.connected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté"
+          }
+        }
+      }
+    },
+    "wearables.connecting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Apple Health…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture d’Apple Santé…"
+          }
+        }
+      }
+    },
+    "wearables.disconnect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déconnecter"
+          }
+        }
+      }
+    },
+    "wearables.disconnect.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone stops sending new readings. What was already synced stays in your record; to revoke Health access itself, use Settings → Health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce téléphone cesse d’envoyer de nouvelles mesures. Ce qui a déjà été synchronisé reste dans votre dossier ; pour révoquer l’accès à Santé, passez par Réglages → Santé."
+          }
+        }
+      }
+    },
+    "wearables.disconnect.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop syncing Apple Health?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter la synchronisation d’Apple Santé ?"
+          }
+        }
+      }
+    },
+    "wearables.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a wearable to bring your steps, sleep, heart rate and recovery into FunctionAlps automatically."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez un objet connecté pour amener automatiquement vos pas, votre sommeil, votre fréquence cardiaque et votre récupération dans FunctionAlps."
+          }
+        }
+      }
+    },
+    "wearables.lastSync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · synced %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté · synchronisé %@"
+          }
+        }
+      }
+    },
+    "wearables.notConnected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non connecté"
+          }
+        }
+      }
+    },
+    "wearables.others": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres appareils"
+          }
+        }
+      }
+    },
+    "wearables.others.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These link through the FunctionAlps web app for now. Once linked there, their data shows up here too."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces appareils se connectent via l’application web FunctionAlps pour l’instant. Une fois liés, leurs données apparaissent ici aussi."
+          }
+        }
+      }
+    },
+    "wearables.others.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin, Oura, Fitbit, Withings, Strava, Polar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin, Oura, Fitbit, Withings, Strava, Polar"
+          }
+        }
+      }
+    },
+    "wearables.read.activity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steps, distance, active energy, exercise minutes and workouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas, distance, énergie active, minutes d’exercice et entraînements"
+          }
+        }
+      }
+    },
+    "wearables.read.breath": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathing rate, blood oxygen, VO₂ max and weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fréquence respiratoire, oxygène sanguin, VO₂ max et poids"
+          }
+        }
+      }
+    },
+    "wearables.read.heart": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate, resting heart rate, heart-rate variability (SDNN)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fréquence cardiaque, fréquence au repos, variabilité cardiaque (SDNN)"
+          }
+        }
+      }
+    },
+    "wearables.read.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only. Nothing is written back to Health, and you can turn any type off in Settings → Health → Data Access & Devices → FunctionAlps."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture seule. Rien n’est écrit dans Santé, et vous pouvez désactiver chaque type dans Réglages → Santé → Accès aux données et appareils → FunctionAlps."
+          }
+        }
+      }
+    },
+    "wearables.read.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep: in bed, asleep, deep, REM, awake and interruptions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil : au lit, endormi·e, profond, paradoxal, éveil et interruptions"
+          }
+        }
+      }
+    },
+    "wearables.reads": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous lisons"
+          }
+        }
+      }
+    },
+    "wearables.recent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 14 days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 derniers jours"
+          }
+        }
+      }
+    },
+    "wearables.recent.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing has landed yet. After the first sync your nights and days appear here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’est encore arrivé. Après la première synchronisation, vos nuits et vos journées apparaissent ici."
+          }
+        }
+      }
+    },
+    "wearables.syncFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health couldn't be read just now. Try again in a moment."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé n’a pas pu être lu pour l’instant. Réessayez dans un moment."
+          }
+        }
+      }
+    },
+    "wearables.syncNow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchroniser"
+          }
+        }
+      }
+    },
+    "wearables.syncing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation…"
+          }
+        }
+      }
+    },
+    "wearables.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wearables"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objets connectés"
+          }
+        }
+      }
+    },
+    "wearables.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health isn't available on this device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé n’est pas disponible sur cet appareil."
           }
         }
       }

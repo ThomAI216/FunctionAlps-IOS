@@ -20,6 +20,7 @@ enum Route: Hashable {
     case legal(String)
     case messages
     case help
+    case wearables
 }
 
 @MainActor
@@ -113,6 +114,7 @@ struct MainTabView: View {
         case .legal(let key): LegalDocumentView(key: key)
         case .messages: MessagesView()
         case .help: HelpView()
+        case .wearables: WearablesView()
         }
     }
 }

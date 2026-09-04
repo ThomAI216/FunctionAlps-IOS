@@ -7,7 +7,11 @@ struct FunctionAlpsApp: App {
 
     init() {
         do {
-            _dependencies = State(initialValue: try AppDependencies.live())
+            let live = try AppDependencies.live()
+            _dependencies = State(initialValue: live)
+            // HealthKit background delivery must be re-armed at every launch (iOS wakes the app for new samples).
+            let wearables = live.wearables
+            Task { @MainActor in await wearables.armBackgroundDeliveryIfConnected() }
         } catch {
             _configurationError = State(initialValue: String(describing: error))
         }
