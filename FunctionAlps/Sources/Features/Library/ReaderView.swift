@@ -192,17 +192,17 @@ struct MarkdownBlockView: View {
             ArticleFigure(src: src, alt: alt)
         case .heading(let level, let runs):
             let size: CGFloat = level == 1 ? 20 : level == 2 ? 17 : 14.5
-            Text(runsText(runs, size: size, color: FAColor.charcoal, serif: true))
+            runsText(runs, size: size, color: FAColor.charcoal, serif: true)
                 .lineSpacing(size * 0.25)
                 .padding(.top, 18).padding(.bottom, 7)
         case .paragraph(let runs):
-            Text(runsText(runs, size: 13.5, color: Self.ink)).lineSpacing(6).padding(.bottom, 12)
+            runsText(runs, size: 13.5, color: Self.ink).lineSpacing(6).padding(.bottom, 12)
         case .bullets(let items):
             VStack(alignment: .leading, spacing: 7) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, runs in
                     HStack(alignment: .top, spacing: 9) {
                         Circle().fill(FAColor.forestSoft).frame(width: 5, height: 5).padding(.top, 8)
-                        Text(runsText(runs, size: 13, color: Self.ink)).lineSpacing(5)
+                        runsText(runs, size: 13, color: Self.ink).lineSpacing(5)
                     }
                 }
             }
@@ -212,7 +212,7 @@ struct MarkdownBlockView: View {
                 ForEach(Array(items.enumerated()), id: \.offset) { i, runs in
                     HStack(alignment: .firstTextBaseline, spacing: 9) {
                         Text("\(i + 1).").font(FATypography.sans(12.5, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.forestSoft).frame(minWidth: 16, alignment: .leading)
-                        Text(runsText(runs, size: 13, color: Self.ink)).lineSpacing(5)
+                        runsText(runs, size: 13, color: Self.ink).lineSpacing(5)
                     }
                 }
             }
