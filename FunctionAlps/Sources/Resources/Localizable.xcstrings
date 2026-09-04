@@ -50,6 +50,150 @@
         }
       }
     },
+    "access.closed.beta.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you for testing with us. Everything you recorded is safe and stays yours. To keep going, talk to us about what comes next."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci d’avoir testé avec nous. Tout ce que vous avez enregistré est en sécurité et reste à vous. Pour continuer, parlons de la suite."
+          }
+        }
+      }
+    },
+    "access.closed.beta.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk about what is next"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parler de la suite"
+          }
+        }
+      }
+    },
+    "access.closed.beta.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your beta access has ended"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre accès bêta est terminé"
+          }
+        }
+      }
+    },
+    "access.closed.discovery.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you for trying it properly. Everything you recorded is safe and stays yours. To keep tracking, tell us a little about yourself and we will take it from there."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci d’avoir vraiment essayé. Tout ce que vous avez enregistré est en sécurité et reste à vous. Pour continuer, parlez-nous un peu de vous et nous prendrons le relais."
+          }
+        }
+      }
+    },
+    "access.closed.discovery.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us about you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parlez-nous de vous"
+          }
+        }
+      }
+    },
+    "access.closed.discovery.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your three days are up"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos trois jours sont écoulés"
+          }
+        }
+      }
+    },
+    "access.closed.recheck": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I've been given access · check again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On m’a donné l’accès · vérifier à nouveau"
+          }
+        }
+      }
+    },
+    "access.closed.safe.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your check ins, meals and notes stay in your account. The moment your access reopens, they are exactly where you left them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bilans, vos repas et vos notes restent dans votre compte. Dès que votre accès rouvre, vous les retrouvez exactement où vous les aviez laissés."
+          }
+        }
+      }
+    },
+    "access.closed.safe.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data is not going anywhere"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données ne risquent pas de disparaître"
+          }
+        }
+      }
+    },
     "access.daysLeft": {
       "localizations": {
         "en": {
@@ -5282,6 +5426,566 @@
         }
       }
     },
+    "forgot.backToSignIn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to sign in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à la page de connexion"
+          }
+        }
+      }
+    },
+    "forgot.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send reset link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer le lien de réinitialisation"
+          }
+        }
+      }
+    },
+    "forgot.lead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A reset link will be sent to your email address."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un lien de réinitialisation vous sera envoyé à votre adresse e-mail."
+          }
+        }
+      }
+    },
+    "forgot.sent.lead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If an account exists for"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si un compte existe pour"
+          }
+        }
+      }
+    },
+    "forgot.sent.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email sent"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail envoyé"
+          }
+        }
+      }
+    },
+    "forgot.sent.trail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "a password reset email has been sent."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "un e-mail de réinitialisation du mot de passe a été envoyé."
+          }
+        }
+      }
+    },
+    "forgot.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset your password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser votre mot de passe"
+          }
+        }
+      }
+    },
+    "gate.age.day": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour"
+          }
+        }
+      }
+    },
+    "gate.age.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't confirm your date of birth. Check your connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu confirmer votre date de naissance. Vérifiez votre connexion et réessayez."
+          }
+        }
+      }
+    },
+    "gate.age.heading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your date of birth"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre date de naissance"
+          }
+        }
+      }
+    },
+    "gate.age.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps is for adults. We ask once, to confirm you are 18 or older and so the app's estimates fit your age."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps s’adresse aux adultes. Nous vous la demandons une fois, pour vérifier que vous avez 18 ans révolus et pour adapter les estimations de l’application à votre âge."
+          }
+        }
+      }
+    },
+    "gate.age.invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That date doesn't look right. Please check it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette date ne semble pas correcte. Merci de la vérifier."
+          }
+        }
+      }
+    },
+    "gate.age.month": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Month"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois"
+          }
+        }
+      }
+    },
+    "gate.age.underAge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps is only for people aged 18 and over."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps est réservée aux personnes de 18 ans révolus."
+          }
+        }
+      }
+    },
+    "gate.age.underAgeDetail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We haven't kept the date you entered. If an account was created for someone under 18, write to data@functionalps.ch and we will delete it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas conservé la date que vous avez saisie. Si un compte a été créé pour une personne de moins de 18 ans, écrivez à data@functionalps.ch et nous le supprimerons."
+          }
+        }
+      }
+    },
+    "gate.age.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used only to confirm your age and to size the app's estimates. It is never shown to anyone else."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisée uniquement pour vérifier votre âge et calibrer les estimations. Elle n’est jamais montrée à quiconque d’autre."
+          }
+        }
+      }
+    },
+    "gate.age.year": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Year"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Année"
+          }
+        }
+      }
+    },
+    "gate.consent.collapse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réduire %@"
+          }
+        }
+      }
+    },
+    "gate.consent.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and continue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepter et continuer"
+          }
+        }
+      }
+    },
+    "gate.consent.ctaPreview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue (preview)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer (aperçu)"
+          }
+        }
+      }
+    },
+    "gate.consent.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can review or withdraw these at any time in Privacy & Data."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez les consulter ou les retirer à tout moment dans Confidentialité et données."
+          }
+        }
+      }
+    },
+    "gate.consent.heading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before you start"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avant de commencer"
+          }
+        }
+      }
+    },
+    "gate.consent.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps handles your health data, so two things need your agreement — and two more are here for you to read. Tap any item to open it in full. Nothing is ticked for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps traite vos données de santé : deux éléments requièrent votre accord, et deux autres sont là pour être lus. Touchez un élément pour l’ouvrir en entier. Rien n’est coché pour vous."
+          }
+        }
+      }
+    },
+    "gate.consent.leftMany": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld required items left to accept"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld éléments requis restent à accepter"
+          }
+        }
+      }
+    },
+    "gate.consent.leftOne": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 required item left to accept"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 élément requis reste à accepter"
+          }
+        }
+      }
+    },
+    "gate.consent.notices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please read — nothing to agree to here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À lire · rien à accepter ici"
+          }
+        }
+      }
+    },
+    "gate.consent.optional": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional — declining changes nothing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facultatif · refuser ne change rien"
+          }
+        }
+      }
+    },
+    "gate.consent.readFull": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read %@ in full"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire %@ en entier"
+          }
+        }
+      }
+    },
+    "gate.consent.required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required to use the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requis pour utiliser l’application"
+          }
+        }
+      }
+    },
+    "gate.consent.saveError": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't save your choices. Check your connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu enregistrer vos choix. Vérifiez votre connexion et réessayez."
+          }
+        }
+      }
+    },
+    "gate.consent.saveErrorDraft": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These terms are still in review and cannot be accepted yet. Please try again later."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces conditions sont encore en cours d’examen et ne peuvent pas encore être acceptées. Réessayez plus tard."
+          }
+        }
+      }
+    },
+    "gate.failed.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your connection and try again. Nothing you recorded is affected."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez votre connexion et réessayez. Rien de ce que vous avez enregistré n’est affecté."
+          }
+        }
+      }
+    },
+    "gate.failed.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't reach your account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de joindre votre compte"
+          }
+        }
+      }
+    },
+    "gate.notRegistered.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to data@functionalps.ch and we'll sort it out."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre compte existe mais n’est pas encore lié à un membre FunctionAlps. Réessayez dans un instant, ou écrivez à data@functionalps.ch et nous réglerons cela."
+          }
+        }
+      }
+    },
+    "gate.notRegistered.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't find your membership"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas trouvé votre adhésion"
+          }
+        }
+      }
+    },
     "goal.build": {
       "localizations": {
         "en": {
@@ -10226,6 +10930,22 @@
         }
       }
     },
+    "login.changeEmail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "change"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "modifier"
+          }
+        }
+      }
+    },
     "login.email": {
       "localizations": {
         "en": {
@@ -10242,6 +10962,38 @@
         }
       }
     },
+    "login.emailLead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in or create your account."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous ou créez votre compte."
+          }
+        }
+      }
+    },
+    "login.emailPlaceholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "marie@email.com"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "marie@email.com"
+          }
+        }
+      }
+    },
     "login.errorPrefix": {
       "localizations": {
         "en": {
@@ -10254,6 +11006,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erreur de connexion :"
+          }
+        }
+      }
+    },
+    "login.forgot": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot password?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe oublié ?"
           }
         }
       }
@@ -10322,6 +11090,22 @@
         }
       }
     },
+    "login.invalidEmail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid email address."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse e-mail invalide."
+          }
+        }
+      }
+    },
     "login.or": {
       "localizations": {
         "en": {
@@ -10350,6 +11134,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mot de passe"
+          }
+        }
+      }
+    },
+    "login.passwordRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password required."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe requis."
           }
         }
       }
@@ -10398,6 +11198,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reliez ce que vous mangez et faites à ce que vous ressentez."
+          }
+        }
+      }
+    },
+    "login.swiss": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data stays in Switzerland, private."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données restent en Suisse et sont protégées."
           }
         }
       }
@@ -17810,6 +18626,1606 @@
         }
       }
     },
+    "ob.activity.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How active are you usually?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel est votre niveau d’activité habituel ?"
+          }
+        }
+      }
+    },
+    "ob.baseline.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre point de départ"
+          }
+        }
+      }
+    },
+    "ob.baseline.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's understand your baseline."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Établissons votre point de départ."
+          }
+        }
+      }
+    },
+    "ob.baseline.title.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's confirm your baseline."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmons votre point de départ."
+          }
+        }
+      }
+    },
+    "ob.checkins.c1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "ob.checkins.c2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humeur"
+          }
+        }
+      }
+    },
+    "ob.checkins.c3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress"
+          }
+        }
+      }
+    },
+    "ob.checkins.c4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
+          }
+        }
+      }
+    },
+    "ob.checkins.c5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        }
+      }
+    },
+    "ob.checkins.c6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symptoms"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symptômes"
+          }
+        }
+      }
+    },
+    "ob.checkins.c7": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overall wellbeing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien-être général"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad1.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try to complete at least one functional check-in every day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez de faire au moins un bilan fonctionnel chaque jour."
+          }
+        }
+      }
+    },
+    "ob.checkins.cad1.tag": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least once a day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins une fois par jour"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your daily baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre repère quotidien"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad2.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you can, check in around or after meals so we can better understand how you respond."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand vous le pouvez, faites un bilan autour ou après les repas pour que nous comprenions mieux vos réactions."
+          }
+        }
+      }
+    },
+    "ob.checkins.cad2.tag": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Around meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autour des repas"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even better"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encore mieux"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad3.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you notice a symptom or a clear change in how you feel, add it when it happens."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si vous remarquez un symptôme ou un changement net dans votre état, notez-le sur le moment."
+          }
+        }
+      }
+    },
+    "ob.checkins.cad3.tag": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When something changes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand quelque chose change"
+          }
+        }
+      }
+    },
+    "ob.checkins.cad3.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capture the moment"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisir le moment"
+          }
+        }
+      }
+    },
+    "ob.checkins.cover": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A check-in can cover"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bilan peut porter sur"
+          }
+        }
+      }
+    },
+    "ob.checkins.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals + check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas + bilans"
+          }
+        }
+      }
+    },
+    "ob.checkins.guard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We record what you noticed and when · a meal, then how you felt. That’s context for you and your nutritionist to read together, not a verdict that a food caused a symptom."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous notons ce que vous avez observé et à quel moment · un repas, puis votre ressenti. C’est un contexte à lire ensemble avec votre nutritionniste, et non un verdict établissant qu’un aliment a causé un symptôme."
+          }
+        }
+      }
+    },
+    "ob.checkins.notice.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you experience a symptom or a noticeable change after a meal, log what happened and how strong it felt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si vous ressentez un symptôme ou un changement notable après un repas, notez ce qui s’est passé et son intensité."
+          }
+        }
+      }
+    },
+    "ob.checkins.notice.tell": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-le-nous."
+          }
+        }
+      }
+    },
+    "ob.checkins.notice.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notice something after eating?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous remarquez quelque chose après avoir mangé ?"
+          }
+        }
+      }
+    },
+    "ob.checkins.p1a": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meals tell us what went in. Your check-ins help us understand"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos repas nous disent ce que vous avez mangé. Vos bilans nous aident à comprendre"
+          }
+        }
+      }
+    },
+    "ob.checkins.p1b": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "how you felt before and afterwards."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comment vous vous sentiez avant et après."
+          }
+        }
+      }
+    },
+    "ob.checkins.p2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Throughout the day you can quickly tell us how you’re feeling, and record symptoms or reactions you notice."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout au long de la journée, vous pouvez nous dire rapidement comment vous vous sentez et noter les symptômes ou réactions que vous observez."
+          }
+        }
+      }
+    },
+    "ob.checkins.p3a": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don’t need to be perfect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n’avez pas besoin d’être parfait."
+          }
+        }
+      }
+    },
+    "ob.checkins.p3b": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency gives us the clearest picture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La régularité nous donne l’image la plus claire."
+          }
+        }
+      }
+    },
+    "ob.checkins.s1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloating"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ballonnements"
+          }
+        }
+      }
+    },
+    "ob.checkins.s10": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low mood"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humeur basse"
+          }
+        }
+      }
+    },
+    "ob.checkins.s2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acid reflux"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflux acide"
+          }
+        }
+      }
+    },
+    "ob.checkins.s3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaz"
+          }
+        }
+      }
+    },
+    "ob.checkins.s4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestive discomfort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inconfort digestif"
+          }
+        }
+      }
+    },
+    "ob.checkins.s5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiredness"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatigue"
+          }
+        }
+      }
+    },
+    "ob.checkins.s6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy dip"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coup de fatigue"
+          }
+        }
+      }
+    },
+    "ob.checkins.s7": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brain fog"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brouillard mental"
+          }
+        }
+      }
+    },
+    "ob.checkins.s8": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maux de tête"
+          }
+        }
+      }
+    },
+    "ob.checkins.s9": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cravings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fringales"
+          }
+        }
+      }
+    },
+    "ob.checkins.slots": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning, midday and evening ask slightly different things · sleep, for instance, is only ever a morning question."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le matin, le midi et le soir posent des questions légèrement différentes · le sommeil, par exemple, n’est demandé que le matin."
+          }
+        }
+      }
+    },
+    "ob.checkins.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you eat is only half the picture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous mangez n’est que la moitié du tableau."
+          }
+        }
+      }
+    },
+    "ob.energy.fromKnown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the details you already gave us."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après les informations que vous nous aviez déjà données."
+          }
+        }
+      }
+    },
+    "ob.energy.fromNew": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the details you just gave us."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après les informations que vous venez de nous donner."
+          }
+        }
+      }
+    },
+    "ob.energy.missing.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age, biological sex, height, weight and activity together give us the estimate. It takes about thirty seconds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’âge, le sexe biologique, la taille, le poids et l’activité nous permettent ensemble de faire l’estimation. Cela prend une trentaine de secondes."
+          }
+        }
+      }
+    },
+    "ob.energy.missing.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add my baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter mon point de départ"
+          }
+        }
+      }
+    },
+    "ob.energy.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We need your baseline first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous avons d’abord besoin de votre point de départ."
+          }
+        }
+      }
+    },
+    "ob.energy.notRight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not right? Update"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n’est pas exact ? Modifier"
+          }
+        }
+      }
+    },
+    "ob.meals.correct": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’ll always be able to review and correct the meal if something isn’t right · change a food, remove one, or add what we missed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pourrez toujours vérifier et corriger le repas si quelque chose ne va pas · modifier un aliment, en retirer un, ou ajouter ce que nous avons manqué."
+          }
+        }
+      }
+    },
+    "ob.meals.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris"
+          }
+        }
+      }
+    },
+    "ob.meals.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal logging"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement des repas"
+          }
+        }
+      }
+    },
+    "ob.meals.p1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you eat, take a photo of your meal in the app. Our AI analyses the image, identifies the foods and ingredients, and creates a structured meal entry for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moment de manger, photographiez votre repas dans l’application. Notre IA analyse l’image, identifie les aliments et les ingrédients, et crée pour vous une entrée de repas structurée."
+          }
+        }
+      }
+    },
+    "ob.meals.s1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prendre une photo"
+          }
+        }
+      }
+    },
+    "ob.meals.s2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI identifies the foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’IA identifie les aliments"
+          }
+        }
+      }
+    },
+    "ob.meals.s3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingredients are structured"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les ingrédients sont structurés"
+          }
+        }
+      }
+    },
+    "ob.meals.s4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutritional information is estimated"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les informations nutritionnelles sont estimées"
+          }
+        }
+      }
+    },
+    "ob.meals.s5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The meal becomes part of your nutrition history"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le repas rejoint votre historique nutritionnel"
+          }
+        }
+      }
+    },
+    "ob.meals.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just take a photo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il suffit de prendre une photo."
+          }
+        }
+      }
+    },
+    "ob.nutrition.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre alimentation"
+          }
+        }
+      }
+    },
+    "ob.nutrition.feel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "And, importantly, how you feel afterwards"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et, surtout, comment vous vous sentez ensuite"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein, carbohydrates and fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protéines, glucides et lipides"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibres"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamins and minerals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamines et minéraux"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food quality and composition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualité et composition des aliments"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Types of carbohydrates and fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Types de glucides et de lipides"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal timing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le moment des repas"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i7": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How foods are combined"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La façon dont les aliments sont associés"
+          }
+        }
+      }
+    },
+    "ob.nutrition.i8": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your overall eating patterns"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos habitudes alimentaires générales"
+          }
+        }
+      }
+    },
+    "ob.nutrition.lookAt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We look at"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous examinons"
+          }
+        }
+      }
+    },
+    "ob.nutrition.p1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two meals with the same number of calories can be very different."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux repas au même nombre de calories peuvent être très différents."
+          }
+        }
+      }
+    },
+    "ob.nutrition.p2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The goal is to understand your nutrition as a whole · not reduce food to a number."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’objectif est de comprendre votre alimentation dans son ensemble · pas de réduire ce que vous mangez à un chiffre."
+          }
+        }
+      }
+    },
+    "ob.nutrition.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We look beyond calories."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous regardons au-delà des calories."
+          }
+        }
+      }
+    },
+    "ob.ready.checkin.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Especially when you notice symptoms or changes around your meals."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surtout lorsque vous remarquez des symptômes ou des changements autour de vos repas."
+          }
+        }
+      }
+    },
+    "ob.ready.checkin.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in with how you feel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites le point sur votre ressenti"
+          }
+        }
+      }
+    },
+    "ob.ready.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’re ready"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes prêt"
+          }
+        }
+      }
+    },
+    "ob.ready.firstCheckin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do my first check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire mon premier bilan"
+          }
+        }
+      }
+    },
+    "ob.ready.firstMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log my first meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer mon premier repas"
+          }
+        }
+      }
+    },
+    "ob.ready.meals.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll help turn them into useful nutrition information."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous les transformerons en informations nutritionnelles utiles."
+          }
+        }
+      }
+    },
+    "ob.ready.meals.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph your meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez vos repas"
+          }
+        }
+      }
+    },
+    "ob.ready.p1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The more context we have, the better we can understand your nutrition, your patterns and your individual experience."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus nous avons de contexte, mieux nous comprenons votre alimentation, vos tendances et votre expérience personnelle."
+          }
+        }
+      }
+    },
+    "ob.ready.skip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip for now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer pour l’instant"
+          }
+        }
+      }
+    },
+    "ob.ready.stampFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t save that you’ve finished setting up. Nothing you entered is lost."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu enregistrer la fin de votre configuration. Rien de ce que vous avez saisi n’est perdu."
+          }
+        }
+      }
+    },
+    "ob.ready.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For now, focus on two things."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour l’instant, concentrez-vous sur deux choses."
+          }
+        }
+      }
+    },
+    "ob.ready.trying": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trying…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouvelle tentative…"
+          }
+        }
+      }
+    },
+    "ob.step.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étape %lld sur %lld"
+          }
+        }
+      }
+    },
+    "ob.welcome.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up my profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer mon profil"
+          }
+        }
+      }
+    },
+    "ob.welcome.eat.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph a meal and we turn it into real nutrition detail."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez un repas et nous en tirons un vrai détail nutritionnel."
+          }
+        }
+      }
+    },
+    "ob.welcome.eat.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you eat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous mangez"
+          }
+        }
+      }
+    },
+    "ob.welcome.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your FunctionAlps journey"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre parcours FunctionAlps"
+          }
+        }
+      }
+    },
+    "ob.welcome.feel.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick check-ins capture energy, digestion, mood and symptoms."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des bilans rapides enregistrent l’énergie, la digestion, l’humeur et les symptômes."
+          }
+        }
+      }
+    },
+    "ob.welcome.feel.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How you feel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous vous sentez"
+          }
+        }
+      }
+    },
+    "ob.welcome.fit.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seen side by side over time, patterns start to show."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vus côte à côte dans la durée, des tendances apparaissent."
+          }
+        }
+      }
+    },
+    "ob.welcome.fit.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How the two fit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment les deux s’articulent"
+          }
+        }
+      }
+    },
+    "ob.welcome.known.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the questionnaire you completed · so we'll skip straight to what it means for your daily energy. You can change any of it afterwards."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après le questionnaire que vous avez rempli · nous passons donc directement à ce que cela signifie pour votre énergie quotidienne. Vous pourrez tout modifier ensuite."
+          }
+        }
+      }
+    },
+    "ob.welcome.known.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We already have your details"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous avons déjà vos informations"
+          }
+        }
+      }
+    },
+    "ob.welcome.p1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps helps us understand what you eat, when you eat it, and how your body responds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps nous aide à comprendre ce que vous mangez, quand vous le mangez et comment votre corps y réagit."
+          }
+        }
+      }
+    },
+    "ob.welcome.p2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By combining your meals with simple check-ins throughout the day, we can build a much clearer picture of your nutrition and daily wellbeing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En associant vos repas à de courts bilans tout au long de la journée, nous obtenons une vision bien plus claire de votre alimentation et de votre bien-être quotidien."
+          }
+        }
+      }
+    },
+    "ob.welcome.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understand how food works for"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprendre comment l’alimentation agit sur"
+          }
+        }
+      }
+    },
+    "ob.welcome.titleAccent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vous."
+          }
+        }
+      }
+    },
     "pill.1_2h": {
       "localizations": {
         "en": {
@@ -21470,6 +23886,390 @@
           "stringUnit": {
             "state": "translated",
             "value": "Homme"
+          }
+        }
+      }
+    },
+    "signup.alreadyMember": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already a member? Sign in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes déjà membre ? Connectez-vous"
+          }
+        }
+      }
+    },
+    "signup.confirmPassword": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmez votre mot de passe"
+          }
+        }
+      }
+    },
+    "signup.confirmPlaceholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat your password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez saisir à nouveau votre mot de passe"
+          }
+        }
+      }
+    },
+    "signup.consent.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I accept the Terms of Service and the Privacy Policy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J’accepte les Conditions d’utilisation et la Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "signup.consent.and": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "and the"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "et la"
+          }
+        }
+      }
+    },
+    "signup.consent.lead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By creating my account, I accept the"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En créant mon compte, j’accepte les"
+          }
+        }
+      }
+    },
+    "signup.consent.privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "signup.consent.terms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Service"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conditions générales d'utilisation"
+          }
+        }
+      }
+    },
+    "signup.consent.trail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "including non-clinical AI analysis of my meals and check-ins."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "y compris l’analyse non clinique par IA de mes repas et de mes check-ins."
+          }
+        }
+      }
+    },
+    "signup.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create my account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer mon compte"
+          }
+        }
+      }
+    },
+    "signup.done.lead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A confirmation email has just been sent to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un e-mail de confirmation vient d’être envoyé à"
+          }
+        }
+      }
+    },
+    "signup.done.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your inbox"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez votre boîte de réception"
+          }
+        }
+      }
+    },
+    "signup.done.trail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click the link to activate your account."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur le lien pour activer votre compte."
+          }
+        }
+      }
+    },
+    "signup.firstName": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prénom"
+          }
+        }
+      }
+    },
+    "signup.firstNamePlaceholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marie"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marie"
+          }
+        }
+      }
+    },
+    "signup.lastName": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom de famille"
+          }
+        }
+      }
+    },
+    "signup.lastNamePlaceholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dupont"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dupont"
+          }
+        }
+      }
+    },
+    "signup.lead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not yet a member? Join the FunctionAlps ecosystem."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n'êtes pas encore membre ? Rejoignez l'écosystème de FunctionAlps."
+          }
+        }
+      }
+    },
+    "signup.mismatch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwords do not match."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mots de passe ne correspondent pas."
+          }
+        }
+      }
+    },
+    "signup.passwordHint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Min. 8 chars, 1 uppercase, 1 special"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins 8 caractères, dont 1 majuscule et 1 caractère spécial"
+          }
+        }
+      }
+    },
+    "signup.phone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phone"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléphone"
+          }
+        }
+      }
+    },
+    "signup.pw.length": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least 8 characters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins 8 caractères"
+          }
+        }
+      }
+    },
+    "signup.pw.special": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One special character"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un caractère spécial"
+          }
+        }
+      }
+    },
+    "signup.pw.upper": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One uppercase letter"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une lettre majuscule"
           }
         }
       }

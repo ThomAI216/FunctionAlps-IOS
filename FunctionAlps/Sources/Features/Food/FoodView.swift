@@ -35,6 +35,11 @@ private struct FoodScreen: View {
     var body: some View {
         content
             .mealCaptureHost(capture) { model.captureFinished() }
+            .onAppear {
+                guard router.pendingCapture else { return }
+                router.pendingCapture = false
+                capture.openPhotoChooser()
+            }
             .overlay(alignment: .bottom) { toast }
             .animation(.spring(duration: 0.35, bounce: 0.15), value: model.relogToast)
             .alert(String(localized: "food.error.title", defaultValue: "Couldn't load your meals"), isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {

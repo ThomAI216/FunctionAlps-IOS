@@ -12,8 +12,10 @@ struct RootView: View {
                 LaunchView()
             case .signedOut:
                 LoginView()
-            case .signedIn:
-                MainTabView()
+            case .signedIn(let userId):
+                // Access window → consents (18+ first) → onboarding → the tabs. Keyed by user so a
+                // sign-out/sign-in never reuses another member's gate state.
+                MemberGateView().id(userId)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: state.phase)

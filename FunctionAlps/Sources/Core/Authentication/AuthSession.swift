@@ -15,6 +15,9 @@ struct AuthSession: Codable, Sendable, Equatable {
     var patientId: String?
     /// From `user_metadata.full_name` / `name` / `first_name` — never fetched from the PII vault.
     var displayName: String? = nil
+    /// `user_metadata.first_name` / `last_name` — what `patient-register` needs; nil for social sign-ins without them.
+    var firstName: String? = nil
+    var lastName: String? = nil
 
     /// True when the access token expires within `leeway` seconds.
     func isExpiring(within leeway: TimeInterval = 60, now: Date = Date()) -> Bool {

@@ -22,6 +22,49 @@ struct SupabaseAuthClient: Sendable {
         return try Self.session(from: response.body)
     }
 
+    enum SignUpOutcome: Sendable, Equatable {
+        /// Auto-confirmed project: the session is live.
+        case signedIn(AuthSession)
+        /// Confirmation email sent; sign in after the link.
+        case confirmEmail
+    }
+
+    /// `POST /auth/v1/signup` with the Expo metadata (`first_name`, `last_name`, `phone` when given).
+    func signUp(email: String, password: String, firstName: String, lastName: String, phone: String?) async throws -> SignUpOutcome {
+        struct Meta: Encodable { let firstName: String; let lastName: String; let phone: String? }
+        struct Body: Encodable { let email: String; let password: String; let data: Meta }
+        let trimmedPhone = phone?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let body = Body(email: email, password: password, data: Meta(firstName: firstName, lastName: lastName, phone: (trimmedPhone?.isEmpty ?? true) ? nil : trimmedPhone))
+        let request = try HTTPRequest.json(.post, endpoint("signup"), headers: baseHeaders(), body: body)
+        let response = try await transport.send(request)
+        guard response.isSuccess else { throw Self.mapAuthError(response) }
+        // With "confirm email" on, GoTrue answers with the bare user (no access_token).
+        if let obj = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any], obj["access_token"] == nil { return .confirmEmail }
+        var session = try Self.session(from: response.body)
+        session.firstName = firstName
+        session.lastName = lastName
+        return .signedIn(session)
+    }
+
+    /// `POST /auth/v1/recover` — always resolves, so the UI never leaks whether the address exists.
+    func recover(email: String) async {
+        struct Body: Encodable { let email: String }
+        guard let request = try? HTTPRequest.json(.post, endpoint("recover"), headers: baseHeaders(), body: Body(email: email)) else { return }
+        _ = try? await transport.send(request)
+    }
+
+    /// RPC `email_exists(p_email)` under the publishable key (no session yet). nil = could not tell.
+    func emailExists(_ email: String) async -> Bool? {
+        struct Body: Encodable { let pEmail: String }
+        var headers = baseHeaders()
+        headers["Content-Type"] = "application/json"
+        let url = environment.supabaseURL.appending(path: "rest/v1/rpc/email_exists")
+        guard let request = try? HTTPRequest.json(.post, url, headers: headers, body: Body(pEmail: email)) else { return nil }
+        guard let response = try? await transport.send(request), response.isSuccess else { return nil }
+        let text = String(decoding: response.body, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        return text == "true" ? true : text == "false" ? false : nil
+    }
+
     func refresh(refreshToken: String) async throws -> AuthSession {
         struct Body: Encodable { let refreshToken: String }
         let url = endpoint("token", query: [URLQueryItem(name: "grant_type", value: "refresh_token")])
@@ -95,6 +138,9 @@ struct SupabaseAuthClient: Sendable {
             let fullName: String?
             let name: String?
             let firstName: String?
+            let lastName: String?
+            let givenName: String?
+            let familyName: String?
         }
         struct User: Decodable {
             let id: String
@@ -134,7 +180,9 @@ struct SupabaseAuthClient: Sendable {
             userId: token.user.id,
             email: token.user.email,
             patientId: meta?.patientId,
-            displayName: display
+            displayName: display,
+            firstName: meta?.firstName ?? meta?.givenName,
+            lastName: meta?.lastName ?? meta?.familyName
         )
     }
 

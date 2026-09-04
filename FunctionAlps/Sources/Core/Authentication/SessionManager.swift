@@ -37,6 +37,16 @@ actor SessionManager {
     }
 
     /// Completes a browser (PKCE) sign-in with the redirect's `code`.
+    /// Sign-up; a live session (auto-confirm) is persisted, an email-confirmation outcome is passed through.
+    func signUp(email: String, password: String, firstName: String, lastName: String, phone: String?) async throws -> SupabaseAuthClient.SignUpOutcome {
+        let outcome = try await auth.signUp(email: email, password: password, firstName: firstName, lastName: lastName, phone: phone)
+        if case .signedIn(let fresh) = outcome { try persist(fresh) }
+        return outcome
+    }
+
+    func emailExists(_ email: String) async -> Bool? { await auth.emailExists(email) }
+    func requestPasswordReset(email: String) async { await auth.recover(email: email) }
+
     func signIn(authCode: String, codeVerifier: String) async throws -> AuthSession {
         let fresh = try await auth.exchangeCode(authCode, codeVerifier: codeVerifier)
         try persist(fresh)

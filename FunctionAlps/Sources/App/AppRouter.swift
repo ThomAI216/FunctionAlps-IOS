@@ -71,7 +71,9 @@ final class AppRouter {
         case "meal":
             tab = .food; foodPath = []
             if let id = parts.dropFirst().first { foodPath.append(.meal(id)); pendingRateMealId = rate ? id : nil }
-        case "food": tab = .food; foodPath = []
+        case "food":
+            tab = .food; foodPath = []
+            pendingCapture = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "capture" && $0.value == "1" } ?? false
         case "trends": tab = .trends; trendsPath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
@@ -92,6 +94,8 @@ final class AppRouter {
 
     /// Set by a `meal/<id>?rate=1` route; the meal page opens the reaction sheet and clears it.
     var pendingRateMealId: String?
+    /// Set by `food?capture=1` (the onboarding's "Log my first meal"); the Food tab opens the photo chooser and clears it.
+    var pendingCapture = false
 
     func pop() {
         switch tab {

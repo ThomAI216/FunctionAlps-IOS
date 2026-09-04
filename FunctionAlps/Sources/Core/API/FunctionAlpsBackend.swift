@@ -65,6 +65,15 @@ protocol FunctionAlpsBackend: Sendable {
     /// One `nb_meal_reactions` row — the Expo `saveMealReaction` shape (a row IS the "they answered" signal).
     func saveMealReaction(_ write: MealReactionWrite) async throws
 
+    // MARK: Sign-up + onboarding (patient-register · nb_patient_app_profiles · confirm_member_adult)
+
+    /// Edge fn `patient-register` — creates or links the patient row and stamps `user_metadata.patient_id`; returns the patient id.
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String
+    /// `onboarding_completed_at` (only when still null — the first finish is the date) + `onboarding_source = 'app_baseline'`.
+    func stampOnboardingComplete(patientId: String) async throws -> Date
+    /// RPC `confirm_member_adult(p_date_of_birth)` — true when 18+ (and the row is stamped); under-age is refused locally first.
+    func confirmAdult(dateOfBirth: String) async throws -> Bool
+
     // MARK: Gut check-in (patient_daily_checkins gut_* + nb_checkin_events)
 
     /// Today's saved gut check-in (`gut_detail` + `intelligence_completed_at`), nil when not done today.
@@ -126,7 +135,7 @@ protocol FunctionAlpsBackend: Sendable {
     /// `member_pending_consents(p_locale, false)` — what to show and what is already accepted.
     func consents(locale: String) async throws -> [ConsentItem]
     /// `record_consent_batch` — one transaction for the sitting.
-    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String, channel: String) async throws
     /// `revoke_consent(p_consent_key, 'app_privacy')` — refuses contract_core by design.
     func revokeConsent(key: String) async throws
     /// The current approved `consent_definitions` rows for these keys in this locale (notices + documents).

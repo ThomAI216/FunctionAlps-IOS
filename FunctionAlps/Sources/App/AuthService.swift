@@ -28,6 +28,19 @@ final class AuthService {
         state.phase = .signedIn(userId: session.userId)
     }
 
+    /// Email + password sign-up (the Expo `signUpPatient`): metadata first_name/last_name/phone; the patient row
+    /// is created by `patient-register` on the first `currentMember()` after sign-in.
+    func signUp(email: String, password: String, firstName: String, lastName: String, phone: String?) async throws -> SupabaseAuthClient.SignUpOutcome {
+        let outcome = try await sessions.signUp(email: EmailNormalizer.normalize(email), password: password, firstName: firstName, lastName: lastName, phone: phone)
+        if case .signedIn(let session) = outcome { state.phase = .signedIn(userId: session.userId) }
+        return outcome
+    }
+
+    /// nil when the RPC could not answer (the caller routes to sign-up, with a "Sign in" escape).
+    func emailExists(_ email: String) async -> Bool? { await sessions.emailExists(EmailNormalizer.normalize(email)) }
+
+    func requestPasswordReset(email: String) async { await sessions.requestPasswordReset(email: EmailNormalizer.normalize(email)) }
+
     /// Google via the system browser sheet + PKCE. Throws `WebAuthenticator.WebAuthError.cancelled` on dismiss.
     func signInWithGoogle() async throws {
         let verifier = PKCE.codeVerifier()

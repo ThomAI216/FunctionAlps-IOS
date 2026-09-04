@@ -242,7 +242,7 @@ struct BaselineEditView: View {
 }
 
 /// The activity cards rise in one after another (55 ms apart) and give a little when selected.
-private struct ActivityCard: View {
+struct ActivityCard: View {
     let index: Int
     let level: ActivityLevel
     let selected: Bool

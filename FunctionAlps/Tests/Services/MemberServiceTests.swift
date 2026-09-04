@@ -35,6 +35,9 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String { "registered" }
+    func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
+    func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}
@@ -59,7 +62,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func sendFeedback(message: String, appVersion: String) async throws {}
     func deleteAccount() async throws {}
     func consents(locale: String) async throws -> [ConsentItem] { [] }
-    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws {}
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String, channel: String) async throws {}
     func revokeConsent(key: String) async throws {}
     func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument] { [] }
     func dataCount(table: String, patientId: String) async throws -> Int { 0 }

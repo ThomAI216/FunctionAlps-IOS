@@ -37,6 +37,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let targetFatG: Int?
         let goalMode: String?
         let onboardingCompletedAt: Date?
+        let adultConfirmedAt: Date?
         let locale: String?
         let tdeeKcal: Double?
         let estimatedBodyFatPercent: Double?
@@ -50,7 +51,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "app_sex", "app_age", "app_height_cm", "app_weight_kg", "activity_level",
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
-        "goal_mode", "onboarding_completed_at", "locale", "tdee_kcal",
+        "goal_mode", "onboarding_completed_at", "adult_confirmed_at", "locale", "tdee_kcal",
         "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized",
     ].joined(separator: ",")
 
@@ -75,6 +76,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
             targetFatG: row.targetFatG,
             goalMode: row.goalMode.flatMap(MemberProfile.GoalMode.init(rawValue:)),
             onboardingCompletedAt: row.onboardingCompletedAt,
+            adultConfirmedAt: row.adultConfirmedAt,
             locale: row.locale,
             tdeeKcal: row.tdeeKcal,
             estimatedBodyFatPercent: row.estimatedBodyFatPercent,
@@ -814,6 +816,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.insertRows("nb_meal_reactions", body: [write])
     }
 
+    // MARK: Sign-up + onboarding
+
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String {
+        struct Body: Encodable { let firstName: String; let lastName: String; let email: String }
+        struct Reply: Decodable { let patientId: String }
+        let reply: Reply = try await functions.invoke("patient-register", body: Body(firstName: firstName, lastName: lastName, email: email), snakeCase: false)
+        return reply.patientId
+    }
+
+    func stampOnboardingComplete(patientId: String) async throws -> Date {
+        struct Stamp: Decodable { let onboardingCompletedAt: Date? }
+        // The column means "when this member FIRST finished" — never moved once set.
+        if let existing: Stamp = try? await rest.selectOne("nb_patient_app_profiles", query: [PG.select("onboarding_completed_at"), PG.eq("patient_id", patientId), PG.limit(1)]), let at = existing.onboardingCompletedAt { return at }
+        let now = Date()
+        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String }
+        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String }
+        let body = Body(onboardingCompletedAt: ISO8601.string(now), onboardingSource: "app_baseline")
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
+        if touched.isEmpty {
+            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: body.onboardingSource)]) }
+            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        }
+        return now
+    }
+
+    func confirmAdult(dateOfBirth: String) async throws -> Bool {
+        struct Body: Encodable { let pDateOfBirth: String }
+        let raw = try await rest.rpcScalar("confirm_member_adult", body: Body(pDateOfBirth: dateOfBirth))
+        return raw?.trimmingCharacters(in: .whitespacesAndNewlines) == "true"
+    }
+
     // MARK: Gut check-in (patient_daily_checkins gut_* · nb_checkin_events)
 
     private struct GutDayRow: Decodable, Sendable {
@@ -1040,7 +1073,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let pChannel: String
     }
 
-    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws {
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String, channel: String) async throws {
         let body = RecordBatchBody(
             pDecisions: decisions.map { DecisionBody(key: $0.key, version: $0.version, granted: $0.granted, defaultState: $0.defaultState) },
             pLocale: locale,
@@ -1049,7 +1082,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
             pUiTemplateVersion: ConsentLogic.uiTemplateVersion,
             pPrivacyNoticeVersion: privacyNoticeVersion,
             pPresentedKeys: presentedKeys,
-            pChannel: "app_privacy"
+            pChannel: channel
         )
         let _: [String] = try await rest.rpc("record_consent_batch", body: body)
     }

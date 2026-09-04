@@ -35,6 +35,12 @@ struct ProfileService: Sendable {
         return try? await backend.memberProfile(patientId: patientId)
     }
 
+    /// The last onboarding screen's stamp (`onboarding_completed_at` + `onboarding_source='app_baseline'`).
+    /// Returns the timestamp CM OS now holds — the gate trusts the row, never a local flag.
+    func completeOnboarding(patientId: String) async throws -> Date {
+        try await backend.stampOnboardingComplete(patientId: patientId)
+    }
+
     /// The targets page's Validate: writes, then reads the row back so the page shows the trigger's targets.
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws -> MemberProfile? {
         try await backend.saveNutritionProfile(patientId: patientId, profile: profile)
@@ -81,6 +87,12 @@ struct AccountService: Sendable {
 
     // MARK: Consents
 
+    /// The 18+ check (`confirm_member_adult`): true = adult, recorded; false = refused server-side.
+    /// Throws on anything else — an age check that could not run has not passed.
+    func confirmAdult(dateOfBirth: String) async throws -> Bool {
+        try await backend.confirmAdult(dateOfBirth: dateOfBirth)
+    }
+
     struct ConsentsBundle: Sendable, Equatable {
         let consents: [ConsentItem]
         let notices: [LegalDocument]
@@ -102,8 +114,14 @@ struct AccountService: Sendable {
             [ConsentDecision(key: c.consentKey, version: c.version, granted: true, defaultState: false)],
             presentedKeys: ConsentLogic.presentedKeys(bundle.consents, notices: bundle.notices),
             privacyNoticeVersion: ConsentLogic.privacyNoticeVersion(bundle.notices),
-            locale: ConsentLogic.locale()
+            locale: ConsentLogic.locale(),
+            channel: "app_privacy"
         )
+    }
+
+    /// The first-launch gate: every decision in one transaction, channel `app_onboarding`.
+    func recordGate(_ decisions: [ConsentDecision], in bundle: ConsentsBundle) async throws {
+        try await backend.recordConsents(decisions, presentedKeys: ConsentLogic.presentedKeys(bundle.consents, notices: bundle.notices), privacyNoticeVersion: ConsentLogic.privacyNoticeVersion(bundle.notices), locale: ConsentLogic.locale(), channel: "app_onboarding")
     }
 
     func withdraw(_ c: ConsentItem) async throws {

@@ -34,6 +34,8 @@ struct MemberProfile: Sendable, Equatable {
     let targetFatG: Int?
     let goalMode: GoalMode?
     let onboardingCompletedAt: Date?
+    /// `adult_confirmed_at` — the 18+ check the consent gate needs before any `record_consent`.
+    var adultConfirmedAt: Date? = nil
     let locale: String?
     /// The DB trigger's daily energy estimate (`tdee_kcal`), the compass number.
     var tdeeKcal: Double? = nil
