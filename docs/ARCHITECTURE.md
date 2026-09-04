@@ -67,6 +67,8 @@ the theme audit in `APP_MAP.md`.
 
 - **Glass rule (owner, 2026-09-03):** every card on every screen — and the floating tab bar — is the see-through glass, and only that: `FACard` / `FAGlassSurface` (clear Liquid Glass on iOS 26, the web `GlassCard` "seethrough" veil before it). No `.regularMaterial`/`.ultraThinMaterial`, no tinted `.regular` glass (iOS 26 renders it as an opaque grey slab over the Sage wall), no solid card fills. New screens get the wall (`.faWall()`) + `FACard`s, nothing else.
 
+- **Library data rule (2026-09-03):** the library is a SECOND CONSUMER of the members catalog — same tables and RPCs (`library_tracks`, `library_track_lessons`, `member_lesson_progress`, `member_library_list/get/stage`, `member_library_access`, `patient_track_priority`, `care_plans` + goals), read in parallel under the member's session. Only the catalog read may fail the tab (→ the labelled sample library, never an empty screen); every other read fails soft. The activation veils fail CLOSED (no row = every section veiled), the stage gate fails closed to `lead`. Rules live in `LibraryLogic` (pure, tested); `LibraryService` is the only IO.
+
 ## 7. Environments (PRD §31)
 `Config/{Development,Staging,Production}.xcconfig` → Info.plist → `AppEnvironment`.
 Only non-secret values. Staging currently points at CM OS because no staging project
