@@ -8,6 +8,18 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
+    case carePlan
+    case baseline
+    case feedback
+    case guide
+    case guideChapter(String)
+    case privacy
+    case consents
+    case viewData
+    case legal(String)
+    case messages
+    case help
 }
 
 @MainActor
@@ -90,6 +102,17 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .carePlan: CarePlanView()
+        case .baseline: BaselineEditView()
+        case .feedback: FeedbackView()
+        case .guide: GuideView()
+        case .guideChapter(let key): GuideChapterView(key: key)
+        case .privacy: PrivacyView()
+        case .consents: ConsentsView()
+        case .viewData: ViewDataView()
+        case .legal(let key): LegalDocumentView(key: key)
+        case .messages: MessagesView()
+        case .help: HelpView()
         }
     }
 }

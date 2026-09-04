@@ -2,6 +2,150 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "access.beta.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your thirty days end on %@. Everything you record stays yours after that."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos trente jours se terminent le %@. Tout ce que vous enregistrez reste à vous ensuite."
+          }
+        }
+      }
+    },
+    "access.beta.detail.noDate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you record stays yours after your thirty days."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ce que vous enregistrez reste à vous après vos trente jours."
+          }
+        }
+      }
+    },
+    "access.beta.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beta access"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès bêta"
+          }
+        }
+      }
+    },
+    "access.daysLeft": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days left"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld jours restants"
+          }
+        }
+      }
+    },
+    "access.discovery.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask for full access whenever you are ready and we will take it from there."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demandez l’accès complet quand vous êtes prêt·e et nous prenons le relais."
+          }
+        }
+      }
+    },
+    "access.discovery.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discovery access"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès découverte"
+          }
+        }
+      }
+    },
+    "access.endsToday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ends today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se termine aujourd’hui"
+          }
+        }
+      }
+    },
+    "access.lastDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernier jour"
+          }
+        }
+      }
+    },
+    "action.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
+        }
+      }
+    },
     "action.cancel": {
       "localizations": {
         "en": {
@@ -30,6 +174,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fermer"
+          }
+        }
+      }
+    },
+    "action.continue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
           }
         }
       }
@@ -130,6 +290,166 @@
         }
       }
     },
+    "activity.extremely.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I train intensely, sometimes more than once per day, or have a very physically demanding lifestyle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je m’entraîne intensément, parfois plus d’une fois par jour, ou j’ai un mode de vie physiquement très exigeant."
+          }
+        }
+      }
+    },
+    "activity.extremely.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highly active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très sportif·ve"
+          }
+        }
+      }
+    },
+    "activity.lightly.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I walk regularly or exercise around 1–2 times per week."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je marche régulièrement ou je fais de l’exercice 1 à 2 fois par semaine."
+          }
+        }
+      }
+    },
+    "activity.lightly.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lightly active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légèrement actif·ve"
+          }
+        }
+      }
+    },
+    "activity.moderately.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I exercise around 3–4 times per week and/or have a reasonably active lifestyle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je fais de l’exercice 3 à 4 fois par semaine et/ou j’ai un mode de vie raisonnablement actif."
+          }
+        }
+      }
+    },
+    "activity.moderately.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderately active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modérément actif·ve"
+          }
+        }
+      }
+    },
+    "activity.sedentary.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most of my day is seated, with little structured exercise."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je passe l’essentiel de ma journée assis·e, avec peu d’exercice structuré."
+          }
+        }
+      }
+    },
+    "activity.sedentary.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostly sedentary"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plutôt sédentaire"
+          }
+        }
+      }
+    },
+    "activity.very.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I train most days or have a physically demanding lifestyle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je m’entraîne presque tous les jours ou j’ai un mode de vie physiquement exigeant."
+          }
+        }
+      }
+    },
+    "activity.very.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très actif·ve"
+          }
+        }
+      }
+    },
     "app.loading": {
       "localizations": {
         "en": {
@@ -174,6 +494,534 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trop de tentatives. Patientez un instant puis réessayez."
+          }
+        }
+      }
+    },
+    "baseline.activity.edit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update your activity."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier votre activité."
+          }
+        }
+      }
+    },
+    "baseline.activity.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick the one that sounds most like a normal week."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez celle qui ressemble le plus à une semaine normale."
+          }
+        }
+      }
+    },
+    "baseline.activity.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is the last piece of the estimate. Don’t overthink it · an ordinary week is the right answer, not your best one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est la dernière pièce de l’estimation. Ne réfléchissez pas trop · une semaine ordinaire est la bonne réponse, pas votre meilleure."
+          }
+        }
+      }
+    },
+    "baseline.age": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How old are you?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel âge avez-vous ?"
+          }
+        }
+      }
+    },
+    "baseline.age.invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter an age between 16 and 100."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indiquez un âge entre 16 et 100 ans."
+          }
+        }
+      }
+    },
+    "baseline.edit.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update your baseline."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettez à jour votre point de départ."
+          }
+        }
+      }
+    },
+    "baseline.energy.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About %lld kilocalories per day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Environ %lld kilocalories par jour"
+          }
+        }
+      }
+    },
+    "baseline.energy.alongside": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "…alongside food quality, micronutrients, timing and meal composition."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "…ainsi que la qualité des aliments, les micronutriments, le moment et la composition des repas."
+          }
+        }
+      }
+    },
+    "baseline.energy.change": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your energy needs can also change over time depending on your activity, body composition and goals. This number gives us useful context for interpreting the rest of your nutrition."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos besoins énergétiques peuvent aussi évoluer selon votre activité, votre composition corporelle et vos objectifs. Ce chiffre nous donne un contexte utile pour interpréter le reste de votre alimentation."
+          }
+        }
+      }
+    },
+    "baseline.energy.compass": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your energy compass"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre boussole énergétique"
+          }
+        }
+      }
+    },
+    "baseline.energy.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your energy needs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos besoins énergétiques"
+          }
+        }
+      }
+    },
+    "baseline.energy.made": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’re much more interested in what those calories are made of · and how you respond to them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui nous intéresse bien plus, c’est de quoi ces calories sont faites · et comment vous y réagissez."
+          }
+        }
+      }
+    },
+    "baseline.energy.mostly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "And most importantly: how you feel, and the reactions or symptoms you notice around your food."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et surtout : comment vous vous sentez, et les réactions ou symptômes que vous remarquez autour de vos repas."
+          }
+        }
+      }
+    },
+    "baseline.energy.p1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Based on your profile and activity level, this is our current estimate of how much energy your body uses in a typical day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après votre profil et votre niveau d’activité, voici notre estimation actuelle de l’énergie que votre corps utilise sur une journée type."
+          }
+        }
+      }
+    },
+    "baseline.energy.p2a": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Think of it as a "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voyez-le comme une "
+          }
+        }
+      }
+    },
+    "baseline.energy.p2b": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "compass, not a score."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "boussole, pas un score."
+          }
+        }
+      }
+    },
+    "baseline.energy.p2c": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don’t need to hit this number perfectly every day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n’avez pas besoin d’atteindre ce chiffre exactement chaque jour."
+          }
+        }
+      }
+    },
+    "baseline.energy.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An estimate of your typical daily energy needs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une estimation de vos besoins énergétiques quotidiens habituels."
+          }
+        }
+      }
+    },
+    "baseline.energy.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your estimated daily energy target"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre objectif énergétique quotidien estimé"
+          }
+        }
+      }
+    },
+    "baseline.energy.unit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal / jour"
+          }
+        }
+      }
+    },
+    "baseline.female": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Female"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Femme"
+          }
+        }
+      }
+    },
+    "baseline.height.invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a height between 120 and 230 cm."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indiquez une taille entre 120 et 230 cm."
+          }
+        }
+      }
+    },
+    "baseline.intro1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll start with a few basic measurements to estimate how much energy your body typically needs each day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous commençons par quelques mesures de base pour estimer l’énergie dont votre corps a habituellement besoin chaque jour."
+          }
+        }
+      }
+    },
+    "baseline.intro2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gives us useful context when looking at your meals."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela nous donne un contexte utile pour regarder vos repas."
+          }
+        }
+      }
+    },
+    "baseline.later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can update any of this later in your profile."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pourrez modifier tout cela plus tard dans votre profil."
+          }
+        }
+      }
+    },
+    "baseline.male": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Male"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homme"
+          }
+        }
+      }
+    },
+    "baseline.saveFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't save that just now. Your answers are safe · try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu enregistrer pour l’instant. Vos réponses sont conservées · réessayez."
+          }
+        }
+      }
+    },
+    "baseline.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement…"
+          }
+        }
+      }
+    },
+    "baseline.sex": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biological sex"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sexe biologique"
+          }
+        }
+      }
+    },
+    "baseline.sex.helper": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used to estimate your energy requirements."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sert à estimer vos besoins énergétiques."
+          }
+        }
+      }
+    },
+    "baseline.weight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids actuel"
+          }
+        }
+      }
+    },
+    "baseline.weight.invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a weight between 30 and 300 kg."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indiquez un poids entre 30 et 300 kg."
+          }
+        }
+      }
+    },
+    "baseline.years": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "years"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ans"
           }
         }
       }
@@ -606,6 +1454,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vous avez dit"
+          }
+        }
+      }
+    },
+    "careplan.fallbackTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Care plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan de soins"
+          }
+        }
+      }
+    },
+    "careplan.goals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs"
+          }
+        }
+      }
+    },
+    "careplan.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading your plan…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement de votre plan…"
+          }
+        }
+      }
+    },
+    "careplan.practitioner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre praticienne"
+          }
+        }
+      }
+    },
+    "careplan.started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Started %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Débuté en %@"
+          }
+        }
+      }
+    },
+    "careplan.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Care Plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon plan de soins"
+          }
+        }
+      }
+    },
+    "careplan.updateNote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Care plan is updated after each appointment by your practitioner."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le plan de soins est mis à jour après chaque consultation par votre praticienne."
+          }
+        }
+      }
+    },
+    "careplan.waiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your personalised care plan appears here once your practitioner publishes it after your call."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre plan de soins personnalisé apparaît ici dès que votre praticienne le publie après votre consultation."
           }
         }
       }
@@ -1522,6 +2498,742 @@
         }
       }
     },
+    "complaint.bloating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloating"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ballonnements"
+          }
+        }
+      }
+    },
+    "complaint.brain_fog": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brain fog"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brouillard mental"
+          }
+        }
+      }
+    },
+    "complaint.digestive_issues": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestive issues"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Troubles digestifs"
+          }
+        }
+      }
+    },
+    "complaint.fatigue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatigue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatigue"
+          }
+        }
+      }
+    },
+    "complaint.low_energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manque d’énergie"
+          }
+        }
+      }
+    },
+    "complaint.poor_sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poor sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mauvais sommeil"
+          }
+        }
+      }
+    },
+    "complaint.skin_issues": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skin issues"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problèmes de peau"
+          }
+        }
+      }
+    },
+    "complaint.weight_gain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight gain"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prise de poids"
+          }
+        }
+      }
+    },
+    "consents.accepted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepté"
+          }
+        }
+      }
+    },
+    "consents.confirm.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing your health data is what FunctionAlps is, so withdrawing switches the app off until you give it again. That is a consequence, not a penalty.\n\nYour data is not deleted by withdrawing. You can consent again and pick up where you left off, or delete your account to erase everything. If you want a copy first, export your data before you do either."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le traitement de vos données de santé est ce en quoi consiste FunctionAlps : le retrait désactive donc l’application jusqu’à ce que vous consentiez à nouveau. C’est une conséquence, et non une sanction.\n\nLe retrait ne supprime pas vos données. Vous pouvez consentir à nouveau et reprendre où vous en étiez, ou supprimer votre compte pour tout effacer. Si vous souhaitez une copie, exportez vos données au préalable."
+          }
+        }
+      }
+    },
+    "consents.confirm.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Withdraw and disable the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer et désactiver l’application"
+          }
+        }
+      }
+    },
+    "consents.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Withdraw this consent?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer ce consentement ?"
+          }
+        }
+      }
+    },
+    "consents.core": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required to use the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requis pour utiliser l’application"
+          }
+        }
+      }
+    },
+    "consents.empty.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These documents are still with our lawyers, so nothing has been recorded against your account. This page will list your consents once they are live."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces documents sont encore chez nos juristes : rien n’a donc été enregistré pour votre compte. Cette page listera vos consentements dès qu’ils seront en vigueur."
+          }
+        }
+      }
+    },
+    "consents.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to manage yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à gérer pour l’instant"
+          }
+        }
+      }
+    },
+    "consents.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every change is recorded with the date and the exact wording in force, so both of us can establish later what was agreed. Questions: data@functionalps.ch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque modification est enregistrée avec sa date et le texte exact alors en vigueur, afin que chacun puisse établir ultérieurement ce qui a été convenu. Questions : data@functionalps.ch"
+          }
+        }
+      }
+    },
+    "consents.grant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer"
+          }
+        }
+      }
+    },
+    "consents.heading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your consents"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos consentements"
+          }
+        }
+      }
+    },
+    "consents.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you agreed to, and what you can change. Turning something off takes effect immediately and never affects what was lawful while it was on."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous avez accepté, et ce que vous pouvez modifier. Désactiver une option prend effet immédiatement et n’affecte jamais la licéité de ce qui a été fait auparavant."
+          }
+        }
+      }
+    },
+    "consents.loadError": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t load your consents. Check your connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger vos consentements. Vérifiez votre connexion et réessayez."
+          }
+        }
+      }
+    },
+    "consents.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Terms are an agreement, not a consent, so there is nothing here to withdraw. If you no longer accept them, stop using the app and delete your account."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les Conditions sont un accord et non un consentement : il n’y a donc rien à retirer ici. Si vous ne les acceptez plus, cessez d’utiliser l’application et supprimez votre compte."
+          }
+        }
+      }
+    },
+    "consents.notAccepted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not accepted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non accepté"
+          }
+        }
+      }
+    },
+    "consents.notices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For information — nothing to agree to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour information — rien à accepter"
+          }
+        }
+      }
+    },
+    "consents.optional": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional — change these freely"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facultatif — modifiable librement"
+          }
+        }
+      }
+    },
+    "consents.preview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview build: this wording is still in legal review, so changes here are not recorded."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version d’aperçu : ce texte est encore en cours d’examen juridique, vos modifications ne sont donc pas enregistrées."
+          }
+        }
+      }
+    },
+    "consents.saveError": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t save that change. Nothing was altered — check your connection and try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu enregistrer ce changement. Rien n’a été modifié — vérifiez votre connexion et réessayez."
+          }
+        }
+      }
+    },
+    "consents.withdraw": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Withdraw"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer"
+          }
+        }
+      }
+    },
+    "data.assessments": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assessments"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaires"
+          }
+        }
+      }
+    },
+    "data.checkinEvents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in events"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événements de bilan"
+          }
+        }
+      }
+    },
+    "data.checkins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilans"
+          }
+        }
+      }
+    },
+    "data.consents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consents"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentements"
+          }
+        }
+      }
+    },
+    "data.diet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dietary pattern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régime alimentaire"
+          }
+        }
+      }
+    },
+    "data.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a read-only view of your stored data.\nTo request deletion, visit Privacy & data settings."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceci est une vue en lecture seule de vos données.\nPour demander une suppression, ouvrez Confidentialité et données."
+          }
+        }
+      }
+    },
+    "data.goals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs"
+          }
+        }
+      }
+    },
+    "data.hold": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we hold"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous détenons"
+          }
+        }
+      }
+    },
+    "data.mealReactions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal reactions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réactions aux repas"
+          }
+        }
+      }
+    },
+    "data.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas"
+          }
+        }
+      }
+    },
+    "data.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prénom"
+          }
+        }
+      }
+    },
+    "data.none.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Once you start logging meals and check-ins,\nyour data will appear here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dès que vous enregistrez des repas et des bilans,\nvos données apparaîtront ici."
+          }
+        }
+      }
+    },
+    "data.none.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No data yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de données"
+          }
+        }
+      }
+    },
+    "data.patterns": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patterns"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendances"
+          }
+        }
+      }
+    },
+    "data.profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        }
+      }
+    },
+    "data.recentMeals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas récents"
+          }
+        }
+      }
+    },
+    "data.reports": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reports"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapports"
+          }
+        }
+      }
+    },
+    "data.sex": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sex"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sexe"
+          }
+        }
+      }
+    },
+    "data.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données"
+          }
+        }
+      }
+    },
     "day.today": {
       "localizations": {
         "en": {
@@ -1550,6 +3262,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hier"
+          }
+        }
+      }
+    },
+    "delete.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete permanently"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer définitivement"
+          }
+        }
+      }
+    },
+    "delete.erased.checkins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily and gut check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilans quotidiens et intestinaux"
+          }
+        }
+      }
+    },
+    "delete.erased.consents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consents & preferences"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consentements et préférences"
+          }
+        }
+      }
+    },
+    "delete.erased.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All logged meals, photos & scores"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les repas, photos et scores"
+          }
+        }
+      }
+    },
+    "delete.erased.profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your profile & goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil et vos objectifs"
+          }
+        }
+      }
+    },
+    "delete.erased.reports": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI reports & insights"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapports et analyses IA"
+          }
+        }
+      }
+    },
+    "delete.exportFirst": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Want a copy first? Export your data from Privacy & data before deleting."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous voulez une copie ? Exportez vos données depuis Confidentialité et données avant de supprimer."
+          }
+        }
+      }
+    },
+    "delete.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletion did not complete. Please try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La suppression n’a pas abouti. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "delete.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This permanently erases everything below from FunctionAlps servers. It cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela efface définitivement tout ce qui suit des serveurs FunctionAlps. C’est irréversible."
+          }
+        }
+      }
+    },
+    "delete.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete your account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer votre compte"
+          }
+        }
+      }
+    },
+    "delete.toConfirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " to confirm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " pour confirmer"
+          }
+        }
+      }
+    },
+    "delete.type": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tapez "
           }
         }
       }
@@ -1758,6 +3662,598 @@
           "stringUnit": {
             "state": "translated",
             "value": "Veuillez vérifier votre saisie."
+          }
+        }
+      }
+    },
+    "faq.account.a1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact your FunctionAlps practitioner or email contact@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contactez votre praticienne FunctionAlps ou écrivez à contact@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
+          }
+        }
+      }
+    },
+    "faq.account.a2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes. Go to Profile > Settings > Privacy & data > Export my data. You get a complete copy as JSON."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oui. Allez dans Profil > Paramètres > Confidentialité et données > Exporter mes données. Vous obtenez une copie complète au format JSON."
+          }
+        }
+      }
+    },
+    "faq.account.a3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to Profile > Settings > Privacy & data > Delete my account. This permanently erases all your data within 30 days. This action cannot be undone. Your practitioner will be notified."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allez dans Profil > Paramètres > Confidentialité et données > Supprimer mon compte. Cela efface définitivement toutes vos données sous 30 jours. Cette action est irréversible. Votre praticienne en est informée."
+          }
+        }
+      }
+    },
+    "faq.account.a4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes. FunctionAlps is registered in Switzerland and your data is stored on EU-compliant servers. We comply with the Swiss Federal Act on Data Protection (nFADP) and GDPR."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oui. FunctionAlps est enregistrée en Suisse et vos données sont hébergées sur des serveurs conformes au droit européen. Nous respectons la nLPD suisse et le RGPD."
+          }
+        }
+      }
+    },
+    "faq.account.q1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I update my personal information?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment mettre à jour mes informations personnelles ?"
+          }
+        }
+      }
+    },
+    "faq.account.q2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can I export my data?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puis-je exporter mes données ?"
+          }
+        }
+      }
+    },
+    "faq.account.q3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I delete my account?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment supprimer mon compte ?"
+          }
+        }
+      }
+    },
+    "faq.account.q4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is my data stored in Switzerland?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mes données sont-elles stockées en Suisse ?"
+          }
+        }
+      }
+    },
+    "faq.account.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account & data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compte et données"
+          }
+        }
+      }
+    },
+    "faq.app.a1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Food tab at the bottom of the screen. You can take a photo of your meal to have it analysed automatically, or describe it by voice or in writing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez l’onglet Alimentation en bas de l’écran. Prenez une photo de votre repas pour qu’il soit analysé automatiquement, ou décrivez-le à la voix ou par écrit."
+          }
+        }
+      }
+    },
+    "faq.app.a2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each morning you will see a check-in prompt on the Home tab. It takes about 30 seconds and tracks your energy, digestion, mood, and sleep quality. This data feeds directly into your progress graphs and helps your nutritionist adjust your plan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque matin, un bilan vous est proposé sur l’onglet Accueil. Il prend environ 30 secondes et suit votre énergie, votre digestion, votre humeur et la qualité de votre sommeil. Ces réponses alimentent vos graphiques et aident votre nutritionniste à ajuster votre plan."
+          }
+        }
+      }
+    },
+    "faq.app.a3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can browse most screens offline. Meal photo analysis and syncing require an internet connection."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez parcourir la plupart des écrans hors ligne. L’analyse des photos de repas et la synchronisation nécessitent une connexion internet."
+          }
+        }
+      }
+    },
+    "faq.app.q1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do I log a meal?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment enregistrer un repas ?"
+          }
+        }
+      }
+    },
+    "faq.app.q2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How does the daily check-in work?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment fonctionne le bilan quotidien ?"
+          }
+        }
+      }
+    },
+    "faq.app.q3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can I use the app offline?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puis-je utiliser l’application hors ligne ?"
+          }
+        }
+      }
+    },
+    "faq.app.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Using the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisation de l’application"
+          }
+        }
+      }
+    },
+    "faq.nutrition.a1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your targets are based on your weight, height, age, activity level, and health goals · adjusted for your goal (maintain, lose, gain, performance). Your nutritionist can override these at any time."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos cibles reposent sur votre poids, votre taille, votre âge, votre niveau d’activité et vos objectifs de santé · ajustées selon votre objectif (maintien, perte, prise, performance). Votre nutritionniste peut les modifier à tout moment."
+          }
+        }
+      }
+    },
+    "faq.nutrition.a2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI meal analysis is an estimate, not a lab measurement. For packaged foods, try photographing the nutrition label directly for higher accuracy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’analyse IA d’un repas est une estimation, pas une mesure de laboratoire. Pour les produits emballés, photographiez directement l’étiquette nutritionnelle pour plus de précision."
+          }
+        }
+      }
+    },
+    "faq.nutrition.a3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The score (0-100) reflects how well your meal supports your specific health goals · it considers inflammation markers, energy quality, gut health, and digestibility. It is not a simple calorie or \"healthiness\" score."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le score (0-100) reflète à quel point votre repas soutient vos objectifs de santé · il tient compte des marqueurs inflammatoires, de la qualité énergétique, de la santé intestinale et de la digestibilité. Ce n’est pas un simple score de calories ou de « santé »."
+          }
+        }
+      }
+    },
+    "faq.nutrition.a4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can scroll back through your log indefinitely. The progress charts show rolling 7-day and 30-day averages."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez remonter votre journal sans limite. Les graphiques de progression montrent des moyennes glissantes sur 7 et 30 jours."
+          }
+        }
+      }
+    },
+    "faq.nutrition.q1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How are my macro targets calculated?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment mes cibles de macros sont-elles calculées ?"
+          }
+        }
+      }
+    },
+    "faq.nutrition.q2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why does the AI analysis sometimes look wrong?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi l’analyse IA semble-t-elle parfois fausse ?"
+          }
+        }
+      }
+    },
+    "faq.nutrition.q3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What does the nutrition score mean?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que signifie le score nutritionnel ?"
+          }
+        }
+      }
+    },
+    "faq.nutrition.q4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How far back can I see my food history?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jusqu’où puis-je remonter dans mon historique ?"
+          }
+        }
+      }
+    },
+    "faq.nutrition.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition & tracking"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition et suivi"
+          }
+        }
+      }
+    },
+    "feedback.again": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write something else"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire autre chose"
+          }
+        }
+      }
+    },
+    "feedback.clinical.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That goes to your nutritionist instead. Tap here to message her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela s’adresse à votre nutritionniste. Touchez ici pour lui écrire."
+          }
+        }
+      }
+    },
+    "feedback.clinical.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Question about your health or your plan?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une question sur votre santé ou votre plan ?"
+          }
+        }
+      }
+    },
+    "feedback.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please write something first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrivez d’abord quelque chose."
+          }
+        }
+      }
+    },
+    "feedback.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That did not send. Please try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’envoi n’a pas abouti. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "feedback.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is confusing, what is slow, what is missing, what you wish it did. Anything at all about using the app. It helps us more than you would think, and small remarks are often the most useful ones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui est confus, ce qui est lent, ce qui manque, ce que vous aimeriez qu’elle fasse. Tout ce qui concerne l’utilisation de l’application. Cela nous aide plus que vous ne le pensez, et les petites remarques sont souvent les plus utiles."
+          }
+        }
+      }
+    },
+    "feedback.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is on your mind?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu’avez-vous en tête ?"
+          }
+        }
+      }
+    },
+    "feedback.send": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send feedback"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        }
+      }
+    },
+    "feedback.sending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoi..."
+          }
+        }
+      }
+    },
+    "feedback.thanks.body1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A real person reads every one of these. We will go through what you wrote and come back to you about it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une vraie personne lit chacun de ces messages. Nous relirons ce que vous avez écrit et reviendrons vers vous."
+          }
+        }
+      }
+    },
+    "feedback.thanks.body2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is genuinely how the app gets better, so thank you for taking the time."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est vraiment ainsi que l’application s’améliore, alors merci d’avoir pris le temps."
+          }
+        }
+      }
+    },
+    "feedback.thanks.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci"
           }
         }
       }
@@ -2722,6 +5218,1574 @@
         }
       }
     },
+    "guide.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every screen explained in plain language. Read the first three and you will understand the whole thing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque écran expliqué en langage simple. Lisez les trois premiers et vous aurez tout compris."
+          }
+        }
+      }
+    },
+    "guide.notFound": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That page of the guide could not be found. Head back and pick another."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette page du guide est introuvable. Revenez en arrière et choisissez-en une autre."
+          }
+        }
+      }
+    },
+    "guide.openScreen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open this screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir cet écran"
+          }
+        }
+      }
+    },
+    "guide.startHere": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencez ici"
+          }
+        }
+      }
+    },
+    "guide.stillStuck": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still stuck? Help & FAQ"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toujours bloqué·e ? Aide et FAQ"
+          }
+        }
+      }
+    },
+    "guide.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "help.checkins.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This screen holds both daily check-ins and shows how they have been going. Each card is a summary and a door at the same time · tap one to do that check-in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet écran regroupe les deux bilans quotidiens et montre leur évolution. Chaque carte est à la fois un résumé et une porte · touchez-en une pour faire ce bilan."
+          }
+        }
+      }
+    },
+    "help.checkins.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can come back and edit today’s answers · saving again just updates them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous pouvez revenir modifier les réponses du jour · enregistrer à nouveau les met simplement à jour."
+          }
+        }
+      }
+    },
+    "help.checkins.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "two short sets of questions, once a day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "deux courtes séries de questions, une fois par jour"
+          }
+        }
+      }
+    },
+    "help.checkins.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide each one to roughly where you are, tap what fits. One minute, no right answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glissez chaque curseur à peu près là où vous en êtes, touchez ce qui correspond. Une minute, pas de bonne réponse."
+          }
+        }
+      }
+    },
+    "help.checkins.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How you actually felt · energy, sleep, mood, digestion. The one thing no device can report for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous avez réellement ressenti · énergie, sommeil, humeur, digestion. La seule chose qu’aucun appareil ne peut rapporter à votre place."
+          }
+        }
+      }
+    },
+    "help.checkins.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These carry more weight in your scores than any device. They are how the app learns what normal feels like for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces réponses pèsent plus dans vos scores que n’importe quel appareil. C’est ainsi que l’application apprend ce qui est normal pour vous."
+          }
+        }
+      }
+    },
+    "help.checkins.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bilans"
+          }
+        }
+      }
+    },
+    "help.confirm.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Here is what the app thinks you ate. It has already been saved to your day, so nothing is lost if you close this. Look it over and fix anything that is off."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voici ce que l’application pense que vous avez mangé. C’est déjà enregistré dans votre journée, rien n’est perdu si vous fermez. Relisez et corrigez ce qui ne va pas."
+          }
+        }
+      }
+    },
+    "help.confirm.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is an estimate, not a lab measurement. Close enough is close enough."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est une estimation, pas une mesure de laboratoire. À peu près, c’est suffisant."
+          }
+        }
+      }
+    },
+    "help.confirm.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the app’s best guess · your call"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la meilleure estimation de l’application · à vous de voir"
+          }
+        }
+      }
+    },
+    "help.confirm.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look it over, fix anything that’s off. It’s already saved · nothing is lost if you close."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relisez, corrigez ce qui ne va pas. C’est déjà enregistré · rien n’est perdu si vous fermez."
+          }
+        }
+      }
+    },
+    "help.confirm.p2.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The little symbols"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les petits symboles"
+          }
+        }
+      }
+    },
+    "help.confirm.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quick read on each food · fibre, added sugar and friends. Tap one to see what it means."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un aperçu rapide de chaque aliment · fibres, sucres ajoutés et compagnie. Touchez-en un pour savoir ce qu’il signifie."
+          }
+        }
+      }
+    },
+    "help.confirm.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every correction teaches the app your foods · next time it gets them right on its own."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque correction apprend vos aliments à l’application · la prochaine fois, elle les reconnaît seule."
+          }
+        }
+      }
+    },
+    "help.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier le repas"
+          }
+        }
+      }
+    },
+    "help.felt.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A blood test tells you where you were on one particular morning. A watch tells you what your body did while you slept. Both are useful. Neither one knows how you actually felt on Tuesday · and that is usually the thing that tells you whether something is working."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une analyse de sang dit où vous en étiez un matin donné. Une montre dit ce que votre corps a fait pendant votre sommeil. Les deux sont utiles. Aucune ne sait comment vous vous sentiez vraiment mardi · et c’est souvent ce qui dit si quelque chose fonctionne."
+          }
+        }
+      }
+    },
+    "help.felt.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is why your own check-ins carry more weight in your scores than any device does."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est pourquoi vos propres bilans pèsent plus dans vos scores que n’importe quel appareil."
+          }
+        }
+      }
+    },
+    "help.felt.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "why we ask how you feel, not just what your watch says"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pourquoi nous demandons comment vous vous sentez, pas seulement ce que dit votre montre"
+          }
+        }
+      }
+    },
+    "help.felt.p1.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How you feel is real information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous ressentez est une vraie information"
+          }
+        }
+      }
+    },
+    "help.felt.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy, digestion, mood, sleep. You are the only one who can report these, and they shift long before a lab marker does."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie, digestion, humeur, sommeil. Vous seul·e pouvez les rapporter, et ils bougent bien avant un marqueur de laboratoire."
+          }
+        }
+      }
+    },
+    "help.felt.p2.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The point is noticing the link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’important, c’est de voir le lien"
+          }
+        }
+      }
+    },
+    "help.felt.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late dinner, rough sleep. Skipped the walk, flat afternoon. The app lines these up so the pattern shows itself."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dîner tardif, nuit agitée. Marche sautée, après-midi plat. L’application aligne tout cela pour que le schéma apparaisse."
+          }
+        }
+      }
+    },
+    "help.felt.p3.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Together they beat either alone"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ensemble, ils valent plus que chacun seul"
+          }
+        }
+      }
+    },
+    "help.felt.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When your watch says you slept fine and you felt wrecked, that gap is the interesting part. It is not an error."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand votre montre dit que vous avez bien dormi et que vous vous sentez épuisé·e, cet écart est ce qui est intéressant. Ce n’est pas une erreur."
+          }
+        }
+      }
+    },
+    "help.felt.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your body keeps a record your bloods don’t"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre corps garde une trace que vos analyses n’ont pas"
+          }
+        }
+      }
+    },
+    "help.food.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log a meal here and the app works out roughly what was in it. You do not need to weigh anything or look up numbers · a photo is enough, and you can correct it afterwards."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrez un repas ici et l’application estime ce qu’il contenait. Rien à peser, rien à chercher · une photo suffit, et vous pouvez corriger ensuite."
+          }
+        }
+      }
+    },
+    "help.food.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rough is fine. An approximate meal logged beats a perfect one skipped."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approximatif, c’est bien. Un repas approximatif enregistré vaut mieux qu’un repas parfait oublié."
+          }
+        }
+      }
+    },
+    "help.food.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "what a finished read looks like"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "à quoi ressemble une lecture terminée"
+          }
+        }
+      }
+    },
+    "help.food.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The foods on your plate and roughly how much of each. Shoot from above, whole plate in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les aliments dans votre assiette et, à peu près, la quantité de chacun. Photographiez d’en haut, l’assiette entière."
+          }
+        }
+      }
+    },
+    "help.food.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each food becomes calories, protein, carbs and fat · your day’s totals update on their own."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque aliment devient calories, protéines, glucides et lipides · vos totaux du jour se mettent à jour seuls."
+          }
+        }
+      }
+    },
+    "help.food.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meals and your check-ins side by side is how the meals that don’t agree with you show themselves."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos repas et vos bilans côte à côte, c’est ainsi que les repas qui ne vous conviennent pas se révèlent."
+          }
+        }
+      }
+    },
+    "help.food.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your plate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire votre assiette"
+          }
+        }
+      }
+    },
+    "help.group.around": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Around the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autour de l’application"
+          }
+        }
+      }
+    },
+    "help.group.around.blurb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home, Trends, Food and Library · what each one is for."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accueil, Tendances, Alimentation et Bibliothèque · à quoi sert chacun."
+          }
+        }
+      }
+    },
+    "help.group.checkins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your daily check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bilans quotidiens"
+          }
+        }
+      }
+    },
+    "help.group.checkins.blurb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two-minute habit everything else is built on."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’habitude de deux minutes sur laquelle tout le reste repose."
+          }
+        }
+      }
+    },
+    "help.group.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logging your food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer vos repas"
+          }
+        }
+      }
+    },
+    "help.group.food.blurb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo to plate to pattern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De la photo à l’assiette, puis au schéma."
+          }
+        }
+      }
+    },
+    "help.group.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencez ici"
+          }
+        }
+      }
+    },
+    "help.group.start.blurb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What this app is, and why the small stuff matters."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qu’est cette application, et pourquoi les petits détails comptent."
+          }
+        }
+      }
+    },
+    "help.home.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first thing you see. It is a summary rather than a to-do list · the big number tells you roughly where you are, and everything under it is a shortcut to whatever you would want next."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La première chose que vous voyez. Un résumé plutôt qu’une liste de tâches · le grand chiffre dit à peu près où vous en êtes, et tout ce qui est en dessous est un raccourci vers la suite."
+          }
+        }
+      }
+    },
+    "help.home.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dashes just mean nothing is logged yet. It fills in as you go."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les tirets signifient simplement que rien n’est encore enregistré. Ça se remplit au fil du temps."
+          }
+        }
+      }
+    },
+    "help.home.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your day, at a glance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "votre journée, en un coup d’œil"
+          }
+        }
+      }
+    },
+    "help.home.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tick today’s actions as you go · they build your day’s picture too."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cochez les actions du jour au fur et à mesure · elles construisent aussi le tableau de votre journée."
+          }
+        }
+      }
+    },
+    "help.home.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The small daily things you and your practitioner agreed on, and the score they feed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les petites choses du quotidien convenues avec votre praticienne, et le score qu’elles alimentent."
+          }
+        }
+      }
+    },
+    "help.home.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doing beats reading · today’s two or three actions come before any number."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agir vaut mieux que lire · les deux ou trois actions du jour passent avant n’importe quel chiffre."
+          }
+        }
+      }
+    },
+    "help.home.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accueil"
+          }
+        }
+      }
+    },
+    "help.library.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two things live here: the reports the app writes from what you have logged, and material to read. The reading is chosen for your situation rather than for everyone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux choses vivent ici : les rapports que l’application écrit à partir de ce que vous avez enregistré, et des lectures. Les lectures sont choisies pour votre situation, pas pour tout le monde."
+          }
+        }
+      }
+    },
+    "help.library.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your reports and your reading"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vos rapports et vos lectures"
+          }
+        }
+      }
+    },
+    "help.library.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the card at the top for your reports; browse the rest when you’re curious."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez la carte du haut pour vos rapports ; parcourez le reste quand vous êtes curieux·se."
+          }
+        }
+      }
+    },
+    "help.library.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write-ups built from what you logged, and reading your practitioner picked for your situation · not for everyone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des synthèses construites à partir de ce que vous avez enregistré, et des lectures choisies par votre praticienne pour votre situation · pas pour tout le monde."
+          }
+        }
+      }
+    },
+    "help.library.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catch up on a week you weren’t paying attention to, in two minutes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rattrapez en deux minutes une semaine à laquelle vous n’avez pas prêté attention."
+          }
+        }
+      }
+    },
+    "help.library.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
+          }
+        }
+      }
+    },
+    "help.noResults": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results for \"%@\""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun résultat pour « %@ »"
+          }
+        }
+      }
+    },
+    "help.overview.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is where your everyday life and your practitioner’s work meet. You log a few simple things · how you feel, and what you ate. The app turns that into a picture the two of you can look at together, so your appointments start from what actually happened rather than from what you can remember."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est là que votre vie quotidienne et le travail de votre praticienne se rejoignent. Vous notez quelques choses simples · comment vous vous sentez, et ce que vous avez mangé. L’application en fait une image que vous pouvez regarder ensemble, pour que vos rendez-vous partent de ce qui s’est vraiment passé plutôt que de vos souvenirs."
+          }
+        }
+      }
+    },
+    "help.overview.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If something about your health worries you, message your practitioner rather than waiting for a number to change."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si quelque chose vous inquiète dans votre santé, écrivez à votre praticienne plutôt que d’attendre qu’un chiffre change."
+          }
+        }
+      }
+    },
+    "help.overview.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the short version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la version courte"
+          }
+        }
+      }
+    },
+    "help.overview.p1.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you do"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous faites"
+          }
+        }
+      }
+    },
+    "help.overview.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A thirty-second check-in most days, and a photo of your meals when you can manage it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bilan de trente secondes la plupart des jours, et une photo de vos repas quand vous le pouvez."
+          }
+        }
+      }
+    },
+    "help.overview.p2.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you get back"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous obtenez"
+          }
+        }
+      }
+    },
+    "help.overview.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scores that show which way things are heading, and short reports that pull a week together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des scores qui montrent dans quel sens vont les choses, et de courts rapports qui résument une semaine."
+          }
+        }
+      }
+    },
+    "help.overview.p3.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What your practitioner sees"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que voit votre praticienne"
+          }
+        }
+      }
+    },
+    "help.overview.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same picture you do · so they arrive at your call already up to speed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La même image que vous · elle arrive à votre consultation déjà au courant."
+          }
+        }
+      }
+    },
+    "help.overview.p4.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it is not"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que ce n’est pas"
+          }
+        }
+      }
+    },
+    "help.overview.p4.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It does not diagnose anything, and it does not replace your practitioner. It is the record you build between visits."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle ne diagnostique rien et ne remplace pas votre praticienne. C’est le carnet que vous construisez entre deux visites."
+          }
+        }
+      }
+    },
+    "help.overview.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What this app is for"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quoi sert cette application"
+          }
+        }
+      }
+    },
+    "help.point.howItHelps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it helps you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En quoi cela vous aide"
+          }
+        }
+      }
+    },
+    "help.point.howWeUseIt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How we use it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment nous l’utilisons"
+          }
+        }
+      }
+    },
+    "help.point.whatToDo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What to do"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que faire"
+          }
+        }
+      }
+    },
+    "help.point.whatWeLookAt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we look at"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous regardons"
+          }
+        }
+      }
+    },
+    "help.point.whatYouSee": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you’re seeing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que vous voyez"
+          }
+        }
+      }
+    },
+    "help.search": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search questions..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher une question..."
+          }
+        }
+      }
+    },
+    "help.stillNeed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still need help?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encore besoin d’aide ?"
+          }
+        }
+      }
+    },
+    "help.stillNeed.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a message to your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyez un message à votre nutritionniste"
+          }
+        }
+      }
+    },
+    "help.trends.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you log · your check-ins, your meals · rolls up into one score. It is here so you can see whether things are moving in the right direction without having to read charts."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ce que vous enregistrez · vos bilans, vos repas · se résume en un score. Il est là pour voir si les choses vont dans le bon sens sans lire de graphiques."
+          }
+        }
+      }
+    },
+    "help.trends.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your progress, in one number"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vos progrès, en un chiffre"
+          }
+        }
+      }
+    },
+    "help.trends.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap any of the three parts to see exactly what moved it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez l’une des trois parties pour voir exactement ce qui l’a fait bouger."
+          }
+        }
+      }
+    },
+    "help.trends.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything you log, rolled into one score · your own check-ins first, your device second."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ce que vous enregistrez, regroupé en un score · vos propres bilans d’abord, votre appareil ensuite."
+          }
+        }
+      }
+    },
+    "help.trends.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You see direction, not noise. A low day is information, not a failure · and your practitioner sees this same view."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous voyez une direction, pas du bruit. Un jour bas est une information, pas un échec · et votre praticienne voit la même vue."
+          }
+        }
+      }
+    },
+    "help.trends.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trends"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendances"
+          }
+        }
+      }
+    },
+    "help.why.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is the least impressive-looking part of the app, and it is the part that makes everything else about you. On day one the app only knows what was on your intake form · it can be helpful, but it is being helpful in general. After two weeks of check-ins and meals it knows your afternoons dip, that bread sits badly with you, that you sleep better on days you walk. Now it is being helpful about you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est la partie la moins impressionnante de l’application, et c’est celle qui rend tout le reste à votre image. Le premier jour, l’application ne connaît que votre formulaire d’accueil · elle peut aider, mais en général. Après deux semaines de bilans et de repas, elle sait que vos après-midi creusent, que le pain passe mal, que vous dormez mieux les jours où vous marchez. Là, elle vous aide vous."
+          }
+        }
+      }
+    },
+    "help.why.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The more of your ordinary days it sees, the more the advice fits your life rather than an average one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus elle voit vos journées ordinaires, plus les conseils collent à votre vie plutôt qu’à une moyenne."
+          }
+        }
+      }
+    },
+    "help.why.lede": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "thirty seconds a day, and what it buys you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trente secondes par jour, et ce que cela vous apporte"
+          }
+        }
+      }
+    },
+    "help.why.p1.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is wasted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’est perdu"
+          }
+        }
+      }
+    },
+    "help.why.p1.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every check-in, every meal, every \"that one felt rough\" makes the next thing you see sharper."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque bilan, chaque repas, chaque « celui-là est mal passé » rend la suite plus précise."
+          }
+        }
+      }
+    },
+    "help.why.p2.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An off day helps too"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un jour sans aide aussi"
+          }
+        }
+      }
+    },
+    "help.why.p2.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A rough week is not a hole in your record. It is often the most useful week in it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une semaine difficile n’est pas un trou dans votre carnet. C’est souvent la plus utile."
+          }
+        }
+      }
+    },
+    "help.why.p3.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner reads it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre praticienne le lit"
+          }
+        }
+      }
+    },
+    "help.why.p3.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They come to your call already knowing how your month went, so you can spend the call on what to do next."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle arrive à votre consultation en sachant déjà comment s’est passé votre mois, et vous pouvez consacrer le temps à la suite."
+          }
+        }
+      }
+    },
+    "help.why.p4.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are allowed to be quick"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez le droit d’aller vite"
+          }
+        }
+      }
+    },
+    "help.why.p4.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rough and honest beats precise and skipped. A slider roughly in the right place is plenty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approximatif et honnête vaut mieux que précis et sauté. Un curseur à peu près au bon endroit suffit largement."
+          }
+        }
+      }
+    },
+    "help.why.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why the small stuff you type matters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi les petites choses que vous notez comptent"
+          }
+        }
+      }
+    },
     "home.checkIn": {
       "localizations": {
         "en": {
@@ -3166,6 +7230,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aujourd'hui"
+          }
+        }
+      }
+    },
+    "legal.notice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legal Notice"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentions légales"
+          }
+        }
+      }
+    },
+    "legal.privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "legal.terms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conditions"
+          }
+        }
+      }
+    },
+    "legal.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This document couldn't be loaded right now. Check your connection and try again, or write to data@functionalps.ch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce document n’a pas pu être chargé. Vérifiez votre connexion et réessayez, ou écrivez à data@functionalps.ch."
+          }
+        }
+      }
+    },
+    "legal.version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
           }
         }
       }
@@ -4290,6 +8434,22 @@
         }
       }
     },
+    "macros.carbohydrates": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrates"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glucides"
+          }
+        }
+      }
+    },
     "macros.carbs": {
       "localizations": {
         "en": {
@@ -4338,6 +8498,38 @@
         }
       }
     },
+    "macros.fats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lipides"
+          }
+        }
+      }
+    },
+    "macros.fibres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibres"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibres"
+          }
+        }
+      }
+    },
     "macros.kcal": {
       "localizations": {
         "en": {
@@ -4376,6 +8568,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Protein"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protéines"
+          }
+        }
+      }
+    },
+    "macros.proteins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proteins"
           }
         },
         "fr": {
@@ -5182,6 +9390,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "Client"
+          }
+        }
+      }
+    },
+    "messages.about": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos de : %@"
+          }
+        }
+      }
+    },
+    "messages.context.meal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A meal you logged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un repas que vous avez enregistré"
+          }
+        }
+      }
+    },
+    "messages.day.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd’hui"
+          }
+        }
+      }
+    },
+    "messages.day.yesterday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hier"
+          }
+        }
+      }
+    },
+    "messages.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message cannot be empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le message ne peut pas être vide."
+          }
+        }
+      }
+    },
+    "messages.empty.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask about a meal, how you felt after eating, your check-ins · anything.\n\nYour nutritionist reads every message and replies personally."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posez une question sur un repas, sur ce que vous avez ressenti après avoir mangé, sur vos bilans · n’importe quoi.\n\nVotre nutritionniste lit chaque message et répond personnellement."
+          }
+        }
+      }
+    },
+    "messages.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That did not send. Please try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’envoi n’a pas abouti. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "messages.her": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nutritionniste"
+          }
+        }
+      }
+    },
+    "messages.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write a message…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrivez un message…"
+          }
+        }
+      }
+    },
+    "messages.promise": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct line with your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligne directe avec votre nutritionniste"
+          }
+        }
+      }
+    },
+    "messages.removeContext": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove context"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer le contexte"
+          }
+        }
+      }
+    },
+    "messages.send": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer le message"
           }
         }
       }
@@ -6978,6 +11378,502 @@
         }
       }
     },
+    "privacy.banner.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps is based in Switzerland and complies with the Federal Act on Data Protection (nFADP, revised 2023) and GDPR. Your health data never leaves Swiss or EU-compliant servers."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps est basée en Suisse et respecte la loi fédérale sur la protection des données (nLPD, révisée en 2023) et le RGPD. Vos données de santé ne quittent jamais des serveurs suisses ou conformes au droit européen."
+          }
+        }
+      }
+    },
+    "privacy.banner.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swiss Data Protection (nFADP)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protection des données en Suisse (nLPD)"
+          }
+        }
+      }
+    },
+    "privacy.collect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we collect & why"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous collectons et pourquoi"
+          }
+        }
+      }
+    },
+    "privacy.collect.ai.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data is sent · de-identified, with your name never attached · to Infomaniak's Swiss AI for analysis. It produces observations, not medical advice or diagnosis. AI is required for the app to work · you can manage your consent below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données sont envoyées · dé-identifiées, jamais accompagnées de votre nom · à l’IA suisse d’Infomaniak pour analyse. Elle produit des observations, pas un avis médical ni un diagnostic. L’IA est nécessaire au fonctionnement de l’application · vous pouvez gérer votre consentement ci-dessous."
+          }
+        }
+      }
+    },
+    "privacy.collect.ai.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI analysis"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse par IA"
+          }
+        }
+      }
+    },
+    "privacy.collect.health.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals, check-ins and the symptoms you log. Used only to mirror how your body responds to food · observations, never medical advice."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas, bilans et symptômes que vous notez. Utilisés uniquement pour refléter la façon dont votre corps réagit à l’alimentation · des observations, jamais un avis médical."
+          }
+        }
+      }
+    },
+    "privacy.collect.health.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health & nutrition data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Données de santé et de nutrition"
+          }
+        }
+      }
+    },
+    "privacy.collect.storage.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data is stored encrypted on Supabase (EU data centre). You can request deletion at any time · all your data is erased within 30 days."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos données sont stockées chiffrées sur Supabase (centre de données européen). Vous pouvez demander leur suppression à tout moment · tout est effacé sous 30 jours."
+          }
+        }
+      }
+    },
+    "privacy.collect.storage.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        }
+      }
+    },
+    "privacy.collect.who.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analysis is de-identified · your name is never attached. A wellness reviewer may see anonymised flags; your identity is revealed only with your explicit consent, and every access is logged. Never shared with advertisers or insurers. Ever."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’analyse est dé-identifiée · votre nom n’est jamais attaché. Un·e relecteur·rice bien-être peut voir des signaux anonymisés ; votre identité n’est révélée qu’avec votre consentement explicite, et chaque accès est journalisé. Jamais partagé avec des annonceurs ou des assureurs. Jamais."
+          }
+        }
+      }
+    },
+    "privacy.collect.who.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who sees your data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qui voit vos données"
+          }
+        }
+      }
+    },
+    "privacy.consents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your consents"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos consentements"
+          }
+        }
+      }
+    },
+    "privacy.consents.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review what you agreed to, and withdraw any of it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relisez ce que vous avez accepté, et retirez ce que vous voulez"
+          }
+        }
+      }
+    },
+    "privacy.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete my account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer mon compte"
+          }
+        }
+      }
+    },
+    "privacy.delete.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanently erase all your data. This cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efface définitivement toutes vos données. Irréversible."
+          }
+        }
+      }
+    },
+    "privacy.dpo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact Data Protection Officer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contacter le délégué à la protection des données"
+          }
+        }
+      }
+    },
+    "privacy.export": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export my data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporter mes données"
+          }
+        }
+      }
+    },
+    "privacy.export.busy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing your file…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation de votre fichier…"
+          }
+        }
+      }
+    },
+    "privacy.export.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download a complete copy of your health data as JSON"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargez une copie complète de vos données de santé en JSON"
+          }
+        }
+      }
+    },
+    "privacy.footer.address": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps · Crans-Montana, Valais, Switzerland"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps · Crans-Montana, Valais, Suisse"
+          }
+        }
+      }
+    },
+    "privacy.footer.compliant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nFADP compliant · GDPR compliant"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conforme nLPD · conforme RGPD"
+          }
+        }
+      }
+    },
+    "privacy.retention": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retention"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservation"
+          }
+        }
+      }
+    },
+    "privacy.retention.after": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After account deletion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après la suppression du compte"
+          }
+        }
+      }
+    },
+    "privacy.retention.after.value": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All data erased within 30 days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est effacé sous 30 jours"
+          }
+        }
+      }
+    },
+    "privacy.retention.ai": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI analysis outputs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats d’analyse IA"
+          }
+        }
+      }
+    },
+    "privacy.retention.ai.value": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 months or until you delete"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 mois ou jusqu’à suppression"
+          }
+        }
+      }
+    },
+    "privacy.retention.logs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your logs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos enregistrements"
+          }
+        }
+      }
+    },
+    "privacy.retention.logs.value": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept while your account is active"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservés tant que votre compte est actif"
+          }
+        }
+      }
+    },
+    "privacy.rights": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your rights"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos droits"
+          }
+        }
+      }
+    },
+    "privacy.view": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View my data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consulter mes données"
+          }
+        }
+      }
+    },
+    "privacy.view.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See everything we have stored about you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir tout ce que nous conservons à votre sujet"
+          }
+        }
+      }
+    },
     "profile.activity": {
       "localizations": {
         "en": {
@@ -7006,6 +11902,166 @@
           "stringUnit": {
             "state": "translated",
             "value": "Âge"
+          }
+        }
+      }
+    },
+    "profile.baseline.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age, height, weight and activity. Updating them re-estimates your daily energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âge, taille, poids et activité. Les mettre à jour recalcule votre énergie quotidienne"
+          }
+        }
+      }
+    },
+    "profile.baseline.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baseline & energy compass"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point de départ et boussole énergétique"
+          }
+        }
+      }
+    },
+    "profile.carePlan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your care plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre plan de soins"
+          }
+        }
+      }
+    },
+    "profile.carePlan.addressing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addressing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous traitons"
+          }
+        }
+      }
+    },
+    "profile.carePlan.objectives": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectives"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs"
+          }
+        }
+      }
+    },
+    "profile.carePlan.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View full plan ›"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir le plan complet ›"
+          }
+        }
+      }
+    },
+    "profile.carePlan.since": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · since %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · depuis %@"
+          }
+        }
+      }
+    },
+    "profile.chip.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        }
+      }
+    },
+    "profile.chip.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "profile.chip.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
           }
         }
       }
@@ -7090,6 +12146,54 @@
         }
       }
     },
+    "profile.feedback": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your feedback"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos retours"
+          }
+        }
+      }
+    },
+    "profile.feedback.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is confusing, slow or missing. It helps us a lot, and it goes to the team, not your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui est confus, lent ou manquant. Cela nous aide énormément, et cela va à l’équipe, pas à votre nutritionniste"
+          }
+        }
+      }
+    },
+    "profile.feedback.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us about the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-nous ce que vous pensez de l’application"
+          }
+        }
+      }
+    },
     "profile.goal": {
       "localizations": {
         "en": {
@@ -7134,6 +12238,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Taille"
+          }
+        }
+      }
+    },
+    "profile.learn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En savoir plus"
+          }
+        }
+      }
+    },
+    "profile.learn.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every screen explained, in plain language"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque écran expliqué, en langage simple"
+          }
+        }
+      }
+    },
+    "profile.learn.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How this app works"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment fonctionne l’application"
           }
         }
       }
@@ -7186,6 +12338,22 @@
         }
       }
     },
+    "profile.settingsRow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account & settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compte et paramètres"
+          }
+        }
+      }
+    },
     "profile.signOut": {
       "localizations": {
         "en": {
@@ -7230,6 +12398,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Profil"
+          }
+        }
+      }
+    },
+    "profile.trend": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Functional trend"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendance fonctionnelle"
+          }
+        }
+      }
+    },
+    "profile.trend.down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trending down · %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En baisse · %lld"
+          }
+        }
+      }
+    },
+    "profile.trend.flat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holding steady · %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stable · %lld"
+          }
+        }
+      }
+    },
+    "profile.trend.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No trend yet · log a few days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de tendance · notez quelques jours"
+          }
+        }
+      }
+    },
+    "profile.trend.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Health ›"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Santé ›"
+          }
+        }
+      }
+    },
+    "profile.trend.up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trending up · %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En hausse · %lld"
           }
         }
       }
@@ -7410,18 +12674,34 @@
         }
       }
     },
-    "settings.deleteAccount": {
+    "settings.appearance": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete account"
+            "value": "Appearance"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer le compte"
+            "value": "Apparence"
+          }
+        }
+      }
+    },
+    "settings.deleteAccount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete my account & data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer mon compte et mes données"
           }
         }
       }
@@ -7458,6 +12738,102 @@
         }
       }
     },
+    "settings.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help & FAQ"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aide et FAQ"
+          }
+        }
+      }
+    },
+    "settings.language": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue"
+          }
+        }
+      }
+    },
+    "settings.language.row": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App language"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue de l’application"
+          }
+        }
+      }
+    },
+    "settings.language.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English or French · set in your phone's Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Français ou anglais · se règle dans les Réglages du téléphone"
+          }
+        }
+      }
+    },
+    "settings.messages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        }
+      }
+    },
+    "settings.privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy & data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité et données"
+          }
+        }
+      }
+    },
     "settings.title": {
       "localizations": {
         "en": {
@@ -7486,6 +12862,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version"
+          }
+        }
+      }
+    },
+    "settings.versionLine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps v%@ (%@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps v%@ (%@)"
           }
         }
       }
@@ -9934,6 +15326,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Épuisé"
+          }
+        }
+      }
+    },
+    "wall.cream": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cream"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crème"
+          }
+        }
+      }
+    },
+    "wall.honey": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Honey"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miel"
+          }
+        }
+      }
+    },
+    "wall.mist": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brume"
+          }
+        }
+      }
+    },
+    "wall.sage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauge"
           }
         }
       }

@@ -57,6 +57,23 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func removeFavorite(id: String) async throws {}
     func touchFavorite(id: String) async throws {}
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
+
+    func carePlan(patientId: String) async throws -> CarePlan? { nil }
+    func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
+    func saveBaseline(patientId: String, values: BaselineValues) async throws {}
+    func memberClinicId(userId: String) async throws -> String? { nil }
+    func messages() async throws -> [PatientMessage] { [] }
+    func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
+    func notifyMessage(id: String) async throws {}
+    func markMessagesRead() async throws {}
+    func sendFeedback(message: String, appVersion: String) async throws {}
+    func deleteAccount() async throws {}
+    func consents(locale: String) async throws -> [ConsentItem] { [] }
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws {}
+    func revokeConsent(key: String) async throws {}
+    func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument] { [] }
+    func dataCount(table: String, patientId: String) async throws -> Int { 0 }
+    func dataRows(table: String, patientId: String) async throws -> Data { Data("[]".utf8) }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

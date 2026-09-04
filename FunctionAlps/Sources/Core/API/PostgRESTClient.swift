@@ -74,6 +74,28 @@ struct PostgRESTClient: Sendable {
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
     }
 
+    /// `PATCH … Prefer: return=representation` — the rows the update touched. Zero rows = no row
+    /// matched the filter (RLS or a missing row); the caller decides whether to INSERT.
+    func updateReturning<Body: Encodable & Sendable, Row: Decodable & Sendable>(_ table: String, query: [URLQueryItem], body: Body, snakeCase: Bool = true) async throws -> [Row] {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "return=representation"
+            return try HTTPRequest.json(.patch, url(table, query: query), headers: h, body: body, snakeCase: snakeCase)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        return try JSON.decode([Row].self, from: response.body)
+    }
+
+    /// `GET /rest/v1/{table}?{query}` as the raw JSON array bytes (the data export, which keeps
+    /// every column exactly as CM OS returns it).
+    func selectRaw(_ table: String, query: [URLQueryItem]) async throws -> Data {
+        let response = try await requester.send { token in
+            HTTPRequest(.get, url(table, query: query), headers: headers(token))
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        return response.body
+    }
+
     /// `DELETE /rest/v1/{table}?{filter}` (RLS limits it to the member's own rows).
     func delete(_ table: String, query: [URLQueryItem]) async throws {
         let response = try await requester.send { token in
@@ -150,4 +172,9 @@ enum PG {
         URLQueryItem(name: "order", value: "\(column).\(descending ? "desc" : "asc")")
     }
     static func limit(_ n: Int) -> URLQueryItem { URLQueryItem(name: "limit", value: String(n)) }
+    static func neq(_ column: String, _ value: String) -> URLQueryItem { URLQueryItem(name: column, value: "neq.\(value)") }
+    static func isNull(_ column: String) -> URLQueryItem { URLQueryItem(name: column, value: "is.null") }
+    static func inList(_ column: String, _ values: [String]) -> URLQueryItem { URLQueryItem(name: column, value: "in.(\(values.joined(separator: ",")))") }
+    /// `or=(a.is.null,a.neq.x)` — PostgREST's disjunction filter, written verbatim.
+    static func or(_ expression: String) -> URLQueryItem { URLQueryItem(name: "or", value: "(\(expression))") }
 }

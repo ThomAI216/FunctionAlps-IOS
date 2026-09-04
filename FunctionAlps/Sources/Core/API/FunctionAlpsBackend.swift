@@ -71,6 +71,57 @@ protocol FunctionAlpsBackend: Sendable {
     func touchFavorite(id: String) async throws
     /// Inserts a priced clone of `source` as a new meal logged now; returns its id.
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String
+
+    // MARK: Profile tab
+
+    /// The active `care_plans` row + its member-visible `care_plan_items` (RLS does the filtering);
+    /// nil when nothing is published yet.
+    func carePlan(patientId: String) async throws -> CarePlan?
+    /// `member_entitlements` rows for the access-window strip (fail-open is the SERVICE's job).
+    func entitlements(patientId: String) async throws -> [EntitlementRow]
+    /// The five baseline inputs: UPDATE by `patient_id`, INSERT only when there is no row yet — never an
+    /// upsert (the conflict column is not UPDATE-able for members). The DB trigger recomputes the targets.
+    func saveBaseline(patientId: String, values: BaselineValues) async throws
+
+    // MARK: Messaging (patient_messages)
+
+    /// `patients.clinic_id` for the signed-in account (own-row RLS) — every sent message carries it.
+    func memberClinicId(userId: String) async throws -> String?
+    /// The member's whole thread, oldest first (RLS scopes it; the patient-readable columns only).
+    func messages() async throws -> [PatientMessage]
+    /// Inserts a patient-authored message and returns its id.
+    func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String
+    /// `message-notify` — tells the clinician; fail-soft, the 15-minute sweep re-notifies anyway.
+    func notifyMessage(id: String) async throws
+    /// `member_mark_messages_read()` — stamps every unread clinician message.
+    func markMessagesRead() async throws
+
+    // MARK: Account (feedback · consents · legal · data · deletion)
+
+    /// `member-feedback` — the PRODUCT channel; the tier is stamped server-side.
+    func sendFeedback(message: String, appVersion: String) async throws
+    /// `delete-account` — immediate hard delete; the auth user is gone when this returns.
+    func deleteAccount() async throws
+    /// `member_pending_consents(p_locale, false)` — what to show and what is already accepted.
+    func consents(locale: String) async throws -> [ConsentItem]
+    /// `record_consent_batch` — one transaction for the sitting.
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws
+    /// `revoke_consent(p_consent_key, 'app_privacy')` — refuses contract_core by design.
+    func revokeConsent(key: String) async throws
+    /// The current approved `consent_definitions` rows for these keys in this locale (notices + documents).
+    func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument]
+    /// `count(*)` of the member's rows in one table.
+    func dataCount(table: String, patientId: String) async throws -> Int
+    /// Every column of the member's rows in one table, as the raw JSON array (the export).
+    func dataRows(table: String, patientId: String) async throws -> Data
+}
+
+/// One consent decision in a sitting (`record_consent_batch.p_decisions[]`).
+struct ConsentDecision: Encodable, Sendable, Equatable {
+    let key: String
+    let version: String
+    let granted: Bool
+    let defaultState: Bool
 }
 
 struct PendingMealInput: Sendable, Equatable {

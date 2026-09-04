@@ -21,11 +21,31 @@ enum FAWalls {
     static let sage = WallDef(key: "dd9", baseStart: 0xE7F2E9, baseEnd: 0xBDDAC8, top: .init(hex: 0xFFFFFF, opacity: 0.95), bottom: .init(hex: 0x4A8A5C, opacity: 0.38), dot: .init(hex: 0x2E5438, opacity: 0.22))
     static let cream = WallDef(key: "dd7", baseStart: 0xF7EEDC, baseEnd: 0xE0CFA9, top: .init(hex: 0xFFFFFF, opacity: 0.95), bottom: .init(hex: 0xBFD8C7, opacity: 0.9), dot: .init(hex: 0x2E5438, opacity: 0.24))
     static let mist = WallDef(key: "dd10", baseStart: 0xE6EEF7, baseEnd: 0xBCD0E4, top: .init(hex: 0xFFFFFF, opacity: 0.95), bottom: .init(hex: 0x2B4A6E, opacity: 0.34), dot: .init(hex: 0x2B4A6E, opacity: 0.26))
+    static let honey = WallDef(key: "dd8", baseStart: 0xFAF2E0, baseEnd: 0xE9CF98, top: .init(hex: 0xFFFFFF, opacity: 0.95), bottom: .init(hex: 0xC48B35, opacity: 0.42), dot: .init(hex: 0x2E5438, opacity: 0.22))
+
+    /// The light walls the Appearance picker offers (the dark family needs the dark palette — not ported).
+    static let choices: [WallDef] = [sage, cream, honey, mist]
+    /// `UserDefaults` key the picker writes and every wall reads.
+    static let storageKey = "fa.wall"
+    static let defaultKey = "dd9"
+
+    static func wall(for key: String) -> WallDef { choices.first { $0.key == key } ?? sage }
+
+    static func label(for key: String) -> String {
+        switch key {
+        case "dd7": String(localized: "wall.cream", defaultValue: "Cream")
+        case "dd8": String(localized: "wall.honey", defaultValue: "Honey")
+        case "dd10": String(localized: "wall.mist", defaultValue: "Mist")
+        default: String(localized: "wall.sage", defaultValue: "Sage")
+        }
+    }
 }
 
 /// Renders a wall as the page background — vector, crisp at any size, no image asset.
 struct SpotlightWallView: View {
-    var wall: WallDef = FAWalls.sage
+    /// The member's pick from Settings → Appearance; the Sage reference look until they choose.
+    @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
+    private var wall: WallDef { FAWalls.wall(for: wallKey) }
 
     var body: some View {
         GeometryReader { geo in

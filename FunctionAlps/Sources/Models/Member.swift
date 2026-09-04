@@ -35,4 +35,6 @@ struct MemberProfile: Sendable, Equatable {
     let goalMode: GoalMode?
     let onboardingCompletedAt: Date?
     let locale: String?
+    /// The DB trigger's daily energy estimate (`tdee_kcal`), the compass number.
+    var tdeeKcal: Double? = nil
 }

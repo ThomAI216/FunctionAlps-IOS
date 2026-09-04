@@ -38,13 +38,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let goalMode: String?
         let onboardingCompletedAt: Date?
         let locale: String?
+        let tdeeKcal: Double?
     }
 
     private static let profileColumns = [
         "app_sex", "app_age", "app_height_cm", "app_weight_kg", "activity_level",
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
-        "goal_mode", "onboarding_completed_at", "locale",
+        "goal_mode", "onboarding_completed_at", "locale", "tdee_kcal",
     ].joined(separator: ",")
 
     func memberProfile(patientId: String) async throws -> MemberProfile? {
@@ -68,7 +69,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             targetFatG: row.targetFatG,
             goalMode: row.goalMode.flatMap(MemberProfile.GoalMode.init(rawValue:)),
             onboardingCompletedAt: row.onboardingCompletedAt,
-            locale: row.locale
+            locale: row.locale,
+            tdeeKcal: row.tdeeKcal
         )
     }
 
@@ -797,4 +799,188 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return out
     }
 
+    // MARK: Profile tab (care_plans · member_entitlements · baseline)
+
+    func carePlan(patientId: String) async throws -> CarePlan? {
+        // RLS scopes care_plans to `patient_id = current_member_patient_id()`; the newest active plan wins.
+        let plans: [CarePlanRow] = try await rest.select("care_plans", query: [
+            PG.select("id,title,start_date,status"), PG.eq("status", "active"),
+            PG.order("start_date", descending: true), PG.limit(1),
+        ])
+        guard let plan = plans.first else { return nil }
+        // Curriculum rows pass the RLS gate but are the personalised space's sub-courses, not
+        // instructions. `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
+        let items: [CarePlanItemRow] = try await rest.select("care_plan_items", query: [
+            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order"),
+            PG.eq("care_plan_id", plan.id),
+            PG.or("item_kind.is.null,item_kind.neq.curriculum"),
+            PG.order("sort_order"),
+        ])
+        return CarePlanLogic.assemble(plan: plan, items: items)
+    }
+
+    func entitlements(patientId: String) async throws -> [EntitlementRow] {
+        try await rest.select("member_entitlements", query: [
+            PG.select("access_type,status,starts_at,expires_at"), PG.eq("patient_id", patientId),
+        ])
+    }
+
+    private struct BaselineBody: Encodable, Sendable {
+        let appSex: String
+        let appAge: Int
+        let appHeightCm: Double
+        let appWeightKg: Double
+        let activityLevel: String
+    }
+    private struct BaselineInsertBody: Encodable, Sendable {
+        let patientId: String
+        let appSex: String
+        let appAge: Int
+        let appHeightCm: Double
+        let appWeightKg: Double
+        let activityLevel: String
+    }
+    private struct PatientIdRow: Decodable, Sendable { let patientId: String }
+
+    /// The Expo `writeProfileRow`: UPDATE first (patient_id only in the WHERE), INSERT when no row was
+    /// touched, and a 23505 on that INSERT means the row appeared meanwhile — update again.
+    func saveBaseline(patientId: String, values v: BaselineValues) async throws {
+        let body = BaselineBody(appSex: v.sex.rawValue, appAge: v.age, appHeightCm: v.heightCm, appWeightKg: v.weightKg, activityLevel: v.activity.rawValue)
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
+        if !touched.isEmpty { return }
+        do {
+            try await rest.insertRows("nb_patient_app_profiles", body: [BaselineInsertBody(patientId: patientId, appSex: v.sex.rawValue, appAge: v.age, appHeightCm: v.heightCm, appWeightKg: v.weightKg, activityLevel: v.activity.rawValue)])
+        } catch {
+            // 23505: the row appeared between our UPDATE and our INSERT (patient-register, a second
+            // device). It exists now, so the update that just missed it lands; any other failure
+            // fails here too and is what the member sees.
+            try await rest.update("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId)], body: body)
+        }
+    }
+
+    // MARK: Messaging (patient_messages)
+
+    private struct ClinicRow: Decodable, Sendable { let id: String; let clinicId: String? }
+
+    func memberClinicId(userId: String) async throws -> String? {
+        let row: ClinicRow? = try await rest.selectOne("patients", query: [PG.select("id,clinic_id"), PG.eq("auth_user_id", userId)])
+        return row?.clinicId
+    }
+
+    /// The PATIENT-readable columns, listed explicitly — never `*` (the same row carries the clinician's
+    /// unsent `ai_draft_*` columns, and RLS here is row-scoped, not column-scoped).
+    private static let messageColumns = "id,sender_type,body,created_at,read_by_patient_at,visibility_class,context_kind,context_meal_id,context_day"
+
+    func messages() async throws -> [PatientMessage] {
+        let rows: [PatientMessageRow] = try await rest.select("patient_messages", query: [
+            PG.select(Self.messageColumns),
+            PG.inList("visibility_class", ["patient_visible", "patient_visible_after_approval"]),
+            PG.order("created_at"), PG.limit(200),
+        ])
+        return rows.map(\.message)
+    }
+
+    private struct MessageBody: Encodable, Sendable {
+        let patientId: String
+        let clinicId: String
+        let senderType: String
+        let senderUserId: String?
+        let body: String
+        let visibilityClass: String
+        let contextKind: String?
+        let contextMealId: String?
+        let contextDay: String?
+    }
+    private struct IdRow: Decodable, Sendable { let id: String }
+
+    func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String {
+        let cols = context?.columns ?? (nil, nil, nil)
+        let row: IdRow = try await rest.insert("patient_messages", body: MessageBody(
+            patientId: patientId, clinicId: clinicId, senderType: "patient", senderUserId: nil,
+            body: body.trimmingCharacters(in: .whitespacesAndNewlines), visibilityClass: "patient_visible",
+            contextKind: cols.kind, contextMealId: cols.mealId, contextDay: cols.day
+        ))
+        return row.id
+    }
+
+    private struct NotifyBody: Encodable, Sendable { let messageId: String }
+
+    func notifyMessage(id: String) async throws {
+        _ = try await functions.invokeRaw("message-notify", body: NotifyBody(messageId: id))
+    }
+
+    func markMessagesRead() async throws {
+        let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
+    }
+
+    // MARK: Account
+
+    private struct FeedbackBody: Encodable, Sendable { let message: String; let appVersion: String }
+    private struct OkResult: Decodable, Sendable { let ok: Bool? }
+
+    func sendFeedback(message: String, appVersion: String) async throws {
+        let result: OkResult = try await functions.invoke("member-feedback", body: FeedbackBody(message: message, appVersion: appVersion), snakeCase: false)
+        guard result.ok == true else { throw AppError.server(status: 500) }
+    }
+
+    private struct DeletedResult: Decodable, Sendable { let deleted: Bool?; let error: String? }
+
+    func deleteAccount() async throws {
+        let result: DeletedResult = try await functions.invoke("delete-account", body: EmptyBody())
+        guard result.deleted == true else { throw AppError.validation(message: result.error ?? "Deletion did not complete.") }
+    }
+
+    private struct ConsentsBody: Encodable, Sendable { let pLocale: String; let pIncludeDrafts: Bool }
+
+    func consents(locale: String) async throws -> [ConsentItem] {
+        try await rest.rpc("member_pending_consents", body: ConsentsBody(pLocale: locale, pIncludeDrafts: false))
+    }
+
+    private struct DecisionBody: Encodable, Sendable { let key: String; let version: String; let granted: Bool; let defaultState: Bool }
+    private struct RecordBatchBody: Encodable, Sendable {
+        let pDecisions: [DecisionBody]
+        let pLocale: String
+        let pUserAgent: String
+        let pAppVersion: String
+        let pUiTemplateVersion: String
+        let pPrivacyNoticeVersion: String
+        let pPresentedKeys: [String]
+        let pChannel: String
+    }
+
+    func recordConsents(_ decisions: [ConsentDecision], presentedKeys: [String], privacyNoticeVersion: String, locale: String) async throws {
+        let body = RecordBatchBody(
+            pDecisions: decisions.map { DecisionBody(key: $0.key, version: $0.version, granted: $0.granted, defaultState: $0.defaultState) },
+            pLocale: locale,
+            pUserAgent: "FunctionAlps/\(AppInfo.version) (ios)",
+            pAppVersion: AppInfo.version,
+            pUiTemplateVersion: ConsentLogic.uiTemplateVersion,
+            pPrivacyNoticeVersion: privacyNoticeVersion,
+            pPresentedKeys: presentedKeys,
+            pChannel: "app_privacy"
+        )
+        let _: [String] = try await rest.rpc("record_consent_batch", body: body)
+    }
+
+    private struct RevokeBody: Encodable, Sendable { let pConsentKey: String; let pChannel: String }
+
+    func revokeConsent(key: String) async throws {
+        let _: Int = try await rest.rpc("revoke_consent", body: RevokeBody(pConsentKey: key, pChannel: "app_privacy"))
+    }
+
+    func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument] {
+        try await rest.select("consent_definitions", query: [
+            PG.select("consent_key,version,locale,title,summary,body_md,display_order"),
+            PG.inList("consent_key", keys), PG.eq("locale", locale), PG.eq("review_status", "approved"),
+            PG.isNull("superseded_at"), PG.order("display_order"),
+        ])
+    }
+
+    func dataCount(table: String, patientId: String) async throws -> Int {
+        try await rest.count(table, query: [PG.eq("patient_id", patientId)])
+    }
+
+    func dataRows(table: String, patientId: String) async throws -> Data {
+        try await rest.selectRaw(table, query: [PG.select("*"), PG.eq("patient_id", patientId)])
+    }
 }
