@@ -235,26 +235,81 @@ struct MarkdownBlockView: View {
     }
 }
 
-/// A block-level article image (the infographics), full width, with its alt as a caption.
+/// A block-level article image (the infographics), full width, with its alt as a caption. Tap it
+/// to open the full-size original in the zoomable viewer — the inline copy is a CDN-resized
+/// version, so the page stays light and the detail is one tap away.
 struct ArticleFigure: View {
     let src: String
     let alt: String
+    @State private var inline: UIImage?
+    @State private var failed = false
+    @State private var expanded = false
+
+    private var url: URL? { URL(string: src) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            AsyncImage(url: URL(string: src)) { phase in
-                switch phase {
-                case .success(let image): image.resizable().scaledToFit()
-                case .failure: EmptyView()
-                default: Rectangle().fill(Color(hex: 0x1A1A16, opacity: 0.05)).frame(height: 160)
+            if let inline {
+                Button { expanded = true } label: {
+                    Image(uiImage: inline)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(alignment: .bottomTrailing) {
+                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 28, height: 28)
+                                .background(Color.black.opacity(0.45), in: Circle())
+                                .padding(8)
+                        }
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(alt.isEmpty ? String(localized: "reader.figure.expand", defaultValue: "Expand image") : alt)
+                .accessibilityHint(String(localized: "reader.figure.hint", defaultValue: "Opens the image full screen; pinch to zoom"))
+            } else if !failed {
+                Rectangle().fill(Color(hex: 0x1A1A16, opacity: 0.05)).frame(height: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay { ProgressView().tint(FAColor.forestSoft) }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            if !alt.isEmpty {
+            if !alt.isEmpty, inline != nil || !failed {
                 Text(alt).font(FATypography.sans(10.5, relativeTo: .caption)).foregroundStyle(FAColor.stone)
             }
         }
         .padding(.vertical, 8)
-        .accessibilityLabel(alt)
+        .task(id: src) {
+            // Inline: a 1600 px render (the originals are ~2 MB); the viewer fetches the original.
+            guard let url else { failed = true; return }
+            let thumb = LibraryLogic.storageThumbnail(url, width: 1600, height: 1600) ?? url
+            if let image = await RemoteImageCache.shared.image(for: thumb) { inline = image } else { failed = true }
+        }
+        .fullScreenCover(isPresented: $expanded) {
+            FullImageLoader(url: url, fallback: inline, caption: alt)
+        }
+    }
+}
+
+/// The viewer with the ORIGINAL asset: shows the inline copy at once, swaps in the full-resolution
+/// original when it arrives, so zooming never waits on the network.
+private struct FullImageLoader: View {
+    let url: URL?
+    let fallback: UIImage?
+    let caption: String
+    @State private var full: UIImage?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Group {
+            if let image = full ?? fallback {
+                ImageViewer(image: image, caption: caption)
+            } else {
+                ZStack { Color.black.ignoresSafeArea(); ProgressView().tint(.white) }
+                    .onTapGesture { dismiss() }
+            }
+        }
+        .task {
+            guard let url else { return }
+            full = await RemoteImageCache.shared.image(for: url)
+        }
     }
 }

@@ -6818,6 +6818,38 @@
         }
       }
     },
+    "reader.figure.expand": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expand image"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agrandir l'image"
+          }
+        }
+      }
+    },
+    "reader.figure.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the image full screen; pinch to zoom"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre l'image en plein écran ; pincez pour zoomer"
+          }
+        }
+      }
+    },
     "score.digestion.short": {
       "localizations": {
         "en": {
