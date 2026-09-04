@@ -67,7 +67,8 @@ private struct FoodScreen: View {
                             todayMeals: model.todayMeals(content),
                             profile: content.member.profile,
                             microTrend: model.microTrend(content),
-                            todayScores: model.todayScores(content)
+                            todayScores: model.todayScores(content),
+                            onMacroTap: { router.push(.macro($0)) }
                         )
                     }
                     .buttonStyle(.plain)

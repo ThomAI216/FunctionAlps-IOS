@@ -66,7 +66,7 @@ struct MacrosDetailsView: View {
     @ViewBuilder
     private var summaryCard: some View {
         if let rows = macroRows {
-            FACard { MacroBars(rows: rows, showScore: false) }
+            FACard { MacroBars(rows: rows, showScore: false, onTap: { router.push(.macro($0)) }) }
         } else {
             Button { router.push(.nutritionTargets) } label: {
                 FACard {

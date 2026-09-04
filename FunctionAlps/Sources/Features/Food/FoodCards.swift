@@ -43,6 +43,8 @@ struct MacroBars: View {
     var score: Int? = nil
     var showScore = true
     var barHeight: CGFloat = 10
+    /// When set, each row is a button that receives the row key (`kcal` / `protein` / `carbs` / `fat`).
+    var onTap: ((String) -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -60,6 +62,18 @@ struct MacroBars: View {
                 .padding(.bottom, 10)
             }
             ForEach(rows) { m in
+                if let onTap {
+                    Button { onTap(m.key) } label: { row(m) }
+                        .buttonStyle(.plain)
+                        .accessibilityHint(String(localized: "food.macros.openHint", defaultValue: "Opens the explanation and your 7-day trend"))
+                } else {
+                    row(m)
+                }
+            }
+        }
+    }
+
+    private func row(_ m: MacroBarRow) -> some View {
                 HStack(spacing: 9) {
                     HStack(spacing: 6) {
                         Circle().fill(Color(hex: FoodPalette.pastel[m.key] ?? 0x9FC8A6)).frame(width: 7, height: 7)
@@ -76,10 +90,9 @@ struct MacroBars: View {
                         .lineLimit(1)
                 }
                 .padding(.vertical, 4)
+                .contentShape(Rectangle())
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("\(m.label): \(m.current) of \(m.target)")
-            }
-        }
     }
 }
 
@@ -148,6 +161,8 @@ struct MacrosTodayCard: View {
     /// 14 days oldest first, nil where no meal carries micros (`FoodViewModel.microTrend`).
     let microTrend: [Int?]
     let todayScores: MealScores?
+    /// A macro row tapped (`kcal` / `protein` / `carbs` / `fat`) — the per-macro page.
+    var onMacroTap: ((String) -> Void)? = nil
 
     private var consumed: (kcal: Double, protein: Double, carbs: Double, fat: Double) {
         (todayMeals.compactMap(\.totalCalories).reduce(0, +),
@@ -189,7 +204,7 @@ struct MacrosTodayCard: View {
         FACard {
             VStack(alignment: .leading, spacing: 0) {
                 // ── Section 1 · Macros — horizontal bars + score ──
-                MacroBars(rows: rows, score: macrosScore)
+                MacroBars(rows: rows, score: macrosScore, onTap: onMacroTap)
 
                 // ── Section 2 · Micros — 14-day trend ──
                 VStack(alignment: .leading, spacing: 8) {

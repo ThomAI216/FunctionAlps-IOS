@@ -66,6 +66,10 @@ struct NutritionMathTests {
         #expect(NutrientCatalog.nutrients(in: .fattyAcids).count == 5)
         #expect(NutrientCatalog.elements["magnesium"]?.symbol == "Mg")
         #expect(NutrientCatalog.symptomLabel("brain_fog") == "Brain fog")
+        #expect(MacroEducation.entries.map(\.key) == ["protein", "carbs", "fat"])
+        #expect(MacroEducation.entry(for: "kcal")?.key == "kcal")
+        #expect(MacroEducation.entry(for: "fat")?.bestSources.count == 6)
+        #expect(MacroEducation.entry(for: "fibre") == nil)
     }
 
     @Test("Coverage helpers and the per-meal nutrient score")

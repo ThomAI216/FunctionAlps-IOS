@@ -4722,6 +4722,22 @@
         }
       }
     },
+    "food.macros.openHint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the explanation and your 7-day trend"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre l’explication et votre tendance sur 7 jours"
+          }
+        }
+      }
+    },
     "food.meal.favorite": {
       "localizations": {
         "en": {
@@ -8466,6 +8482,86 @@
         }
       }
     },
+    "macro.detail.adjust": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust my targets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster mes objectifs"
+          }
+        }
+      }
+    },
+    "macro.detail.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macro not found"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macro introuvable"
+          }
+        }
+      }
+    },
+    "macro.detail.noTarget": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No target yet · set up your profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore d’objectif · configurez votre profil"
+          }
+        }
+      }
+    },
+    "macro.detail.weekAvg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7-day average %lld%@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moyenne sur 7 jours %lld%@"
+          }
+        }
+      }
+    },
+    "macro.detail.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it is and why it matters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que c’est et pourquoi c’est important"
+          }
+        }
+      }
+    },
     "macroEdu.carbs.myth.0": {
       "localizations": {
         "en": {
@@ -8846,6 +8942,166 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les lipides alimentaires sont essentiels à la production d'hormones, au fonctionnement du cerveau et à l'absorption des vitamines liposolubles (A, D, E, K). Privilégiez les graisses insaturées et les oméga-3. Limitez au maximum les graisses trans."
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.myth.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: eating as little as possible is best (large deficits cost muscle, sleep and hormones — a moderate one is what lasts)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : manger le moins possible est le mieux (les gros déficits coûtent du muscle, du sommeil et des hormones — c’est le déficit modéré qui dure)"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.myth.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: a calorie is a calorie (the same energy from protein, fibre-rich carbs or sugar does not have the same effect on hunger, blood sugar or body composition)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : une calorie est une calorie (la même énergie venant de protéines, de glucides riches en fibres ou de sucre n’a pas le même effet sur la faim, la glycémie ou la composition corporelle)"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.source.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole foods over ultra-processed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des aliments bruts plutôt qu’ultra-transformés"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.source.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein at every meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des protéines à chaque repas"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.source.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vegetables and legumes for volume"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumes et légumineuses pour le volume"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.source.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Healthy fats in measured amounts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De bonnes graisses en quantités mesurées"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The energy your day runs on"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’énergie qui fait tourner votre journée"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spread energy across your meals rather than loading the evening. A protein-first breakfast steadies appetite; the largest carb portion sits best around your most active hours."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répartissez l’énergie sur vos repas plutôt que de charger le soir. Un petit-déjeuner riche en protéines stabilise l’appétit ; la plus grande portion de glucides se place au mieux autour de vos heures les plus actives."
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories"
+          }
+        }
+      }
+    },
+    "macroEdu.kcal.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A calorie is a unit of energy. Your body spends energy all day — most of it just to keep you alive (your basal metabolism), the rest on movement and digestion. Your daily target starts from that estimate (TDEE), then moves up or down with your objective: a moderate deficit to lose fat, a small surplus to build muscle, or maintenance. Where the calories come from matters as much as how many: protein and fibre-rich carbs keep you full and steady; refined sugar and alcohol do not."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une calorie est une unité d’énergie. Votre corps en dépense toute la journée — l’essentiel simplement pour vous maintenir en vie (le métabolisme de base), le reste pour bouger et digérer. Votre objectif quotidien part de cette estimation (la DÉJ), puis monte ou descend selon votre but : un déficit modéré pour perdre du gras, un léger surplus pour construire du muscle, ou le maintien. D’où viennent les calories compte autant que leur nombre : les protéines et les glucides riches en fibres rassasient et stabilisent ; le sucre raffiné et l’alcool, non."
           }
         }
       }

@@ -27,6 +27,7 @@ enum Route: Hashable {
     case micronutrients
     case microGroup(String)
     case microNutrient(String)
+    case macro(String)
 }
 
 @MainActor
@@ -156,6 +157,7 @@ struct MainTabView: View {
         case .micronutrients: MicronutrientsView()
         case .microGroup(let key): MicroGroupView(groupKey: key)
         case .microNutrient(let key): MicroNutrientView(nutrientKey: key)
+        case .macro(let key): MacroDetailView(macroKey: key)
         }
     }
 }
