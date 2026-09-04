@@ -37,7 +37,7 @@ enum HelpCatalog {
             (.food, String(localized: "help.group.food", defaultValue: "Logging your food"), String(localized: "help.group.food.blurb", defaultValue: "Photo to plate to pattern.")),
         ]
         let all = entries
-        return defs.map { HelpGroup(key: $0.0, title: $0.1, blurb: $0.2, entries: all.filter { e in e.group == $0.0 }) }
+        return defs.map { def in HelpGroup(key: def.0, title: def.1, blurb: def.2, entries: all.filter { $0.group == def.0 }) }
             .filter { !$0.entries.isEmpty }
     }
 
