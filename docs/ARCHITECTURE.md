@@ -69,6 +69,8 @@ the theme audit in `APP_MAP.md`.
 
 - **Library data rule (2026-09-03):** the library is a SECOND CONSUMER of the members catalog — same tables and RPCs (`library_tracks`, `library_track_lessons`, `member_lesson_progress`, `member_library_list/get/stage`, `member_library_access`, `patient_track_priority`, `care_plans` + goals), read in parallel under the member's session. Only the catalog read may fail the tab (→ the labelled sample library, never an empty screen); every other read fails soft. The activation veils fail CLOSED (no row = every section veiled), the stage gate fails closed to `lead`. Rules live in `LibraryLogic` (pure, tested); `LibraryService` is the only IO.
 
+- **Navigation rule (owner, 2026-09-04):** every screen hides the system navigation bar and draws its own `CenteredHeader`, which makes UIKit drop the edge swipe-back. `SwipeBackEnabler` (`.faSwipeBack()`) restores the interactive pop gesture on each tab's navigation controller, guarded so it never begins on a root screen. `MainTabView` applies it to the five roots and to every pushed route through `destination(_:)`, so a new route gets the gesture without doing anything; a screen presented as a sheet (capture, note editor) is dismissed with its own control, not the edge.
+
 ## 7. Environments (PRD §31)
 `Config/{Development,Staging,Production}.xcconfig` → Info.plist → `AppEnvironment`.
 Only non-secret values. Staging currently points at CM OS because no staging project
