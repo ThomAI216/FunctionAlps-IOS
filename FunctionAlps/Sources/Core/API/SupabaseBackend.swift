@@ -891,11 +891,11 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let contextMealId: String?
         let contextDay: String?
     }
-    private struct IdRow: Decodable, Sendable { let id: String }
+    private struct MessageIdRow: Decodable, Sendable { let id: String }
 
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String {
         let cols = context?.columns ?? (nil, nil, nil)
-        let row: IdRow = try await rest.insert("patient_messages", body: MessageBody(
+        let row: MessageIdRow = try await rest.insert("patient_messages", body: MessageBody(
             patientId: patientId, clinicId: clinicId, senderType: "patient", senderUserId: nil,
             body: body.trimmingCharacters(in: .whitespacesAndNewlines), visibilityClass: "patient_visible",
             contextKind: cols.kind, contextMealId: cols.mealId, contextDay: cols.day
