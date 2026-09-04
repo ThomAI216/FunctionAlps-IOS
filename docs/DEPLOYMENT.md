@@ -123,3 +123,46 @@ identity, no tracking). Three more things ship with build 14 so that disclosure 
 HRV stays SDNN (catalogue 3112): the native `member-scores` does not read wearable rows yet; when it does,
 the recovery factor is a ratio to the member's own baseline, so it reads the first available series per
 member — `RmssdSleep`, then `Rmssd`, then `SDNN` — and never mixes them. No conversion.
+
+## Direct wearable connectors (added 2026-09-04)
+
+Owner decision: free, direct OAuth integrations only — **Withings, Suunto, Oura, Polar, WHOOP, Garmin, Google (Fitbit)**;
+Thryve removed (its three functions answer 410 and its cron is unscheduled; delete `thryve-connect`,
+`thryve-webhook`, `thryve-sync` in the Supabase dashboard → Edge Functions when convenient). Devices whose
+vendor has no public service keep arriving through the Apple Health relay.
+
+**Source of truth:** `supabase/functions/_shared/wearables/{core,registry,<vendor>}.ts` + the five functions
+`wearable-oauth-start` (member, verify_jwt), `wearable-oauth-callback` (public — the vendor redirects the browser
+here), `wearable-vendor-webhook/<vendor>` (public — the vendor signs), `wearable-vendor-sync` (pg_cron every 10 min
+while `wearable_sync_queue` has pending vendor rows, `x-report-secret`; also the member's "Sync now"),
+`wearable-vendor-disconnect` (member). Build with `supabase/functions/build-wearables.sh` → `bundle/<name>.ts`,
+deploy each bundle with the Supabase MCP `deploy_edge_function` (verify_jwt as listed). Migration
+`20260904_wearable_direct_connectors.sql` (applied): `wearable_vendors`, `wearable_vendor_accounts` (tokens
+AES-256-GCM, service role only), `wearable_oauth_states`, `wearable_sync_queue.vendor`, raw-event kinds, catalogue
+rows ≥ 1000100, the two crons.
+
+**Owner steps, once (per vendor, in the vendor's developer portal — the exact clicks are in the header of each
+`_shared/wearables/<vendor>.ts`):**
+1. Register the app. Redirect URI (exact): `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-oauth-callback`.
+   Webhook URL where the vendor asks for one: `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/<vendor>`
+   (`<vendor>` = `oura` | `whoop` | `polar` | `garmin` | `withings` | `suunto` | `google`). Privacy policy URL: the
+   published FunctionAlps notice.
+2. Supabase → Project Settings → Edge Functions → Secrets: `<VENDOR>_CLIENT_ID`, `<VENDOR>_CLIENT_SECRET`
+   (uppercase vendor key, e.g. `OURA_CLIENT_ID`), the vendor's webhook secret where one exists
+   (`<VENDOR>_WEBHOOK_SECRET`, see the adapter header), and ONCE `WEARABLE_TOKEN_KEY` = 32 random bytes base64
+   (`openssl rand -base64 32`). Never paste any of these into chat or a repo.
+3. Flip the vendor on: `update wearable_vendors set status = 'available' where key = '<vendor>';` — the app shows
+   its Connect button on the next open (after Privacy Notice v10 is approved). `paused` hides it again.
+4. Privacy Notice **v10** (`supabase/migrations/20260904_privacy_policy_v10_vendor_accounts.sql`, applied as a
+   draft; v9 still current) must be approved before any vendor button appears
+   (`WearableDisclosure.vendorNoticeVersion = 10`). Approval SQL in the file header.
+5. Test with your own account: Devices → Connect → the vendor's consent page → back in the app → "Connected · since";
+   `wearable_vendor_accounts` has the row, `wearable_sync_queue` a backfill job, and within 10 minutes
+   `wearable_daily` rows under the vendor's source id (1000018 Oura, 1000042 WHOOP, 1000003 Polar, 1000002 Garmin,
+   1000008 Withings, 1000050 Suunto, 1000011 Google).
+
+**Not verifiable from the build environment:** the sandbox proxy blocks the vendor domains, so the adapters are
+written from the specs and marked `VERIFY:` where a field name or endpoint could not be read on an official page.
+The first real connection per vendor is the test; the raw payloads land verbatim in `wearable_raw_events`
+(`vendor_webhook` / `vendor_api`) so a wrong field name is fixed from the stored payload, not guessed.
+
