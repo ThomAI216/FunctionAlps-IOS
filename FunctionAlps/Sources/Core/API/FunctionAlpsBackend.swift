@@ -65,6 +65,15 @@ protocol FunctionAlpsBackend: Sendable {
     /// One `nb_meal_reactions` row — the Expo `saveMealReaction` shape (a row IS the "they answered" signal).
     func saveMealReaction(_ write: MealReactionWrite) async throws
 
+    // MARK: Gut check-in (patient_daily_checkins gut_* + nb_checkin_events)
+
+    /// Today's saved gut check-in (`gut_detail` + `intelligence_completed_at`), nil when not done today.
+    func gutToday(patientId: String, day: String) async throws -> GutTodayRead?
+    /// Days with a gut check-in in [since, before) (YYYY-MM-DD), oldest first — the 14-day dashboard.
+    func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay]
+    /// The Expo `saveGutCheckinV2` upsert on (patient_id, checkin_date); every listed column explicit.
+    func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws
+
     // MARK: Notifications (patient_notification_preferences — one row per member)
 
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow?

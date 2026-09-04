@@ -78,6 +78,7 @@ struct HomeView: View {
                     .frame(maxHeight: 230)
 
                     momentsRow(content.today)
+                    gutRow(content.today)
 
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
@@ -98,6 +99,27 @@ struct HomeView: View {
             .init(key: "energy", name: String(localized: "marker.energy", defaultValue: "Energy"), color: Color(hex: 0xD97706), value: c?.energy),
             .init(key: "stress", name: String(localized: "marker.calm", defaultValue: "Calmness"), color: Color(hex: 0xE11D48), value: c?.calmness),
         ]
+    }
+
+    /// The daily gut check-in — done once, editable all day (the Expo hub's Gut Intelligence card).
+    private func gutRow(_ today: TodaySnapshot) -> some View {
+        let done = today.checkin?.isGutDone ?? false
+        return NavigationLink(value: Route.gutCheckin) {
+            HStack(spacing: 12) {
+                Text("🫧").font(.system(size: 17))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "home.gut.title", defaultValue: "Gut check-in")).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
+                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Done today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Three quick reads · comfort, stool, food reactions"))
+                        .font(FATypography.sans(10.5, .medium, relativeTo: .caption2)).foregroundStyle(done ? FAColor.accent : FAColor.inkSecondary).lineLimit(1)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+            }
+            .padding(.vertical, 11).padding(.horizontal, 14)
+            .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     /// The day's three moments — the one "now" falls in is highlighted; saved ones re-open for editing.

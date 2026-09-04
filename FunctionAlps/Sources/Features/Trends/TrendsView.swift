@@ -39,7 +39,7 @@ struct TrendsView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     FunctionalScoreCrown(scores: scores, open: model.openPillar) { model.toggle($0) }
-                    GutIntelligenceCard(breakdown: scores.gut)
+                    NavigationLink(value: Route.gutIntelligence) { GutIntelligenceCard(breakdown: scores.gut) }.buttonStyle(.plain)
                     DailyCheckinCTA(slot: dependencies.checkins.currentSlot)
                 }
                 .padding(.horizontal, 16)

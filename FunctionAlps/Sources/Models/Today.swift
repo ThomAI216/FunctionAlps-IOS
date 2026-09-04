@@ -218,6 +218,10 @@ struct DailyCheckin: Sendable, Equatable {
 struct MealReaction: Sendable, Equatable {
     let overall: Double?
     let flags: [String]
+    /// 0–10 symptom reads (the gut dashboard's reaction factor); nil on older rows.
+    var bloating: Double? = nil
+    var fullness: Double? = nil
+    var gas: Double? = nil
 
     enum Sentiment: Sendable { case good, watch, bad }
 

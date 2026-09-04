@@ -627,13 +627,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Meal reactions (nb_meal_reactions)
 
-    private struct ReactionRow: Decodable, Sendable { let overall: Double?; let reactionFlags: [String]? }
+    private struct ReactionRow: Decodable, Sendable { let overall: Double?; let reactionFlags: [String]?; let bloating: Double?; let fullness: Double?; let gasBurden: Double? }
 
     func mealReaction(mealId: String) async throws -> MealReaction? {
         let row: ReactionRow? = try await rest.selectOne("nb_meal_reactions", query: [
-            PG.select("overall,reaction_flags"), PG.eq("meal_log_id", mealId), PG.order("reaction_time", descending: true), PG.limit(1),
+            PG.select("overall,reaction_flags,bloating,fullness,gas_burden"), PG.eq("meal_log_id", mealId), PG.order("reaction_time", descending: true), PG.limit(1),
         ])
-        return row.map { MealReaction(overall: $0.overall, flags: $0.reactionFlags ?? []) }
+        return row.map { MealReaction(overall: $0.overall, flags: $0.reactionFlags ?? [], bloating: $0.bloating, fullness: $0.fullness, gas: $0.gasBurden) }
     }
 
 
@@ -799,19 +799,60 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return row.id
     }
 
-    private struct ReactionListRow: Decodable, Sendable { let mealLogId: String; let overall: Double?; let reactionFlags: [String]? }
+    private struct ReactionListRow: Decodable, Sendable { let mealLogId: String; let overall: Double?; let reactionFlags: [String]?; let bloating: Double?; let fullness: Double?; let gasBurden: Double? }
 
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] {
         let rows: [ReactionListRow] = try await rest.select("nb_meal_reactions", query: [
-            PG.select("meal_log_id,overall,reaction_flags"), PG.eq("patient_id", patientId), PG.gte("reaction_time", ISO8601.string(since)),
+            PG.select("meal_log_id,overall,reaction_flags,bloating,fullness,gas_burden"), PG.eq("patient_id", patientId), PG.gte("reaction_time", ISO8601.string(since)), PG.order("reaction_time", descending: false),
         ])
         var out: [String: MealReaction] = [:]
-        for r in rows { out[r.mealLogId] = MealReaction(overall: r.overall, flags: r.reactionFlags ?? []) }
+        for r in rows { out[r.mealLogId] = MealReaction(overall: r.overall, flags: r.reactionFlags ?? [], bloating: r.bloating, fullness: r.fullness, gas: r.gasBurden) }
         return out
     }
 
     func saveMealReaction(_ write: MealReactionWrite) async throws {
         try await rest.insertRows("nb_meal_reactions", body: [write])
+    }
+
+    // MARK: Gut check-in (patient_daily_checkins gut_* · nb_checkin_events)
+
+    private struct GutDayRow: Decodable, Sendable {
+        let checkinDate: String; let gutComfort: Int?; let gutStool: Int?; let gutReactions: Int?; let gutOverall: Int?
+        let stoolQuality: Int?; let stoolFrequency: Int?; let intelligenceCompletedAt: Date?
+        var day: GutDay { GutDay(day: checkinDate, comfort: gutComfort, stool: gutStool, reactions: gutReactions, overall: gutOverall, stoolQuality: stoolQuality, stoolFrequency: stoolFrequency, completedAt: intelligenceCompletedAt) }
+    }
+    private static let gutColumns = "checkin_date,gut_comfort,gut_stool,gut_reactions,gut_overall,stool_quality,stool_frequency,intelligence_completed_at"
+
+    func gutToday(patientId: String, day: String) async throws -> GutTodayRead? {
+        // Raw JSON on purpose: `gut_detail` mixes camelCase (`reactionsScore`) and snake_case (`stool_off`) keys,
+        // and the shared decoder would rewrite the latter.
+        let data = try await rest.selectRaw("patient_daily_checkins", query: [PG.select(Self.gutColumns + ",gut_detail"), PG.eq("patient_id", patientId), PG.eq("checkin_date", day), PG.limit(1)])
+        guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]], let row = rows.first,
+              let completedRaw = row["intelligence_completed_at"] as? String, let completedAt = ISO8601.parse(completedRaw) else { return nil }
+        let decoded = GutDetailCodec.decode(row["gut_detail"])
+        let int = { (k: String) -> Int? in (row[k] as? NSNumber)?.intValue }
+        let dayRow = GutDay(day: day, comfort: int("gut_comfort"), stool: int("gut_stool"), reactions: int("gut_reactions"), overall: int("gut_overall"), stoolQuality: int("stool_quality"), stoolFrequency: int("stool_frequency"), completedAt: completedAt)
+        return GutTodayRead(answers: decoded?.answers ?? .blank, notes: decoded?.notes, completedAt: completedAt, day: dayRow)
+    }
+
+    func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] {
+        let rows: [GutDayRow] = try await rest.select("patient_daily_checkins", query: [
+            PG.select(Self.gutColumns), PG.eq("patient_id", patientId), PG.gte("checkin_date", since), PG.lt("checkin_date", before),
+            URLQueryItem(name: "intelligence_completed_at", value: "not.is.null"), PG.order("checkin_date", descending: false), PG.limit(31),
+        ])
+        return rows.map(\.day)
+    }
+
+    func upsertGutCheckin(patientId: String, day: String, write w: GutCheckinWrite) async throws {
+        let stamp = ISO8601.string(w.completedAt)
+        let row: ColumnPatch = [
+            "patient_id": .string(patientId), "checkin_date": .string(day),
+            "gut_comfort": .int(w.comfort), "gut_stool": .int(w.stool), "gut_reactions": .int(w.reactions), "gut_overall": .int(w.overall),
+            "gut_detail": .json(GutDetailCodec.encode(answers: w.answers, notes: w.notes)),
+            "stool_type": .int(w.stoolType), "stool_quality": .int(w.stoolQuality), "stool_frequency": .int(w.stoolFrequency),
+            "intelligence_completed_at": .string(stamp), "completed_at": .string(stamp), "last_submission_form": .string("intelligence"),
+        ]
+        try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
     }
 
     // MARK: Notifications (patient_notification_preferences)

@@ -53,6 +53,9 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
+    func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
+    func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
+    func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? { nil }
     func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws {}
     func savePushToken(_ write: PushTokenWrite) async throws {}

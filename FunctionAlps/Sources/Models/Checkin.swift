@@ -174,14 +174,21 @@ enum ColumnValue: Sendable, Equatable, Encodable {
     case string(String)
     case null
     case pills([String: [String]])
+    /// A jsonb column whose keys must travel verbatim (`JSONValue`).
+    case json(JSONValue)
 
     func encode(to encoder: any Encoder) throws {
-        var c = encoder.singleValueContainer()
         switch self {
-        case .int(let v): try c.encode(v)
-        case .string(let s): try c.encode(s)
-        case .null: try c.encodeNil()
-        case .pills(let p): try c.encode(p)
+        case .json(let j): try j.encode(to: encoder)
+        default:
+            var c = encoder.singleValueContainer()
+            switch self {
+            case .int(let v): try c.encode(v)
+            case .string(let s): try c.encode(s)
+            case .null: try c.encodeNil()
+            case .pills(let p): try c.encode(p)
+            case .json: break
+            }
         }
     }
 

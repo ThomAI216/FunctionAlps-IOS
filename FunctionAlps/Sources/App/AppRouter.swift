@@ -29,6 +29,8 @@ enum Route: Hashable {
     case microNutrient(String)
     case macro(String)
     case notifications
+    case gutCheckin
+    case gutIntelligence
 }
 
 @MainActor
@@ -65,6 +67,7 @@ final class AppRouter {
         case "checkin":
             tab = .home; homePath = []
             if let raw = parts.dropFirst().first, let slot = MomentSlot(rawValue: raw) { homePath.append(.checkin(slot)) }
+            else if parts.dropFirst().first == "gut" { homePath.append(.gutCheckin) }
         case "meal":
             tab = .food; foodPath = []
             if let id = parts.dropFirst().first { foodPath.append(.meal(id)); pendingRateMealId = rate ? id : nil }
@@ -210,6 +213,8 @@ struct MainTabView: View {
         case .microNutrient(let key): MicroNutrientView(nutrientKey: key)
         case .macro(let key): MacroDetailView(macroKey: key)
         case .notifications: NotificationsSettingsView()
+        case .gutCheckin: GutCheckinView()
+        case .gutIntelligence: GutIntelligenceView()
         }
     }
 }
