@@ -1,0 +1,107 @@
+# Deploy the Supabase Edge Functions that live in THIS repo (the member app's backend seam on CM OS).
+#
+# Mirrors FunctionAlps-APP/.github/workflows/deploy-edge-functions.yml — same secret, same guard rails.
+# It never deploys "everything": only the functions the pushed commit touched, or the one named in a
+# manual run. A change under `_shared/wearables/` maps to the five direct-connector functions.
+#
+# SETUP (one time): repository secret `SUPABASE_ACCESS_TOKEN`
+#   Settings -> Secrets and variables -> Actions -> New repository secret
+#   Token from https://supabase.com/dashboard/account/tokens (the same token FunctionAlps-APP uses).
+#   It is an ACCOUNT-level token: it can manage every project on the account, the shared CM OS
+#   database included. Never paste it anywhere but the GitHub secret.
+name: Deploy Edge Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Function slug, or "wearables" for the five direct-connector functions'
+        required: true
+        default: 'wearables'
+        type: string
+
+env:
+  PROJECT_REF: ndojytvvlvlbgtodujkf
+  # Functions whose live verify_jwt is FALSE — the vendor, the browser redirect or pg_cron calls them
+  # and each authenticates itself (signature, single-use state, x-report-secret).
+  #
+  # ⚠ THIS LIST CUTS BOTH WAYS: deploying a listed function WITHOUT --no-verify-jwt flips its live
+  # setting on and breaks the vendor/cron calls; deploying an UNLISTED function WITH the flag silently
+  # re-opens an endpoint. The `verify` step reads the live values first and fails on any disagreement.
+  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync push-send'
+  WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Work out which functions to deploy
+        id: pick
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.target }}" = "wearables" ]; then LIST="$WEARABLES"; else LIST="${{ inputs.target }}"; fi
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then BEFORE="${{ github.sha }}~1"; fi
+            CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- supabase/functions || true)"
+            LIST="$(echo "$CHANGED" | sed -n 's#^supabase/functions/\([^_/][^/]*\)/.*#\1#p' | grep -v '^bundle$' | sort -u | tr '\n' ' ')"
+            if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/wearables/'; then LIST="$LIST $WEARABLES"; fi
+            LIST="$(echo "$LIST" | tr ' ' '\n' | sed '/^$/d' | sort -u | tr '\n' ' ')"
+          fi
+          echo "list=$LIST" >> "$GITHUB_OUTPUT"
+          echo "Will deploy: ${LIST:-<nothing>}"
+
+      - name: Verify the NO_JWT list still matches the live project
+        if: ${{ steps.pick.outputs.list != '' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          LIVE="$(curl -sS -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$PROJECT_REF/functions")"
+          FAIL=0
+          for fn in ${{ steps.pick.outputs.list }}; do
+            LIVE_JWT="$(echo "$LIVE" | jq -r --arg s "$fn" '.[] | select(.slug==$s) | .verify_jwt')"
+            [ -z "$LIVE_JWT" ] && LIVE_JWT="null"
+            case " $NO_JWT " in *" $fn "*) LISTED="false" ;; *) LISTED="true" ;; esac
+            if [ "$LIVE_JWT" != "null" ] && [ "$LIVE_JWT" != "$LISTED" ]; then
+              echo "::error::$fn: live verify_jwt=$LIVE_JWT but this workflow would deploy it as verify_jwt=$LISTED. Fix NO_JWT or the dashboard first."
+              FAIL=1
+            else
+              echo "ok: $fn verify_jwt=$LIVE_JWT"
+            fi
+          done
+          [ "$FAIL" = "0" ] || exit 1
+
+      - name: Deploy
+        if: ${{ steps.pick.outputs.list != '' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for fn in ${{ steps.pick.outputs.list }}; do
+            if [ ! -d "supabase/functions/$fn" ]; then echo "::warning::no such function in repo: $fn — skipped"; continue; fi
+            FLAGS=""
+            case " $NO_JWT " in *" $fn "*) FLAGS="--no-verify-jwt" ;; esac
+            echo "::group::deploy $fn $FLAGS"
+            supabase functions deploy "$fn" --project-ref "$PROJECT_REF" $FLAGS
+            echo "::endgroup::"
+          done
+
+      - name: Report live versions
+        if: ${{ always() && steps.pick.outputs.list != '' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions list --project-ref "$PROJECT_REF"

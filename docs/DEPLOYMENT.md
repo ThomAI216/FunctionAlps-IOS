@@ -134,23 +134,54 @@ vendor has no public service keep arriving through the Apple Health relay.
 **Source of truth:** `supabase/functions/_shared/wearables/{core,registry,<vendor>}.ts` + the five functions
 `wearable-oauth-start` (member, verify_jwt), `wearable-oauth-callback` (public — the vendor redirects the browser
 here), `wearable-vendor-webhook/<vendor>` (public — the vendor signs), `wearable-vendor-sync` (pg_cron every 10 min
-while `wearable_sync_queue` has pending vendor rows, `x-report-secret`; also the member's "Sync now"),
-`wearable-vendor-disconnect` (member). Build with `supabase/functions/build-wearables.sh` → `bundle/<name>.ts`,
-deploy each bundle with the Supabase MCP `deploy_edge_function` (verify_jwt as listed). Migration
+while `wearable_sync_queue` has pending vendor rows, `x-report-secret`; also the member's "Sync now"; keeps Oura's
+expiring webhook subscriptions alive once an hour), `wearable-vendor-disconnect` (member). Migration
 `20260904_wearable_direct_connectors.sql` (applied): `wearable_vendors`, `wearable_vendor_accounts` (tokens
 AES-256-GCM, service role only), `wearable_oauth_states`, `wearable_sync_queue.vendor`, raw-event kinds, catalogue
 rows ≥ 1000100, the two crons.
 
-**Owner steps, once (per vendor, in the vendor's developer portal — the exact clicks are in the header of each
-`_shared/wearables/<vendor>.ts`):**
+**Deploying the functions — CI, not by hand.** `.github/workflows/deploy-edge-functions.yml` deploys, with the
+Supabase CLI, exactly the functions a push to `main` touched (a change under `_shared/wearables/` deploys all five;
+`workflow_dispatch` → "wearables" or one slug). It reads the live `verify_jwt` of every function first and refuses
+to deploy if the `NO_JWT` list disagrees with the dashboard. It needs ONE repository secret:
+`SUPABASE_ACCESS_TOKEN` (Settings → Secrets and variables → Actions) — the same account token FunctionAlps-APP's
+workflow already uses (https://supabase.com/dashboard/account/tokens). **Until that secret exists the five
+functions are not deployed** — the first push after adding it (or a manual run) deploys them.
+`supabase/functions/build-wearables.sh` still bundles each function into `bundle/<name>.ts` (gitignored) as a
+syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use the bundles.
+
+**Owner steps, once per vendor (developer portal → secrets → flip the row):**
 1. Register the app. Redirect URI (exact): `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-oauth-callback`.
    Webhook URL where the vendor asks for one: `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/<vendor>`
    (`<vendor>` = `oura` | `whoop` | `polar` | `garmin` | `withings` | `suunto` | `google`). Privacy policy URL: the
-   published FunctionAlps notice.
+   published FunctionAlps notice. Per vendor:
+   - **Oura** — https://cloud.ouraring.com/oauth/applications (self-serve; > 10 users needs Oura's review). Webhooks are
+     created by the backend itself (`ouraMaintain()` on first connect + hourly renewal) — nothing to click. Optional
+     secret `OURA_VERIFICATION_TOKEN` (any random string; defaults to the client secret).
+   - **WHOOP** — https://developer.whoop.com (self-serve). In the app's dashboard set the webhook URL above and
+     enable events. The signature key is the client secret — no extra secret.
+   - **Polar** — https://admin.polaraccesslink.com (self-serve). Webhooks are one per application, registered by API,
+     and the signing secret is shown ONCE. Run once from your machine (client id/secret from the portal):
+     `curl -u "$POLAR_CLIENT_ID:$POLAR_CLIENT_SECRET" -H "Content-Type: application/json" -d '{"events":["EXERCISE","SLEEP","CONTINUOUS_HEART_RATE","ACTIVITY_SUMMARY","PHYSICAL_INFORMATION"],"url":"https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/polar"}' https://www.polaraccesslink.com/v3/webhooks`
+     (the webhook function must already be deployed — Polar pings it and needs a 200) → store `data.signature_secret_key`
+     as secret `POLAR_WEBHOOK_SECRET`.
+   - **Withings** — https://developer.withings.com/dashboard/ (Public Cloud; self-serve). Add BOTH URLs above to the
+     app's Callback URIs (the webhook URL must be listed or `notify subscribe` is refused). No webhook secret
+     (notifications are unsigned; the backend only treats them as a "pull now" hint).
+   - **Suunto** — https://apizone.suunto.com (sign up, subscribe to "Developer API", file the partner form, sign the
+     API agreement; 2–4 weeks). In the profile's OAuth section: app, redirect URI, a client secret YOU choose. Webhook:
+     notification URL + a notification secret you choose. Secrets: `SUUNTO_SUBSCRIPTION_KEY` (Profile → Subscriptions),
+     `SUUNTO_WEBHOOK_SECRET`. Field names are unverified (no official spec was reachable) — the first live payloads in
+     `wearable_raw_events` are the truth.
+   - **Garmin** — programme currently closed to new applicants; keep `wearable_vendors.status = 'planned'`. If a key is
+     granted: https://developerportal.garmin.com, endpoints tool → PUSH for every summary type to the webhook URL;
+     secrets `GARMIN_CLIENT_ID/_SECRET`.
+   - **Google Health** — deferred (`planned`): restricted-scope verification + CASA before real users can consent.
+     When pursued: Cloud project, OAuth client (Web), the five `googlehealth.*.readonly` scopes, a project-level
+     subscriber pointing at the webhook URL with `endpointAuthorization.secret = "Bearer <GOOGLE_WEBHOOK_SECRET>"`.
 2. Supabase → Project Settings → Edge Functions → Secrets: `<VENDOR>_CLIENT_ID`, `<VENDOR>_CLIENT_SECRET`
-   (uppercase vendor key, e.g. `OURA_CLIENT_ID`), the vendor's webhook secret where one exists
-   (`<VENDOR>_WEBHOOK_SECRET`, see the adapter header), and ONCE `WEARABLE_TOKEN_KEY` = 32 random bytes base64
-   (`openssl rand -base64 32`). Never paste any of these into chat or a repo.
+   (uppercase vendor key, e.g. `OURA_CLIENT_ID`), the per-vendor extras above, and ONCE `WEARABLE_TOKEN_KEY` = 32
+   random bytes base64 (`openssl rand -base64 32`). Never paste any of these into chat or a repo.
 3. Flip the vendor on: `update wearable_vendors set status = 'available' where key = '<vendor>';` — the app shows
    its Connect button on the next open (after Privacy Notice v10 is approved). `paused` hides it again.
 4. Privacy Notice **v10** (`supabase/migrations/20260904_privacy_policy_v10_vendor_accounts.sql`, applied as a
@@ -166,3 +197,28 @@ written from the specs and marked `VERIFY:` where a field name or endpoint could
 The first real connection per vendor is the test; the raw payloads land verbatim in `wearable_raw_events`
 (`vendor_webhook` / `vendor_api`) so a wrong field name is fixed from the stored payload, not guessed.
 
+## Notifications (added 2026-09-04)
+
+**Phone:** local reminders are planned on the device (`NotificationPlanner` → `LocalNotifications`), no server
+involved: morning / midday / evening check-in at the member's times, lunch (13:30) and dinner (20:15) "not logged",
+"how do you feel?" 2½ h after each meal, the weekly summary (Sunday 18:00), Apple Health silent for 3 days. All
+respect the member's quiet hours and are dropped for anything already done. Preferences live in
+`patient_notification_preferences` (Settings → Notifications).
+
+**Server push (APNs):** `push-send` (deployed, verify_jwt false, `x-report-secret`) sends content-free pushes —
+the body never carries health data, the link is the payload. DB triggers (migration `20260904_notifications_push.sql`,
+applied) call it through `notify_member_push()` + pg_net for: a practitioner message, an approved report, a care-plan
+change, a meal that needs input. The APNs token is uploaded by the app to the same preferences row.
+
+**Owner steps, once:**
+1. **Push Notifications capability on the App ID** (same place as HealthKit: https://developer.apple.com/account/resources/identifiers/list
+   → `ch.functionalps.app` → Capabilities → Push Notifications → Save). ⚠ Do this BEFORE the next
+   `release/testflight` push: the app now carries the `aps-environment` entitlement and the archive is refused until
+   the profile includes it (match regenerates the profile, it cannot add the capability).
+2. **APNs key:** https://developer.apple.com/account/resources/authkeys/list → `+` → name "FunctionAlps APNs",
+   tick Apple Push Notifications service (APNs) → Continue → Register → **Download the .p8 once** (it cannot be
+   downloaded again) and note the Key ID. Supabase → Edge Functions → Secrets:
+   `APNS_TEAM_ID` (Team ID), `APNS_KEY_ID`, `APNS_KEY_P8` (the .p8 file base64-encoded on one line:
+   `base64 -i AuthKey_XXXX.p8 | tr -d '\n'`), `APNS_TOPIC` = `ch.functionalps.app`. Never paste the .p8 in chat.
+3. Test: send yourself a message from the practitioner side → the phone shows "New message from your practitioner"
+   within seconds; `patient_notifications` has the row.

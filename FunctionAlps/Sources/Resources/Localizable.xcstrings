@@ -23095,13 +23095,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep, heart rate, steps, energy, workouts"
+            "value": "Sleep with stages, heart rate, steps, calories, workouts (no HRV, no Body Battery)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil, fréquence cardiaque, pas, énergie, séances"
+            "value": "Sommeil avec phases, fréquence cardiaque, pas, calories, séances (pas de VFC, pas de Body Battery)"
           }
         }
       }
@@ -23143,13 +23143,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep, heart rate, steps, energy (Google Health app sync)"
+            "value": "Sleep with stages, steps, workouts, vitals from the Google Health app (no HRV)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil, fréquence cardiaque, pas, énergie (synchronisation de l’app Google Health)"
+            "value": "Sommeil avec phases, pas, séances, constantes via l'app Google Santé (pas de VFC)"
           }
         }
       }
@@ -23175,13 +23175,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep, heart rate, steps, energy, workouts"
+            "value": "Sleep with stages, heart rate, steps, energy, workouts (no HRV, no readiness)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil, fréquence cardiaque, pas, énergie, séances"
+            "value": "Sommeil avec phases, fréquence cardiaque, pas, énergie, séances (pas de VFC, pas de readiness)"
           }
         }
       }
@@ -23207,13 +23207,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep, heart rate, steps, workouts"
+            "value": "Sleep without stages, steps, weight, workout heart rate (no HRV, no 24/7 heart rate)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil, fréquence cardiaque, pas, séances"
+            "value": "Sommeil sans phases, pas, poids, FC des séances (pas de VFC, pas de FC continue)"
           }
         }
       }
@@ -23255,13 +23255,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Workouts, steps, heart rate, sleep"
+            "value": "Workouts, steps, workout heart rate (no sleep, no HRV)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Séances, pas, fréquence cardiaque, sommeil"
+            "value": "Séances, pas, FC des séances (pas de sommeil, pas de VFC)"
           }
         }
       }
@@ -23303,13 +23303,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep, heart rate, resting heart rate, workouts"
+            "value": "Sleep without stages, resting heart rate, blood oxygen, breathing rate, workouts (no HRV)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommeil, fréquence cardiaque, fréquence au repos, séances"
+            "value": "Sommeil sans phases, FC au repos, oxygène sanguin, respiration, séances (pas de VFC)"
           }
         }
       }
@@ -23335,13 +23335,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weight, sleep, heart rate, blood pressure, steps"
+            "value": "Weight and body composition, sleep with stages, heart rate, blood pressure, steps (no HRV)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poids, sommeil, fréquence cardiaque, tension, pas"
+            "value": "Poids et composition corporelle, sommeil avec phases, fréquence cardiaque, tension, pas (pas de VFC)"
           }
         }
       }
