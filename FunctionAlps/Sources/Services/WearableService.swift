@@ -170,4 +170,33 @@ final class WearableService {
     func connections(patientId: String) async -> [WearableConnectionRow] {
         (try? await backend.wearableConnections(patientId: patientId)) ?? []
     }
+
+    // MARK: Direct vendors (Oura, WHOOP, Polar, Garmin, Withings, Suunto, Google)
+
+    /// Which vendors the practice has opened (`wearable_vendors.status = available`).
+    func availableVendors() async -> Set<String> {
+        let rows = (try? await backend.wearableVendors()) ?? []
+        return Set(rows.filter(\.isAvailable).map(\.key))
+    }
+
+    /// The vendor's OAuth consent in the system sheet; the callback function sends the phone back with the outcome.
+    func connectVendor(_ vendor: String) async throws -> VendorCallback.Outcome {
+        let start = try await backend.vendorConnectStart(vendor: vendor)
+        let authenticator = WebAuthenticator()
+        do {
+            let callback = try await authenticator.authenticate(url: start.url, callbackScheme: "functionalps")
+            return VendorCallback.parse(callback)
+        } catch WebAuthenticator.WebAuthError.cancelled {
+            return .failed(vendor: vendor, reason: "denied")
+        }
+    }
+
+    func disconnectVendor(_ vendor: String) async throws {
+        try await backend.vendorDisconnect(vendor: vendor)
+    }
+
+    /// "Sync now" for the vendor accounts (the last 3 days, server side).
+    func syncVendorsNow() async {
+        try? await backend.vendorSyncNow()
+    }
 }

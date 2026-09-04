@@ -125,6 +125,11 @@ protocol FunctionAlpsBackend: Sendable {
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow]
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
+    // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)
+    func wearableVendors() async throws -> [WearableVendorRow]
+    func vendorConnectStart(vendor: String) async throws -> VendorConnectStart
+    func vendorDisconnect(vendor: String) async throws
+    func vendorSyncNow() async throws
 }
 
 /// One consent decision in a sitting (`record_consent_batch.p_decisions[]`).

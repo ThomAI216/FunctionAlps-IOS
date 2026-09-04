@@ -1036,4 +1036,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
             PG.order("connected_at", descending: true),
         ])
     }
+
+    private struct VendorBody: Encodable, Sendable { let vendor: String }
+    private struct OkBody: Decodable, Sendable { let ok: Bool? }
+
+    func wearableVendors() async throws -> [WearableVendorRow] {
+        try await rest.select("wearable_vendors", query: [PG.select("key,name,data_source_id,status"), PG.order("name")])
+    }
+
+    func vendorConnectStart(vendor: String) async throws -> VendorConnectStart {
+        try await functions.invoke("wearable-oauth-start", body: VendorBody(vendor: vendor))
+    }
+
+    func vendorDisconnect(vendor: String) async throws {
+        let _: OkBody = try await functions.invoke("wearable-vendor-disconnect", body: VendorBody(vendor: vendor))
+    }
+
+    func vendorSyncNow() async throws {
+        let _: OkBody = try await functions.invoke("wearable-vendor-sync", body: EmptyBody())
+    }
 }

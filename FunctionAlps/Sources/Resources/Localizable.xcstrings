@@ -21794,6 +21794,438 @@
         }
       }
     },
+    "vendor.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoute : %@"
+          }
+        }
+      }
+    },
+    "vendor.available": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account link available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liaison de compte disponible"
+          }
+        }
+      }
+    },
+    "vendor.connect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter"
+          }
+        }
+      }
+    },
+    "vendor.connectedSince": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · since %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté · depuis le %@"
+          }
+        }
+      }
+    },
+    "vendor.disconnect.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous supprimons l’identifiant d’accès et cessons de récupérer les données. Les mesures déjà dans votre dossier restent, selon les règles de conservation de la Déclaration de confidentialité."
+          }
+        }
+      }
+    },
+    "vendor.disconnect.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink this account?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dissocier ce compte ?"
+          }
+        }
+      }
+    },
+    "vendor.err.denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You didn't allow the connection. Nothing was linked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n’avez pas autorisé la connexion. Rien n’a été lié."
+          }
+        }
+      }
+    },
+    "vendor.err.expired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sign-in took too long. Please try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion a pris trop de temps. Réessayez."
+          }
+        }
+      }
+    },
+    "vendor.err.generic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The connection didn't complete. Please try again in a moment."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La connexion n’a pas abouti. Réessayez dans un instant."
+          }
+        }
+      }
+    },
+    "vendor.footnote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devices without a public service (Eight Sleep, RingConn, Renpho, Zepp…) still arrive through Apple Health when their app writes to it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les appareils sans service public (Eight Sleep, RingConn, Renpho, Zepp…) arrivent quand même via Apple Santé lorsque leur app y écrit."
+          }
+        }
+      }
+    },
+    "vendor.garmin.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nightly HRV, stress, Body Battery, blood pressure, cycle"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC nocturne, stress, Body Battery, tension artérielle, cycle"
+          }
+        }
+      }
+    },
+    "vendor.garmin.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep, heart rate, steps, energy, workouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil, fréquence cardiaque, pas, énergie, séances"
+          }
+        }
+      }
+    },
+    "vendor.gated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linking a wearable account opens with the next update of the Privacy Notice, which describes this data. Apple Health above works today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La liaison d’un compte d’objet connecté s’ouvrira avec la prochaine mise à jour de la Déclaration de confidentialité, qui décrit ces données. Apple Santé, ci-dessus, fonctionne dès aujourd’hui."
+          }
+        }
+      }
+    },
+    "vendor.google.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily HRV, sleep stages, temperature deviation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC quotidienne, phases de sommeil, écart de température"
+          }
+        }
+      }
+    },
+    "vendor.google.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep, heart rate, steps, energy (Google Health app sync)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil, fréquence cardiaque, pas, énergie (synchronisation de l’app Google Health)"
+          }
+        }
+      }
+    },
+    "vendor.oura.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nightly HRV, readiness, temperature deviation, daytime stress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC nocturne, readiness, écart de température, stress diurne"
+          }
+        }
+      }
+    },
+    "vendor.oura.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep, heart rate, steps, energy, workouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil, fréquence cardiaque, pas, énergie, séances"
+          }
+        }
+      }
+    },
+    "vendor.polar.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nightly Recharge HRV and ANS charge, sleep stages, training load"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC Nightly Recharge et charge SNA, phases de sommeil, charge d’entraînement"
+          }
+        }
+      }
+    },
+    "vendor.polar.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep, heart rate, steps, workouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil, fréquence cardiaque, pas, séances"
+          }
+        }
+      }
+    },
+    "vendor.soon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bientôt disponible"
+          }
+        }
+      }
+    },
+    "vendor.suunto.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep and recovery with HRV, training sessions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil et récupération avec VFC, séances d’entraînement"
+          }
+        }
+      }
+    },
+    "vendor.suunto.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts, steps, heart rate, sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séances, pas, fréquence cardiaque, sommeil"
+          }
+        }
+      }
+    },
+    "vendor.viaHealth": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already via Apple Health: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjà via Apple Santé : %@"
+          }
+        }
+      }
+    },
+    "vendor.whoop.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV per sleep, recovery, strain, skin temperature"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC par nuit, récupération, strain, température cutanée"
+          }
+        }
+      }
+    },
+    "vendor.whoop.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep, heart rate, resting heart rate, workouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil, fréquence cardiaque, fréquence au repos, séances"
+          }
+        }
+      }
+    },
+    "vendor.withings.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV (RMSSD and SDNN), body composition, blood pressure, sleep score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VFC (RMSSD et SDNN), composition corporelle, tension artérielle, score de sommeil"
+          }
+        }
+      }
+    },
+    "vendor.withings.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight, sleep, heart rate, blood pressure, steps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids, sommeil, fréquence cardiaque, tension, pas"
+          }
+        }
+      }
+    },
     "verdict.digestion.high": {
       "localizations": {
         "en": {

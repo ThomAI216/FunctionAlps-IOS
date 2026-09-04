@@ -108,5 +108,16 @@ struct WearableTests {
         #expect(!WearableDisclosure.isDisclosed(noticeVersion: "v8"))
         #expect(WearableDisclosure.isDisclosed(noticeVersion: "v9"))
         #expect(WearableDisclosure.isDisclosed(noticeVersion: "v10"))
+        #expect(!WearableDisclosure.isVendorDisclosed(noticeVersion: "v9"))
+        #expect(WearableDisclosure.isVendorDisclosed(noticeVersion: "v10"))
+    }
+
+    @Test("The vendor callback URL parses to an outcome")
+    func vendorCallback() {
+        #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=oura&status=ok")!) == .ok(vendor: "oura"))
+        #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=whoop&status=error&reason=denied")!) == .failed(vendor: "whoop", reason: "denied"))
+        #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback")!) == .failed(vendor: nil, reason: "unknown"))
+        #expect(WearableVendor.all.count == 7 && WearableVendor.vendor("garmin")?.sourceId == 1_000_002)
+        #expect(Set(WearableVendor.all.map(\.sourceId)).count == 7 && !WearableVendor.all.contains { $0.sourceId == WearableSource.appleHealth })
     }
 }

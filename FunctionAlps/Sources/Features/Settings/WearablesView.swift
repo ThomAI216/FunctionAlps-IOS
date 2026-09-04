@@ -13,6 +13,12 @@ struct WearablesView: View {
     @State private var busy = false
     @State private var errorMessage: String?
     @State private var confirmDisconnect = false
+    // Direct vendors
+    @State private var availableVendors: Set<String> = []
+    @State private var vendorDisclosed: Bool?
+    @State private var busyVendor: String?
+    @State private var vendorMessage: String?
+    @State private var confirmVendorDisconnect: WearableVendor?
 
     private var service: WearableService { dependencies.wearables }
 
@@ -44,23 +50,31 @@ struct WearablesView: View {
                     }
 
                     SettingsSectionLabel(title: String(localized: "wearables.others", defaultValue: "Other devices"))
-                    FACard {
-                        VStack(alignment: .leading, spacing: 6) {
-                            if otherConnections.isEmpty {
-                                Text(String(localized: "wearables.others.title", defaultValue: "Garmin, Oura, Fitbit, Withings, Strava, Polar")).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
-                                Text(String(localized: "wearables.others.body", defaultValue: "These link through the FunctionAlps web app for now. Once linked there, their data shows up here too."))
-                                    .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(5)
-                            } else {
-                                ForEach(otherConnections, id: \.dataSourceId) { c in
-                                    HStack {
-                                        Text(c.dataSourceName ?? "#\(c.dataSourceId)").font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
-                                        Spacer()
-                                        Text(c.status == "connected" ? String(localized: "wearables.connected", defaultValue: "Connected") : (c.status ?? "")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(c.status == "connected" ? FAColor.forestSoft : ProfilePalette.muted)
-                                    }
-                                }
+                    if let vendorMessage {
+                        Text(vendorMessage).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.red).lineSpacing(4).padding(.bottom, 8)
+                    }
+                    if vendorDisclosed == false {
+                        FACard {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "clock").font(.system(size: 12, weight: .semibold)).foregroundStyle(ProfilePalette.muted).padding(.top, 2)
+                                Text(String(localized: "vendor.gated", defaultValue: "Linking a wearable account opens with the next update of the Privacy Notice, which describes this data. Apple Health above works today."))
+                                    .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
                             }
                         }
                     }
+                    ForEach(WearableVendor.all) { vendor in
+                        VendorCard(
+                            vendor: vendor,
+                            connection: connections.first { $0.dataSourceId == vendor.sourceId },
+                            available: availableVendors.contains(vendor.key) && vendorDisclosed == true,
+                            busy: busyVendor == vendor.key,
+                            onConnect: { Task { await connect(vendor) } },
+                            onDisconnect: { confirmVendorDisconnect = vendor }
+                        )
+                        .padding(.bottom, 10)
+                    }
+                    Text(String(localized: "vendor.footnote", defaultValue: "Devices without a public service (Eight Sleep, RingConn, Renpho, Zepp…) still arrive through Apple Health when their app writes to it."))
+                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 4)
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, FASpacing.navBarClearance)
@@ -75,6 +89,43 @@ struct WearablesView: View {
         } message: {
             Text(String(localized: "wearables.disconnect.body", defaultValue: "This phone stops sending new readings. What was already synced stays in your record; to revoke Health access itself, use Settings → Health."))
         }
+        .confirmationDialog(String(localized: "vendor.disconnect.confirm", defaultValue: "Unlink this account?"), isPresented: Binding(get: { confirmVendorDisconnect != nil }, set: { if !$0 { confirmVendorDisconnect = nil } }), titleVisibility: .visible) {
+            Button(String(localized: "wearables.disconnect", defaultValue: "Disconnect"), role: .destructive) {
+                if let v = confirmVendorDisconnect { Task { await disconnect(v) } }
+            }
+            Button(String(localized: "common.cancel", defaultValue: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "vendor.disconnect.body", defaultValue: "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice."))
+        }
+    }
+
+    // MARK: Direct vendors
+
+    private func connect(_ vendor: WearableVendor) async {
+        guard busyVendor == nil else { return }
+        busyVendor = vendor.key
+        vendorMessage = nil
+        do {
+            switch try await service.connectVendor(vendor.key) {
+            case .ok:
+                await load()
+            case .failed(_, let reason):
+                if reason != "denied" { vendorMessage = VendorCallback.message(for: reason) }
+            }
+        } catch let error as AppError {
+            vendorMessage = error.userMessage
+        } catch {
+            vendorMessage = VendorCallback.message(for: "unknown")
+        }
+        busyVendor = nil
+    }
+
+    private func disconnect(_ vendor: WearableVendor) async {
+        busyVendor = vendor.key
+        do { try await service.disconnectVendor(vendor.key); await load() }
+        catch let error as AppError { vendorMessage = error.userMessage }
+        catch { vendorMessage = VendorCallback.message(for: "unknown") }
+        busyVendor = nil
     }
 
     // MARK: Apple Health card
@@ -150,11 +201,6 @@ struct WearablesView: View {
             RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous)
                 .strokeBorder(Color(hex: 0x4A8A5C, opacity: service.isConnected ? 0.45 : 0), lineWidth: 1)
         }
-    }
-
-    /// Devices linked elsewhere (Thryve on the web app); this phone's own Apple Health row is the card above.
-    private var otherConnections: [WearableConnectionRow] {
-        connections.filter { $0.dataSourceId != WearableSource.appleHealth }
     }
 
     private var statusLine: String {
@@ -234,5 +280,67 @@ struct WearablesView: View {
         connections = await links
         let version = (try? await notice)?.version
         disclosed = service.isConnected || WearableDisclosure.isDisclosed(noticeVersion: version)
+        vendorDisclosed = WearableDisclosure.isVendorDisclosed(noticeVersion: version)
+        availableVendors = await service.availableVendors()
+    }
+}
+
+/// One direct vendor: mark, name, status line, what it adds, Connect / Disconnect.
+private struct VendorCard: View {
+    let vendor: WearableVendor
+    let connection: WearableConnectionRow?
+    let available: Bool
+    let busy: Bool
+    let onConnect: () -> Void
+    let onDisconnect: () -> Void
+
+    private var isConnected: Bool { connection?.status == "connected" }
+
+    var body: some View {
+        FACard {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 13) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(hex: vendor.tintHex, opacity: 0.12))
+                        Image(systemName: vendor.symbol).font(.system(size: 17, weight: .semibold)).foregroundStyle(Color(hex: vendor.tintHex))
+                    }
+                    .frame(width: 44, height: 44)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(vendor.name).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                        Text(statusLine).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(isConnected ? FAColor.forestSoft : ProfilePalette.muted)
+                    }
+                    Spacer(minLength: 0)
+                    if isConnected {
+                        Button(action: onDisconnect) {
+                            Text(String(localized: "wearables.disconnect", defaultValue: "Disconnect"))
+                                .font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(ProfilePalette.red)
+                                .padding(.horizontal, 12).padding(.vertical, 8)
+                                .overlay { Capsule().strokeBorder(ProfilePalette.red.opacity(0.35), lineWidth: 1) }
+                        }
+                        .buttonStyle(.plain).disabled(busy)
+                    } else if available {
+                        Button(action: onConnect) {
+                            HStack(spacing: 6) {
+                                if busy { ProgressView().tint(FAColor.charcoal).scaleEffect(0.7) }
+                                Text(String(localized: "vendor.connect", defaultValue: "Connect")).font(FATypography.sans(12, .bold, relativeTo: .caption))
+                            }
+                            .foregroundStyle(FAColor.charcoal).padding(.horizontal, 12).padding(.vertical, 8).background(FAColor.forestSoft, in: Capsule())
+                        }
+                        .buttonStyle(.plain).disabled(busy)
+                    }
+                }
+                Text(String(localized: "vendor.adds", defaultValue: "Adds: \(vendor.adds)")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(4).padding(.top, 10)
+                Text(String(localized: "vendor.viaHealth", defaultValue: "Already via Apple Health: \(vendor.viaAppleHealth)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 3)
+            }
+        }
+        .overlay { RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous).strokeBorder(Color(hex: 0x4A8A5C, opacity: isConnected ? 0.45 : 0), lineWidth: 1) }
+    }
+
+    private var statusLine: String {
+        if isConnected {
+            if let at = connection?.connectedAt { return String(localized: "vendor.connectedSince", defaultValue: "Connected · since \(at.formatted(date: .abbreviated, time: .omitted))") }
+            return String(localized: "wearables.connected", defaultValue: "Connected")
+        }
+        return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "Coming soon")
     }
 }

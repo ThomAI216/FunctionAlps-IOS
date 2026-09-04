@@ -140,6 +140,13 @@ struct WearableIngestResult: Decodable, Sendable, Equatable {
 /// that does not mention it.
 enum WearableDisclosure {
     static let requiredNoticeVersion = 9
+    /// A vendor account (Oura, WHOOP…) is a new data source with a stored credential: Privacy Notice v10.
+    static let vendorNoticeVersion = 10
+
+    static func isVendorDisclosed(noticeVersion: String?) -> Bool {
+        guard let n = noticeVersionNumber(noticeVersion) else { return false }
+        return n >= vendorNoticeVersion
+    }
 
     /// `"v9"` → 9, `"9"` → 9, `"v9.1"` → 9; anything else → nil.
     static func noticeVersionNumber(_ version: String?) -> Int? {
