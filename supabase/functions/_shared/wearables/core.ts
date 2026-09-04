@@ -98,23 +98,38 @@ export interface VendorAdapter {
 // MARK: - Catalogue ids (wearable_data_types) the adapters write
 
 export const T = {
-  Steps: 1000, CoveredDistance: 1001, BurnedCalories: 1010, ActiveBurnedCalories: 1011, ActivityDuration: 1100,
-  SleepEfficiency: 2200,
-  MainSleepDuration: 2300, InBed: 2301, REM: 2302, Deep: 2303, Light: 2305, Awake: 2306, Latency: 2307, Interruptions: 2402,
-  HeartRate: 3000, HeartRateResting: 3001, SPO2: 3009, VO2max: 3030, Rmssd: 3100, RmssdSleep: 3106, SDNN: 3112,
-  RespirationRate: 4000, Weight: 5020, AverageStress: 6010,
+  Steps: 1000, CoveredDistance: 1001, FloorsClimbed: 1002, ElevationGain: 1003, BurnedCalories: 1010, ActiveBurnedCalories: 1011, MET: 1012, RestingMetabolicRate: 1016,
+  ActivityDuration: 1100, ActivityLow: 1101, ActivityMid: 1102, ActivityHigh: 1103, ActivitySedentary: 1104, ActivityType: 1200,
+  SleepREMBinary: 2002, SleepDeepBinary: 2003, SleepLightBinary: 2005, SleepAwakeBinary: 2006,
+  SleepEfficiency: 2200, SleepQuality: 2201, SleepIntensity: 2210,
+  MainSleepDuration: 2300, InBed: 2301, REM: 2302, Deep: 2303, Light: 2305, Awake: 2306, Latency: 2307, AwakeAfterWakeup: 2308,
+  SleepStart: 2400, SleepEnd: 2401, Interruptions: 2402,
+  HeartRate: 3000, HeartRateResting: 3001, HeartRateSleep: 3002, PulseWaveVelocity: 3008, SPO2: 3009, HeartRateSleepLowest: 3020, VO2max: 3030,
+  HRZoneLight: 3090, HRZoneModerate: 3091, HRZoneIntense: 3092, HRZoneMaximal: 3093,
+  Rmssd: 3100, RmssdSleep: 3106, RmssdSleepHighest: 3107, SDNN: 3112, SDRR: 3113, AFib: 3120, DiastolicBP: 3300, SystolicBP: 3301,
+  RespirationRate: 4000, RespirationRateSleep: 4002, Breathing: 4100, Snoring: 4101,
+  Weight: 5020, MuscleMass: 5021, BoneMass: 5022, FatFreeMass: 5023, FatMass: 5024, FatRatio: 5025, BMI: 5026, WaterMass: 5029, Height: 5030,
+  BodyTemperature: 5040, SkinTemperature: 5041, UndefinedTemperature: 5042,
+  AverageStress: 6010, HighStress: 6011, MediumStress: 6012, LowStress: 6013,
   // Reserved ≥ 1000100 (migration 20260904_wearable_direct_connectors): vendor scores + the catalogue gaps.
   ReadinessScore: 1000100, RecoveryScore: 1000101, StrainScore: 1000102, BodyBattery: 1000103, ANSCharge: 1000104,
   SleepScore: 1000105, SkinTemperatureDeviation: 1000106, BloodGlucose: 1000107, MenstrualCycleDay: 1000108,
-  StressScore: 1000109, SkinTemperature: 1000110, BodyFatPercent: 1000111, DiastolicBP: 1000112, SystolicBP: 1000113,
+  StressScore: 1000109, SkinTemperatureAlt: 1000110, BodyFatPercent: 1000111, DiastolicBPAlt: 1000112, SystolicBPAlt: 1000113,
 } as const
 
 export const NAMES: Record<number, string> = {
-  1000: "Steps", 1001: "CoveredDistance", 1010: "BurnedCalories", 1011: "ActiveBurnedCalories", 1100: "ActivityDuration",
-  2200: "SleepEfficiency", 2300: "ThryveMainSleepDuration", 2301: "ThryveMainSleepInBedDuration", 2302: "ThryveMainSleepREMDuration",
-  2303: "ThryveMainSleepDeepDuration", 2305: "ThryveMainSleepLightDuration", 2306: "ThryveMainSleepAwakeDuration", 2307: "ThryveMainSleepLatency",
-  2402: "ThryveMainSleepInterruptions", 3000: "HeartRate", 3001: "HeartRateResting", 3009: "SPO2", 3030: "VO2max", 3100: "Rmssd",
-  3106: "RmssdSleep", 3112: "SDNN", 4000: "RespirationRate", 5020: "Weight", 6010: "AverageStress",
+  1000: "Steps", 1001: "CoveredDistance", 1002: "FloorsClimbed", 1003: "ElevationGain", 1010: "BurnedCalories", 1011: "ActiveBurnedCalories", 1012: "MetabolicEquivalent", 1016: "RestingMetabolicRate",
+  1100: "ActivityDuration", 1101: "ActivityLowBinary", 1102: "ActivityMidBinary", 1103: "ActivityHighBinary", 1104: "ActivitySedentaryBinary", 1200: "ActivityType",
+  2002: "SleepREMBinary", 2003: "SleepDeepBinary", 2005: "SleepLightBinary", 2006: "SleepAwakeBinary",
+  2200: "SleepEfficiency", 2201: "SleepQuality", 2210: "SleepIntensity",
+  2300: "ThryveMainSleepDuration", 2301: "ThryveMainSleepInBedDuration", 2302: "ThryveMainSleepREMDuration", 2303: "ThryveMainSleepDeepDuration", 2305: "ThryveMainSleepLightDuration",
+  2306: "ThryveMainSleepAwakeDuration", 2307: "ThryveMainSleepLatency", 2308: "ThryveMainSleepAwakeAfterWakeup", 2400: "ThryveMainSleepStartTime", 2401: "ThryveMainSleepEndTime", 2402: "ThryveMainSleepInterruptions",
+  3000: "HeartRate", 3001: "HeartRateResting", 3002: "HeartRateSleep", 3008: "PulseWaveVelocity", 3009: "SPO2", 3020: "HeartRateSleepLowest", 3030: "VO2max",
+  3090: "HeartRateZoneLightDuration", 3091: "HeartRateZoneModerateDuration", 3092: "HeartRateZoneIntenseDuration", 3093: "HeartRateZoneMaximalDuration",
+  3100: "Rmssd", 3106: "RmssdSleep", 3107: "RmssdSleepHighest", 3112: "SDNN", 3113: "SDRR", 3120: "AtrialFibrillationDetection", 3300: "BloodPressureDiastolic", 3301: "BloodPressureSystolic",
+  4000: "RespirationRate", 4002: "RespirationRateSleep", 4100: "Breathing", 4101: "SnoringBinary",
+  5020: "Weight", 5021: "MuscleMass", 5022: "BoneMass", 5023: "FatFreeMass", 5024: "FatMass", 5025: "FatRatio", 5026: "BMI", 5029: "WaterMass", 5030: "Height",
+  5040: "BodyTemperature", 5041: "SkinTemperature", 5042: "UndefinedTemperature", 6010: "AverageStress", 6011: "HighStressBinary", 6012: "MediumStressBinary", 6013: "LowStressBinary",
   1000100: "ReadinessScore", 1000101: "RecoveryScore", 1000102: "StrainScore", 1000103: "BodyBattery", 1000104: "ANSCharge",
   1000105: "SleepScore", 1000106: "SkinTemperatureDeviation", 1000107: "BloodGlucose", 1000108: "MenstrualCycleDay",
   1000109: "StressScore", 1000110: "SkinTemperature", 1000111: "BodyFatPercent", 1000112: "DiastolicBP", 1000113: "SystolicBP",
@@ -132,6 +147,51 @@ export function epoch(startTs: string, id: number, value: number | null | undefi
 }
 
 export const compact = <R>(rows: (R | null)[]): R[] => rows.filter((r): r is R => r != null)
+
+/** Several daily rows for one day from a `{ catalogueId: value }` map (nulls/NaN dropped). */
+export function dailyMap(day: string, map: Record<number, number | null | undefined>, extra: Partial<DailyRow> = {}): DailyRow[] {
+  return compact(Object.entries(map).map(([id, v]) => daily(day, Number(id), v, extra)))
+}
+
+/** A DATE-typed daily row: the instant as unix seconds in `value`, ISO in `valueText`. */
+export function dailyDate(day: string, id: number, iso: string | null | undefined, extra: Partial<DailyRow> = {}): DailyRow | null {
+  if (!iso) return null
+  const t = Date.parse(iso)
+  if (!Number.isFinite(t)) return null
+  return { day, dataTypeId: id, dataTypeName: NAMES[id] ?? String(id), value: Math.round(t / 1000), valueText: new Date(t).toISOString(), valueType: "DATE", ...extra }
+}
+
+/** A STRING-typed daily row. */
+export function dailyText(day: string, id: number, text: string | null | undefined, extra: Partial<DailyRow> = {}): DailyRow | null {
+  if (!text) return null
+  return { day, dataTypeId: id, dataTypeName: NAMES[id] ?? String(id), value: null, valueText: text, valueType: "STRING", ...extra }
+}
+
+export const num = (v: unknown): number | null => {
+  if (v == null || v === "") return null
+  const n = typeof v === "number" ? v : Number(v)
+  return Number.isFinite(n) ? n : null
+}
+export const mean = (xs: (number | null | undefined)[]): number | null => {
+  const v = xs.filter((x): x is number => typeof x === "number" && Number.isFinite(x))
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null
+}
+/** Parses `+02:00` / `-0530` / `Z` into minutes; null when absent. */
+export function offsetMinutes(s: string | null | undefined): number | null {
+  if (!s) return null
+  if (s === "Z") return 0
+  const m = /([+-])(\d{2}):?(\d{2})/.exec(s)
+  return m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : null
+}
+/** The vendor-local day of an ISO timestamp: honours the offset embedded in the string (or `offsetMin`). */
+export function dayOfISO(iso: string, offsetMin?: number | null): string {
+  const t = Date.parse(iso)
+  const off = offsetMin ?? offsetMinutes(iso.slice(19)) ?? 0
+  return localDay(new Date(t), off)
+}
+export const dayStartISO = (day: string) => `${day}T00:00:00Z`
+export const dayEndISO = (day: string) => `${addDays(day, 1)}T00:00:00Z`
+export const unixOf = (iso: string) => Math.round(Date.parse(iso) / 1000)
 
 /** YYYY-MM-DD for a Date in a given UTC offset (minutes). */
 export function localDay(d: Date, offsetMinutes = 0): string {

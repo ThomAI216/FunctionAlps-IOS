@@ -7,7 +7,7 @@ set -e
 cd "$(dirname "$0")"
 mkdir -p bundle
 for fn in wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect; do
-  npx -y esbuild "$fn/index.ts" --bundle --format=esm --platform=neutral --target=esnext \
+  npx -y esbuild "$fn/index.ts" --bundle --format=esm --platform=neutral --target=esnext --minify-whitespace --minify-syntax \
     '--external:npm:*' '--external:jsr:*' --outfile="bundle/$fn.ts" --log-level=warning
   node --check "bundle/$fn.ts"
   printf '%s: %s bytes\n' "$fn" "$(wc -c < "bundle/$fn.ts")"

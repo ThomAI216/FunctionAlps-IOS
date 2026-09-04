@@ -6,6 +6,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { CORS, RateLimitedError, UnauthorizedError, addDays, json, liveTokens, localDay, markAccount, persistRows, resolvePatientId, serviceClient, storeRaw, type AccountRow } from "../_shared/wearables/core.ts"
 import { adapter } from "../_shared/wearables/registry.ts"
+import { ouraMaintain } from "../_shared/wearables/oura.ts"
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2"
 
 const REPORT_SECRET = Deno.env.get("REPORT_SECRET")
@@ -57,7 +58,13 @@ Deno.serve(async (req) => {
   const db = serviceClient()
 
   if (REPORT_SECRET && req.headers.get("x-report-secret") === REPORT_SECRET) {
-    return json(await drainQueue(db))
+    const drained = await drainQueue(db)
+    // Oura's application-level webhook subscriptions expire: keep them alive once an hour (cheap: one list call).
+    let oura: unknown = null
+    if (new Date().getMinutes() < 10 && Deno.env.get("OURA_CLIENT_ID")) {
+      try { oura = await ouraMaintain() } catch (e) { oura = { error: String(e).slice(0, 200) } }
+    }
+    return json({ ...drained, oura })
   }
   const patientId = await resolvePatientId(req, db)
   if (!patientId) return json({ error: "Unauthorized" }, 401)
