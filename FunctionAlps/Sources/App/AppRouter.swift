@@ -51,6 +51,7 @@ struct MainTabView: View {
         TabView(selection: $router.tab) {
             NavigationStack(path: $router.homePath) {
                 HomeView()
+                    .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
             }
@@ -58,6 +59,7 @@ struct MainTabView: View {
 
             NavigationStack(path: $router.trendsPath) {
                 TrendsView()
+                    .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                 .navigationDestination(for: Route.self, destination: destination)
             }
@@ -65,6 +67,7 @@ struct MainTabView: View {
 
             NavigationStack(path: $router.foodPath) {
                 FoodView()
+                    .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
             }
@@ -72,6 +75,7 @@ struct MainTabView: View {
 
             NavigationStack(path: $router.libraryPath) {
                 LibraryView()
+                    .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
             }
@@ -79,6 +83,7 @@ struct MainTabView: View {
 
             NavigationStack(path: $router.profilePath) {
                 ProfileView()
+                    .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
             }
@@ -94,8 +99,12 @@ struct MainTabView: View {
         .environment(router)
     }
 
-    @ViewBuilder
     private func destination(_ route: Route) -> some View {
+        screen(route).faSwipeBack()
+    }
+
+    @ViewBuilder
+    private func screen(_ route: Route) -> some View {
         switch route {
         case .profile: ProfileView()
         case .settings: SettingsView()
