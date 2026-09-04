@@ -82,3 +82,8 @@ Apple's ASC API (JWT signed with the `.p8`) can read builds, manage TestFlight g
 ## 7. Rollback / hygiene
 - A bad TestFlight build is simply expired in ASC; never reuse a build number.
 - Keep `MARKETING_VERSION` stable across builds of the same beta; bump it when the feature set changes.
+
+
+## CI minutes (2026-09-04)
+
+The repository is **public** since 2026-09-04: GitHub Actions minutes are unlimited for public repos, including the 10× macOS runners, which is why the private-repo allowance (2,000 min/month ≈ 200 macOS minutes ≈ 20 builds) stopped every job on 2026-09-03 with "no runner assigned" failures. The workflow still keeps usage low: a Linux pre-check skips the simulator job on docs-only pushes, and a `release/testflight` push archives without re-running the unit tests (the same commit was already tested on `main`). Nothing sensitive is in the history — the app holds only the publishable Supabase key; certificates, the ASC `.p8` and the match passphrase live only in repository secrets.
