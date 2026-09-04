@@ -23,14 +23,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     /// Foreground: show the banner too (a reminder that fires while the app is open is still useful).
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+    /// `nonisolated`: the class is main-actor (UIApplicationDelegate), but UNUserNotificationCenter calls these
+    /// off the main actor with non-Sendable arguments — read what is needed here, then hop.
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound, .list]
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        let info = response.notification.request.content.userInfo
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let action = response.actionIdentifier
-        let route = (info["route"] as? String).flatMap(URL.init(string:))
+        let route = (response.notification.request.content.userInfo["route"] as? String).flatMap(URL.init(string:))
         await MainActor.run {
             if action == "fine", let route, let mealId = AppRouter.mealId(from: route) {
                 // "Felt fine" from the reaction banner: rated without opening the app.
