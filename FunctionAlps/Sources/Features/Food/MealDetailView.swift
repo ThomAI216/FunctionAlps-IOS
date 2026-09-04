@@ -6,7 +6,9 @@ import SwiftUI
 struct MealDetailView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppRouter.self) private var router
     let mealId: String
+    @State private var rating = false
     @State private var model: MealDetailViewModel?
     @State private var editingNote = false
     @State private var confirmDelete = false
@@ -26,7 +28,9 @@ struct MealDetailView: View {
                 model = m
                 await m.load()
             }
+            openRatingIfRequested()
         }
+        .onAppear { openRatingIfRequested() }
         .onDisappear { model?.cancel() }
     }
 
@@ -50,7 +54,9 @@ struct MealDetailView: View {
                         .padding(.top, 14)
                     if meal.status != .complete { statusCard(meal).padding(.top, 14) }
                     if !meal.items.isEmpty { ingredients(meal) }
-                    feltSection(model.reaction)
+                    Button { rating = true } label: { feltSection(model.reaction) }
+                        .buttonStyle(.plain)
+                        .accessibilityHint(String(localized: "meal.felt.hint", defaultValue: "Rate how this meal felt"))
                     noteCard(meal, model).padding(.top, 16)
                     if let scores = meal.scores { scoreCards(scores) }
                     FAButton(title: String(localized: "meal.delete", defaultValue: "Delete this meal"), style: .destructive, isLoading: model.isDeleting) {
@@ -66,6 +72,10 @@ struct MealDetailView: View {
                 Button(String(localized: "meal.delete", defaultValue: "Delete this meal"), role: .destructive) {
                     Task { if await model.delete() { dismiss() } }
                 }
+            }
+            .sheet(isPresented: $rating) {
+                MealReactionSheet(mealId: mealId, mealName: meal.name) { model.reactionSaved($0) }
+                    .presentationDetents([.large])
             }
             .sheet(isPresented: $editingNote) {
                 NoteEditor(model: model)
@@ -161,6 +171,13 @@ struct MealDetailView: View {
         .padding(.top, 18)
     }
 
+    /// `functionalps://meal/<id>?rate=1` (the 2.5 h notification): the sheet opens on arrival, once.
+    private func openRatingIfRequested() {
+        guard router.pendingRateMealId == mealId else { return }
+        router.pendingRateMealId = nil
+        rating = true
+    }
+
     /// The past felt-reaction (`nb_meal_reactions`): a sentiment dot + word + the top flags.
     private func feltSection(_ reaction: MealReaction?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -177,7 +194,11 @@ struct MealDetailView: View {
                     }
                 }
             } else {
-                Text(String(localized: "meal.felt.unrated", defaultValue: "How did it feel?")).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary)
+                HStack(spacing: 4) {
+                    Text(String(localized: "meal.felt.unrated", defaultValue: "How did it feel?")).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary)
+                    Text(String(localized: "meal.felt.rate", defaultValue: "Rate it")).font(FATypography.sans(13, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.brand)
+                    Image(systemName: "chevron.right").font(.system(size: 10, weight: .semibold)).foregroundStyle(FAColor.brand)
+                }
             }
         }
         .padding(.top, 16)

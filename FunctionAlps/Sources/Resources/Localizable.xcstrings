@@ -9826,6 +9826,38 @@
         }
       }
     },
+    "meal.felt.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate how this meal felt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évaluer le ressenti de ce repas"
+          }
+        }
+      }
+    },
+    "meal.felt.rate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évaluer"
+          }
+        }
+      }
+    },
     "meal.felt.unrated": {
       "localizations": {
         "en": {
@@ -11102,6 +11134,806 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pourquoi c’est important"
+          }
+        }
+      }
+    },
+    "notif.action.checkin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire le bilan"
+          }
+        }
+      }
+    },
+    "notif.action.fine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Felt fine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça allait"
+          }
+        }
+      }
+    },
+    "notif.action.log": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer"
+          }
+        }
+      }
+    },
+    "notif.action.rate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Évaluer"
+          }
+        }
+      }
+    },
+    "notif.ask.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your check-ins, meals not logged, how a meal felt, and news from your practitioner."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bilans, les repas non enregistrés, le ressenti après un repas et les nouvelles de votre praticien·ne."
+          }
+        }
+      }
+    },
+    "notif.ask.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notifications"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer les notifications"
+          }
+        }
+      }
+    },
+    "notif.ask.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow reminders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser les rappels"
+          }
+        }
+      }
+    },
+    "notif.at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À"
+          }
+        }
+      }
+    },
+    "notif.denied.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn them on in iOS Settings to receive your reminders and your practitioner's messages."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez-les dans les Réglages iOS pour recevoir vos rappels et les messages de votre praticien·ne."
+          }
+        }
+      }
+    },
+    "notif.denied.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open iOS Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les Réglages iOS"
+          }
+        }
+      }
+    },
+    "notif.denied.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are off for FunctionAlps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications sont désactivées pour FunctionAlps"
+          }
+        }
+      }
+    },
+    "notif.dinner.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph or describe it â 20 seconds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez-le ou décrivez-le — 20 secondes."
+          }
+        }
+      }
+    },
+    "notif.dinner.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinner not logged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dîner non enregistré"
+          }
+        }
+      }
+    },
+    "notif.evening.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two minutes before bed sharpens tomorrow's picture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux minutes avant de dormir affinent l'image de demain."
+          }
+        }
+      }
+    },
+    "notif.evening.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your evening check-in ð"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre bilan du soir 🌙"
+          }
+        }
+      }
+    },
+    "notif.footer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications never carry health details â just a nudge and a link. Everything stays in the app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications ne contiennent jamais de détails de santé — juste un rappel et un lien. Tout reste dans l'app."
+          }
+        }
+      }
+    },
+    "notif.lunch.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quick snap now keeps today's picture whole."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un cliché maintenant garde la journée complète."
+          }
+        }
+      }
+    },
+    "notif.lunch.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No lunch photo yet?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de photo du déjeuner ?"
+          }
+        }
+      }
+    },
+    "notif.midday.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy, focus, digestion â how is the afternoon starting?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie, concentration, digestion — comment démarre l'après-midi ?"
+          }
+        }
+      }
+    },
+    "notif.midday.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midday check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point de midi"
+          }
+        }
+      }
+    },
+    "notif.morning.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How did you sleep? Two taps set today's baseline."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment avez-vous dormi ? Deux touches fixent la base de la journée."
+          }
+        }
+      }
+    },
+    "notif.morning.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning âï¸"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bonjour ☀️"
+          }
+        }
+      }
+    },
+    "notif.quiet.from": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De"
+          }
+        }
+      }
+    },
+    "notif.quiet.until": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jusqu'à"
+          }
+        }
+      }
+    },
+    "notif.reaction.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy, digestion, bloating â 10 seconds, and it teaches the pattern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie, digestion, ballonnements — 10 secondes, et le schéma s'apprend."
+          }
+        }
+      }
+    },
+    "notif.reaction.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do you feel after that meal?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous sentez-vous après ce repas ?"
+          }
+        }
+      }
+    },
+    "notif.row.careplan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Care plan updated"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan de soins mis à jour"
+          }
+        }
+      }
+    },
+    "notif.row.evening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilan du soir"
+          }
+        }
+      }
+    },
+    "notif.row.followup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How do you feel?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous sentez-vous ?"
+          }
+        }
+      }
+    },
+    "notif.row.followup.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2Â½ hours after each meal, once"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 h 30 après chaque repas, une fois"
+          }
+        }
+      }
+    },
+    "notif.row.mealReminders": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal not logged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas non enregistré"
+          }
+        }
+      }
+    },
+    "notif.row.mealReminders.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lunch at 13:30 and dinner at 20:15 â only when nothing was logged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjeuner à 13h30 et dîner à 20h15 — seulement si rien n'a été enregistré"
+          }
+        }
+      }
+    },
+    "notif.row.messages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau message"
+          }
+        }
+      }
+    },
+    "notif.row.midday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midday check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point de midi"
+          }
+        }
+      }
+    },
+    "notif.row.morning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilan du matin"
+          }
+        }
+      }
+    },
+    "notif.row.quiet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiet hours"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heures calmes"
+          }
+        }
+      }
+    },
+    "notif.row.quiet.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders wait until the window ends"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels attendent la fin de la plage"
+          }
+        }
+      }
+    },
+    "notif.row.reports": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report ready"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapport prêt"
+          }
+        }
+      }
+    },
+    "notif.row.reports.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When your practitioner approves a report for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand votre praticien·ne approuve un rapport pour vous"
+          }
+        }
+      }
+    },
+    "notif.row.weekly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly summary"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résumé hebdomadaire"
+          }
+        }
+      }
+    },
+    "notif.row.weekly.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunday, 18:00"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dimanche, 18h00"
+          }
+        }
+      }
+    },
+    "notif.section.checkins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilans"
+          }
+        }
+      }
+    },
+    "notif.section.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas"
+          }
+        }
+      }
+    },
+    "notif.section.practitioner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your practitioner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De votre praticien·ne"
+          }
+        }
+      }
+    },
+    "notif.section.rhythm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rhythm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rythme"
+          }
+        }
+      }
+    },
+    "notif.settings.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "notif.stale.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open FunctionAlps once so your nights and steps catch up."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez FunctionAlps une fois pour rattraper vos nuits et vos pas."
+          }
+        }
+      }
+    },
+    "notif.stale.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health hasn't synced for 3 days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé n'a pas synchronisé depuis 3 jours"
+          }
+        }
+      }
+    },
+    "notif.weekly.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seven days of meals, check-ins and nights â see what moved."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sept jours de repas, de bilans et de nuits — voyez ce qui a bougé."
+          }
+        }
+      }
+    },
+    "notif.weekly.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your week at a glance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre semaine en un coup d'œil"
           }
         }
       }
@@ -17922,6 +18754,246 @@
         }
       }
     },
+    "reaction.bloating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloating"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ballonnements"
+          }
+        }
+      }
+    },
+    "reaction.fullness": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heaviness / fullness"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lourdeur / satiété"
+          }
+        }
+      }
+    },
+    "reaction.gas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaz"
+          }
+        }
+      }
+    },
+    "reaction.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your gut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre ventre"
+          }
+        }
+      }
+    },
+    "reaction.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten seconds now teaches which meals sit well with you. Skip anything you don't know."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dix secondes maintenant apprennent quels repas vous conviennent. Passez ce que vous ne savez pas."
+          }
+        }
+      }
+    },
+    "reaction.level.mild": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Léger"
+          }
+        }
+      }
+    },
+    "reaction.level.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modéré"
+          }
+        }
+      }
+    },
+    "reaction.level.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun"
+          }
+        }
+      }
+    },
+    "reaction.level.strong": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fort"
+          }
+        }
+      }
+    },
+    "reaction.overall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overall, 2â3 hours later"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Globalement, 2–3 heures après"
+          }
+        }
+      }
+    },
+    "reaction.save": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer"
+          }
+        }
+      }
+    },
+    "reaction.scale.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sat well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien passé"
+          }
+        }
+      }
+    },
+    "reaction.scale.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rough"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difficile"
+          }
+        }
+      }
+    },
+    "reaction.skip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas maintenant"
+          }
+        }
+      }
+    },
+    "reaction.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How did that meal feel?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment s'est passé ce repas ?"
+          }
+        }
+      }
+    },
     "reader.figure.expand": {
       "localizations": {
         "en": {
@@ -18238,6 +19310,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Messages"
+          }
+        }
+      }
+    },
+    "settings.notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "settings.notifications.section": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappels"
+          }
+        }
+      }
+    },
+    "settings.notifications.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-ins, meals, how you feel, your practitioner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilans, repas, ressenti, votre praticien·ne"
           }
         }
       }

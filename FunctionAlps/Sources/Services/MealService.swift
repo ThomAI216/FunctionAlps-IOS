@@ -61,6 +61,14 @@ struct MealService: Sendable {
         return (try? await backend.mealReactions(patientId: patientId, since: since)) ?? [:]
     }
 
+    /// The member rated the meal (the reaction sheet, or "Felt fine" from the notification). Symptoms 0–10.
+    func saveReaction(mealId: String, patientId: String, overall: Double?, bloating: Int = 0, fullness: Int = 0, gas: Int = 0, flags: [String] = [], responses: [String: Double]? = nil) async throws {
+        try await backend.saveMealReaction(MealReactionWrite(
+            patientId: patientId, mealLogId: mealId, overall: overall, bloating: bloating, fullness: fullness, gasBurden: gas,
+            responses: responses, reactionFlags: flags.isEmpty ? nil : flags, reactionTime: ISO8601.string(now())
+        ))
+    }
+
     // MARK: Favorites + re-log
 
     func favorites(patientId: String) async -> [FavoriteMeal] {

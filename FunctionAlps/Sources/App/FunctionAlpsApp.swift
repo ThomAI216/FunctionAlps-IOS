@@ -2,6 +2,8 @@ import SwiftUI
 
 @main
 struct FunctionAlpsApp: App {
+    /// APNs token + notification taps (UIKit's two remaining jobs).
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var dependencies: AppDependencies?
     @State private var configurationError: String?
 

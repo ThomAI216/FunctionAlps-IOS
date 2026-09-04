@@ -62,6 +62,16 @@ protocol FunctionAlpsBackend: Sendable {
     func mealReaction(mealId: String) async throws -> MealReaction?
     /// Reactions for every meal since `since`, keyed by meal id — the Food tab's "how it felt" lines.
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction]
+    /// One `nb_meal_reactions` row — the Expo `saveMealReaction` shape (a row IS the "they answered" signal).
+    func saveMealReaction(_ write: MealReactionWrite) async throws
+
+    // MARK: Notifications (patient_notification_preferences — one row per member)
+
+    func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow?
+    /// Upsert on `patient_id`; every preference column is written.
+    func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws
+    /// The APNs token + device facts, upserted on `patient_id` (the preferences columns are untouched).
+    func savePushToken(_ write: PushTokenWrite) async throws
 
     // MARK: Favorites + re-log (Food tab)
 
@@ -130,6 +140,20 @@ protocol FunctionAlpsBackend: Sendable {
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart
     func vendorDisconnect(vendor: String) async throws
     func vendorSyncNow() async throws
+}
+
+/// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
+struct MealReactionWrite: Encodable, Sendable, Equatable {
+    let patientId: String
+    let mealLogId: String
+    let overall: Double?
+    let bloating: Int
+    let fullness: Int
+    let gasBurden: Int
+    let responses: [String: Double]?
+    let reactionFlags: [String]?
+    /// ISO 8601 (the encoder has no date strategy — `ISO8601.string`).
+    let reactionTime: String
 }
 
 /// One consent decision in a sitting (`record_consent_batch.p_decisions[]`).

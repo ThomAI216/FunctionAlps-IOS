@@ -16,6 +16,8 @@ struct FoodView: View {
         .task {
             if model == nil {
                 let m = FoodViewModel(members: dependencies.members, meals: dependencies.meals, auth: dependencies.auth)
+                let notifications = dependencies.notifications
+                m.onMealLogged = { id in Task { await notifications.mealLogged(id: id, at: Date()) } }
                 model = m
                 await m.load()
             }

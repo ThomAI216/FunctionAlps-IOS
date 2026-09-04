@@ -810,6 +810,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return out
     }
 
+    func saveMealReaction(_ write: MealReactionWrite) async throws {
+        try await rest.insertRows("nb_meal_reactions", body: [write])
+    }
+
+    // MARK: Notifications (patient_notification_preferences)
+
+    func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? {
+        try await rest.selectOne("patient_notification_preferences", query: [PG.select(NotificationPrefsRow.columns), PG.eq("patient_id", patientId), PG.limit(1)])
+    }
+
+    func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws {
+        try await rest.upsert("patient_notification_preferences", onConflict: "patient_id", body: [row])
+    }
+
+    func savePushToken(_ write: PushTokenWrite) async throws {
+        try await rest.upsert("patient_notification_preferences", onConflict: "patient_id", body: [write])
+    }
+
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
     func carePlan(patientId: String) async throws -> CarePlan? {

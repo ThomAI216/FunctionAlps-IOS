@@ -12,7 +12,13 @@ struct CheckinMomentView: View {
     var body: some View {
         ZStack {
             if let model {
-                CheckinMomentScreen(model: model) { dismiss() }
+                CheckinMomentScreen(model: model) {
+                    // Saved: today's reminder for this moment is no longer needed; first save is the moment to ask for permission.
+                    let notifications = dependencies.notifications
+                    notifications.momentDone(slot, day: dependencies.checkins.today)
+                    Task { await notifications.askIfNeeded() }
+                    dismiss()
+                }
             }
         }
         .faWall()

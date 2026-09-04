@@ -91,6 +91,9 @@ targets:
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access: []
         com.apple.developer.healthkit.background-delivery: true
+        # APNs (push from CM OS: practitioner message · approved report · care-plan change · meal needs input).
+        # ⚠ The App ID must have the Push Notifications capability enabled before the next release push (same rule as HealthKit).
+        aps-environment: production
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(FA_BUNDLE_ID)

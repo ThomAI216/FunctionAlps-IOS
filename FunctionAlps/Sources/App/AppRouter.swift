@@ -28,6 +28,7 @@ enum Route: Hashable {
     case microGroup(String)
     case microNutrient(String)
     case macro(String)
+    case notifications
 }
 
 @MainActor
@@ -54,6 +55,41 @@ final class AppRouter {
         }
     }
 
+    /// `functionalps://…` from a notification or a link: switch tab, then push.
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · messages · careplan · devices · settings · home
+    func open(_ url: URL) {
+        guard url.scheme == "functionalps" else { return }
+        let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
+        let rate = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "rate" && $0.value == "1" } ?? false
+        switch parts.first {
+        case "checkin":
+            tab = .home; homePath = []
+            if let raw = parts.dropFirst().first, let slot = MomentSlot(rawValue: raw) { homePath.append(.checkin(slot)) }
+        case "meal":
+            tab = .food; foodPath = []
+            if let id = parts.dropFirst().first { foodPath.append(.meal(id)); pendingRateMealId = rate ? id : nil }
+        case "food": tab = .food; foodPath = []
+        case "trends": tab = .trends; trendsPath = []
+        case "messages": tab = .profile; profilePath = [.messages]
+        case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "devices": tab = .profile; profilePath = [.settings, .wearables]
+        case "settings": tab = .profile; profilePath = [.settings]
+        case "notifications": tab = .profile; profilePath = [.settings, .notifications]
+        case "home": tab = .home; homePath = []
+        default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
+        }
+    }
+
+    /// The meal id a `meal/<id>` route names, nil otherwise.
+    static func mealId(from url: URL) -> String? {
+        let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
+        guard parts.first == "meal" else { return nil }
+        return parts.dropFirst().first
+    }
+
+    /// Set by a `meal/<id>?rate=1` route; the meal page opens the reaction sheet and clears it.
+    var pendingRateMealId: String?
+
     func pop() {
         switch tab {
         case .home: _ = homePath.popLast()
@@ -73,6 +109,8 @@ final class AppRouter {
 
 /// Five stacks behind one floating glass pill (the system tab bar is hidden on every root).
 struct MainTabView: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.scenePhase) private var scenePhase
     @State private var router = AppRouter()
 
     var body: some View {
@@ -125,6 +163,19 @@ struct MainTabView: View {
             }
         }
         .environment(router)
+        // Notifications: taps and links land here; the badge clears whenever the app comes forward.
+        .onOpenURL { router.open($0) }
+        .onAppear {
+            AppDelegate.router = router
+            AppDelegate.notifications = dependencies.notifications
+            if let url = AppDelegate.pendingRoute { AppDelegate.pendingRoute = nil; router.open(url) }
+            dependencies.notifications.clearBadge()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            dependencies.notifications.clearBadge()
+            Task { await dependencies.notifications.refreshAuthorization() }
+        }
     }
 
     private func destination(_ route: Route) -> some View {
@@ -158,6 +209,7 @@ struct MainTabView: View {
         case .microGroup(let key): MicroGroupView(groupKey: key)
         case .microNutrient(let key): MicroNutrientView(nutrientKey: key)
         case .macro(let key): MacroDetailView(macroKey: key)
+        case .notifications: NotificationsSettingsView()
         }
     }
 }

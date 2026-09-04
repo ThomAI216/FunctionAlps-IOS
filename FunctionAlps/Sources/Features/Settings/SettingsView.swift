@@ -56,6 +56,12 @@ struct SettingsView: View {
                         .padding(10)
                     }
 
+                    // Notifications — the member owns every reminder.
+                    SettingsSectionLabel(title: String(localized: "settings.notifications.section", defaultValue: "Reminders"))
+                    FACard(padded: false) {
+                        SettingsRow(symbol: "bell", label: String(localized: "settings.notifications", defaultValue: "Notifications"), sub: String(localized: "settings.notifications.sub", defaultValue: "Check-ins, meals, how you feel, your practitioner"), tintHex: 0xC99A3B) { router.profilePath.append(.notifications) }
+                    }
+
                     // Devices — Apple Health covers the Apple Watch and anything that syncs into Health.
                     SettingsSectionLabel(title: String(localized: "settings.devices", defaultValue: "Devices"))
                     FACard(padded: false) {

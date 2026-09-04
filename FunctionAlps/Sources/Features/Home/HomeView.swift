@@ -27,6 +27,16 @@ struct HomeView: View {
             // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
             if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
         }
+        .onChange(of: model?.state.value?.today) { _, today in
+            // Every fresh Today re-plans the phone's reminders (done moments dropped, logged meals dropped).
+            guard let today, let patientId = model?.state.value?.member.patientId else { return }
+            let notifications = dependencies.notifications, wearables = dependencies.wearables
+            Task {
+                await notifications.loadPrefs(patientId: patientId)
+                await notifications.refreshAuthorization()
+                await notifications.replan(snapshot: today, wearables: wearables)
+            }
+        }
     }
 
     @ViewBuilder

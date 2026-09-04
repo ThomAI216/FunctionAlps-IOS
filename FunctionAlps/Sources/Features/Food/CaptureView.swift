@@ -34,6 +34,12 @@ struct CaptureView: View {
             }
         }
         .onDisappear { model?.cancel() }
+        .onChange(of: model?.mealId) { _, id in
+            // The row exists: its 2.5 h "how do you feel?" is scheduled now (first meal = the moment to ask for permission).
+            guard let id else { return }
+            let notifications = dependencies.notifications
+            Task { await notifications.askIfNeeded(); await notifications.mealLogged(id: id, at: Date()) }
+        }
     }
 }
 

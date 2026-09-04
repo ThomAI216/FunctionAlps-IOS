@@ -27,6 +27,8 @@ final class FoodViewModel {
     private(set) var isRefreshing = false
     private(set) var favorites: [FavoriteMeal] = []
     private(set) var reactions: [String: MealReaction] = [:]
+    /// A meal was inserted by re-log — the notification engine schedules its 2.5 h follow-up.
+    @ObservationIgnored var onMealLogged: (@MainActor (String) -> Void)?
     var relogToast: RelogToast?
     var errorMessage: String?
     let dictation = SpeechDictation()
@@ -128,6 +130,7 @@ final class FoodViewModel {
             do {
                 let id = try await meals.relog(source, patientId: member.patientId, favoriteId: favoriteId)
                 showToast(RelogToast(mealId: id, name: source.name, kcal: source.kcal))
+                onMealLogged?(id)
                 await load(refresh: true)
             } catch let error as AppError {
                 errorMessage = error.userMessage

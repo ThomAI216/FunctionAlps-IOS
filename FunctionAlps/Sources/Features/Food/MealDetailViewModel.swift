@@ -57,6 +57,9 @@ final class MealDetailViewModel {
         }
     }
 
+    /// The reaction sheet saved a row: show it without a reload.
+    func reactionSaved(_ r: MealReaction) { reaction = r }
+
     func saveNote() async -> Bool {
         isSavingNote = true
         defer { isSavingNote = false }
