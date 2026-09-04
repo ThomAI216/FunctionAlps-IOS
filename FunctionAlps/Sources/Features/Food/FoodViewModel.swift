@@ -15,26 +15,38 @@ final class FoodViewModel {
         let meals: [MealLog]
     }
 
-    struct DaySection: Identifiable, Equatable {
-        let id: String
-        let title: String
-        let meals: [MealLog]
+    /// The re-log toast: the row is already inserted; Undo deletes it again, Adjust opens it.
+    struct RelogToast: Equatable {
+        let mealId: String
+        let name: String
+        let kcal: Double?
     }
 
     var state: Loadable<Content> = .loading
     var description = ""
     private(set) var isRefreshing = false
+    private(set) var favorites: [FavoriteMeal] = []
+    private(set) var reactions: [String: MealReaction] = [:]
+    var relogToast: RelogToast?
+    var errorMessage: String?
+    let dictation = SpeechDictation()
 
     private let members: MemberService
     private let meals: MealService
     private let auth: AuthService
     private let calendar: Calendar
+    private var toastTask: Task<Void, Never>?
 
     init(members: MemberService, meals: MealService, auth: AuthService, calendar: Calendar = .current) {
         self.members = members
         self.meals = meals
         self.auth = auth
         self.calendar = calendar
+        dictation.onFinal = { [weak self] words in
+            guard let self else { return }
+            let current = self.description.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.description = current.isEmpty ? words : current + " " + words
+        }
     }
 
     func load(refresh: Bool = false) async {
@@ -42,8 +54,12 @@ final class FoodViewModel {
         defer { isRefreshing = false }
         do {
             let member = try await members.currentMember()
-            let recent = try await meals.recentMeals(patientId: member.patientId)
-            state = .loaded(Content(member: member, meals: recent))
+            async let recent = meals.recentMeals(patientId: member.patientId)
+            async let favs = meals.favorites(patientId: member.patientId)
+            async let felt = meals.reactions(patientId: member.patientId)
+            state = .loaded(Content(member: member, meals: try await recent))
+            favorites = await favs
+            reactions = await felt
         } catch MemberService.MemberError.notRegistered {
             state = .empty
         } catch let error as AppError {
@@ -60,10 +76,20 @@ final class FoodViewModel {
 
     var canDescribe: Bool { !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
+    /// The typed/spoken meal split into ingredient lines — the text-only summary card.
+    var describedItems: [String] {
+        description
+            .replacingOccurrences(of: " and ", with: ",")
+            .replacingOccurrences(of: " et ", with: ",")
+            .split(whereSeparator: { $0 == "," || $0 == "\n" || $0 == ";" })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
     /// Hands the typed meal to the capture flow and clears the field.
     func takeTextCapture() -> MealCaptureInput? {
         guard canDescribe else { return nil }
-        let input = MealCaptureInput(description: description, source: .text)
+        let input = MealCaptureInput(description: description, source: dictation.listening ? .voice : .text)
         description = ""
         return input
     }
@@ -72,29 +98,111 @@ final class FoodViewModel {
         Task { await load(refresh: true) }
     }
 
+    // MARK: Favorites + re-log
+
+    func isFavorite(_ meal: MealLog) -> Bool { favorites.contains { $0.sourceMealLogId == meal.id } }
+
+    func toggleFavorite(_ meal: MealLog) {
+        guard let member = state.value?.member else { return }
+        Task {
+            do {
+                if let existing = favorites.first(where: { $0.sourceMealLogId == meal.id }) {
+                    try await meals.removeFavorite(id: existing.id)
+                    favorites.removeAll { $0.id == existing.id }
+                } else {
+                    let fav = try await meals.addFavorite(meal, patientId: member.patientId)
+                    favorites.insert(fav, at: 0)
+                }
+            } catch let error as AppError {
+                errorMessage = error.userMessage
+            } catch {
+                errorMessage = String(describing: error)
+            }
+        }
+    }
+
+    /// Log again: the row is inserted immediately; the toast offers Undo (deletes it) and Adjust.
+    func relog(_ source: RelogSource, favoriteId: String? = nil) {
+        guard let member = state.value?.member else { return }
+        Task {
+            do {
+                let id = try await meals.relog(source, patientId: member.patientId, favoriteId: favoriteId)
+                showToast(RelogToast(mealId: id, name: source.name, kcal: source.kcal))
+                await load(refresh: true)
+            } catch let error as AppError {
+                errorMessage = error.userMessage
+            } catch {
+                errorMessage = String(describing: error)
+            }
+        }
+    }
+
+    func undoRelog() {
+        guard let toast = relogToast else { return }
+        toastTask?.cancel()
+        relogToast = nil
+        Task {
+            await meals.deleteRelogged(id: toast.mealId)
+            await load(refresh: true)
+        }
+    }
+
+    /// Returns the meal to open on "Adjust" and dismisses the toast.
+    func adjustRelog() -> String? {
+        guard let toast = relogToast else { return nil }
+        toastTask?.cancel()
+        relogToast = nil
+        return toast.mealId
+    }
+
+    private func showToast(_ toast: RelogToast) {
+        toastTask?.cancel()
+        relogToast = toast
+        toastTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(6))
+            guard !Task.isCancelled else { return }
+            self?.relogToast = nil
+        }
+    }
+
     // MARK: Derived
 
     func todayMeals(_ content: Content) -> [MealLog] {
         content.meals.filter { calendar.isDateInToday($0.loggedAt) }
     }
 
-    func sections(_ content: Content) -> [DaySection] {
-        var order: [String] = []
-        var buckets: [String: [MealLog]] = [:]
-        for meal in content.meals.sorted(by: { $0.loggedAt > $1.loggedAt }) {
-            let day = ISO8601.dayString(meal.loggedAt, calendar: calendar)
-            if buckets[day] == nil { order.append(day) }
-            buckets[day, default: []].append(meal)
-        }
-        return order.map { day in
-            DaySection(id: day, title: title(forDay: day, sample: buckets[day]?.first?.loggedAt), meals: buckets[day] ?? [])
+    /// Newest first — the Food tab's single list (no day labels, the Expo card carries the date).
+    func recentMeals(_ content: Content) -> [MealLog] {
+        content.meals.sorted { $0.loggedAt > $1.loggedAt }
+    }
+
+    /// 14-day micronutrient coverage per day (oldest first), nil where no meal carries micros.
+    func microTrend(_ content: Content) -> [Int?] {
+        let sex = content.member.profile?.sex
+        return (0..<14).reversed().map { back in
+            guard let day = calendar.date(byAdding: .day, value: -back, to: Date()) else { return nil }
+            let dayMeals = content.meals.filter { calendar.isDate($0.loggedAt, inSameDayAs: day) }
+            return MicroCoverage.overall(meals: dayMeals, sex: sex)
         }
     }
 
-    private func title(forDay day: String, sample: Date?) -> String {
-        guard let sample else { return day }
-        if calendar.isDateInToday(sample) { return String(localized: "day.today", defaultValue: "Today") }
-        if calendar.isDateInYesterday(sample) { return String(localized: "day.yesterday", defaultValue: "Yesterday") }
-        return sample.formatted(.dateTime.weekday(.wide).day().month(.wide))
+    /// Today's mean of the three food scores over the scored meals.
+    func todayScores(_ content: Content) -> MealScores? {
+        let scored = todayMeals(content).compactMap(\.scores)
+        guard !scored.isEmpty else { return nil }
+        let n = Double(scored.count)
+        return MealScores(
+            inflammation: Int((scored.map { Double($0.inflammation) }.reduce(0, +) / n).rounded()),
+            glycemic: Int((scored.map { Double($0.glycemic) }.reduce(0, +) / n).rounded()),
+            digestion: Int((scored.map { Double($0.digestion) }.reduce(0, +) / n).rounded())
+        )
+    }
+
+    /// "today · 14:05", "yesterday · 20:10", "28.08 · 12:30" — the Expo `formatWhen`.
+    func when(_ date: Date) -> String {
+        let hm = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
+        if calendar.isDateInToday(date) { return String(localized: "food.when.today", defaultValue: "today · \(hm)") }
+        if calendar.isDateInYesterday(date) { return String(localized: "food.when.yesterday", defaultValue: "yesterday · \(hm)") }
+        return date.formatted(.dateTime.day(.twoDigits).month(.twoDigits)) + " · " + hm
     }
 }

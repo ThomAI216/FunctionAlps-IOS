@@ -80,7 +80,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "id", "logged_at", "meal_type", "name", "source", "analysis_status", "analysis_last_error",
         "total_calories", "total_protein_g", "total_carbs_g", "total_fat_g", "total_fiber_g",
         "photo_url", "photo_urls", "ai_identified_foods",
-        "inflammation_score", "glycemic_score", "gut_score", "patient_note",
+        "inflammation_score", "glycemic_score", "gut_score", "patient_note", "micronutrient_totals",
     ].joined(separator: ",")
 
     private struct MealRow: Decodable, Sendable {
@@ -103,11 +103,12 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let glycemicScore: Double?
         let gutScore: Double?
         let patientNote: String?
+        let micronutrientTotals: [String: Double]
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
-            case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote
+            case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
         }
 
         init(from decoder: any Decoder) throws {
@@ -132,6 +133,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             glycemicScore = try c.decodeIfPresent(Double.self, forKey: .glycemicScore)
             gutScore = try c.decodeIfPresent(Double.self, forKey: .gutScore)
             patientNote = try c.decodeIfPresent(String.self, forKey: .patientNote)
+            // jsonb the model wrote; a null value or an odd shape degrades to "no micros", never to a lost meal.
+            micronutrientTotals = ((try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)) ?? nil)?.compactMapValues { $0 } ?? [:]
         }
 
         var model: MealLog {
@@ -155,7 +158,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 totalFiberG: totalFiberG,
                 items: aiIdentifiedFoods ?? [],
                 scores: scores,
-                patientNote: patientNote
+                patientNote: patientNote,
+                micros: micronutrientTotals
             )
         }
     }
@@ -617,6 +621,180 @@ struct SupabaseBackend: FunctionAlpsBackend {
             PG.select("overall,reaction_flags"), PG.eq("meal_log_id", mealId), PG.order("reaction_time", descending: true), PG.limit(1),
         ])
         return row.map { MealReaction(overall: $0.overall, flags: $0.reactionFlags ?? []) }
+    }
+
+
+    // MARK: Favorites (nb_favorite_meals) + re-log — the Expo `favorites.ts` / `buildRelogRow` shapes
+
+    private static let favoriteColumns = "id,name,meal_type,source,items,total_calories,total_protein_g,total_carbs_g,total_fat_g,total_fiber_g,micronutrient_totals,inflammation_score,glycemic_score,gut_score,photo_url,source_meal_log_id,created_at,last_used_at"
+
+    private struct FavoriteRow: Decodable, Sendable {
+        let id: String
+        let name: String?
+        let mealType: String?
+        let source: String?
+        let items: [MealItem]?
+        let totalCalories: Double?
+        let totalProteinG: Double?
+        let totalCarbsG: Double?
+        let totalFatG: Double?
+        let totalFiberG: Double?
+        let micronutrientTotals: [String: Double?]?
+        let inflammationScore: Double?
+        let glycemicScore: Double?
+        let gutScore: Double?
+        let photoUrl: String?
+        let sourceMealLogId: String?
+        let createdAt: Date?
+        let lastUsedAt: Date?
+
+        private enum CodingKeys: String, CodingKey {
+            case id, name, mealType, source, items, totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
+            case micronutrientTotals, inflammationScore, glycemicScore, gutScore, photoUrl, sourceMealLogId, createdAt, lastUsedAt
+        }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            id = try c.decode(String.self, forKey: .id)
+            name = try? c.decodeIfPresent(String.self, forKey: .name)
+            mealType = try? c.decodeIfPresent(String.self, forKey: .mealType)
+            source = try? c.decodeIfPresent(String.self, forKey: .source)
+            items = try? c.decodeIfPresent([MealItem].self, forKey: .items)
+            totalCalories = try? c.decodeIfPresent(Double.self, forKey: .totalCalories)
+            totalProteinG = try? c.decodeIfPresent(Double.self, forKey: .totalProteinG)
+            totalCarbsG = try? c.decodeIfPresent(Double.self, forKey: .totalCarbsG)
+            totalFatG = try? c.decodeIfPresent(Double.self, forKey: .totalFatG)
+            totalFiberG = try? c.decodeIfPresent(Double.self, forKey: .totalFiberG)
+            micronutrientTotals = try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)
+            inflammationScore = try? c.decodeIfPresent(Double.self, forKey: .inflammationScore)
+            glycemicScore = try? c.decodeIfPresent(Double.self, forKey: .glycemicScore)
+            gutScore = try? c.decodeIfPresent(Double.self, forKey: .gutScore)
+            photoUrl = try? c.decodeIfPresent(String.self, forKey: .photoUrl)
+            sourceMealLogId = try? c.decodeIfPresent(String.self, forKey: .sourceMealLogId)
+            createdAt = try? c.decodeIfPresent(Date.self, forKey: .createdAt)
+            lastUsedAt = try? c.decodeIfPresent(Date.self, forKey: .lastUsedAt)
+        }
+
+        var model: FavoriteMeal {
+            var scores: MealScores?
+            if inflammationScore != nil || glycemicScore != nil || gutScore != nil {
+                scores = MealScores(inflammation: Int((inflammationScore ?? 0).rounded()), glycemic: Int((glycemicScore ?? 0).rounded()), digestion: Int((gutScore ?? 0).rounded()))
+            }
+            return FavoriteMeal(
+                id: id, name: name ?? "Meal",
+                mealType: mealType.flatMap(MealLog.MealType.init(rawValue:)) ?? .snack,
+                source: source.flatMap(MealLog.Source.init(rawValue:)) ?? .photo,
+                items: items ?? [], kcal: totalCalories, proteinG: totalProteinG, carbsG: totalCarbsG, fatG: totalFatG, fiberG: totalFiberG,
+                micros: micronutrientTotals?.compactMapValues { $0 } ?? [:], scores: scores,
+                photoPath: photoUrl.flatMap { MealPhotoRef.storagePath($0) }, sourceMealLogId: sourceMealLogId,
+                lastUsedAt: lastUsedAt ?? createdAt ?? Date()
+            )
+        }
+    }
+
+    /// ⚠ Keys must match live `nb_favorite_meals` columns exactly (PGRST204 rejects the whole insert).
+    private struct FavoriteBody: Encodable, Sendable {
+        let patientId: String
+        let name: String
+        let mealType: String
+        let source: String
+        let items: [MealItemBody]
+        let totalCalories: Double?
+        let totalProteinG: Double?
+        let totalCarbsG: Double?
+        let totalFatG: Double?
+        let totalFiberG: Double?
+        let micronutrientTotals: [String: Double]
+        let inflammationScore: Int?
+        let glycemicScore: Int?
+        let gutScore: Int?
+        let photoUrl: String?
+        let sourceMealLogId: String?
+    }
+
+    /// The item shape the edge functions write (`ai_identified_foods[]`), re-emitted as-is.
+    struct MealItemBody: Encodable, Sendable {
+        let name: String
+        let estimatedGrams: Double?
+        let kcal: Double?
+        let proteinG: Double?
+        let carbsG: Double?
+        let fatG: Double?
+        let fiberG: Double?
+        let flags: [String]
+        init(_ i: MealItem) {
+            name = i.name; estimatedGrams = i.estimatedGrams; kcal = i.kcal; proteinG = i.proteinG; carbsG = i.carbsG; fatG = i.fatG; fiberG = i.fiberG; flags = i.flags
+        }
+    }
+
+    private struct TouchBody: Encodable, Sendable { let lastUsedAt: String }
+
+    /// `buildRelogRow`: a priced clone logged NOW; `analysis_status` is omitted so the `complete` default applies.
+    private struct RelogBody: Encodable, Sendable {
+        let patientId: String
+        let name: String
+        let mealType: String
+        let source: String
+        let loggedAt: String
+        let photoUrl: String?
+        let aiIdentifiedFoods: [MealItemBody]
+        let totalCalories: Double?
+        let totalProteinG: Double?
+        let totalCarbsG: Double?
+        let totalFatG: Double?
+        let totalFiberG: Double?
+        let micronutrientTotals: [String: Double]
+        let inflammationScore: Int?
+        let glycemicScore: Int?
+        let gutScore: Int?
+    }
+
+    func favorites(patientId: String) async throws -> [FavoriteMeal] {
+        let rows: [FavoriteRow] = try await rest.select("nb_favorite_meals", query: [
+            PG.select(Self.favoriteColumns), PG.eq("patient_id", patientId), PG.order("last_used_at", descending: true), PG.limit(50),
+        ])
+        return rows.map(\.model)
+    }
+
+    func addFavorite(_ meal: MealLog, patientId: String) async throws -> FavoriteMeal {
+        let row: FavoriteRow = try await rest.insert("nb_favorite_meals", body: FavoriteBody(
+            patientId: patientId, name: meal.displayName, mealType: (meal.mealType ?? .snack).rawValue, source: "photo",
+            items: meal.items.map(MealItemBody.init), totalCalories: meal.totalCalories, totalProteinG: meal.totalProteinG,
+            totalCarbsG: meal.totalCarbsG, totalFatG: meal.totalFatG, totalFiberG: meal.totalFiberG, micronutrientTotals: meal.micros,
+            inflammationScore: meal.scores?.inflammation, glycemicScore: meal.scores?.glycemic, gutScore: meal.scores?.digestion,
+            photoUrl: meal.photoPath, sourceMealLogId: meal.id
+        ))
+        return row.model
+    }
+
+    func removeFavorite(id: String) async throws {
+        try await rest.delete("nb_favorite_meals", query: [PG.eq("id", id)])
+    }
+
+    func touchFavorite(id: String) async throws {
+        try await rest.update("nb_favorite_meals", query: [PG.eq("id", id)], body: TouchBody(lastUsedAt: ISO8601.string(Date())))
+    }
+
+    func relogMeal(_ source: RelogSource, patientId: String) async throws -> String {
+        let row: IdRow = try await rest.insert("nb_meal_logs", body: RelogBody(
+            patientId: patientId, name: source.name, mealType: source.mealType.rawValue, source: source.source.rawValue,
+            loggedAt: ISO8601.string(Date()), photoUrl: nil, aiIdentifiedFoods: source.items.map(MealItemBody.init),
+            totalCalories: source.kcal, totalProteinG: source.proteinG, totalCarbsG: source.carbsG, totalFatG: source.fatG,
+            totalFiberG: source.fiberG, micronutrientTotals: source.micros,
+            inflammationScore: source.scores?.inflammation, glycemicScore: source.scores?.glycemic, gutScore: source.scores?.digestion
+        ))
+        return row.id
+    }
+
+    private struct ReactionListRow: Decodable, Sendable { let mealLogId: String; let overall: Double?; let reactionFlags: [String]? }
+
+    func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] {
+        let rows: [ReactionListRow] = try await rest.select("nb_meal_reactions", query: [
+            PG.select("meal_log_id,overall,reaction_flags"), PG.eq("patient_id", patientId), PG.gte("reaction_time", ISO8601.string(since)),
+        ])
+        var out: [String: MealReaction] = [:]
+        for r in rows { out[r.mealLogId] = MealReaction(overall: r.overall, flags: r.reactionFlags ?? []) }
+        return out
     }
 
 }

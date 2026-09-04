@@ -2002,6 +2002,22 @@
         }
       }
     },
+    "food.describe.analyse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse with AI"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyser avec l’IA"
+          }
+        }
+      }
+    },
     "food.describe.cta": {
       "localizations": {
         "en": {
@@ -2039,13 +2055,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "e.g. grilled chicken, sweet potato, salad"
+            "value": "or type · e.g. grilled chicken, sweet potato, salad"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ex. poulet grillé, patate douce, salade"
+            "value": "ou écrivez · ex. poulet grillé, patate douce, salade"
           }
         }
       }
@@ -2062,6 +2078,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ou décrivez-le"
+          }
+        }
+      }
+    },
+    "food.empty.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "＋ No meals yet · snap your first"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "＋ Aucun repas · photographiez le premier"
           }
         }
       }
@@ -2114,6 +2146,38 @@
         }
       }
     },
+    "food.favorites.logAgain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log %@ again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer %@ à nouveau"
+          }
+        }
+      }
+    },
+    "food.favorites.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or log a favorite again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou enregistrez à nouveau un favori"
+          }
+        }
+      }
+    },
     "food.kicker": {
       "localizations": {
         "en": {
@@ -2126,6 +2190,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nutrition"
+          }
+        }
+      }
+    },
+    "food.macros.header": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MACROS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MACROS"
+          }
+        }
+      }
+    },
+    "food.meal.favorite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favori"
+          }
+        }
+      }
+    },
+    "food.meal.favorite.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add %@ to favorites"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter %@ aux favoris"
+          }
+        }
+      }
+    },
+    "food.meal.logAgain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer à nouveau"
+          }
+        }
+      }
+    },
+    "food.meal.unfavorite.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@ from favorites"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer %@ des favoris"
+          }
+        }
+      }
+    },
+    "food.micros.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micronutrient coverage over 14 days, today %lld percent"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couverture en micronutriments sur 14 jours, aujourd’hui %lld pour cent"
+          }
+        }
+      }
+    },
+    "food.micros.a11y.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micronutrient coverage over 14 days, no data today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couverture en micronutriments sur 14 jours, aucune donnée aujourd’hui"
+          }
+        }
+      }
+    },
+    "food.micros.range": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· 14 days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· 14 jours"
+          }
+        }
+      }
+    },
+    "food.micros.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micros"
           }
         }
       }
@@ -2258,6 +2466,86 @@
         }
       }
     },
+    "food.relog.added": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kcal added to today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld kcal ajoutées à aujourd’hui"
+          }
+        }
+      }
+    },
+    "food.relog.adjust": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster"
+          }
+        }
+      }
+    },
+    "food.relog.logged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ logged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ enregistré"
+          }
+        }
+      }
+    },
+    "food.relog.undo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        }
+      }
+    },
+    "food.scan.demoKcal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "112 kcal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "112 kcal"
+          }
+        }
+      }
+    },
     "food.title": {
       "localizations": {
         "en": {
@@ -2302,6 +2590,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aujourd'hui jusqu'ici"
+          }
+        }
+      }
+    },
+    "food.voice.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe by voice"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décrire à la voix"
+          }
+        }
+      }
+    },
+    "food.voice.denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech recognition isn't allowed. You can enable it in Settings, or type your meal below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La reconnaissance vocale n’est pas autorisée. Activez-la dans Réglages, ou écrivez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.voice.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't start listening · type your meal below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de démarrer l’écoute · écrivez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.voice.listening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening… speak your meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À l’écoute… dites votre repas"
+          }
+        }
+      }
+    },
+    "food.voice.micDenied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone isn't allowed. You can enable it in Settings, or type your meal below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le micro n’est pas autorisé. Activez-le dans Réglages, ou écrivez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.voice.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice isn't available right now · type your meal below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La voix n’est pas disponible pour le moment · écrivez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.when.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "today · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aujourd’hui · %@"
+          }
+        }
+      }
+    },
+    "food.when.yesterday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yesterday · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hier · %@"
           }
         }
       }
@@ -3854,6 +4270,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld kilocalories, protéines %lld grammes, glucides %lld grammes, lipides %lld grammes"
+          }
+        }
+      }
+    },
+    "macros.calories": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calories"
           }
         }
       }

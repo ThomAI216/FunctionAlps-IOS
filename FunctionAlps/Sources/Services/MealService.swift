@@ -55,6 +55,38 @@ struct MealService: Sendable {
         try? await backend.mealReaction(mealId: mealId)
     }
 
+    /// Reactions for the 30-day list, keyed by meal id. Best effort — a failed read leaves the lines unrated.
+    func reactions(patientId: String) async -> [String: MealReaction] {
+        let since = calendar.date(byAdding: .day, value: -Self.historyDays, to: now()) ?? now()
+        return (try? await backend.mealReactions(patientId: patientId, since: since)) ?? [:]
+    }
+
+    // MARK: Favorites + re-log
+
+    func favorites(patientId: String) async -> [FavoriteMeal] {
+        (try? await backend.favorites(patientId: patientId)) ?? []
+    }
+
+    func addFavorite(_ meal: MealLog, patientId: String) async throws -> FavoriteMeal {
+        try await backend.addFavorite(meal, patientId: patientId)
+    }
+
+    func removeFavorite(id: String) async throws {
+        try await backend.removeFavorite(id: id)
+    }
+
+    /// The INVERSE of delete's undo: the row is inserted immediately (the meal is real the moment the
+    /// toast appears) and Undo deletes it again. Returns the new row id.
+    func relog(_ source: RelogSource, patientId: String, favoriteId: String? = nil) async throws -> String {
+        let id = try await backend.relogMeal(source, patientId: patientId)
+        if let favoriteId { try? await backend.touchFavorite(id: favoriteId) }
+        return id
+    }
+
+    func deleteRelogged(id: String) async {
+        try? await backend.deleteMeal(id: id)
+    }
+
     // MARK: Capture
 
     /// Returns the row id once the interactive analysis call has settled. `onRowCreated` fires the

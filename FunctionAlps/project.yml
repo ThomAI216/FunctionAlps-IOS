@@ -63,6 +63,8 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: FunctionAlps uses the camera to photograph your meals so they can be analysed.
+        NSMicrophoneUsageDescription: FunctionAlps listens while you describe a meal by voice; the words are analysed, the audio stays on your phone.
+        NSSpeechRecognitionUsageDescription: FunctionAlps turns your spoken meal description into text so it can be analysed.
         UIAppFonts:
           - DMSerifDisplay_400Regular.ttf
           - DMSerifDisplay_400Regular_Italic.ttf

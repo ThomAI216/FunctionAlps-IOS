@@ -60,6 +60,17 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// The latest felt reaction for a meal (`nb_meal_reactions`), or nil when never rated.
     func mealReaction(mealId: String) async throws -> MealReaction?
+    /// Reactions for every meal since `since`, keyed by meal id — the Food tab's "how it felt" lines.
+    func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction]
+
+    // MARK: Favorites + re-log (Food tab)
+
+    func favorites(patientId: String) async throws -> [FavoriteMeal]
+    func addFavorite(_ meal: MealLog, patientId: String) async throws -> FavoriteMeal
+    func removeFavorite(id: String) async throws
+    func touchFavorite(id: String) async throws
+    /// Inserts a priced clone of `source` as a new meal logged now; returns its id.
+    func relogMeal(_ source: RelogSource, patientId: String) async throws -> String
 }
 
 struct PendingMealInput: Sendable, Equatable {

@@ -57,6 +57,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let scores: MealScores?
     /// The member's OWN words (`patient_note`). Never merged with model text.
     let patientNote: String?
+    /// `micronutrient_totals` — per-meal micro sums keyed like the edge functions write them (`vitamin_c_mg`…).
+    let micros: [String: Double]
 
     init(
         id: String,
@@ -75,7 +77,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         totalFiberG: Double? = nil,
         items: [MealItem] = [],
         scores: MealScores? = nil,
-        patientNote: String? = nil
+        patientNote: String? = nil,
+        micros: [String: Double] = [:]
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -93,6 +96,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.items = items
         self.scores = scores
         self.patientNote = patientNote
+        self.micros = micros
     }
 
     var photoPath: String? { photoPaths.first }
@@ -230,5 +234,54 @@ struct MealReaction: Sendable, Equatable {
         flags.filter { $0 != "overall_off" && $0 != "overall_rough" }
             .map { $0.replacingOccurrences(of: "_", with: " ") }
             .prefix(max).map { $0 }
+    }
+}
+
+/// A favorite = a SNAPSHOT of a logged meal the member wants back with one tap (`nb_favorite_meals`).
+/// Snapshot, not a pointer, so editing or deleting the original never breaks the chip.
+struct FavoriteMeal: Sendable, Equatable, Identifiable {
+    let id: String
+    let name: String
+    let mealType: MealLog.MealType
+    let source: MealLog.Source
+    let items: [MealItem]
+    let kcal: Double?
+    let proteinG: Double?
+    let carbsG: Double?
+    let fatG: Double?
+    let fiberG: Double?
+    let micros: [String: Double]
+    let scores: MealScores?
+    /// Storage PATH of the original meal's photo; may go stale, the chip then shows a placeholder.
+    let photoPath: String?
+    /// The `nb_meal_logs` row this was favorited from; lights the star on the card.
+    let sourceMealLogId: String?
+    let lastUsedAt: Date
+}
+
+/// What "Log again" copies into a NEW `nb_meal_logs` row — a fully priced clone, so `analysis_status`
+/// stays at its `complete` default. Built from a past meal or a favorite (the Expo `RelogSource`).
+struct RelogSource: Sendable, Equatable {
+    let name: String
+    let mealType: MealLog.MealType
+    let source: MealLog.Source
+    let items: [MealItem]
+    let kcal: Double?
+    let proteinG: Double?
+    let carbsG: Double?
+    let fatG: Double?
+    let fiberG: Double?
+    let micros: [String: Double]
+    let scores: MealScores?
+
+    init(meal m: MealLog) {
+        name = m.displayName; mealType = m.mealType ?? MealService.mealType(at: Date(), calendar: .current); source = m.source ?? .photo
+        items = m.items; kcal = m.totalCalories; proteinG = m.totalProteinG; carbsG = m.totalCarbsG; fatG = m.totalFatG
+        fiberG = m.totalFiberG; micros = m.micros; scores = m.scores
+    }
+
+    init(favorite f: FavoriteMeal) {
+        name = f.name; mealType = f.mealType; source = f.source; items = f.items
+        kcal = f.kcal; proteinG = f.proteinG; carbsG = f.carbsG; fatG = f.fatG; fiberG = f.fiberG; micros = f.micros; scores = f.scores
     }
 }

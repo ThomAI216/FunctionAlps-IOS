@@ -33,6 +33,12 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow? { nil }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
+    func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
+    func favorites(patientId: String) async throws -> [FavoriteMeal] { [] }
+    func addFavorite(_ meal: MealLog, patientId: String) async throws -> FavoriteMeal { throw AppError.notFound }
+    func removeFavorite(id: String) async throws {}
+    func touchFavorite(id: String) async throws {}
+    func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
