@@ -19,6 +19,9 @@
 --          effective_from = now(), approval_note = '<note>'
 --    where consent_key = 'privacy_policy' and version = 'v9';
 -- Re-running this file is a no-op once the v9 rows exist.
+--
+-- APPROVED 2026-09-04 by the operator (migration `privacy_policy_v9_approve` on CM OS): v8 superseded_at = now(),
+-- v9 review_status = 'approved', approved_by = 'Thomas Convent — operator, FunctionAlps', effective_from = now().
 
 do $mig$
 declare

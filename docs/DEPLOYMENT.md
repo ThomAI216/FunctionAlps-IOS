@@ -108,6 +108,8 @@ identity, no tracking). Three more things ship with build 14 so that disclosure 
    as `draft_pending_legal_review`, v8 still current): v8 + Apple Health / wearable data in §1, §4, §5, §6,
    a new §9a and §13, both locales, built from the live v8 rows with anchor-checked `replace()`. Members
    keep seeing v8 until the operator approves v9 (the SQL for that is in the file header).
+   **Approved 2026-09-04** (operator: "APPROVE V9"; migration `privacy_policy_v9_approve` on CM OS): v8 superseded,
+   v9 current → the Devices screen offers Connect Apple Health on every phone.
 2. **The Connect gate** (`WearableDisclosure`): the Devices screen reads the current approved
    `privacy_policy` row and shows **Connect Apple Health** only when its version is v9 or later; before
    that it shows "Connecting opens as soon as the updated Privacy Notice … is published". A phone that
