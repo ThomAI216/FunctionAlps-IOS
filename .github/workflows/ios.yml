@@ -26,8 +26,34 @@ defaults:
     working-directory: FunctionAlps
 
 jobs:
+  # A 20-second Linux job (1× minutes) decides whether the 10× macOS job is needed at all:
+  # Markdown / docs / handoff-only pushes never touch the compiler.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        run: |
+          if [ "${{ github.event_name }}" != "push" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          echo "$CHANGED"
+          if echo "$CHANGED" | grep -vqE '^(docs/|\.context/|.*\.md$)'; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
+
   build-and-test:
     name: Build + unit tests (simulator)
+    needs: changes
+    # main / feature pushes only: a release push archives instead (below), which compiles the
+    # same commit again — running the simulator job as well doubled every release's macOS minutes.
+    if: needs.changes.outputs.code == 'true' && github.ref != 'refs/heads/release/testflight'
     runs-on: macos-15
     timeout-minutes: 40
     steps:
@@ -101,7 +127,7 @@ jobs:
   testflight:
     name: Archive + TestFlight
     if: (github.event_name == 'workflow_dispatch' && inputs.testflight) || github.ref == 'refs/heads/release/testflight'
-    needs: build-and-test
+    needs: changes
     runs-on: macos-15
     timeout-minutes: 60
     steps:
