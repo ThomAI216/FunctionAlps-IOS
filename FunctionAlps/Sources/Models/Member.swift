@@ -37,4 +37,14 @@ struct MemberProfile: Sendable, Equatable {
     let locale: String?
     /// The DB trigger's daily energy estimate (`tdee_kcal`), the compass number.
     var tdeeKcal: Double? = nil
+    // The targets page (nutrition-macros): inputs the member may tune there.
+    var estimatedBodyFatPercent: Double? = nil
+    var customCalorieOffsetKcal: Int? = nil
+    var mealsPerDay: Int? = nil
+    var snacksPerDay: Int? = nil
+    var macrosCustomized: Bool = false
+
+    /// The Expo `profileComplete`: what the macro pages need before they can show targets.
+    var hasBodyData: Bool { weightKg != nil && heightCm != nil && age != nil }
+    var hasTargets: Bool { targetCalories != nil && targetProteinG != nil && targetCarbsG != nil && targetFatG != nil }
 }

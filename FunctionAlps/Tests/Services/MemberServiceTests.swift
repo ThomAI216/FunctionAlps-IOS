@@ -43,6 +43,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func carePlan(patientId: String) async throws -> CarePlan? { nil }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
+    func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
     func memberClinicId(userId: String) async throws -> String? { nil }
     func messages() async throws -> [PatientMessage] { [] }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }

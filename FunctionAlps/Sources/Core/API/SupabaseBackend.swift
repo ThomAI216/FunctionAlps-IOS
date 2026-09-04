@@ -39,6 +39,11 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let onboardingCompletedAt: Date?
         let locale: String?
         let tdeeKcal: Double?
+        let estimatedBodyFatPercent: Double?
+        let customCalorieOffsetKcal: Int?
+        let mealsPerDay: Int?
+        let snacksPerDay: Int?
+        let macrosCustomized: Bool?
     }
 
     private static let profileColumns = [
@@ -46,6 +51,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
         "goal_mode", "onboarding_completed_at", "locale", "tdee_kcal",
+        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized",
     ].joined(separator: ",")
 
     func memberProfile(patientId: String) async throws -> MemberProfile? {
@@ -70,7 +76,12 @@ struct SupabaseBackend: FunctionAlpsBackend {
             goalMode: row.goalMode.flatMap(MemberProfile.GoalMode.init(rawValue:)),
             onboardingCompletedAt: row.onboardingCompletedAt,
             locale: row.locale,
-            tdeeKcal: row.tdeeKcal
+            tdeeKcal: row.tdeeKcal,
+            estimatedBodyFatPercent: row.estimatedBodyFatPercent,
+            customCalorieOffsetKcal: row.customCalorieOffsetKcal,
+            mealsPerDay: row.mealsPerDay,
+            snacksPerDay: row.snacksPerDay,
+            macrosCustomized: row.macrosCustomized ?? false
         )
     }
 
@@ -855,6 +866,28 @@ struct SupabaseBackend: FunctionAlpsBackend {
             // device). It exists now, so the update that just missed it lands; any other failure
             // fails here too and is what the member sees.
             try await rest.update("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId)], body: body)
+        }
+    }
+
+    private struct NutritionInsertBody: Encodable, Sendable {
+        let patientId: String
+        let profile: NutritionProfileWrite
+        private enum Key: String, CodingKey { case patientId }
+        func encode(to encoder: Encoder) throws {
+            try profile.encode(to: encoder)
+            var c = encoder.container(keyedBy: Key.self)
+            try c.encode(patientId, forKey: .patientId)
+        }
+    }
+
+    /// The targets page's Validate — the same UPDATE-then-INSERT shape as `saveBaseline` (column-scoped grants).
+    func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: profile)
+        if !touched.isEmpty { return }
+        do {
+            try await rest.insertRows("nb_patient_app_profiles", body: [NutritionInsertBody(patientId: patientId, profile: profile)])
+        } catch {
+            try await rest.update("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId)], body: profile)
         }
     }
 

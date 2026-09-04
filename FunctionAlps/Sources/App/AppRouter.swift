@@ -21,6 +21,12 @@ enum Route: Hashable {
     case messages
     case help
     case wearables
+    // Macros & micros (the Expo `macros-details`, `nutrition-macros`, `micronutrients`, `micro-group/*`, `micro-nutrient/*`)
+    case macros
+    case nutritionTargets
+    case micronutrients
+    case microGroup(String)
+    case microNutrient(String)
 }
 
 @MainActor
@@ -35,6 +41,27 @@ final class AppRouter {
     /// The web app's five tabs, in its order.
     enum Tab: Hashable, CaseIterable { case home, trends, food, library, profile }
     var tab: Tab = .home
+
+    /// Push onto the selected tab's stack — the pages that can be reached from several tabs.
+    func push(_ route: Route) {
+        switch tab {
+        case .home: homePath.append(route)
+        case .trends: trendsPath.append(route)
+        case .food: foodPath.append(route)
+        case .library: libraryPath.append(route)
+        case .profile: profilePath.append(route)
+        }
+    }
+
+    func pop() {
+        switch tab {
+        case .home: _ = homePath.popLast()
+        case .trends: _ = trendsPath.popLast()
+        case .food: _ = foodPath.popLast()
+        case .library: _ = libraryPath.popLast()
+        case .profile: _ = profilePath.popLast()
+        }
+    }
 
     /// The reader replaces the floating navbar with its own mark-done bar.
     var hidesTabBar: Bool {
@@ -124,6 +151,11 @@ struct MainTabView: View {
         case .messages: MessagesView()
         case .help: HelpView()
         case .wearables: WearablesView()
+        case .macros: MacrosDetailsView()
+        case .nutritionTargets: NutritionTargetsView()
+        case .micronutrients: MicronutrientsView()
+        case .microGroup(let key): MicroGroupView(groupKey: key)
+        case .microNutrient(let key): MicroNutrientView(nutrientKey: key)
         }
     }
 }

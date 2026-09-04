@@ -34,6 +34,12 @@ struct ProfileService: Sendable {
         try await backend.saveBaseline(patientId: patientId, values: values)
         return try? await backend.memberProfile(patientId: patientId)
     }
+
+    /// The targets page's Validate: writes, then reads the row back so the page shows the trigger's targets.
+    func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws -> MemberProfile? {
+        try await backend.saveNutritionProfile(patientId: patientId, profile: profile)
+        return try? await backend.memberProfile(patientId: patientId)
+    }
 }
 
 /// The in-app thread with the nutritionist (`patient_messages`), on the member's own session.

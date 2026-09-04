@@ -178,6 +178,22 @@
         }
       }
     },
+    "action.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmer"
+          }
+        }
+      }
+    },
     "action.continue": {
       "localizations": {
         "en": {
@@ -5218,6 +5234,54 @@
         }
       }
     },
+    "goal.build": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prise de masse"
+          }
+        }
+      }
+    },
+    "goal.cut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sèche"
+          }
+        }
+      }
+    },
+    "goal.maintain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintain"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintien"
+          }
+        }
+      }
+    },
     "guide.intro": {
       "localizations": {
         "en": {
@@ -8402,6 +8466,582 @@
         }
       }
     },
+    "macroEdu.carbs.myth.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: Carbs make you fat (excess calories do, not carbs specifically)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : les glucides font grossir (ce sont les calories en excès qui font grossir, pas les glucides en particulier)"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.myth.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: You should eliminate carbs (brain needs glucose to function)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : Il faudrait supprimer les glucides (le cerveau a besoin de glucose pour fonctionner)"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweet potato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patate douce"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avoine"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brown rice"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riz complet"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quinoa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quinoa"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fruits"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fruits"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.source.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legumes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumineuses"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your brain and muscles run on this"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est ce qui alimente votre cerveau et vos muscles"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prioritise carbs around workouts. Reduce simple sugars in the evening. Keep fiber high throughout the day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilégiez les glucides aux moments des séances d'entraînement. Limitez votre consommation de sucres simples le soir. Veillez à avoir un apport élevé en fibres tout au long de la journée."
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrates"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glucides"
+          }
+        }
+      }
+    },
+    "macroEdu.carbs.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrates are your primary energy source. Your brain alone uses 120g per day. Quality matters more than quantity - choose complex carbs with fiber over refined sugars."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les glucides constituent votre principale source d'énergie. À lui seul, votre cerveau en consomme 120 g par jour. La qualité prime sur la quantité : privilégiez les glucides complexes riches en fibres plutôt que les sucres raffinés."
+          }
+        }
+      }
+    },
+    "macroEdu.fat.myth.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: Fat makes you fat (excess calories do)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : les graisses font grossir (c'est l'excès de calories qui en est la cause)"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.myth.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: All saturated fat is bad (coconut and dairy fat behave differently)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : toutes les graisses saturées sont mauvaises pour la santé (les graisses de coco et les matières grasses laitières se comportent différemment)"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocat"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olive oil"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Huile d'olive"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walnuts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almonds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amandes"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.source.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hormones, brain, and vitamin absorption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les hormones, le cerveau et l'absorption des vitamines"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat slows digestion - useful at breakfast and dinner, less ideal right before intense exercise."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les graisses ralentissent la digestion : elles sont utiles au petit-déjeuner et au dîner, mais moins recommandées juste avant une séance d'entraînement intense."
+          }
+        }
+      }
+    },
+    "macroEdu.fat.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les graisses"
+          }
+        }
+      }
+    },
+    "macroEdu.fat.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dietary fat is essential for hormone production, brain function, and absorbing fat-soluble vitamins (A, D, E, K). Focus on unsaturated fats and omega-3s. Minimise trans fats."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les lipides alimentaires sont essentiels à la production d'hormones, au fonctionnement du cerveau et à l'absorption des vitamines liposolubles (A, D, E, K). Privilégiez les graisses insaturées et les oméga-3. Limitez au maximum les graisses trans."
+          }
+        }
+      }
+    },
+    "macroEdu.protein.myth.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: Too much protein damages kidneys (only true in existing kidney disease)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : une consommation excessive de protéines endommage les reins (ce qui n'est vrai qu'en cas de maladie rénale existante)"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.myth.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myth: Plant protein is inferior (complete protein is achievable on plant-based diets)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mythe : les protéines végétales sont de moindre qualité (il est possible d'obtenir des protéines complètes dans le cadre d'un régime alimentaire à base de végétaux)"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chicken breast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poitrine de poulet"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greek yogurt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaourt grec"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentils"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentilles"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.source.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cottage cheese"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fromage blanc"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build, repair, and protect"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Construire, réparer et protéger"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spread protein across all meals. Aim for 20-40g per meal. Post-workout is especially important."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répartissez votre apport en protéines sur tous vos repas. Visez une quantité comprise entre 20 et 40 g par repas. L'apport après l'entraînement est particulièrement important."
+          }
+        }
+      }
+    },
+    "macroEdu.protein.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protéines"
+          }
+        }
+      }
+    },
+    "macroEdu.protein.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein is the building block of every cell in your body. We currently target 1.5g/kg/day for women and 1.8g/kg/day for men. It builds muscle, repairs tissue, supports hormones, and improves satiety."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les protéines constituent les éléments constitutifs de toutes les cellules de votre corps. Nous recommandons actuellement un apport de 1,5 g/kg/jour pour les femmes et de 1,8 g/kg/jour pour les hommes. Elles contribuent à la formation des muscles, à la réparation des tissus, au bon fonctionnement du système hormonal et à une meilleure sensation de satiété."
+          }
+        }
+      }
+    },
     "macros.a11y": {
       "localizations": {
         "en": {
@@ -8462,6 +9102,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Glucides"
+          }
+        }
+      }
+    },
+    "macros.details.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macros · Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macros · Aujourd’hui"
+          }
+        }
+      }
+    },
+    "macros.details.todayMeals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas du jour"
           }
         }
       }
@@ -8546,6 +9218,38 @@
         }
       }
     },
+    "macros.meal.nutrients": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutriments"
+          }
+        }
+      }
+    },
+    "macros.meals.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No meals logged today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun repas enregistré aujourd’hui"
+          }
+        }
+      }
+    },
     "macros.of": {
       "localizations": {
         "en": {
@@ -8590,6 +9294,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Protéines"
+          }
+        }
+      }
+    },
+    "macros.setup.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add your height, weight and age to calculate personalised macro targets and daily progress."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez votre taille, votre poids et votre âge pour calculer des objectifs de macros personnalisés et votre progression quotidienne."
+          }
+        }
+      }
+    },
+    "macros.setup.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up profile ›"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer le profil ›"
+          }
+        }
+      }
+    },
+    "macros.setup.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up your nutrition profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurez votre profil nutritionnel"
+          }
+        }
+      }
+    },
+    "macros.summary.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete today's check-in to see your summary"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites le bilan du jour pour voir votre résumé"
+          }
+        }
+      }
+    },
+    "macros.summary.tap": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's summary · tap to expand"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résumé du jour · touchez pour développer"
           }
         }
       }
@@ -9582,6 +10366,4374 @@
           "stringUnit": {
             "state": "translated",
             "value": "Envoyer le message"
+          }
+        }
+      }
+    },
+    "micros.avgCoverage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "average coverage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "couverture moyenne"
+          }
+        }
+      }
+    },
+    "micros.band.attention": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs Attention"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À surveiller"
+          }
+        }
+      }
+    },
+    "micros.band.critical": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical Gaps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lacunes importantes"
+          }
+        }
+      }
+    },
+    "micros.band.onTrack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On Track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur la bonne voie"
+          }
+        }
+      }
+    },
+    "micros.belowTarget": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld below target"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sous l’objectif"
+          }
+        }
+      }
+    },
+    "micros.byCategory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By category"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par catégorie"
+          }
+        }
+      }
+    },
+    "micros.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nutriments"
+          }
+        }
+      }
+    },
+    "micros.coverage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "coverage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "couverture"
+          }
+        }
+      }
+    },
+    "micros.gaps.n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld gaps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lacunes"
+          }
+        }
+      }
+    },
+    "micros.gaps.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ These gaps are summarized in your weekly report, so you and your practitioner can track them over time."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Ces lacunes sont résumées dans votre rapport hebdomadaire, pour que vous et votre praticienne puissiez les suivre dans le temps."
+          }
+        }
+      }
+    },
+    "micros.gaps.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 gap"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 lacune"
+          }
+        }
+      }
+    },
+    "micros.group.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group not found"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groupe introuvable"
+          }
+        }
+      }
+    },
+    "micros.hero.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's micronutrient coverage across all tracked nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couverture en micronutriments du jour sur l’ensemble des nutriments suivis"
+          }
+        }
+      }
+    },
+    "micros.more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld more"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld autres"
+          }
+        }
+      }
+    },
+    "micros.nutrient.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrient not found"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutriment introuvable"
+          }
+        }
+      }
+    },
+    "micros.nutrients": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutriments"
+          }
+        }
+      }
+    },
+    "micros.ofTarget": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "of target"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "de l’objectif"
+          }
+        }
+      }
+    },
+    "micros.sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best food sources"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meilleures sources alimentaires"
+          }
+        }
+      }
+    },
+    "micros.symptoms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low-level deficiency signs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signes d’une carence légère"
+          }
+        }
+      }
+    },
+    "micros.symptoms.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These symptoms can have many causes. This is educational · not a diagnosis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces symptômes peuvent avoir de nombreuses causes. Contenu pédagogique · pas un diagnostic."
+          }
+        }
+      }
+    },
+    "micros.target": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "target"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "objectif"
+          }
+        }
+      }
+    },
+    "micros.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micronutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Micronutriments"
+          }
+        }
+      }
+    },
+    "micros.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd’hui"
+          }
+        }
+      }
+    },
+    "micros.topFoods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments phares"
+          }
+        }
+      }
+    },
+    "micros.tracked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nutrients tracked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nutriments suivis"
+          }
+        }
+      }
+    },
+    "micros.trend.down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trending down"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En baisse"
+          }
+        }
+      }
+    },
+    "micros.trend.stable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stable this week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stable cette semaine"
+          }
+        }
+      }
+    },
+    "micros.trend.up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improving this week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En progrès cette semaine"
+          }
+        }
+      }
+    },
+    "micros.weekTrend": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7-day trend"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tendance sur 7 jours"
+          }
+        }
+      }
+    },
+    "micros.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why it matters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi c’est important"
+          }
+        }
+      }
+    },
+    "nutrient.ala.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2.5g"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,5 g"
+          }
+        }
+      }
+    },
+    "nutrient.ala.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2.6g"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,6 g"
+          }
+        }
+      }
+    },
+    "nutrient.ala.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2.4g"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,4 g"
+          }
+        }
+      }
+    },
+    "nutrient.ala.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3g"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 g"
+          }
+        }
+      }
+    },
+    "nutrient.ala.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alpha-linolenic acid is the plant form of Omega-3. The body can convert it to EPA/DHA, but inefficiently. Still valuable for overall Omega-3 ratio improvement."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'acide alpha-linolénique est la forme végétale des oméga-3. L'organisme est capable de le transformer en EPA/DHA, mais de manière peu efficace. Il reste néanmoins utile pour améliorer globalement le rapport en oméga-3."
+          }
+        }
+      }
+    },
+    "nutrient.ala.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chia seeds (1 tbsp, 12g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de chia (1 cuillère à soupe, 12 g)"
+          }
+        }
+      }
+    },
+    "nutrient.ala.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walnuts (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.ala.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flaxseed (1 tbsp, 10g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de lin (1 cuillère à soupe, 10 g)"
+          }
+        }
+      }
+    },
+    "nutrient.ala.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hemp seeds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de chanvre (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.ala.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALA (Omega-3)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALA (oméga-3)"
+          }
+        }
+      }
+    },
+    "nutrient.ala.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plant-based Omega-3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-3 d'origine végétale"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "35mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "35 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.8mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4,8 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biotin is a B-vitamin cofactor in carboxylase enzymes involved in fatty acid synthesis, gluconeogenesis, and amino acid metabolism. Widely known for supporting hair, skin, and nail health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La biotine est un cofacteur de la famille des vitamines B présent dans les enzymes carboxylases impliquées dans la synthèse des acides gras, la gluconéogenèse et le métabolisme des acides aminés. Elle est largement reconnue pour contribuer à la santé des cheveux, de la peau et des ongles."
+          }
+        }
+      }
+    },
+    "nutrient.biotin.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef liver (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foie de bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs (2 large, 100g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs (2 gros, 100 g)"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweet potato (1 medium, 130g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patate douce (1 moyenne, 130 g)"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biotin (B7)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biotine (B7)"
+          }
+        }
+      }
+    },
+    "nutrient.biotin.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hair, skin & metabolism"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cheveux, peau et métabolisme"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "250 mg"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "325mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "325 mg"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "177mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "177 mg"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "204mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "204 mg"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The most abundant mineral in the body · 99% stored in bones and teeth. Also critical for nerve transmission, muscle contraction, and blood clotting. Requires K2 and D3 for proper utilisation."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le minéral le plus abondant dans l'organisme · dont 99 % sont stockés dans les os et les dents. Il joue également un rôle essentiel dans la transmission nerveuse, la contraction musculaire et la coagulation sanguine. Son bon fonctionnement nécessite la présence de K2 et de D3."
+          }
+        }
+      }
+    },
+    "nutrient.calcium.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greek yogurt (1 cup, 245g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaourt grec (1 tasse, 245 g)"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines with bones (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines avec arêtes (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kale (130g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chou frisé (130 g cuit)"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cheddar cheese (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fromage cheddar (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcium"
+          }
+        }
+      }
+    },
+    "nutrient.calcium.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bones, nerves & muscles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os, nerfs et muscles"
+          }
+        }
+      }
+    },
+    "nutrient.choline.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "356mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "356 mg"
+          }
+        }
+      }
+    },
+    "nutrient.choline.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "294mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "294 mg"
+          }
+        }
+      }
+    },
+    "nutrient.choline.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "77mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "77 mg"
+          }
+        }
+      }
+    },
+    "nutrient.choline.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 mg"
+          }
+        }
+      }
+    },
+    "nutrient.choline.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choline is required for cell membrane structure (phosphatidylcholine), neurotransmitter synthesis (acetylcholine), methyl donation, and liver fat metabolism. Over 90% of people do not meet the adequate intake."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La choline est indispensable à la structure des membranes cellulaires (phosphatidylcholine), à la synthèse des neurotransmetteurs (acétylcholine), au transfert de groupes méthyles et au métabolisme des graisses hépatiques. Plus de 90 % de la population n'atteint pas l'apport recommandé."
+          }
+        }
+      }
+    },
+    "nutrient.choline.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef liver (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foie de bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.choline.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs (2 large, 100g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs (2 gros, 100 g)"
+          }
+        }
+      }
+    },
+    "nutrient.choline.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.choline.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chicken breast (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blanc de poulet (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.choline.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choline"
+          }
+        }
+      }
+    },
+    "nutrient.choline.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liver & brain essential"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essentiel pour le foie et le cerveau"
+          }
+        }
+      }
+    },
+    "nutrient.dha.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1020mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 020 mg"
+          }
+        }
+      }
+    },
+    "nutrient.dha.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1190mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 190 mg"
+          }
+        }
+      }
+    },
+    "nutrient.dha.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "630mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "630 mg"
+          }
+        }
+      }
+    },
+    "nutrient.dha.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "310mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "310 mg"
+          }
+        }
+      }
+    },
+    "nutrient.dha.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Docosahexaenoic acid (DHA) is the most abundant omega-3 in brain tissue and retinal membranes. It is critical for cognitive function, visual acuity, and neuronal signalling. DHA needs increase during pregnancy and early childhood."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'acide docosahexaénoïque (DHA) est l'oméga-3 le plus abondant dans le tissu cérébral et les membranes rétiniennes. Il joue un rôle essentiel dans les fonctions cognitives, l'acuité visuelle et la transmission des signaux neuronaux. Les besoins en DHA augmentent pendant la grossesse et la petite enfance."
+          }
+        }
+      }
+    },
+    "nutrient.dha.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.dha.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mackerel (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maquereau (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.dha.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.dha.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchovies (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchois (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.dha.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DHA (Omega-3)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DHA (oméga-3)"
+          }
+        }
+      }
+    },
+    "nutrient.dha.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brain & eye omega-3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-3 pour le cerveau et les yeux"
+          }
+        }
+      }
+    },
+    "nutrient.epa.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "730mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "730 mg"
+          }
+        }
+      }
+    },
+    "nutrient.epa.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "760mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "760 mg"
+          }
+        }
+      }
+    },
+    "nutrient.epa.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "430mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "430 mg"
+          }
+        }
+      }
+    },
+    "nutrient.epa.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "600mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "600 mg"
+          }
+        }
+      }
+    },
+    "nutrient.epa.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eicosapentaenoic acid (EPA) is the primary anti-inflammatory omega-3 fatty acid. It competes with arachidonic acid (omega-6) to reduce pro-inflammatory eicosanoid production. Found almost exclusively in marine sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'acide eicosapentaénoïque (EPA) est le principal acide gras oméga-3 anti-inflammatoire. Il entre en compétition avec l'acide arachidonique (oméga-6) pour réduire la production d'eicosanoïdes pro-inflammatoires. On le trouve presque exclusivement dans les sources marines."
+          }
+        }
+      }
+    },
+    "nutrient.epa.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.epa.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mackerel (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maquereau (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.epa.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.epa.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herring (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hareng (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.epa.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EPA (Omega-3)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EPA (oméga-3)"
+          }
+        }
+      }
+    },
+    "nutrient.epa.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anti-inflammatory omega-3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-3 anti-inflammatoires"
+          }
+        }
+      }
+    },
+    "nutrient.folate.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "263mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "263 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.folate.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "179mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "179 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.folate.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "134mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "134 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.folate.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "82mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "82 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.folate.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folate is essential for DNA replication, cell division, amino acid metabolism, and methylation reactions. Critical during pregnancy and for anyone with MTHFR variants."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le folate est essentiel à la réplication de l'ADN, à la division cellulaire, au métabolisme des acides aminés et aux réactions de méthylation. Il revêt une importance cruciale pendant la grossesse et pour toute personne présentant des variants du gène MTHFR."
+          }
+        }
+      }
+    },
+    "nutrient.folate.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (180g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (180 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.folate.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentils (100g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentilles (100 g cuites)"
+          }
+        }
+      }
+    },
+    "nutrient.folate.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asparagus (6 spears, 90g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asperges (6 tiges, 90 g)"
+          }
+        }
+      }
+    },
+    "nutrient.folate.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocado (½, 70g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocat (½, 70 g)"
+          }
+        }
+      }
+    },
+    "nutrient.folate.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folate (B9)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folate (vitamine B9)"
+          }
+        }
+      }
+    },
+    "nutrient.folate.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cell & DNA builder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générateur de cellules et d'ADN"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "99mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "99 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "75mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "75 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "71mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "71 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iodine is required for thyroid hormone production (T3 and T4), which controls metabolism, temperature, heart rate, and energy. Deficiency is a leading cause of hypothyroidism."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'iode est indispensable à la production des hormones thyroïdiennes (T3 et T4), qui régulent le métabolisme, la température corporelle, la fréquence cardiaque et l'énergie. Une carence en iode est l'une des principales causes de l'hypothyroïdie."
+          }
+        }
+      }
+    },
+    "nutrient.iodine.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nori seaweed (1 sheet, 3g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algue nori (1 feuille, 3 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cod (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morue (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain yogurt (1 cup, 245g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaourt nature (1 tasse, 245 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iodised salt (1.5g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sel iodé (1,5 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iodine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iode"
+          }
+        }
+      }
+    },
+    "nutrient.iodine.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thyroid health essential"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La santé thyroïdienne : un élément essentiel"
+          }
+        }
+      }
+    },
+    "nutrient.iron.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5.8mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5,8 mg"
+          }
+        }
+      }
+    },
+    "nutrient.iron.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3.3mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3,3 mg"
+          }
+        }
+      }
+    },
+    "nutrient.iron.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3.2mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3,2 mg"
+          }
+        }
+      }
+    },
+    "nutrient.iron.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3.4mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3,4 mg"
+          }
+        }
+      }
+    },
+    "nutrient.iron.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iron forms haemoglobin to carry oxygen through the body. Iron deficiency is the world's most common nutritional deficiency · women are particularly at risk. Heme iron (meat) absorbs 2-3x better than non-heme (plants)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le fer contribue à la formation de l'hémoglobine, qui assure le transport de l'oxygène dans l'organisme. La carence en fer est la carence nutritionnelle la plus répandue au monde ; les femmes sont particulièrement exposées à ce risque. Le fer héminique (provenant de la viande) est absorbé 2 à 3 fois mieux que le fer non héminique (provenant des végétaux)."
+          }
+        }
+      }
+    },
+    "nutrient.iron.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef liver (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foie de bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iron.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentils (100g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentilles (100 g cuites)"
+          }
+        }
+      }
+    },
+    "nutrient.iron.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (180g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (180 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.iron.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark chocolate (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chocolat noir (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.iron.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iron"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fer"
+          }
+        }
+      }
+    },
+    "nutrient.iron.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oxygen transporter"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transporteur d'oxygène"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "157mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "157 mg"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "156mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "156 mg"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "64mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "64 mg"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 mg"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnesium is a cofactor in over 300 enzymatic reactions, including energy production, protein synthesis, muscle contraction, and nerve function. About 50% of people are deficient."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le magnésium est un cofacteur intervenant dans plus de 300 réactions enzymatiques, notamment la production d'énergie, la synthèse des protéines, la contraction musculaire et le fonctionnement du système nerveux. Environ 50 % de la population présente une carence en magnésium."
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (180g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (180 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pumpkin seeds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de potiron (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark chocolate (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chocolat noir (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black beans (85g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haricots noirs (85 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnesium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnésium"
+          }
+        }
+      }
+    },
+    "nutrient.magnesium.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master mineral · 300+ reactions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maîtrisez la chimie minérale · plus de 300 réactions"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1800mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 800 mg"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1480mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 480 mg"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2200mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 200 mg"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "750mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "750 mg"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EPA and DHA are the active forms of Omega-3 · found primarily in fatty fish. EPA reduces inflammation, DHA supports brain structure and function. Conversion from ALA (plant sources) is only 5-10% efficient."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'EPA et le DHA sont les formes actives des oméga-3, que l'on trouve principalement dans les poissons gras. L'EPA réduit l'inflammation, tandis que le DHA contribue au bon fonctionnement et à la structure du cerveau. Le taux de conversion à partir de l'ALA (sources végétales) n'est que de 5 à 10 %."
+          }
+        }
+      }
+    },
+    "nutrient.omega3.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mackerel (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maquereau (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchovies (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchois (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-3 (EPA + DHA)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-3 (EPA + DHA)"
+          }
+        }
+      }
+    },
+    "nutrient.omega3.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anti-inflammatory foundation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fond de teint anti-inflammatoire"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "332mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "332 mg"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "214mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "214 mg"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "178mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "178 mg"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "220mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "220 mg"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phosphorus is the second most abundant mineral in the body. It forms the backbone of DNA and ATP (cellular energy), builds bones alongside calcium, and buffers blood pH. Deficiency is rare but can occur with excessive antacid use."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le phosphore est le deuxième minéral le plus abondant dans l'organisme. Il constitue la structure fondamentale de l'ADN et de l'ATP (énergie cellulaire), participe à la formation des os aux côtés du calcium et joue un rôle de tampon dans le pH sanguin. Une carence est rare, mais peut survenir en cas d'utilisation excessive d'antiacides."
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pumpkin seeds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de potiron (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentils (100g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentilles (100 g cuites)"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greek yogurt (1 cup, 245g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaourt grec (1 tasse, 245 g)"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phosphorus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phosphore"
+          }
+        }
+      }
+    },
+    "nutrient.phosphorus.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bone builder & energy currency"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renforcement osseux et source d'énergie"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "975mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "975 mg"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "542mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "542 mg"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "534mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "534 mg"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "839mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "839 mg"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potassium maintains fluid balance, nerve signals, muscle contractions, and blood pressure. Most people get far less than the 3,500mg daily recommendation."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le potassium contribue au maintien de l'équilibre hydrique, à la transmission des signaux nerveux, aux contractions musculaires et à la régulation de la tension artérielle. La plupart des personnes en consomment bien moins que les 3 500 mg recommandés par jour."
+          }
+        }
+      }
+    },
+    "nutrient.potassium.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocado (1 medium, 150g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocat (1 de taille moyenne, 150 g)"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweet potato (1 medium, 130g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patate douce (1 moyenne, 130 g)"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (180g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (180 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potassium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Potassium"
+          }
+        }
+      }
+    },
+    "nutrient.potassium.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart & fluid balance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cœur et équilibre hydrique"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "80mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "80 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "92mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "92 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "27mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "27 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "28mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "28 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selenium is a component of powerful antioxidant enzymes and is essential for thyroid hormone synthesis and conversion (T4→T3). The EU population is often mildly deficient."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le sélénium entre dans la composition d'enzymes antioxydantes puissantes et joue un rôle essentiel dans la synthèse et la conversion des hormones thyroïdiennes (T4 → T3). La population de l'Union européenne présente souvent une carence légère en sélénium."
+          }
+        }
+      }
+    },
+    "nutrient.selenium.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brazil nuts (2 nuts, 8g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix du Brésil (2 noix, 8 g)"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuna (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turkey breast (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poitrine de dinde (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs (2 large, 100g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs (2 gros, 100 g)"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selenium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélénium"
+          }
+        }
+      }
+    },
+    "nutrient.selenium.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antioxidant & thyroid"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antioxydants et thyroïde"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1096mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 096 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "459mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "459 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6582mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 582 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "472mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "472 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin A supports night vision, skin integrity, immune barriers, and cell differentiation. It exists as preformed (animal sources) and beta-carotene (plant sources)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vitamine A contribue à la vision nocturne, à l'intégrité de la peau, au bon fonctionnement des barrières immunitaires et à la différenciation cellulaire. Elle se présente sous forme de vitamine A préformée (sources animales) et de bêta-carotène (sources végétales)."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweet potato (1 medium, 130g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patate douce (1 moyenne, 130 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrots (80g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carottes (80 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef liver (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foie de bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (90g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (90 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin A"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine A"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_a.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vision & immune function"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vision et fonction immunitaire"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "70mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "70 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4.9mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4,9 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.4mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1,4 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.3mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1,3 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical for red blood cell formation, DNA synthesis, and nervous system function. Vegans and vegetarians are at high risk of deficiency. Absorption declines with age."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essentiel à la formation des globules rouges, à la synthèse de l'ADN et au bon fonctionnement du système nerveux. Les végétaliens et les végétariens courent un risque élevé de carence. Son absorption diminue avec l'âge."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef liver (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foie de bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eggs (2 large, 100g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Œufs (2 gros, 100 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greek yogurt (1 cup, 245g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaourt grec (1 tasse, 245 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin B12"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine B12"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_b12.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nerve & energy vitamin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine pour les nerfs et l'énergie"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "95mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "95 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "70mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "70 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "51mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "51 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essential for collagen synthesis, iron absorption, immune defence, and neutralising free radicals. The body excretes excess daily, so consistent intake is needed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indispensable à la synthèse du collagène, à l'absorption du fer, aux défenses immunitaires et à la neutralisation des radicaux libres. L'organisme élimine quotidiennement l'excès de fer ; un apport régulier est donc nécessaire."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red bell pepper (80g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poivron rouge (80 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiwi (1 fruit, 70g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiwi (1 fruit, 70 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orange (1 medium, 130g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orange (1 moyenne, 130 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Broccoli (80g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brocoli (80 g cuit)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin C"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine C"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_c.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master antioxidant"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le maître des antioxydants"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.1 mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1,1 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin D3 functions as a hormone, regulating calcium absorption, immune function, mood, and gene expression. Up to 80% of European adults are deficient, especially in winter."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vitamine D3 agit comme une hormone : elle régule l'absorption du calcium, la fonction immunitaire, l'humeur et l'expression génétique. Jusqu'à 80 % des adultes européens présentent une carence, notamment en hiver."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salmon (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saumon (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (90g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sardines (90 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egg yolk (1)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jaune d'œuf (1)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortified milk (1 cup)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lait enrichi (1 tasse)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin D3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine D3"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_d3.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sunshine vitamin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vitamine du soleil"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7.3mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7,3 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2.1mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,1 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3.7mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3,7 mg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin E is a fat-soluble antioxidant that protects cell membranes from oxidative damage. It supports immune function, skin health, and cardiovascular protection. Works synergistically with Vitamin C."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vitamine E est un antioxydant liposoluble qui protège les membranes cellulaires contre les dommages oxydatifs. Elle contribue au bon fonctionnement du système immunitaire, à la santé de la peau et à la protection cardiovasculaire. Elle agit en synergie avec la vitamine C."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunflower seeds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de tournesol (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almonds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amandes (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocado (½, 70g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avocat (½, 70 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinach (180g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinards (180 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin E"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine E"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_e.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cell-protecting antioxidant"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antioxydant protecteur des cellules"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "500mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "500 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "76mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "76 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "32mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "32 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15mcg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 mcg"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "K2 activates proteins that direct calcium to bones (not arteries). Often deficient in Western diets. Works synergistically with D3 · both are needed together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La K2 active les protéines qui acheminent le calcium vers les os (et non vers les artères). Elle fait souvent défaut dans l'alimentation occidentale. Elle agit en synergie avec la vitamine D3 : ces deux éléments sont indispensables l'un sans l'autre."
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natto (45g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natto (45 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gouda cheese (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fromage de Gouda (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Egg yolks (2, 34g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jaunes d'œufs (2, 34 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasture butter (15g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beurre de pâturage (15 g)"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin K2"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamine K2"
+          }
+        }
+      }
+    },
+    "nutrient.vitamin_k2.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calcium director"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Directeur chargé du calcium"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.amount.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "74mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "74 mg"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.amount.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 mg"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.amount.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2.2mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,2 mg"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.amount.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.3mg"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1,3 mg"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zinc is essential for immune function, wound healing, protein synthesis, DNA repair, and testosterone production. Depleted rapidly during stress or illness."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le zinc est essentiel au bon fonctionnement du système immunitaire, à la cicatrisation des plaies, à la synthèse des protéines, à la réparation de l'ADN et à la production de testostérone. Ses réserves s'épuisent rapidement en cas de stress ou de maladie."
+          }
+        }
+      }
+    },
+    "nutrient.zinc.food.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oysters (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Huîtres (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.food.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beef (85g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bœuf (85 g)"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.food.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pumpkin seeds (30g)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graines de potiron (30 g)"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.food.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chickpeas (85g cooked)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pois chiches (85 g cuits)"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zinc"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zinc"
+          }
+        }
+      }
+    },
+    "nutrient.zinc.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immune & hormone support"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soutien immunitaire et hormonal"
+          }
+        }
+      }
+    },
+    "nutrientGroup.fatty_acids.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polyunsaturated fats that the body cannot produce on its own. Omega-3 (anti-inflammatory) and Omega-6 (pro-inflammatory) must be consumed in the right ratio · ideally 1:4 or less."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les acides gras polyinsaturés que l'organisme ne peut pas produire lui-même. Les oméga-3 (anti-inflammatoires) et les oméga-6 (pro-inflammatoires) doivent être consommés dans un rapport équilibré · idéalement de 1 pour 4, voire moins."
+          }
+        }
+      }
+    },
+    "nutrientGroup.fatty_acids.foods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatty fish (salmon, sardines, mackerel), walnuts, flaxseeds, chia seeds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poissons gras (saumon, sardines, maquereau), noix, graines de lin, graines de chia"
+          }
+        }
+      }
+    },
+    "nutrientGroup.fatty_acids.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essential Fatty Acids"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acides gras essentiels"
+          }
+        }
+      }
+    },
+    "nutrientGroup.fatty_acids.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern diets often skew 1:20 or worse Omega-3:Omega-6. This chronic imbalance drives systemic inflammation, poor cardiovascular health, brain fog, and mood instability."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les régimes alimentaires modernes présentent souvent un rapport oméga-3/oméga-6 de 1 pour 20, voire pire. Ce déséquilibre chronique est à l'origine d'une inflammation systémique, de problèmes de santé cardiovasculaire, d'un manque de clarté mentale et d'instabilité de l'humeur."
+          }
+        }
+      }
+    },
+    "nutrientGroup.minerals.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inorganic elements required for bone structure, nerve transmission, fluid balance, enzyme function, and oxygen transport. Unlike vitamins, they cannot be created or broken down."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éléments inorganiques indispensables à la structure osseuse, à la transmission nerveuse, à l'équilibre hydrique, au fonctionnement des enzymes et au transport de l'oxygène. Contrairement aux vitamines, ils ne peuvent être ni synthétisés ni dégradés."
+          }
+        }
+      }
+    },
+    "nutrientGroup.minerals.foods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuts, seeds, legumes, leafy greens, seafood, dairy, whole grains"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix, graines, légumineuses, légumes verts à feuilles, fruits de mer, produits laitiers, céréales complètes"
+          }
+        }
+      }
+    },
+    "nutrientGroup.minerals.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minerals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minéraux"
+          }
+        }
+      }
+    },
+    "nutrientGroup.minerals.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mineral deficiencies are among the most common nutritional issues in modern diets. Magnesium alone is involved in 300+ enzymatic reactions · low levels are linked to fatigue, muscle cramps, anxiety, and poor sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les carences en oligo-éléments comptent parmi les problèmes nutritionnels les plus courants dans l'alimentation moderne. À lui seul, le magnésium intervient dans plus de 300 réactions enzymatiques ; des taux insuffisants sont associés à la fatigue, aux crampes musculaires, à l'anxiété et à des troubles du sommeil."
+          }
+        }
+      }
+    },
+    "nutrientGroup.vitamins.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organic compounds essential for growth, energy metabolism, immune function, and cellular repair. Most cannot be synthesised by the body · they must come from food."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Composés organiques indispensables à la croissance, au métabolisme énergétique, au fonctionnement du système immunitaire et à la réparation cellulaire. La plupart ne peuvent pas être synthétisés par l'organisme : ils doivent provenir de l'alimentation."
+          }
+        }
+      }
+    },
+    "nutrientGroup.vitamins.foods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leafy greens, organ meats, fish, eggs, citrus, fortified foods, sunlight (D3)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumes verts à feuilles, abats, poisson, œufs, agrumes, aliments enrichis, exposition au soleil (vitamine D3)"
+          }
+        }
+      }
+    },
+    "nutrientGroup.vitamins.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamines"
+          }
+        }
+      }
+    },
+    "nutrientGroup.vitamins.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamins act as cofactors in hundreds of enzymatic reactions. Even subclinical deficiencies can cause fatigue, poor immunity, skin issues, and neurological symptoms long before clinical signs appear."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les vitamines jouent le rôle de cofacteurs dans des centaines de réactions enzymatiques. Même des carences subcliniques peuvent entraîner de la fatigue, une baisse des défenses immunitaires, des problèmes cutanés et des symptômes neurologiques bien avant l'apparition de signes cliniques."
           }
         }
       }
@@ -12930,6 +18082,38 @@
         }
       }
     },
+    "sex.female": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Female"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Femme"
+          }
+        }
+      }
+    },
+    "sex.male": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Male"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homme"
+          }
+        }
+      }
+    },
     "sleep.bedtime": {
       "localizations": {
         "en": {
@@ -13314,6 +18498,38 @@
         }
       }
     },
+    "slot.breakfast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breakfast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petit-déjeuner"
+          }
+        }
+      }
+    },
+    "slot.dinner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dîner"
+          }
+        }
+      }
+    },
     "slot.evening": {
       "localizations": {
         "en": {
@@ -13326,6 +18542,182 @@
           "stringUnit": {
             "state": "translated",
             "value": "Soir"
+          }
+        }
+      }
+    },
+    "slot.eveningSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation du soir"
+          }
+        }
+      }
+    },
+    "slot.guide.breakfast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very low carbs, protein-first to stabilize appetite and energy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très peu de glucides, protéines d’abord pour stabiliser l’appétit et l’énergie."
+          }
+        }
+      }
+    },
+    "slot.guide.default": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced protein, carbs, and fats around your activity."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protéines, glucides et lipides équilibrés autour de votre activité."
+          }
+        }
+      }
+    },
+    "slot.guide.dinner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower-carb dinner with protein and fiber-forward choices."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dîner pauvre en glucides, riche en protéines et en fibres."
+          }
+        }
+      }
+    },
+    "slot.guide.eveningSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Second carb-focused window, portion-controlled."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deuxième fenêtre glucidique, portion maîtrisée."
+          }
+        }
+      }
+    },
+    "slot.guide.lunch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highest carb meal with lean protein for performance and recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas le plus riche en glucides, avec des protéines maigres pour la performance et la récupération."
+          }
+        }
+      }
+    },
+    "slot.guide.morningSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main carb window to fuel the middle of your day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Principale fenêtre glucidique pour alimenter le milieu de journée."
+          }
+        }
+      }
+    },
+    "slot.guide.snack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small structured snack: mostly protein with controlled carbs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petite collation structurée : surtout des protéines, glucides maîtrisés."
+          }
+        }
+      }
+    },
+    "slot.lunch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lunch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjeuner"
+          }
+        }
+      }
+    },
+    "slot.mainMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas principal"
+          }
+        }
+      }
+    },
+    "slot.mealN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas %lld"
           }
         }
       }
@@ -13362,6 +18754,54 @@
         }
       }
     },
+    "slot.morningSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation du matin"
+          }
+        }
+      }
+    },
+    "slot.snack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation"
+          }
+        }
+      }
+    },
+    "slot.snackN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation %lld"
+          }
+        }
+      }
+    },
     "state.loading": {
       "localizations": {
         "en": {
@@ -13390,6 +18830,358 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enregistrement…"
+          }
+        }
+      }
+    },
+    "summary.calm.calmer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calme"
+          }
+        }
+      }
+    },
+    "summary.calm.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "moderate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "modérée"
+          }
+        }
+      }
+    },
+    "summary.calm.reactive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tense"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tendue"
+          }
+        }
+      }
+    },
+    "summary.digestion.fragile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fragile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fragile"
+          }
+        }
+      }
+    },
+    "summary.digestion.mixed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mixed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mitigée"
+          }
+        }
+      }
+    },
+    "summary.digestion.steady": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "steady"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "stable"
+          }
+        }
+      }
+    },
+    "summary.metric.calm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calme"
+          }
+        }
+      }
+    },
+    "summary.metric.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        }
+      }
+    },
+    "summary.metric.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "summary.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion felt %@, the day felt %@. You logged %lld meal(s) today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion %@, journée %@. Vous avez enregistré %lld repas aujourd’hui."
+          }
+        }
+      }
+    },
+    "summary.note.noGut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The day felt %@. You logged %lld meal(s) today. Complete the gut check-in to add digestion."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journée %@. Vous avez enregistré %lld repas aujourd’hui. Faites le bilan digestif pour ajouter la digestion."
+          }
+        }
+      }
+    },
+    "summary.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today at a glance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre journée en un coup d’œil"
+          }
+        }
+      }
+    },
+    "symptom.anxiety": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anxiety"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anxiété"
+          }
+        }
+      }
+    },
+    "symptom.brain_fog": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brain fog"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brouillard mental"
+          }
+        }
+      }
+    },
+    "symptom.digestive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestive discomfort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inconfort digestif"
+          }
+        }
+      }
+    },
+    "symptom.fatigue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatigue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatigue"
+          }
+        }
+      }
+    },
+    "symptom.headaches": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headaches"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maux de tête"
+          }
+        }
+      }
+    },
+    "symptom.insomnia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insomnia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insomnie"
+          }
+        }
+      }
+    },
+    "symptom.joint_pain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joint pain"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Douleurs articulaires"
+          }
+        }
+      }
+    },
+    "symptom.mood_swings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood swings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sautes d’humeur"
+          }
+        }
+      }
+    },
+    "symptom.muscle_pain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle pain"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Douleurs musculaires"
+          }
+        }
+      }
+    },
+    "symptom.skin_issues": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skin issues"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problèmes de peau"
           }
         }
       }
@@ -13486,6 +19278,886 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tendances"
+          }
+        }
+      }
+    },
+    "targets.calorie": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie Target"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectif calorique"
+          }
+        }
+      }
+    },
+    "targets.ctx.carbs.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher carbs. Great for endurance training and glycogen replenishment."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glucides élevés. Idéal pour l’endurance et la recharge du glycogène."
+          }
+        }
+      }
+    },
+    "targets.ctx.carbs.keto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very low carbs · ketogenic range. May impair high-intensity exercise."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très peu de glucides · zone cétogène. Peut gêner l’effort à haute intensité."
+          }
+        }
+      }
+    },
+    "targets.ctx.carbs.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low carbs. Fine for sedentary days, but may limit training performance."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peu de glucides. Convient aux jours sédentaires, mais peut limiter la performance à l’entraînement."
+          }
+        }
+      }
+    },
+    "targets.ctx.carbs.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate carbs. Balanced approach for most active adults."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glucides modérés. Approche équilibrée pour la plupart des adultes actifs."
+          }
+        }
+      }
+    },
+    "targets.ctx.fat.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High fat / low carb approach. Suits keto or insulin resistance protocols."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approche riche en lipides / pauvre en glucides. Convient aux protocoles cétogènes ou de résistance à l’insuline."
+          }
+        }
+      }
+    },
+    "targets.ctx.fat.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate fat. Works well for higher carb approaches."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lipides modérés. Fonctionne bien avec une approche plus riche en glucides."
+          }
+        }
+      }
+    },
+    "targets.ctx.fat.optimal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optimal range for hormone health, vitamin absorption, and satiety."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plage optimale pour la santé hormonale, l’absorption des vitamines et la satiété."
+          }
+        }
+      }
+    },
+    "targets.ctx.fat.veryLow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very low fat. Risk of hormone disruption if sustained long-term."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très peu de lipides. Risque de perturbation hormonale si prolongé."
+          }
+        }
+      }
+    },
+    "targets.ctx.protein.good": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good · solid range for most active adults. Supports recovery and lean mass."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien · plage solide pour la plupart des adultes actifs. Soutient la récupération et la masse maigre."
+          }
+        }
+      }
+    },
+    "targets.ctx.protein.great": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Great · optimal for performance and lean muscle. Ideal for most training goals."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excellent · optimal pour la performance et la masse maigre. Idéal pour la plupart des objectifs d’entraînement."
+          }
+        }
+      }
+    },
+    "targets.ctx.protein.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High · for aggressive build or cutting phases. Monitor kidney health if sustained."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élevé · pour les phases intensives de prise de masse ou de sèche. Surveillez la fonction rénale si prolongé."
+          }
+        }
+      }
+    },
+    "targets.ctx.protein.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too low · minimum for basic maintenance only. Not enough to support activity."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trop bas · minimum pour l’entretien de base seulement. Insuffisant pour soutenir l’activité."
+          }
+        }
+      }
+    },
+    "targets.dirty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes are local. Validate to save them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les modifications sont locales. Validez pour les enregistrer."
+          }
+        }
+      }
+    },
+    "targets.edu.myths": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Common myths"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idées reçues"
+          }
+        }
+      }
+    },
+    "targets.edu.sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best sources"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meilleures sources"
+          }
+        }
+      }
+    },
+    "targets.edu.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moment"
+          }
+        }
+      }
+    },
+    "targets.edu.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understanding the 3 macros"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprendre les 3 macros"
+          }
+        }
+      }
+    },
+    "targets.fiber": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fiber"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibres"
+          }
+        }
+      }
+    },
+    "targets.field.activity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity Level"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niveau d’activité"
+          }
+        }
+      }
+    },
+    "targets.field.age": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âge"
+          }
+        }
+      }
+    },
+    "targets.field.bodyFat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body Fat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masse grasse"
+          }
+        }
+      }
+    },
+    "targets.field.bodyFatFull": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body Fat %"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masse grasse %"
+          }
+        }
+      }
+    },
+    "targets.field.height": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Height"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille"
+          }
+        }
+      }
+    },
+    "targets.field.sex": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sex"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sexe"
+          }
+        }
+      }
+    },
+    "targets.field.weight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids"
+          }
+        }
+      }
+    },
+    "targets.kcalDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal/day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kcal/jour"
+          }
+        }
+      }
+    },
+    "targets.macros": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macro Targets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs de macros"
+          }
+        }
+      }
+    },
+    "targets.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "repas"
+          }
+        }
+      }
+    },
+    "targets.mealsSnacks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals & Snacks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas et collations"
+          }
+        }
+      }
+    },
+    "targets.offset.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calorie Adjustment"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustement calorique"
+          }
+        }
+      }
+    },
+    "targets.profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre profil"
+          }
+        }
+      }
+    },
+    "targets.profile.tap": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to update your metrics"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez pour mettre à jour vos mesures"
+          }
+        }
+      }
+    },
+    "targets.repartition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily repartition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répartition quotidienne"
+          }
+        }
+      }
+    },
+    "targets.repartition.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How macros split across your day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vos macros se répartissent sur la journée"
+          }
+        }
+      }
+    },
+    "targets.saveFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your changes couldn't be saved. Try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos modifications n’ont pas pu être enregistrées. Réessayez."
+          }
+        }
+      }
+    },
+    "targets.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement…"
+          }
+        }
+      }
+    },
+    "targets.setup.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your height, weight, age and activity level give the energy estimate every target is built on. Add them once; you can tune everything here afterwards."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre taille, votre poids, votre âge et votre niveau d’activité donnent l’estimation énergétique sur laquelle repose chaque objectif. Renseignez-les une fois ; vous pourrez tout ajuster ici ensuite."
+          }
+        }
+      }
+    },
+    "targets.setup.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up my baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renseigner ma base"
+          }
+        }
+      }
+    },
+    "targets.setup.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start with your baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencez par votre base"
+          }
+        }
+      }
+    },
+    "targets.snacks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "snacks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "collations"
+          }
+        }
+      }
+    },
+    "targets.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your personalized macro dashboard"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre tableau de bord de macros personnalisé"
+          }
+        }
+      }
+    },
+    "targets.tdee": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TDEE"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DÉJ"
+          }
+        }
+      }
+    },
+    "targets.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macros & Nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macros et nutrition"
+          }
+        }
+      }
+    },
+    "targets.unit.years": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "years"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ans"
+          }
+        }
+      }
+    },
+    "targets.validate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Validate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valider"
+          }
+        }
+      }
+    },
+    "targets.validated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your changes have been validated."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos modifications ont été validées."
+          }
+        }
+      }
+    },
+    "targets.value.notSet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non renseigné"
+          }
+        }
+      }
+    },
+    "targets.value.years": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld years"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ans"
+          }
+        }
+      }
+    },
+    "targets.warn.build.aggressive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Aggressive surplus. Higher fat gain likely. Consult your nutritionist before going this high."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Surplus agressif. Prise de gras probable. Consultez votre nutritionniste avant d’aller aussi haut."
+          }
+        }
+      }
+    },
+    "targets.warn.build.lean": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lean bulk · minimal fat gain, steady muscle progress."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prise de masse propre · peu de gras, progrès musculaire régulier."
+          }
+        }
+      }
+    },
+    "targets.warn.build.standard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard bulk · good for muscle building."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prise de masse standard · efficace pour construire du muscle."
+          }
+        }
+      }
+    },
+    "targets.warn.cut.aggressive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Aggressive deficit. Risk of muscle loss. Don’t go beyond this without talking to your nutritionist."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Déficit agressif. Risque de perte musculaire. N’allez pas au-delà sans en parler à votre nutritionniste."
+          }
+        }
+      }
+    },
+    "targets.warn.cut.mild": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mild deficit · sustainable, minimal muscle risk."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déficit léger · durable, risque musculaire minime."
+          }
+        }
+      }
+    },
+    "targets.warn.cut.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate deficit · effective for most people."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déficit modéré · efficace pour la plupart des gens."
           }
         }
       }

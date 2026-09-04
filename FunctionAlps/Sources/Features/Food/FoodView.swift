@@ -60,12 +60,17 @@ private struct FoodScreen: View {
         case .loaded(let content):
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    MacrosTodayCard(
-                        todayMeals: model.todayMeals(content),
-                        profile: content.member.profile,
-                        microTrend: model.microTrend(content),
-                        todayScores: model.todayScores(content)
-                    )
+                    Button {
+                        router.push(content.member.profile?.hasBodyData == true ? .macros : .nutritionTargets)
+                    } label: {
+                        MacrosTodayCard(
+                            todayMeals: model.todayMeals(content),
+                            profile: content.member.profile,
+                            microTrend: model.microTrend(content),
+                            todayScores: model.todayScores(content)
+                        )
+                    }
+                    .buttonStyle(.plain)
                     captureCard.padding(.top, 14)
                     recent(content).padding(.top, 22)
                 }

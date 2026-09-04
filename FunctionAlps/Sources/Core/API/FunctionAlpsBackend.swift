@@ -82,6 +82,8 @@ protocol FunctionAlpsBackend: Sendable {
     /// The five baseline inputs: UPDATE by `patient_id`, INSERT only when there is no row yet — never an
     /// upsert (the conflict column is not UPDATE-able for members). The DB trigger recomputes the targets.
     func saveBaseline(patientId: String, values: BaselineValues) async throws
+    /// The targets page (nutrition-macros) — see `NutritionProfileWrite`.
+    func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws
 
     // MARK: Messaging (patient_messages)
 
