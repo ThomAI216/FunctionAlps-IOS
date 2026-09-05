@@ -35,7 +35,13 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String { "registered" }
+    var registerFails = false
+    private(set) var registered: (first: String, last: String, email: String)?
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String {
+        if registerFails { throw AppError.notFound }
+        registered = (firstName, lastName, email)
+        return "registered"
+    }
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
     func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
@@ -110,12 +116,41 @@ struct MemberServiceTests {
         #expect(try store.load()?.patientId == "p-from-rpc")
     }
 
-    @Test func unregisteredAccountIsSurfaced() async {
+    /// Third rung: no patient row → `patient-register` creates it and the id is remembered.
+    @Test func registersWhenNoPatientRowExists() async throws {
+        let (manager, store) = sessions(patientId: nil)
+        let backend = StubBackend()
+        let member = try await MemberService(sessions: manager, backend: backend).currentMember()
+        #expect(member.patientId == "registered")
+        #expect(try store.load()?.patientId == "registered")
+        #expect(backend.registered?.email == "alex@example.com")
+        // Names: no first_name metadata → the display name split.
+        #expect(backend.registered?.first == "Alex")
+    }
+
+    @Test func unregisteredAccountIsSurfacedWhenRegistrationFails() async {
         let (manager, _) = sessions(patientId: nil)
         let backend = StubBackend()
+        backend.registerFails = true
         await #expect(throws: MemberService.MemberError.notRegistered) {
             _ = try await MemberService(sessions: manager, backend: backend).currentMember()
         }
+    }
+
+    @Test func namesFallbackLadder() {
+        let base = Fixtures.session(expiresAt: .distantFuture)
+        var s = base; s.firstName = "Marie"; s.lastName = "Dupont"
+        var n = MemberService.names(for: s)
+        #expect(n.first == "Marie" && n.last == "Dupont")
+        s = base; s.displayName = "Alex Martin Roe"
+        n = MemberService.names(for: s)
+        #expect(n.first == "Alex" && n.last == "Martin Roe")
+        s = base; s.displayName = "Alex"
+        n = MemberService.names(for: s)
+        #expect(n.first == "Alex" && n.last == "Member")
+        s = base; s.displayName = nil
+        n = MemberService.names(for: s)
+        #expect(n.first == "Member" && n.last == "Member")
     }
 
     @Test func fallsBackToEmailLocalPartForName() async throws {
