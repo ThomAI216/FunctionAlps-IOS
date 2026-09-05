@@ -34,6 +34,14 @@ final class FoodViewModel {
     let dictation: SpeechDictation
     /// The last words in the field came from the microphone (the capture's `source`).
     private var spoke = false
+    /// What `preprocess-meal` made of the words — kept visible while the next extraction runs.
+    private(set) var extracted: MealPreprocess?
+    private(set) var extracting = false
+    private var lastExtracted = ""
+    private var extractTask: Task<Void, Never>?
+    private var pendingExtract: String?
+    /// The Expo `LIVE_EXTRACT_DEBOUNCE_MS`.
+    static let extractDebounceMs = 700
 
     private let members: MemberService
     private let meals: MealService
@@ -52,6 +60,7 @@ final class FoodViewModel {
             let current = self.description.trimmingCharacters(in: .whitespacesAndNewlines)
             self.description = current.isEmpty ? words : current + " " + words
             self.spoke = true
+            self.descriptionChanged()
         }
     }
 
@@ -82,7 +91,34 @@ final class FoodViewModel {
 
     var canDescribe: Bool { !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
-    /// The typed/spoken meal split into ingredient lines — the text-only summary card.
+    /// Wire to the field: every edit re-extracts after the debounce (typing produces one per keystroke).
+    func descriptionChanged() {
+        let text = description.trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.isEmpty { extracted = nil; lastExtracted = ""; extractTask?.cancel(); extractTask = nil; return }
+        extractTask?.cancel()
+        extractTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(Self.extractDebounceMs))
+            guard !Task.isCancelled else { return }
+            await self?.extract(text)
+        }
+    }
+
+    /// Debounce + coalesce + one in flight: only the newest pending text survives a running extraction.
+    private func extract(_ text: String) async {
+        guard text.count >= 3, text != lastExtracted else { return }
+        if extracting { pendingExtract = text; return }
+        extracting = true
+        lastExtracted = text
+        do {
+            extracted = try await meals.preprocess(text, mealType: nil)
+        } catch {
+            Log.data.error("food.preprocess: \(String(describing: error), privacy: .public)")
+        }
+        extracting = false
+        if let queued = pendingExtract { pendingExtract = nil; await extract(queued) }
+    }
+
+    /// The typed/spoken meal split into ingredient lines — the fallback while nothing is extracted yet.
     var describedItems: [String] {
         description
             .replacingOccurrences(of: " and ", with: ",")
@@ -95,9 +131,16 @@ final class FoodViewModel {
     /// Hands the typed meal to the capture flow and clears the field.
     func takeTextCapture() -> MealCaptureInput? {
         guard canDescribe else { return nil }
-        let input = MealCaptureInput(description: description, source: spoke ? .voice : .text)
+        var input = MealCaptureInput(description: description, source: spoke ? .voice : .text)
+        // The structured list only when it was made from THESE words — a stale list would price the wrong meal.
+        if let extracted, lastExtracted == description.trimmingCharacters(in: .whitespacesAndNewlines) {
+            input.statedItems = extracted.items.compactMap(\.stated)
+        }
         description = ""
         spoke = false
+        extracted = nil
+        lastExtracted = ""
+        extractTask?.cancel()
         return input
     }
 

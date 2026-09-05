@@ -26,6 +26,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func createPendingMeal(_ input: PendingMealInput) async throws -> String { record("create"); lastPending = input; return "row-1" }
     func attachMealPhotos(mealId: String, paths: [String]) async throws { record("attach:\(paths.joined(separator: ","))") }
     func transcribeAudio(base64: String, mimeType: String) async throws -> String { "" }
+    func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess { MealPreprocess(language: nil, cleanedTranscript: transcript, items: []) }
     func analyzeMeal(_ request: AnalyzeMealRequest) async throws {
         record("analyze")
         lastAnalyze = request

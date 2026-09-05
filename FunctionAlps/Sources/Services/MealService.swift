@@ -4,6 +4,8 @@ import Foundation
 struct MealCaptureInput: Sendable, Equatable {
     var photos: [Data] = []
     var description: String? = nil
+    /// The extracted list (`preprocess-meal`) travelling with the words — grams as fields.
+    var statedItems: [StatedItem] = []
     let source: MealLog.Source
     var mealType: MealLog.MealType? = nil
 
@@ -37,6 +39,11 @@ struct MealService: Sendable {
         self.calendar = calendar
         self.now = now
         self.retryDelayNanoseconds = retryDelayNanoseconds
+    }
+
+    /// "Say or type your meal, watch the ingredients appear": the words → the structured list.
+    func preprocess(_ transcript: String, mealType: MealLog.MealType?) async throws -> MealPreprocess {
+        try await backend.preprocessMeal(transcript: transcript, mealType: mealType?.rawValue, locale: ConsentLogic.locale())
     }
 
     /// "Describe by voice": the recording goes to the sovereign Whisper; the words come back as if typed.
@@ -135,6 +142,7 @@ struct MealService: Sendable {
         var request = AnalyzeMealRequest(mealId: mealId)
         if input.photos.isEmpty {
             request.description = words
+            request.items = input.statedItems
         } else {
             request.imageBase64s = input.photos.map { $0.base64EncodedString() }
         }

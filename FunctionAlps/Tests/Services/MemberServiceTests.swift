@@ -21,6 +21,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func createPendingMeal(_ input: PendingMealInput) async throws -> String { "stub" }
     func attachMealPhotos(mealId: String, paths: [String]) async throws {}
     func transcribeAudio(base64: String, mimeType: String) async throws -> String { "" }
+    func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess { MealPreprocess(language: nil, cleanedTranscript: transcript, items: []) }
     func analyzeMeal(_ request: AnalyzeMealRequest) async throws {}
     func updateMealNote(mealId: String, note: String?) async throws {}
     func deleteMeal(id: String) async throws {}

@@ -482,6 +482,7 @@ struct DescribeMealBare: View {
             .font(FATypography.sans(15, relativeTo: .body))
             .foregroundStyle(FAColor.ink)
             .focused($focused)
+            .onChange(of: model.description) { _, _ in model.descriptionChanged() }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .frame(minHeight: 52, alignment: .top)
@@ -489,18 +490,37 @@ struct DescribeMealBare: View {
             .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FoodPalette.hairline, lineWidth: 1) }
             .padding(.top, 10)
 
-            // Text-only summary: the typed meal split into lines + the analyse button.
-            let items = model.describedItems
-            if !dictation.listening, !items.isEmpty {
+            // The extracted list (preprocess-meal) — or the words split into lines until it lands — + Analyse.
+            let extractedItems = model.extracted?.items ?? []
+            let fallback = model.describedItems
+            if !dictation.listening, !dictation.transcribing, !extractedItems.isEmpty || !fallback.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(items.prefix(2).joined(separator: " + "))
-                        .font(FATypography.sans(13, .bold, relativeTo: .subheadline))
-                        .foregroundStyle(FAColor.ink)
-                    VStack(alignment: .leading, spacing: 3) {
-                        ForEach(items, id: \.self) { item in
-                            Text("• \(item)")
-                                .font(FATypography.sans(11.5, relativeTo: .caption))
-                                .foregroundStyle(FoodPalette.muted)
+                    HStack(spacing: 8) {
+                        Text((extractedItems.isEmpty ? fallback : extractedItems.map(\.name)).prefix(2).joined(separator: " + "))
+                            .font(FATypography.sans(13, .bold, relativeTo: .subheadline))
+                            .foregroundStyle(FAColor.ink)
+                            .lineLimit(1)
+                        if model.extracting { ProgressView().tint(FAColor.forestSoft).scaleEffect(0.7) }
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        if extractedItems.isEmpty {
+                            ForEach(fallback, id: \.self) { item in
+                                Text("• \(item)")
+                                    .font(FATypography.sans(11.5, relativeTo: .caption))
+                                    .foregroundStyle(FoodPalette.muted)
+                            }
+                        } else {
+                            ForEach(extractedItems) { item in
+                                HStack(spacing: 6) {
+                                    Circle().fill(item.confidence == "high" ? FAColor.forestSoft : Color(hex: 0xD98A2B)).frame(width: 5, height: 5)
+                                    Text(item.name)
+                                        .font(FATypography.sans(12.5, .medium, relativeTo: .caption))
+                                        .foregroundStyle(FAColor.ink)
+                                    Text("· \(item.estimatedG) g" + (item.volumeMeasure.map { $0.isEmpty ? "" : " (\($0))" } ?? ""))
+                                        .font(FATypography.sans(11.5, relativeTo: .caption))
+                                        .foregroundStyle(FoodPalette.muted)
+                                }
+                            }
                         }
                     }
                     .padding(.top, 6)
@@ -519,12 +539,15 @@ struct DescribeMealBare: View {
                         .background(FAColor.forestSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .disabled(model.extracting)
+                    .opacity(model.extracting ? 0.6 : 1)
                     .padding(.top, 10)
                 }
                 .padding(12)
                 .background(FoodPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FoodPalette.hairline, lineWidth: 1) }
                 .padding(.top, 10)
+                .animation(.easeInOut(duration: 0.2), value: extractedItems.map(\.id))
             }
         }
     }

@@ -25,6 +25,9 @@ protocol FunctionAlpsBackend: Sendable {
     /// `transcribe-audio` (Infomaniak Whisper, sovereign): base64 audio → the transcript ("" when nothing was heard).
     /// No language hint: Whisper detects it, so a member may speak French one day and English the next.
     func transcribeAudio(base64: String, mimeType: String) async throws -> String
+    /// `preprocess-meal` (Infomaniak text model): the words → food items with grams; fillers dropped,
+    /// names kept in the spoken language, questions in the app language.
+    func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess
     func updateMealNote(mealId: String, note: String?) async throws
     func deleteMeal(id: String) async throws
     /// Uploads a JPEG to the private bucket under the AUTH user's folder; returns the storage path.
@@ -199,6 +202,37 @@ struct AnalyzeMealRequest: Sendable, Equatable {
     /// Photo 1 first. One image is sent as the single-image body, N as `imageBase64s`.
     var imageBase64s: [String] = []
     var description: String? = nil
+    /// The structured list from `preprocess-meal` — grams as a field, not a substring (`_shared/stated-items.ts`).
+    var items: [StatedItem] = []
     /// Member-initiated do-over: the server re-reads stored photos and resets the attempt budget.
     var reanalyze: Bool = false
+}
+
+/// One food the member stated, as `analyze-meal` wants it.
+struct StatedItem: Encodable, Sendable, Equatable {
+    let name: String
+    let grams: Int
+    var volumeMeasure: String? = nil
+    private enum CodingKeys: String, CodingKey { case name, grams, volumeMeasure = "volume_measure" }
+}
+
+/// What `preprocess-meal` extracted from the spoken or typed words.
+struct MealPreprocess: Sendable, Equatable {
+    struct Item: Sendable, Equatable, Identifiable {
+        let name: String
+        let quantity: String?
+        let estimatedG: Int
+        let volumeMeasure: String?
+        let confidence: String
+        var id: String { name + "|" + (quantity ?? "") }
+        var stated: StatedItem? {
+            let n = name.trimmingCharacters(in: .whitespaces)
+            guard !n.isEmpty, estimatedG > 0 else { return nil }
+            let v = volumeMeasure?.trimmingCharacters(in: .whitespaces) ?? ""
+            return StatedItem(name: n, grams: estimatedG, volumeMeasure: v.isEmpty ? nil : v)
+        }
+    }
+    let language: String?
+    let cleanedTranscript: String
+    let items: [Item]
 }

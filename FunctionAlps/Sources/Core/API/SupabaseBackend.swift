@@ -240,6 +240,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let imageBase64: String?
         let imageBase64s: [String]?
         let description: String?
+        let items: [StatedItem]?
         let mealLogId: String
         let reanalyze: Bool?
     }
@@ -250,10 +251,28 @@ struct SupabaseBackend: FunctionAlpsBackend {
             imageBase64: images.count == 1 ? images[0] : nil,
             imageBase64s: images.count > 1 ? images : nil,
             description: request.description,
+            items: request.items.isEmpty ? nil : request.items,
             mealLogId: request.mealId,
             reanalyze: request.reanalyze ? true : nil
         )
         try await functions.invokeRaw("analyze-meal", body: body, snakeCase: false)
+    }
+
+    private struct PreprocessBody: Encodable, Sendable { let transcript: String; let mealType: String?; let locale: String }
+    private struct PreprocessReply: Decodable, Sendable {
+        struct Item: Decodable, Sendable { let name: String?; let quantity: String?; let estimatedG: Double?; let volumeMeasure: String?; let confidence: String? }
+        let language: String?
+        let cleanedTranscript: String?
+        let items: [Item]?
+    }
+
+    func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess {
+        let reply: PreprocessReply = try await functions.invoke("preprocess-meal", body: PreprocessBody(transcript: transcript, mealType: mealType, locale: locale), snakeCase: false)
+        let items = (reply.items ?? []).prefix(8).compactMap { i -> MealPreprocess.Item? in
+            guard let name = i.name?.trimmingCharacters(in: .whitespaces), !name.isEmpty else { return nil }
+            return MealPreprocess.Item(name: name, quantity: i.quantity, estimatedG: Int((i.estimatedG ?? 100).rounded()), volumeMeasure: i.volumeMeasure, confidence: i.confidence ?? "high")
+        }
+        return MealPreprocess(language: reply.language, cleanedTranscript: reply.cleanedTranscript ?? transcript, items: Array(items))
     }
 
     private struct TranscribeBody: Encodable, Sendable { let audioBase64: String; let mimeType: String }
