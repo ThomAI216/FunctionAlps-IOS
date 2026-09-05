@@ -39,6 +39,11 @@ struct MealService: Sendable {
         self.retryDelayNanoseconds = retryDelayNanoseconds
     }
 
+    /// "Describe by voice": the recording goes to the sovereign Whisper; the words come back as if typed.
+    func transcribe(audio: Data, mimeType: String) async throws -> String {
+        try await backend.transcribeAudio(base64: audio.base64EncodedString(), mimeType: mimeType)
+    }
+
     // MARK: Reads
 
     func recentMeals(patientId: String) async throws -> [MealLog] {

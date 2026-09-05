@@ -31,7 +31,9 @@ final class FoodViewModel {
     @ObservationIgnored var onMealLogged: (@MainActor (String) -> Void)?
     var relogToast: RelogToast?
     var errorMessage: String?
-    let dictation = SpeechDictation()
+    let dictation: SpeechDictation
+    /// The last words in the field came from the microphone (the capture's `source`).
+    private var spoke = false
 
     private let members: MemberService
     private let meals: MealService
@@ -44,10 +46,12 @@ final class FoodViewModel {
         self.meals = meals
         self.auth = auth
         self.calendar = calendar
+        dictation = SpeechDictation { audio, mime in try await meals.transcribe(audio: audio, mimeType: mime) }
         dictation.onFinal = { [weak self] words in
             guard let self else { return }
             let current = self.description.trimmingCharacters(in: .whitespacesAndNewlines)
             self.description = current.isEmpty ? words : current + " " + words
+            self.spoke = true
         }
     }
 
@@ -91,8 +95,9 @@ final class FoodViewModel {
     /// Hands the typed meal to the capture flow and clears the field.
     func takeTextCapture() -> MealCaptureInput? {
         guard canDescribe else { return nil }
-        let input = MealCaptureInput(description: description, source: dictation.listening ? .voice : .text)
+        let input = MealCaptureInput(description: description, source: spoke ? .voice : .text)
         description = ""
+        spoke = false
         return input
     }
 

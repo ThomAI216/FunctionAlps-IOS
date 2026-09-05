@@ -5330,6 +5330,22 @@
         }
       }
     },
+    "food.voice.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No speech detected · try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune parole détectée · réessayez."
+          }
+        }
+      }
+    },
     "food.voice.failed": {
       "localizations": {
         "en": {
@@ -5351,13 +5367,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listening… speak your meal"
+            "value": "Listening… tap when you're done"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À l’écoute… dites votre repas"
+            "value": "À l’écoute… touchez quand vous avez fini"
           }
         }
       }
@@ -5374,6 +5390,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le micro n’est pas autorisé. Activez-le dans Réglages, ou écrivez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.voice.transcribeFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t write that down · try again or type your meal below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu transcrire · réessayez ou tapez votre repas ci-dessous."
+          }
+        }
+      }
+    },
+    "food.voice.transcribing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing it down…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On l’écrit…"
           }
         }
       }

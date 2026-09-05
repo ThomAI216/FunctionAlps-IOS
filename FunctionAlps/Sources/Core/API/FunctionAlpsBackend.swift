@@ -22,6 +22,9 @@ protocol FunctionAlpsBackend: Sendable {
     func attachMealPhotos(mealId: String, paths: [String]) async throws
     /// Asks the server to identify + price the meal and write the result onto the row.
     func analyzeMeal(_ request: AnalyzeMealRequest) async throws
+    /// `transcribe-audio` (Infomaniak Whisper, sovereign): base64 audio → the transcript ("" when nothing was heard).
+    /// No language hint: Whisper detects it, so a member may speak French one day and English the next.
+    func transcribeAudio(base64: String, mimeType: String) async throws -> String
     func updateMealNote(mealId: String, note: String?) async throws
     func deleteMeal(id: String) async throws
     /// Uploads a JPEG to the private bucket under the AUTH user's folder; returns the storage path.

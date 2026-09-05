@@ -256,6 +256,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await functions.invokeRaw("analyze-meal", body: body, snakeCase: false)
     }
 
+    private struct TranscribeBody: Encodable, Sendable { let audioBase64: String; let mimeType: String }
+    private struct TranscribeReply: Decodable, Sendable { let transcript: String? }
+
+    func transcribeAudio(base64: String, mimeType: String) async throws -> String {
+        let reply: TranscribeReply = try await functions.invoke("transcribe-audio", body: TranscribeBody(audioBase64: base64, mimeType: mimeType), snakeCase: false)
+        return reply.transcript?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+
     /// Explicit null clears the note (a synthesized encoder would drop the key instead).
     private struct NoteBody: Encodable, Sendable {
         let patientNote: String?

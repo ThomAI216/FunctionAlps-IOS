@@ -441,31 +441,31 @@ struct DescribeMealBare: View {
         VStack(alignment: .leading, spacing: 0) {
             Button { dictation.toggle() } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "mic").font(.system(size: 14, weight: .semibold))
-                    Text(dictation.listening
-                         ? String(localized: "food.voice.listening", defaultValue: "Listening… speak your meal")
+                    if dictation.transcribing {
+                        ProgressView().tint(.white).scaleEffect(0.8)
+                    } else {
+                        Image(systemName: dictation.listening ? "stop.fill" : "mic").font(.system(size: 14, weight: .semibold))
+                    }
+                    Text(dictation.transcribing
+                         ? String(localized: "food.voice.transcribing", defaultValue: "Writing it down…")
+                         : dictation.listening
+                         ? String(localized: "food.voice.listening", defaultValue: "Listening… tap when you're done")
                          : String(localized: "food.voice.cta", defaultValue: "Describe by voice"))
                         .font(FATypography.sans(13, .bold, relativeTo: .subheadline))
                 }
-                .foregroundStyle(dictation.listening ? Color.white : FAColor.forestSoft)
+                .foregroundStyle(dictation.listening || dictation.transcribing ? Color.white : FAColor.forestSoft)
                 .opacity(dictation.listening && pulse ? 0.55 : 1)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(dictation.listening ? FAColor.forestSoft : FoodPalette.accentSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(dictation.listening || dictation.transcribing ? FAColor.forestSoft : FoodPalette.accentSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft, lineWidth: 1) }
             }
             .buttonStyle(.plain)
+            .disabled(dictation.transcribing)
             .onChange(of: dictation.listening) { _, on in
                 if on { withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = true } } else { withAnimation(.default) { pulse = false } }
             }
 
-            if dictation.listening, !dictation.interim.isEmpty {
-                Text(dictation.interim + "…")
-                    .font(FATypography.sans(13, relativeTo: .subheadline)).italic()
-                    .foregroundStyle(FoodPalette.muted)
-                    .lineLimit(2)
-                    .padding(.top, 8)
-            }
             if let error = dictation.error {
                 Text(error)
                     .font(FATypography.sans(12, .semibold, relativeTo: .caption))

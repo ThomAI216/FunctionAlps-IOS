@@ -1,96 +1,112 @@
 import AVFoundation
 import Foundation
 import Observation
-import Speech
 
-/// "Describe by voice": on-device speech recognition streaming into the describe field, the native
-/// counterpart of the Expo card's instant SpeechRecognition path. The transcript is text the member
-/// then sends to `analyze-meal` like a typed meal; no audio leaves the phone.
+/// "Describe by voice", the Expo `useWhisperMic` state machine: idle → recording → transcribing → idle.
+/// Tap: the phone records a short AAC clip; tap again: the clip goes to `transcribe-audio` (the
+/// sovereign Whisper) and the words land in the describe field like a typed meal. No language is sent,
+/// so Whisper detects it — a member may speak French today and English tomorrow.
+///
+/// Plain `AVAudioRecorder`, deliberately NOT an `AVAudioEngine` tap: a tap installed on an input node
+/// whose format is not yet valid raises an Objective-C exception Swift cannot catch, which is a hard
+/// quit — the crash the owner saw on build 22.
 @MainActor
 @Observable
-final class SpeechDictation {
+final class SpeechDictation: NSObject {
     private(set) var listening = false
-    private(set) var interim = ""
+    private(set) var transcribing = false
     private(set) var error: String?
-    /// The finished transcript, delivered once when listening stops.
+    /// The finished transcript, delivered once per recording.
     var onFinal: ((String) -> Void)?
 
-    private let engine = AVAudioEngine()
-    private var recognizer: SFSpeechRecognizer? { SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer() }
-    private var request: SFSpeechAudioBufferRecognitionRequest?
-    private var task: SFSpeechRecognitionTask?
+    private let transcribe: @Sendable (Data, String) async throws -> String
+    private var recorder: AVAudioRecorder?
+    private var fileURL: URL?
+    /// Recording stops itself after this long — a forgotten mic must not run for an hour.
+    static let maxSeconds: TimeInterval = 90
 
-    static var isAvailable: Bool { SFSpeechRecognizer() != nil }
+    init(transcribe: @escaping @Sendable (Data, String) async throws -> String) {
+        self.transcribe = transcribe
+    }
+
+    static var isAvailable: Bool { true }
 
     func toggle() {
-        if listening { stop() } else { Task { await start() } }
+        if transcribing { return }
+        if listening { Task { await stopAndTranscribe() } } else { Task { await start() } }
     }
 
     private func start() async {
         error = nil
-        let speechStatus = await withCheckedContinuation { (cont: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
-            SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
-        }
-        guard speechStatus == .authorized else {
-            error = String(localized: "food.voice.denied", defaultValue: "Speech recognition isn't allowed. You can enable it in Settings, or type your meal below.")
-            return
-        }
-        let micGranted = await AVAudioApplication.requestRecordPermission()
-        guard micGranted else {
+        let granted = await AVAudioApplication.requestRecordPermission()
+        guard granted else {
             error = String(localized: "food.voice.micDenied", defaultValue: "The microphone isn't allowed. You can enable it in Settings, or type your meal below.")
-            return
-        }
-        guard let recognizer, recognizer.isAvailable else {
-            error = String(localized: "food.voice.unavailable", defaultValue: "Voice isn't available right now · type your meal below.")
             return
         }
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try session.setCategory(.record, mode: .default)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
-            let request = SFSpeechAudioBufferRecognitionRequest()
-            request.shouldReportPartialResults = true
-            if recognizer.supportsOnDeviceRecognition { request.requiresOnDeviceRecognition = true }
-            self.request = request
-            let input = engine.inputNode
-            let format = input.outputFormat(forBus: 0)
-            input.removeTap(onBus: 0)
-            input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in request.append(buffer) }
-            engine.prepare()
-            try engine.start()
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("meal-\(UUID().uuidString).m4a")
+            // AAC mono at 16 kHz: what Whisper wants, and ~200 KB per minute in the JSON body.
+            let settings: [String: Any] = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey: 16_000,
+                AVNumberOfChannelsKey: 1,
+                AVEncoderBitRateKey: 32_000,
+                AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue,
+            ]
+            let rec = try AVAudioRecorder(url: url, settings: settings)
+            rec.delegate = self
+            guard rec.record(forDuration: Self.maxSeconds) else { throw CocoaError(.fileWriteUnknown) }
+            recorder = rec
+            fileURL = url
             listening = true
-            interim = ""
-            task = recognizer.recognitionTask(with: request) { [weak self] result, err in
-                Task { @MainActor in
-                    guard let self else { return }
-                    if let result { self.interim = result.bestTranscription.formattedString }
-                    if err != nil || result?.isFinal == true { self.finish() }
-                }
-            }
         } catch {
+            Log.data.error("voice.start: \(String(describing: error), privacy: .public)")
             self.error = String(localized: "food.voice.failed", defaultValue: "Couldn't start listening · type your meal below.")
-            stop()
+            cleanUp()
         }
     }
 
-    func stop() {
-        guard listening else { return }
-        request?.endAudio()
-        engine.stop()
-        engine.inputNode.removeTap(onBus: 0)
-        // The final callback arrives after endAudio; hand over what we have if it does not.
-        let words = interim
+    private func stopAndTranscribe() async {
+        guard listening, let rec = recorder, let url = fileURL else { return }
+        rec.stop()
         listening = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        if !words.isEmpty { onFinal?(words) }
-        interim = ""
-        task?.finish()
-        task = nil
-        request = nil
+        defer { cleanUp() }
+        guard let data = try? Data(contentsOf: url), data.count > 2_000 else {
+            error = String(localized: "food.voice.empty", defaultValue: "No speech detected · try again.")
+            return
+        }
+        transcribing = true
+        defer { transcribing = false }
+        do {
+            let words = try await transcribe(data, "audio/mp4")
+            if words.isEmpty {
+                error = String(localized: "food.voice.empty", defaultValue: "No speech detected · try again.")
+            } else {
+                onFinal?(words)
+            }
+        } catch {
+            Log.data.error("voice.transcribe: \(String(describing: error), privacy: .public)")
+            self.error = String(localized: "food.voice.transcribeFailed", defaultValue: "We couldn't write that down · try again or type your meal below.")
+        }
     }
 
-    private func finish() {
-        guard listening else { return }
-        stop()
+    private func cleanUp() {
+        recorder = nil
+        if let fileURL { try? FileManager.default.removeItem(at: fileURL) }
+        fileURL = nil
+    }
+}
+
+extension SpeechDictation: AVAudioRecorderDelegate {
+    /// The 90-second cap or an interruption ended the clip: treat it as the member's tap.
+    nonisolated func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        Task { @MainActor in
+            guard self.listening else { return }
+            await self.stopAndTranscribe()
+        }
     }
 }
