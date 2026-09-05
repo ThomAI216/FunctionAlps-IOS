@@ -121,6 +121,17 @@ final class WearableService {
         }
     }
 
+    /// Last night's main sleep straight from HealthKit (hours asleep), for the Home card. Nil when the
+    /// phone is not connected, nothing was recorded, or the night ended more than a day ago.
+    func lastNightSleepHours(now: Date = Date()) async -> Double? {
+        guard isConnected, Self.isAvailable else { return nil }
+        let from = now.addingTimeInterval(-40 * 3600)
+        guard let samples = try? await reader.sleepSamples(from: from, to: now) else { return nil }
+        let nights = SleepAssembler.nights(from: samples, calendar: calendar)
+        guard let night = nights.max(by: { $0.end < $1.end }), now.timeIntervalSince(night.end) < 24 * 3600 else { return nil }
+        return night.asleepSeconds / 3600
+    }
+
     /// The window: 30 days on the first sync, otherwise from a few days before the last sync.
     private var windowStart: Date {
         let days = lastSyncAt == nil ? Self.backfillDays : Self.resyncDays

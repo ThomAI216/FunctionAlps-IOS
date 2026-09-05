@@ -6,6 +6,8 @@ struct HomeView: View {
     @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
+    /// Last night's sleep for the carousel chip — Apple Health first, else the member's own morning answer.
+    @State private var sleepHours: Double?
 
     var body: some View {
         ZStack {
@@ -35,6 +37,9 @@ struct HomeView: View {
                 await notifications.loadPrefs(patientId: patientId)
                 await notifications.refreshAuthorization()
                 await notifications.replan(snapshot: today, wearables: wearables)
+                let fromHealth = await wearables.lastNightSleepHours()
+                let fromAnswer = today.moments.first { $0.slot == .morning }?.sleepDurationMin.map { Double($0) / 60 }
+                sleepHours = fromHealth ?? fromAnswer
             }
         }
     }
@@ -62,22 +67,19 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    HStack(spacing: 12) {
-                        Button { capture.openPhotoChooser() } label: {
-                            MealScanCard()
-                        }
-                        .buttonStyle(.plain)
-                        .aspectRatio(1, contentMode: .fit)
+                    CheckinCarouselCard(
+                        today: content.today,
+                        now: dependencies.checkins.currentSlot,
+                        streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day),
+                        sleepHours: sleepHours
+                    )
 
-                        NavigationLink(value: Route.checkin(dependencies.checkins.currentSlot)) {
-                            CheckinPulseCard(markers: markers(content.today))
-                        }
-                        .buttonStyle(.plain)
-                        .aspectRatio(1, contentMode: .fit)
+                    Button { capture.openPhotoChooser() } label: {
+                        MealScanCard()
                     }
-                    .frame(maxHeight: 230)
+                    .buttonStyle(.plain)
+                    .frame(height: 176)
 
-                    momentsRow(content.today)
                     gutRow(content.today)
 
                     MessagesCard(unread: content.today.unreadClinicianMessages)
@@ -88,17 +90,6 @@ struct HomeView: View {
             }
             .refreshable { await model.load(refresh: true) }
         }
-    }
-
-    /// mood · sleep · energy · calmness, each with its canonical accent (the check-in hub's).
-    private func markers(_ today: TodaySnapshot) -> [CheckinPulseCard.Marker] {
-        let c = today.checkin
-        return [
-            .init(key: "mood", name: String(localized: "marker.mood", defaultValue: "Mood"), color: Color(hex: 0xDB2777), value: c?.mood),
-            .init(key: "sleep", name: String(localized: "marker.sleep", defaultValue: "Sleep"), color: Color(hex: 0x6366F1), value: c?.sleep),
-            .init(key: "energy", name: String(localized: "marker.energy", defaultValue: "Energy"), color: Color(hex: 0xD97706), value: c?.energy),
-            .init(key: "stress", name: String(localized: "marker.calm", defaultValue: "Calmness"), color: Color(hex: 0xE11D48), value: c?.calmness),
-        ]
     }
 
     /// The daily gut check-in — done once, editable all day (the Expo hub's Gut Intelligence card).
@@ -120,35 +111,5 @@ struct HomeView: View {
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
         }
         .buttonStyle(.plain)
-    }
-
-    /// The day's three moments — the one "now" falls in is highlighted; saved ones re-open for editing.
-    private func momentsRow(_ today: TodaySnapshot) -> some View {
-        let now = dependencies.checkins.currentSlot
-        return HStack(spacing: 8) {
-            ForEach(MomentSlot.order, id: \.self) { slot in
-                let done = CheckinEngine.slotIsDone(today.moments, slot)
-                let isNow = slot == now
-                let status: String = isNow
-                    ? (done ? String(localized: "home.checkin.again", defaultValue: "✓ Check in again") : String(localized: "home.checkin.cta", defaultValue: "Check in"))
-                    : (done ? String(localized: "home.checkin.done", defaultValue: "✓ Done") : String(localized: "home.checkin.open", defaultValue: "Open"))
-                NavigationLink(value: Route.checkin(slot)) {
-                    VStack(spacing: 3) {
-                        Text(slot.glyph).font(.system(size: isNow ? 17 : 15)).foregroundStyle(isNow ? FAColor.accent : FAColor.inkSecondary)
-                        Text(slot.localizedName).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
-                        Text(status).font(FATypography.sans(10.5, .medium, relativeTo: .caption2)).foregroundStyle(done || isNow ? FAColor.accent : FAColor.inkSecondary).lineLimit(1).minimumScaleFactor(0.8)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .padding(.horizontal, 6)
-                    .background(isNow ? FAColor.accent.opacity(0.2) : Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(isNow ? FAColor.accent : FAColor.separator, lineWidth: isNow ? 1.5 : 1))
-                    .opacity(isNow ? 1 : 0.85)
-                }
-                .buttonStyle(.plain)
-                .layoutPriority(isNow ? 1 : 0)
-                .accessibilityLabel("\(slot.localizedName): \(status)")
-            }
-        }
     }
 }
