@@ -67,20 +67,22 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    CheckinCarouselCard(
-                        today: content.today,
-                        now: dependencies.checkins.currentSlot,
-                        streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day),
-                        sleepHours: sleepHours
-                    )
+                    HStack(spacing: 12) {
+                        Button { capture.openPhotoChooser() } label: {
+                            MealScanCard()
+                        }
+                        .buttonStyle(.plain)
+                        .aspectRatio(1, contentMode: .fit)
 
-                    Button { capture.openPhotoChooser() } label: {
-                        MealScanCard()
+                        CheckinCarouselCard(
+                            today: content.today,
+                            now: dependencies.checkins.currentSlot,
+                            streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day),
+                            sleepHours: sleepHours
+                        )
+                        .aspectRatio(1, contentMode: .fit)
                     }
-                    .buttonStyle(.plain)
-                    .frame(height: 176)
-
-                    gutRow(content.today)
+                    .frame(maxHeight: 230)
 
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
@@ -90,26 +92,5 @@ struct HomeView: View {
             }
             .refreshable { await model.load(refresh: true) }
         }
-    }
-
-    /// The daily gut check-in — done once, editable all day (the Expo hub's Gut Intelligence card).
-    private func gutRow(_ today: TodaySnapshot) -> some View {
-        let done = today.checkin?.isGutDone ?? false
-        return NavigationLink(value: Route.gutCheckin) {
-            HStack(spacing: 12) {
-                Text("🫧").font(.system(size: 17))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.gut.title", defaultValue: "Gut check-in")).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
-                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Done today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Three quick reads · comfort, stool, food reactions"))
-                        .font(FATypography.sans(10.5, .medium, relativeTo: .caption2)).foregroundStyle(done ? FAColor.accent : FAColor.inkSecondary).lineLimit(1)
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
-            }
-            .padding(.vertical, 11).padding(.horizontal, 14)
-            .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
-        }
-        .buttonStyle(.plain)
     }
 }

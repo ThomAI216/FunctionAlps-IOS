@@ -9874,6 +9874,22 @@
         }
       }
     },
+    "home.gut.sub.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comfort, stool, food reactions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confort, selles, réactions"
+          }
+        }
+      }
+    },
     "home.gut.title": {
       "localizations": {
         "en": {
@@ -10146,6 +10162,38 @@
         }
       }
     },
+    "home.pane.checkins.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "check-ins"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "check-ins"
+          }
+        }
+      }
+    },
+    "home.pane.gutScore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gut today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "intestin aujourd’hui"
+          }
+        }
+      }
+    },
     "home.pane.mealOne": {
       "localizations": {
         "en": {
@@ -10190,6 +10238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "de sommeil cette nuit"
+          }
+        }
+      }
+    },
+    "home.pane.slept.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "slept"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "de sommeil"
           }
         }
       }
