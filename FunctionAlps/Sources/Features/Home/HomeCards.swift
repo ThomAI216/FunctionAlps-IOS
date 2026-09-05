@@ -309,3 +309,41 @@ struct MessagesCard: View {
         .accessibilityElement(children: .combine)
     }
 }
+
+/// The gut check-in as a long row beneath the two squares — the messages card's shape: icon disc,
+/// title + line, the state on the right. Done once a day, editable all day.
+struct GutCheckinCard: View {
+    let done: Bool
+    let score: Int?
+
+    var body: some View {
+        FACard {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle().fill(Color(red: 74 / 255, green: 138 / 255, blue: 92 / 255, opacity: 0.14))
+                    Text("🫧").font(.system(size: 18))
+                }
+                .frame(width: 40, height: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "home.gut.title", defaultValue: "Gut check-in"))
+                        .font(FATypography.sans(15, .semibold, relativeTo: .headline))
+                        .foregroundStyle(FAColor.ink)
+                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Done today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Three quick reads · comfort, stool, food reactions"))
+                        .font(FATypography.sans(13, relativeTo: .callout))
+                        .foregroundStyle(done ? FAColor.accent : FAColor.inkSecondary)
+                        .lineLimit(1).minimumScaleFactor(0.85)
+                }
+                Spacer()
+                if let score {
+                    Text("\(score)")
+                        .font(FATypography.display(15, relativeTo: .headline))
+                        .foregroundStyle(FAColor.ink)
+                        .padding(.horizontal, 9).padding(.vertical, 4)
+                        .background(FAColor.forestSoft.opacity(0.16), in: Capsule())
+                }
+                Image(systemName: "chevron.right").foregroundStyle(FAColor.inkSecondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}

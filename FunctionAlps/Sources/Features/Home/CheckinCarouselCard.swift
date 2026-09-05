@@ -1,18 +1,17 @@
 import SwiftUI
 
-/// The Home check-in square (right of the meal-scan square): a paged carousel of photo cards — morning
-/// (sunrise), evening (sunset) and the gut check-in (the lake) — where the owner's photograph IS the
-/// card. On each: the four marker curves drawing themselves across the picture (the old Check-In
-/// square's pulse), small glass panes with the page's own numbers, and the title + white pill on a dark
-/// foot band. Page dots in the top-right corner.
+/// The Home check-in square (right of the meal-scan square): a paged carousel of two photo cards —
+/// morning (sunrise) and evening (sunset) — where the owner's photograph IS the card. On each: the four
+/// marker curves drawing themselves across the picture (the old Check-In square's pulse), small glass
+/// panes with the page's own numbers, the four marker pills (mood · sleep · energy · calm) in glass,
+/// and the title + white pill on a dark foot band. Page dots in the top-right corner.
 struct CheckinCarouselCard: View {
     enum Page: String, CaseIterable, Hashable {
-        case morning, evening, gut
+        case morning, evening
         var route: Route {
             switch self {
             case .morning: .checkin(.morning)
             case .evening: .checkin(.evening)
-            case .gut: .gutCheckin
             }
         }
     }
@@ -73,15 +72,24 @@ private struct CheckinPhotoCard: View {
         switch page {
         case .morning: CheckinEngine.slotIsDone(today.moments, .morning)
         case .evening: CheckinEngine.slotIsDone(today.moments, .evening)
-        case .gut: today.checkin?.isGutDone ?? false
         }
     }
     private var isNow: Bool {
         switch page {
         case .morning: now == .morning
         case .evening: now == .evening
-        case .gut: false
         }
+    }
+
+    /// mood · sleep · energy · calmness — today's reads, each with its canonical accent (the old square's chips).
+    private var markers: [(name: String, color: Color, value: Int?)] {
+        let c = today.checkin
+        return [
+            (String(localized: "marker.mood", defaultValue: "Mood"), Color(hex: 0xDB2777), c?.mood),
+            (String(localized: "marker.sleep", defaultValue: "Sleep"), Color(hex: 0x6366F1), c?.sleep),
+            (String(localized: "marker.energy", defaultValue: "Energy"), Color(hex: 0xD97706), c?.energy),
+            (String(localized: "marker.calm", defaultValue: "Calmness"), Color(hex: 0xE11D48), c?.calmness),
+        ]
     }
 
     var body: some View {
@@ -109,15 +117,19 @@ private struct CheckinPhotoCard: View {
                             ? String(localized: "home.pane.mealOne", defaultValue: "meal logged")
                             : String(localized: "home.pane.meals", defaultValue: "meals logged"))
                         pane(symbol: "checkmark.circle", value: "\(momentsDone)/\(MomentSlot.order.count)", label: String(localized: "home.pane.checkins.short", defaultValue: "check-ins"))
-                    case .gut:
-                        pane(symbol: "waveform.path", value: today.checkin?.gutOverall.map { "\($0)" } ?? "—", label: String(localized: "home.pane.gutScore", defaultValue: "gut today"))
-                        pane(symbol: "flame", value: "\(streak)", label: streak == 1
-                            ? String(localized: "home.pane.streakOne", defaultValue: "day streak")
-                            : String(localized: "home.pane.streak", defaultValue: "day streak"))
                     }
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                // The four marker pills, just above the foot band.
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 4) { markerPill(markers[0]); markerPill(markers[1]) }
+                    HStack(spacing: 4) { markerPill(markers[2]); markerPill(markers[3]) }
+                }
+                .padding(.horizontal, 10)
+                .padding(.bottom, h * 0.30)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 LinearGradient(colors: [.black.opacity(0), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
                     .frame(height: h * 0.42)
@@ -156,7 +168,6 @@ private struct CheckinPhotoCard: View {
         switch page {
         case .morning: String(localized: "home.carousel.morning", defaultValue: "Morning check-in")
         case .evening: String(localized: "home.carousel.evening", defaultValue: "Evening check-in")
-        case .gut: String(localized: "home.gut.title", defaultValue: "Gut check-in")
         }
     }
 
@@ -166,7 +177,6 @@ private struct CheckinPhotoCard: View {
         switch page {
         case .morning: return String(localized: "home.carousel.morning.sub", defaultValue: "Sleep, energy and how you woke up")
         case .evening: return String(localized: "home.carousel.evening.sub", defaultValue: "How the day landed, before bed")
-        case .gut: return String(localized: "home.gut.sub.short", defaultValue: "Comfort, stool, food reactions")
         }
     }
 
@@ -174,8 +184,21 @@ private struct CheckinPhotoCard: View {
         switch page {
         case .morning: [Color(hex: 0xF7CDA9), Color(hex: 0xE9A3A4), Color(hex: 0x9B8AB9)]
         case .evening: [Color(hex: 0xF2A96A), Color(hex: 0xD8707C), Color(hex: 0x5B4B7A)]
-        case .gut: [Color(hex: 0x8FC3E6), Color(hex: 0xD3EAF3), Color(hex: 0x9CC9A6)]
         }
+    }
+
+    /// One marker pill: its colour dot, the name and today's read (— until the check-in is done).
+    private func markerPill(_ m: (name: String, color: Color, value: Int?)) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(m.color).frame(width: 5, height: 5)
+            Text(m.name).font(FATypography.sans(8.5, .medium, relativeTo: .caption2))
+            Text(m.value.map { "\($0)" } ?? "—").font(FATypography.display(9.5, relativeTo: .caption2))
+        }
+        .foregroundStyle(.white)
+        .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
+        .padding(.horizontal, 6).padding(.vertical, 3)
+        .modifier(FAGlassSurface(cornerRadius: 8))
+        .fixedSize()
     }
 
     /// A small glass pane on the photograph: number + label, the same clear glass as every card.

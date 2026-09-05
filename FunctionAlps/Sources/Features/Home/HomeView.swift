@@ -84,6 +84,11 @@ struct HomeView: View {
                     }
                     .frame(maxHeight: 230)
 
+                    NavigationLink(value: Route.gutCheckin) {
+                        GutCheckinCard(done: content.today.checkin?.isGutDone ?? false, score: content.today.checkin?.gutOverall)
+                    }
+                    .buttonStyle(.plain)
+
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)
