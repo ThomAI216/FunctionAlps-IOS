@@ -175,7 +175,13 @@ struct MainTabView: View {
         .onAppear {
             AppDelegate.router = router
             AppDelegate.notifications = dependencies.notifications
-            if let url = AppDelegate.pendingRoute { AppDelegate.pendingRoute = nil; router.open(url) }
+            if let url = AppDelegate.pendingRoute {
+                AppDelegate.pendingRoute = nil
+                Task { @MainActor in
+                    await Task.yield()
+                    router.open(url)
+                }
+            }
             dependencies.notifications.clearBadge()
         }
         .onChange(of: scenePhase) { _, phase in
