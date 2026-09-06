@@ -16,7 +16,8 @@ extension Color {
     }
 }
 
-/// The web's `useMountFill`: 0 → 1 with a cubic ease-out over 2.4 s after a 100 ms settle.
+/// The web's `useMountFill`: 0 → 1 with a cubic ease-out over 2.4 s after a 100 ms settle — every bar
+/// fills from zero to its value when the screen opens (the slosh front rides that ease).
 struct MountFill: ViewModifier {
     @Binding var fill: Double
     var duration: Double = 2.4
@@ -131,14 +132,9 @@ struct HashedBar: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(color.opacity(0.1))
                 Capsule().fill(ImagePaint(image: Image(uiImage: HatchTile.image(color: color, cell: 6, lineWidth: 1.5, opacity: 0.4))))
-                ZStack(alignment: .trailing) {
-                    Capsule().fill(LinearGradient(colors: [color.shaded(-0.32), color, color.shaded(0.48)], startPoint: .leading, endPoint: .trailing))
-                    if p > 0.02, p < 0.992 {
-                        Rectangle().fill(Color.white.opacity(0.78)).frame(width: 1.75).padding(.vertical, 0.75)
-                    }
-                }
-                .frame(width: max(0, geo.size.width * CGFloat(p)))
-                .clipShape(Capsule())
+                // The fill is the slosh shader (Metal): it clips itself at `p` with the wavy, glowing front.
+                SloshFill(progress: p, palette: .derived(from: color))
+                    .frame(width: geo.size.width, height: geo.size.height)
                 Capsule().fill(Color.white.opacity(raised ? 0.42 : 0.32)).frame(height: 1.5).frame(maxHeight: .infinity, alignment: .top).padding(.horizontal, height / 2)
             }
         }
