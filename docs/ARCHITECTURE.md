@@ -96,3 +96,6 @@ decoding fixtures from real rows, `MemberService`/`DashboardService` over
 | 2026-09-02 | Bundle id `com.functionalps.patient` (proposed) | ships as an update to the existing App Store record; owner to confirm before first upload |
 | 2026-09-02 | Password login only in v0.01 | the Expo app's Google OAuth needs a native redirect + ASWebAuthenticationSession; Phase A |
 | 2026-09-02 | Milestone 1 reads only the member's own rows under RLS + calls existing edge functions | zero backend change for the proof (PRD §22) |
+
+## Next shape (brainstorm)
+The data-to-action programme — Apple Health intraday, self-assessment v2, habits, the Day Record, the clinician review, the sovereign hypothesis layer — is cut into work packages in `docs/brainstorm/2026-09-06-from-data-to-action.md`. Read it before starting any of WP0–WP9.
