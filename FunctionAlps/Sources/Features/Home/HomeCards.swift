@@ -57,7 +57,7 @@ struct FunctionalHeroCard: View {
                     .font(FATypography.display(14, relativeTo: .caption))
                     .foregroundStyle(FAColor.ink)
             }
-            HashedBar(color: color, pct: Double(value ?? 0) / 100, height: 7)
+            HashedBar(color: color, pct: Double(value ?? 0) / 100, height: 12)
         }
     }
 }

@@ -629,7 +629,7 @@ private struct MacroTargetsCard: View {
                                     Spacer()
                                     Text("\(Int(model.consumedFiber.rounded()))g / \(model.fiberTarget)g").font(FATypography.sans(11, .bold, relativeTo: .caption2)).foregroundStyle(FAColor.ink)
                                 }
-                                HashedBar(color: carbsFill, pct: fiberProgress, height: 7, raised: true)
+                                HashedBar(color: carbsFill, pct: fiberProgress, height: 12, raised: true)
                             }
                             .padding(.top, 10).overlay(alignment: .top) { Rectangle().fill(ProfilePalette.hairline).frame(height: 1) }.padding(.top, 10)
                         }

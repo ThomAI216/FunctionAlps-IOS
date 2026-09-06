@@ -205,7 +205,7 @@ struct FactorBarRow: View {
                 .foregroundStyle(FAColor.inkSecondary)
                 .lineLimit(1)
                 .frame(width: 96, alignment: .leading)
-            HashedBar(color: tint, pct: Double(factor.intValue ?? 0) / 100, height: 9, raised: true)
+            HashedBar(color: tint, pct: Double(factor.intValue ?? 0) / 100, height: 14, raised: true)
             Text(factor.intValue.map(String.init) ?? "·")
                 .font(FATypography.sans(12, .bold, relativeTo: .caption))
                 .foregroundStyle(factor.value == nil ? FAColor.inkSecondary : FAColor.ink)

@@ -56,7 +56,7 @@ struct GutIntelligenceView: View {
                 ForEach(d.factors.filter { $0.value != nil }) { f in
                     HStack(spacing: 9) {
                         Text(f.label).font(FATypography.sans(11.5, .medium, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).lineLimit(1).frame(width: 110, alignment: .leading)
-                        HashedBar(color: Self.tint, pct: Double(f.value ?? 0) / 100, height: 9, raised: true)
+                        HashedBar(color: Self.tint, pct: Double(f.value ?? 0) / 100, height: 14, raised: true)
                         Text(f.value.map(String.init) ?? "·").font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(FAColor.ink).frame(width: 26, alignment: .trailing)
                     }
                     .accessibilityElement(children: .combine)

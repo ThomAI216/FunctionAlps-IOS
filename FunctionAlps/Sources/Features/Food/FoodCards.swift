@@ -42,7 +42,7 @@ struct MacroBars: View {
     let rows: [MacroBarRow]
     var score: Int? = nil
     var showScore = true
-    var barHeight: CGFloat = 10
+    var barHeight: CGFloat = 14
     /// When set, each row is a button that receives the row key (`kcal` / `protein` / `carbs` / `fat`).
     var onTap: ((String) -> Void)? = nil
 

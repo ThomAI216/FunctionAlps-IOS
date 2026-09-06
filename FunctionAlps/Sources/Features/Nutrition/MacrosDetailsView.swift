@@ -112,7 +112,7 @@ struct MacrosDetailsView: View {
                                     Spacer()
                                     Text("\(pct)%").font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(group.color)
                                 }
-                                HashedBar(color: group.color, pct: Double(pct) / 100, height: 7)
+                                HashedBar(color: group.color, pct: Double(pct) / 100, height: 12)
                             }
                         }
                     }

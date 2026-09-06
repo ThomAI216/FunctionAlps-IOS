@@ -31,13 +31,13 @@ static float fbm(float2 p) {
     return v;
 }
 
-[[ stitchable ]] half4 slosh(float2 position, half4 color, float2 size, float time, float progress,
-                             half4 c1h, half4 c2h, half4 c3h, half4 c4h, half4 c5h) {
-    if (progress <= 0.002) { return half4(0.0); }
-    float2 uv = position / max(size, float2(1.0));
-    float3 c1 = float3(c1h.rgb), c2 = float3(c2h.rgb), c3 = float3(c3h.rgb), c4 = float3(c4h.rgb), c5 = float3(c5h.rgb);
-
-    const float speed = 0.45, scale = 15.5, amount = 0.03, echo = 0.064, bloom = 0.2;
+// The effect itself, in a unit square: x = the progress axis, y = across the bar. Both the bar and the
+// ring sample this (the ring maps angle → x, radius → y).
+static half4 sloshSample(float2 uv, float time, float progress, float3 c1, float3 c2, float3 c3, float3 c4, float3 c5) {
+    // Preset (the owner's sliders, 2026-09-06; echo tightened the same day): speed .45 · scale 15.5 ·
+    // amount .03 · echo .034 · bloom .2 · frontIn -.26 · frontOut .09 · churn 1 · feather .8 · stagger .46 ·
+    // pulse .3 @ 5 · turbulence .3 · sparkle 1.4 · ripple 2 · falloff 1.5 · trails 6 · trailGlow 2 · haze 1.8.
+    const float speed = 0.45, scale = 15.5, amount = 0.03, echo = 0.034, bloom = 0.2;
     const float frontIn = -0.26, frontOut = 0.09, churn = 1.0, feather = 0.8, stagger = 0.46;
     const float pulseAmt = 0.3, pulseRate = 5.0, turb = 0.3, sparkle = 1.4, ripple = 2.0;
     const float falloff = 1.5, trails = 6.0, trailGlow = 2.0, haze = 1.8;
@@ -57,13 +57,13 @@ static float fbm(float2 p) {
     float dx = uv.x - frontX;                  // < 0 inside the fill
     float inside = 1.0 - smoothstep(frontIn * feather * 0.35, frontOut * feather * 0.35, dx);
 
-    // ── body ──
+    // ── body: the far (left) end is lit too — c2 is reached early, the currents only add light ──
     float along = clamp(uv.x / max(frontX, 0.001), 0.0, 1.0);
-    float3 body = mix(c1, c2, smoothstep(0.0, 0.75, along));
+    float3 body = mix(c1, c2, smoothstep(0.0, 0.4, along));
     float cur = fbm(float2(uv.x * 2.5 - t * 0.3, uv.y * 3.0 + t * 0.2 * churn));
-    body *= 0.8 + 0.4 * cur;
-    body = mix(body, c3, smoothstep(-0.22, 0.0, dx) * 0.85);
-    body = mix(body, c4, smoothstep(-0.075, 0.0, dx) * 0.55);
+    body *= 0.95 + 0.35 * cur;
+    body = mix(body, c3, smoothstep(-0.3, 0.0, dx) * 0.85);
+    body = mix(body, c4, smoothstep(-0.09, 0.0, dx) * 0.55);
 
     // ── edge + bloom ──
     float pulse = 1.0 + pulseAmt * 0.5 * (0.5 + 0.5 * sin(time * pulseRate * 0.6));
@@ -76,13 +76,13 @@ static float fbm(float2 p) {
     col += mix(c4, c5, 0.35 + 0.65 * fil) * edge * (0.75 + 0.55 * fil) * pulse;
     col += c5 * pow(edge, 2.5) * sparkle * 0.35 * fil;
 
-    // ── trails ──
+    // ── trails: close behind the front (echo), thinner, fading with falloff ──
     for (int k = 1; k <= 6; k++) {
         float kf = float(k);
         if (kf > trails) { break; }
         float ghostX = frontX - echo * kf * (0.75 + 0.5 * n1);
         float gd = abs(uv.x - ghostX);
-        float g = exp(-gd / (0.006 + 0.004 * kf)) * pow(1.0 - kf / (trails + 1.0), falloff) * trailGlow;
+        float g = exp(-gd / (0.005 + 0.003 * kf)) * pow(1.0 - kf / (trails + 1.0), falloff) * trailGlow;
         col += mix(c4, c3, kf / (trails + 1.0)) * g * 0.5 * inside * (0.6 + 0.4 * fil);
     }
 
@@ -93,4 +93,32 @@ static float fbm(float2 p) {
     float alpha = clamp(inside + glow * (1.0 - inside) * 1.2 + hz * (1.0 - inside) * 2.0 + edge * (1.0 - inside) * 0.8, 0.0, 1.0);
     col = clamp(col, 0.0, 1.0);
     return half4(half3(col * alpha), half(alpha));   // premultiplied
+}
+
+/// The bar: x across the width, y across the height.
+[[ stitchable ]] half4 slosh(float2 position, half4 color, float2 size, float time, float progress,
+                             half4 c1h, half4 c2h, half4 c3h, half4 c4h, half4 c5h) {
+    if (progress <= 0.002) { return half4(0.0); }
+    float2 uv = position / max(size, float2(1.0));
+    return sloshSample(uv, time, progress, float3(c1h.rgb), float3(c2h.rgb), float3(c3h.rgb), float3(c4h.rgb), float3(c5h.rgb));
+}
+
+/// The ring: angle from the top, clockwise → x; the band from the inner radius outward → y.
+/// `thickness` is the stroke width in points; the band edges are anti-aliased over one point.
+[[ stitchable ]] half4 sloshRing(float2 position, half4 color, float2 size, float time, float progress, float thickness,
+                                 half4 c1h, half4 c2h, half4 c3h, half4 c4h, half4 c5h) {
+    if (progress <= 0.002) { return half4(0.0); }
+    float2 centre = size * 0.5;
+    float R = min(size.x, size.y) * 0.5;
+    float inner = R - thickness;
+    float2 d = position - centre;
+    float r = length(d);
+    float band = smoothstep(inner - 0.75, inner + 0.75, r) * (1.0 - smoothstep(R - 0.75, R + 0.75, r));
+    if (band <= 0.001) { return half4(0.0); }
+    float a = atan2(d.x, -d.y);                // 0 at the top, +π/2 at the right (clockwise, y down)
+    float u = a / 6.2831853;
+    if (u < 0.0) { u += 1.0; }
+    float v = clamp((r - inner) / max(thickness, 1.0), 0.0, 1.0);
+    half4 s = sloshSample(float2(u, v), time, progress, float3(c1h.rgb), float3(c2h.rgb), float3(c3h.rgb), float3(c4h.rgb), float3(c5h.rgb));
+    return s * half(band);
 }

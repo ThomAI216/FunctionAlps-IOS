@@ -86,8 +86,6 @@ struct ActivityRing<Center: View>: View {
 
     var body: some View {
         let p = max(0, min(1, pct)) * fill
-        let r = size / 2 - strokeWidth / 2
-        let hr = r - strokeWidth * 0.26
         ZStack {
             Circle()
                 .strokeBorder(hashedTrack ? AnyShapeStyle(ImagePaint(image: Image(uiImage: HatchTile.image(color: color)))) : AnyShapeStyle(trackColor), lineWidth: strokeWidth)
@@ -95,22 +93,9 @@ struct ActivityRing<Center: View>: View {
             if hashedTrack {
                 Circle().strokeBorder(trackColor.opacity(0.35), lineWidth: strokeWidth).frame(width: size, height: size)
             }
-            Circle()
-                .trim(from: 0, to: p)
-                .stroke(
-                    raised ? AnyShapeStyle(LinearGradient(colors: [color.shaded(0.42), color, color.shaded(-0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)) : AnyShapeStyle(color),
-                    style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round)
-                )
-                .frame(width: r * 2, height: r * 2)
-                .rotationEffect(.degrees(-90))
-            if raised, p > 0, hr > 0 {
-                Circle()
-                    .trim(from: 0, to: p)
-                    .stroke(color.shaded(0.6), style: StrokeStyle(lineWidth: strokeWidth * 0.32, lineCap: .round))
-                    .frame(width: hr * 2, height: hr * 2)
-                    .rotationEffect(.degrees(-90))
-                    .opacity(0.55)
-            }
+            // The fill is the ring slosh shader (Metal): it clips itself at `p`, clockwise from the top.
+            SloshRingFill(progress: p, thickness: strokeWidth, palette: .derived(from: color))
+                .frame(width: size, height: size)
             center
         }
         .frame(width: size, height: size)
@@ -122,7 +107,7 @@ struct ActivityRing<Center: View>: View {
 struct HashedBar: View {
     let color: Color
     let pct: Double
-    var height: CGFloat = 7
+    var height: CGFloat = 12
     var raised = false
     @State private var fill: Double = 0
 
