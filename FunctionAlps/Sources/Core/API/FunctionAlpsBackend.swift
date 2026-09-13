@@ -79,6 +79,18 @@ protocol FunctionAlpsBackend: Sendable {
     func stampOnboardingComplete(patientId: String) async throws -> Date
     /// RPC `confirm_member_adult(p_date_of_birth)` — true when 18+ (and the row is stamped); under-age is refused locally first.
     func confirmAdult(dateOfBirth: String) async throws -> Bool
+
+    // MARK: Meal corrections (resolve-foods · nb_meal_logs update · nb_patient_food_aliases)
+
+    /// Edge fn `resolve-foods` — the SAME pricing ladder `analyze-meal` uses, one row at a time, no language model.
+    /// Nil on a transport failure or a shorter-than-asked answer (guessing the alignment would price rows off the wrong reference).
+    func resolveFoods(_ requests: [MealEdit.PricingRequest]) async throws -> [MealEdit.ResolvedPricing]?
+    /// The edited meal back onto its row: name, `ai_identified_foods`, totals, micros, the three scores (the Expo `updateSavedMeal`).
+    func updateMealAnalysis(mealId: String, draft: MealDraft) async throws
+    /// Which reference plane a resolved id lives in — generic `nb_food_items` or branded `nb_food_products`; nil = not storable.
+    func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget?
+    /// Write or corroborate one learned food (read-then-write on the unique (patient, alias_norm) key).
+    func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite
     /// The practice's record for the baseline prefill: the four intake answers (`patient_intake_questionnaire.answers`
     /// gender / height_cm / weight_now / activity), when it was submitted, and `patients.date_of_birth` — the member's
     /// own session under RLS `intake_self_read` / `patients_self_select`. Nothing else leaves the questionnaire.
@@ -223,11 +235,11 @@ struct StatedItem: Encodable, Sendable, Equatable {
 /// What `preprocess-meal` extracted from the spoken or typed words.
 struct MealPreprocess: Sendable, Equatable {
     struct Item: Sendable, Equatable, Identifiable {
-        let name: String
-        let quantity: String?
-        let estimatedG: Int
-        let volumeMeasure: String?
-        let confidence: String
+        var name: String
+        var quantity: String?
+        var estimatedG: Int
+        var volumeMeasure: String?
+        var confidence: String
         var id: String { name + "|" + (quantity ?? "") }
         var stated: StatedItem? {
             let n = name.trimmingCharacters(in: .whitespaces)
@@ -238,5 +250,33 @@ struct MealPreprocess: Sendable, Equatable {
     }
     let language: String?
     let cleanedTranscript: String
+    /// The model's follow-up questions, typed (identity / quantity) — see `ClarificationLogic`.
+    var clarifications: [MealClarification] = []
     let items: [Item]
 }
+
+/// Which reference plane a corrected food lives in. `ResolvedItem.food_item_id` carries an `nb_food_items` id for the
+/// generic tiers and an `nb_food_products` id for branded rows; the alias table needs them stored differently.
+enum FoodAliasTarget: Sendable, Equatable {
+    case foodItem(id: String, name: String)
+    case product(offCode: String, name: String)
+
+    var name: String {
+        switch self {
+        case .foodItem(_, let n), .product(_, let n): n
+        }
+    }
+}
+
+/// One `nb_patient_food_aliases` row — the pipeline's name (normalised) → the food the member said it was.
+struct FoodAliasRow: Sendable, Equatable {
+    let patientId: String
+    let aliasNorm: String
+    let foodItemId: String?
+    let offCode: String?
+    let gramsDefault: Int?
+    /// 'correction' (they changed it) | 'confirmation' (they kept it).
+    let source: String
+}
+
+enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }

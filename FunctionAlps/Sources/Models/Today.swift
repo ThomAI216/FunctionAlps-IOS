@@ -59,6 +59,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let patientNote: String?
     /// `micronutrient_totals` — per-meal micro sums keyed like the edge functions write them (`vitamin_c_mg`…).
     let micros: [String: Double]
+    /// `analysis_coverage` — the model's verdict on the photos: "full", "partial", or nil when never judged.
+    let analysisCoverage: String?
 
     init(
         id: String,
@@ -78,7 +80,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         items: [MealItem] = [],
         scores: MealScores? = nil,
         patientNote: String? = nil,
-        micros: [String: Double] = [:]
+        micros: [String: Double] = [:],
+        analysisCoverage: String? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -97,6 +100,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.scores = scores
         self.patientNote = patientNote
         self.micros = micros
+        self.analysisCoverage = analysisCoverage
     }
 
     var photoPath: String? { photoPaths.first }
@@ -109,18 +113,31 @@ struct MealLog: Identifiable, Sendable, Equatable {
     }
 }
 
-/// One identified food on a meal (`ai_identified_foods[]`). Numbers are estimates.
-struct MealItem: Sendable, Equatable, Decodable {
-    let name: String
-    let estimatedGrams: Double?
-    let kcal: Double?
-    let proteinG: Double?
-    let carbsG: Double?
-    let fatG: Double?
-    let fiberG: Double?
-    let flags: [String]
+/// One identified food on a meal (`ai_identified_foods[]`). Numbers are estimates. Editable: the member
+/// corrects names and portions on the meal page (the Expo `AnalyzedItem`).
+struct MealItem: Sendable, Equatable, Codable {
+    var name: String
+    var estimatedGrams: Double?
+    var kcal: Double?
+    var proteinG: Double?
+    var carbsG: Double?
+    var fatG: Double?
+    var fiberG: Double?
+    var flags: [String]
+    /// The resolver could not identify this food and answered with ZERO macros — a zero is not a price, so the
+    /// row renders "not counted" instead of a number.
+    var needsReview: Bool
+    /// The household reference the member picked on the photo review ("1 tbsp", "a handful"); absent for a hand-set number.
+    var portionLabel: String?
+    /// `nb_food_items.category` when the item resolved to a reference row — the scorer's primary signal.
+    var category: String?
+    /// How the resolver priced it (exact / learned / matched / decomposed / estimated / unknown) — confidence only.
+    var basis: String?
+    /// Per-item micros from the resolver (`saturated_fat_g`, `sugar_g`, `omega3_g` feed the scorer).
+    var micros: [String: Double]
 
-    init(name: String, estimatedGrams: Double? = nil, kcal: Double? = nil, proteinG: Double? = nil, carbsG: Double? = nil, fatG: Double? = nil, fiberG: Double? = nil, flags: [String] = []) {
+    init(name: String, estimatedGrams: Double? = nil, kcal: Double? = nil, proteinG: Double? = nil, carbsG: Double? = nil, fatG: Double? = nil, fiberG: Double? = nil, flags: [String] = [],
+         needsReview: Bool = false, portionLabel: String? = nil, category: String? = nil, basis: String? = nil, micros: [String: Double] = [:]) {
         self.name = name
         self.estimatedGrams = estimatedGrams
         self.kcal = kcal
@@ -129,9 +146,32 @@ struct MealItem: Sendable, Equatable, Decodable {
         self.fatG = fatG
         self.fiberG = fiberG
         self.flags = flags
+        self.needsReview = needsReview
+        self.portionLabel = portionLabel
+        self.category = category
+        self.basis = basis
+        self.micros = micros
     }
 
-    private enum CodingKeys: String, CodingKey { case name, estimatedGrams, kcal, proteinG, carbsG, fatG, fiberG, flags }
+    private enum CodingKeys: String, CodingKey { case name, estimatedGrams, kcal, proteinG, carbsG, fatG, fiberG, flags, needsReview, portionLabel, category, basis, micros }
+
+    /// Only the affirmative / present cases are written, so a row never carries a `needs_review: false` that reads as checked.
+    func encode(to encoder: any Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(name, forKey: .name)
+        try c.encodeIfPresent(estimatedGrams, forKey: .estimatedGrams)
+        try c.encodeIfPresent(kcal, forKey: .kcal)
+        try c.encodeIfPresent(proteinG, forKey: .proteinG)
+        try c.encodeIfPresent(carbsG, forKey: .carbsG)
+        try c.encodeIfPresent(fatG, forKey: .fatG)
+        try c.encodeIfPresent(fiberG, forKey: .fiberG)
+        if !flags.isEmpty { try c.encode(flags, forKey: .flags) }
+        if needsReview { try c.encode(true, forKey: .needsReview) }
+        try c.encodeIfPresent(portionLabel, forKey: .portionLabel)
+        try c.encodeIfPresent(category, forKey: .category)
+        try c.encodeIfPresent(basis, forKey: .basis)
+        if !micros.isEmpty { try c.encode(micros, forKey: .micros) }
+    }
 
     /// Lenient on purpose: model output occasionally carries numbers as strings or omits fields,
     /// and one odd item must not blank the whole meal.
@@ -145,6 +185,11 @@ struct MealItem: Sendable, Equatable, Decodable {
         fatG = Self.number(c, .fatG)
         fiberG = Self.number(c, .fiberG)
         flags = (try? c.decodeIfPresent([String].self, forKey: .flags)) ?? []
+        needsReview = (try? c.decodeIfPresent(Bool.self, forKey: .needsReview)) ?? false
+        portionLabel = (try? c.decodeIfPresent(String.self, forKey: .portionLabel)).flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 }
+        category = try? c.decodeIfPresent(String.self, forKey: .category)
+        basis = try? c.decodeIfPresent(String.self, forKey: .basis)
+        micros = ((try? c.decodeIfPresent([String: Double?].self, forKey: .micros)) ?? nil)?.compactMapValues { $0 } ?? [:]
     }
 
     private static func number(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> Double? {

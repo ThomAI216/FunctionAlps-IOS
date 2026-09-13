@@ -225,28 +225,35 @@ private struct MealResultPage: View {
         .scrollDismissesKeyboard(.interactively)
     }
 
-    /// The pipeline ran out of guesses → ask the person. Not an error surface.
+    /// The last tier of the pipeline, and the one that makes it a 100 % pipeline rather than an 86 % one: ASK THE
+    /// PERSON. Not an error state — no red, no triangle. The same describe machine as the Food tab; what differs
+    /// is where the answer goes: a row already exists and is waiting to be filled in.
     private func attention(_ meal: MealLog) -> some View {
-        FACard {
-            VStack(alignment: .leading, spacing: FASpacing.md) {
-                Label(
-                    meal.status == .failed
-                        ? String(localized: "capture.failed.short", defaultValue: "We couldn't read this meal")
-                        : String(localized: "capture.needsInput.title", defaultValue: "Tell us a little more"),
-                    systemImage: meal.status == .failed ? "exclamationmark.triangle" : "questionmark.circle"
-                )
-                .font(FATypography.headline).foregroundStyle(FAColor.ink)
-                Text(String(localized: "capture.needsInput.message", defaultValue: "What was on the plate? A few words are enough — we'll read it again."))
-                    .font(FATypography.callout).foregroundStyle(FAColor.inkSecondary)
-                TextField(String(localized: "food.describe.placeholder", defaultValue: "e.g. grilled chicken, sweet potato, salad"), text: $model.retryDescription, axis: .vertical)
-                    .lineLimit(2...5)
-                    .font(FATypography.body)
-                    .padding(12)
-                    .background(Color.white.opacity(0.7), in: RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous))
-                    .overlay { RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1) }
-                FAButton(title: String(localized: "action.tryAgain", defaultValue: "Try again")) { model.retry() }
-                FAButton(title: String(localized: "capture.keep", defaultValue: "Keep it as is"), style: .tertiary) { onFinish() }
+        let copy = AnalysisFailureCopy.copy(status: meal.status, rawError: meal.analysisError)
+        return VStack(alignment: .leading, spacing: 0) {
+            FACard {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(copy.title).font(FATypography.display(18, relativeTo: .title3)).foregroundStyle(FAColor.ink)
+                    Text(copy.body).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary).lineSpacing(5)
+                    DictationCard(model: model.describe, analyseTitle: String(localized: "food.describe.analyse", defaultValue: "Analyse with AI"), busy: model.submitting) {
+                        model.submitDescription()
+                    }
+                    .padding(.top, 4)
+                    if let error = model.submitError {
+                        Text(error).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(Color(hex: 0xC0453A))
+                    }
+                }
             }
+            if !meal.photoPaths.isEmpty {
+                Button { model.retryPhoto() } label: {
+                    Text(String(localized: "capture.retryPhoto", defaultValue: "Or try the photo again"))
+                        .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                        .frame(maxWidth: .infinity).padding(.vertical, 12).contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 6)
+            }
+            FAButton(title: String(localized: "capture.keep", defaultValue: "Keep it as is"), style: .tertiary) { onFinish() }
         }
         .padding(.top, 6)
         .padding(.bottom, 16)

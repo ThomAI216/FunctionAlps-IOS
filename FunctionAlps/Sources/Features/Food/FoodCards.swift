@@ -429,9 +429,22 @@ private struct FavoriteChip: View {
 
 // MARK: - DescribeMeal (bare)
 
-/// Speak (button on top) or type (under) a meal, then the text summary with "Analyse with AI".
+/// Speak (button on top) or type (under) a meal → the live DETECTED ITEMS list with its amber questions →
+/// "Analyse with AI" (the Expo `DescribeMealCard` over `useMealDictation` + `PreprocessItemList`).
 struct DescribeMealBare: View {
     @Bindable var model: FoodViewModel
+    let onAnalyse: () -> Void
+
+    var body: some View {
+        DictationCard(model: model.describe, analyseTitle: String(localized: "food.describe.analyse", defaultValue: "Analyse with AI"), onAnalyse: onAnalyse)
+    }
+}
+
+/// The voice button, the field, the extracted list and the primary action — one card, three homes.
+struct DictationCard: View {
+    @Bindable var model: MealDictationModel
+    let analyseTitle: String
+    var busy = false
     let onAnalyse: () -> Void
     @FocusState private var focused: Bool
     @State private var pulse = false
@@ -461,12 +474,12 @@ struct DescribeMealBare: View {
                 .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft, lineWidth: 1) }
             }
             .buttonStyle(.plain)
-            .disabled(dictation.transcribing)
+            .disabled(dictation.transcribing || busy)
             .onChange(of: dictation.listening) { _, on in
                 if on { withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { pulse = true } } else { withAnimation(.default) { pulse = false } }
             }
 
-            if let error = dictation.error {
+            if let error = dictation.error ?? model.errorMessage {
                 Text(error)
                     .font(FATypography.sans(12, .semibold, relativeTo: .caption))
                     .foregroundStyle(Color(hex: 0xC0453A))
@@ -482,7 +495,8 @@ struct DescribeMealBare: View {
             .font(FATypography.sans(15, relativeTo: .body))
             .foregroundStyle(FAColor.ink)
             .focused($focused)
-            .onChange(of: model.description) { _, _ in model.descriptionChanged() }
+            .disabled(busy)
+            .onChange(of: model.description) { _, _ in model.typedChanged() }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .frame(minHeight: 52, alignment: .top)
@@ -490,48 +504,52 @@ struct DescribeMealBare: View {
             .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FoodPalette.hairline, lineWidth: 1) }
             .padding(.top, 10)
 
-            // The extracted list (preprocess-meal) — or the words split into lines until it lands — + Analyse.
-            let extractedItems = model.extracted?.items ?? []
-            let fallback = model.describedItems
-            if !dictation.listening, !dictation.transcribing, !extractedItems.isEmpty || !fallback.isEmpty {
+            // Listing (only before the first items land — the list survives re-extraction).
+            if model.extracting, !model.hasItems {
+                HStack(spacing: 10) {
+                    ProgressView().tint(FAColor.forestSoft).scaleEffect(0.8)
+                    Text(String(localized: "food.describe.listing", defaultValue: "Listing your ingredients…")).font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(FoodPalette.accentSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft, lineWidth: 1) }
+                .padding(.top, 10)
+            }
+
+            let fallback = model.describedLines
+            if !dictation.listening, !dictation.transcribing, model.hasItems || (!fallback.isEmpty && !model.extracting) {
                 VStack(alignment: .leading, spacing: 0) {
-                    HStack(spacing: 8) {
-                        Text((extractedItems.isEmpty ? fallback : extractedItems.map(\.name)).prefix(2).joined(separator: " + "))
+                    if model.hasItems {
+                        HStack {
+                            if model.extracting { ProgressView().tint(FAColor.forestSoft).scaleEffect(0.7) }
+                            Spacer()
+                            Button { model.reset() } label: { Image(systemName: "xmark").font(.system(size: 12, weight: .semibold)).foregroundStyle(FoodPalette.muted) }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(String(localized: "action.dismiss", defaultValue: "Dismiss"))
+                        }
+                        .padding(.bottom, 6)
+                        // The editable rows + the amber questions — the SAME list the capture screen shows.
+                        PreprocessItemList(model: model)
+                    } else {
+                        Text(fallback.prefix(2).joined(separator: " + "))
                             .font(FATypography.sans(13, .bold, relativeTo: .subheadline))
                             .foregroundStyle(FAColor.ink)
                             .lineLimit(1)
-                        if model.extracting { ProgressView().tint(FAColor.forestSoft).scaleEffect(0.7) }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        if extractedItems.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
                             ForEach(fallback, id: \.self) { item in
-                                Text("• \(item)")
-                                    .font(FATypography.sans(11.5, relativeTo: .caption))
-                                    .foregroundStyle(FoodPalette.muted)
-                            }
-                        } else {
-                            ForEach(extractedItems) { item in
-                                HStack(spacing: 6) {
-                                    Circle().fill(item.confidence == "high" ? FAColor.forestSoft : Color(hex: 0xD98A2B)).frame(width: 5, height: 5)
-                                    Text(item.name)
-                                        .font(FATypography.sans(12.5, .medium, relativeTo: .caption))
-                                        .foregroundStyle(FAColor.ink)
-                                    Text("· \(item.estimatedG) g" + (item.volumeMeasure.map { $0.isEmpty ? "" : " (\($0))" } ?? ""))
-                                        .font(FATypography.sans(11.5, relativeTo: .caption))
-                                        .foregroundStyle(FoodPalette.muted)
-                                }
+                                Text("• \(item)").font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FoodPalette.muted)
                             }
                         }
+                        .padding(.top, 6)
                     }
-                    .padding(.top, 6)
                     Button {
                         focused = false
                         onAnalyse()
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "sparkles").font(.system(size: 13, weight: .semibold))
-                            Text(String(localized: "food.describe.analyse", defaultValue: "Analyse with AI"))
-                                .font(FATypography.sans(13.5, .bold, relativeTo: .subheadline))
+                            if busy { ProgressView().tint(FAColor.charcoal).scaleEffect(0.8) } else { Image(systemName: "sparkles").font(.system(size: 13, weight: .semibold)) }
+                            Text(analyseTitle).font(FATypography.sans(13.5, .bold, relativeTo: .subheadline))
                         }
                         .foregroundStyle(FAColor.charcoal)
                         .frame(maxWidth: .infinity)
@@ -539,17 +557,49 @@ struct DescribeMealBare: View {
                         .background(FAColor.forestSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
-                    .disabled(model.extracting)
-                    .opacity(model.extracting ? 0.6 : 1)
+                    .disabled(!model.canAnalyse || busy)
+                    .opacity(model.canAnalyse && !busy ? 1 : 0.5)
                     .padding(.top, 10)
+                    if model.blocked {
+                        Text(String(localized: "food.clarify.blocked", defaultValue: "Answer the question above first · or keep it as is."))
+                            .font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(FoodPalette.muted).padding(.top, 6)
+                    }
                 }
                 .padding(12)
-                .background(FoodPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FoodPalette.hairline, lineWidth: 1) }
+                .background(model.hasItems ? FoodPalette.accentSoft : FoodPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(model.hasItems ? FAColor.forestSoft : FoodPalette.hairline, lineWidth: 1) }
                 .padding(.top, 10)
-                .animation(.easeInOut(duration: 0.2), value: extractedItems.map(\.id))
+                .animation(.easeInOut(duration: 0.2), value: model.items.map(\.id))
             }
         }
+    }
+}
+
+/// The store-bound binding of `EditableItemList`: the live voice/typing extraction loop.
+struct PreprocessItemList: View {
+    @Bindable var model: MealDictationModel
+
+    var body: some View {
+        let locale = ConsentLogic.locale()
+        let flagged = Set(model.clarifications.map(\.itemIndex))
+        EditableItemList(
+            items: model.items.enumerated().map { i, item in
+                EditableRow(id: i, name: item.name, grams: Double(item.estimatedG), note: item.volumeMeasure.flatMap { $0.isEmpty ? nil : $0 }, flagged: flagged.contains(i))
+            },
+            questions: model.clarifications.map { c in
+                RowQuestion(
+                    id: c.id, itemIndex: c.itemIndex, question: c.question,
+                    // `label` is repaired into the member's language; `value` is the model's ORIGINAL string.
+                    options: c.options.map { RowQuestion.Option(label: ClarificationLogic.localiseQuantityOption($0, locale: locale), value: $0) },
+                    onPick: { model.resolveClarification(c, option: $0) },
+                    onDismiss: { model.dismissClarification(c) }
+                )
+            },
+            onRename: { model.rename($0, to: $1) },
+            onGrams: { model.setGrams($0, $1) },
+            onRemove: { model.remove($0) },
+            onAdd: { model.add($0) }
+        )
     }
 }
 

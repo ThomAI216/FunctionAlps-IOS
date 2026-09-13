@@ -150,6 +150,15 @@ struct MealService: Sendable {
         return mealId
     }
 
+    /// The member answered "what did you eat?" on a `needs_input` row: `analyze-meal` writes the result onto the
+    /// EXISTING row, so this never creates a second meal (the Expo `analyzeMealDescription(desc, mealLogId, items)`).
+    func describe(_ meal: MealLog, description: String, items: [StatedItem]) async {
+        var request = AnalyzeMealRequest(mealId: meal.id)
+        request.description = description
+        request.items = items
+        await analyze(request, attempts: Self.textAttempts)
+    }
+
     /// Member-initiated do-over. Photo meals are re-read from storage by the server; text meals
     /// resend the words (new ones if given, else what the row still carries in `name`).
     func reanalyze(_ meal: MealLog, description: String?) async {

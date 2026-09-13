@@ -23,7 +23,6 @@ final class FoodViewModel {
     }
 
     var state: Loadable<Content> = .loading
-    var description = ""
     private(set) var isRefreshing = false
     private(set) var favorites: [FavoriteMeal] = []
     private(set) var reactions: [String: MealReaction] = [:]
@@ -31,17 +30,8 @@ final class FoodViewModel {
     @ObservationIgnored var onMealLogged: (@MainActor (String) -> Void)?
     var relogToast: RelogToast?
     var errorMessage: String?
-    let dictation: SpeechDictation
-    /// The last words in the field came from the microphone (the capture's `source`).
-    private var spoke = false
-    /// What `preprocess-meal` made of the words — kept visible while the next extraction runs.
-    private(set) var extracted: MealPreprocess?
-    private(set) var extracting = false
-    private var lastExtracted = ""
-    private var extractTask: Task<Void, Never>?
-    private var pendingExtract: String?
-    /// The Expo `LIVE_EXTRACT_DEBOUNCE_MS`.
-    static let extractDebounceMs = 700
+    /// "Say or type your meal, watch the ingredients appear" — shared with the capture screen's needs-input card.
+    let describe: MealDictationModel
 
     private let members: MemberService
     private let meals: MealService
@@ -54,14 +44,7 @@ final class FoodViewModel {
         self.meals = meals
         self.auth = auth
         self.calendar = calendar
-        dictation = SpeechDictation { audio, mime in try await meals.transcribe(audio: audio, mimeType: mime) }
-        dictation.onFinal = { [weak self] words in
-            guard let self else { return }
-            let current = self.description.trimmingCharacters(in: .whitespacesAndNewlines)
-            self.description = current.isEmpty ? words : current + " " + words
-            self.spoke = true
-            self.descriptionChanged()
-        }
+        describe = MealDictationModel(meals: meals) { MealService.mealType(at: Date(), calendar: calendar) }
     }
 
     func load(refresh: Bool = false) async {
@@ -89,60 +72,8 @@ final class FoodViewModel {
 
     // MARK: Capture entry points
 
-    var canDescribe: Bool { !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-
-    /// Wire to the field: every edit re-extracts after the debounce (typing produces one per keystroke).
-    func descriptionChanged() {
-        let text = description.trimmingCharacters(in: .whitespacesAndNewlines)
-        if text.isEmpty { extracted = nil; lastExtracted = ""; extractTask?.cancel(); extractTask = nil; return }
-        extractTask?.cancel()
-        extractTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(Self.extractDebounceMs))
-            guard !Task.isCancelled else { return }
-            await self?.extract(text)
-        }
-    }
-
-    /// Debounce + coalesce + one in flight: only the newest pending text survives a running extraction.
-    private func extract(_ text: String) async {
-        guard text.count >= 3, text != lastExtracted else { return }
-        if extracting { pendingExtract = text; return }
-        extracting = true
-        lastExtracted = text
-        do {
-            extracted = try await meals.preprocess(text, mealType: nil)
-        } catch {
-            Log.data.error("food.preprocess: \(String(describing: error), privacy: .public)")
-        }
-        extracting = false
-        if let queued = pendingExtract { pendingExtract = nil; await extract(queued) }
-    }
-
-    /// The typed/spoken meal split into ingredient lines — the fallback while nothing is extracted yet.
-    var describedItems: [String] {
-        description
-            .replacingOccurrences(of: " and ", with: ",")
-            .replacingOccurrences(of: " et ", with: ",")
-            .split(whereSeparator: { $0 == "," || $0 == "\n" || $0 == ";" })
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
-    }
-
-    /// Hands the typed meal to the capture flow and clears the field.
-    func takeTextCapture() -> MealCaptureInput? {
-        guard canDescribe else { return nil }
-        var input = MealCaptureInput(description: description, source: spoke ? .voice : .text)
-        // The structured list only when it was made from THESE words — a stale list would price the wrong meal.
-        if let extracted, lastExtracted == description.trimmingCharacters(in: .whitespacesAndNewlines) {
-            input.statedItems = extracted.items.compactMap(\.stated)
-        }
-        description = ""
-        spoke = false
-        extracted = nil
-        lastExtracted = ""
-        extractTask?.cancel()
-        return input
-    }
+    /// Hands the typed / spoken meal to the capture flow and clears the card.
+    func takeTextCapture() -> MealCaptureInput? { describe.takeCapture() }
 
     func captureFinished() {
         Task { await load(refresh: true) }

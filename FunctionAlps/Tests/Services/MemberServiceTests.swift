@@ -47,6 +47,10 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
     func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
     func intakeBaseline(patientId: String) async throws -> IntakeBaselineRead? { nil }
+    func resolveFoods(_ requests: [MealEdit.PricingRequest]) async throws -> [MealEdit.ResolvedPricing]? { [] }
+    func updateMealAnalysis(mealId: String, draft: MealDraft) async throws {}
+    func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget? { nil }
+    func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite { .inserted }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}

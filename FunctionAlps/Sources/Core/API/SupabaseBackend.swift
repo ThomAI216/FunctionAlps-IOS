@@ -96,6 +96,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "total_calories", "total_protein_g", "total_carbs_g", "total_fat_g", "total_fiber_g",
         "photo_url", "photo_urls", "ai_identified_foods",
         "inflammation_score", "glycemic_score", "gut_score", "patient_note", "micronutrient_totals",
+        "analysis_coverage",
     ].joined(separator: ",")
 
     private struct MealRow: Decodable, Sendable {
@@ -119,11 +120,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let gutScore: Double?
         let patientNote: String?
         let micronutrientTotals: [String: Double]
+        let analysisCoverage: String?
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
             case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
+            case analysisCoverage
         }
 
         init(from decoder: any Decoder) throws {
@@ -150,6 +153,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
             patientNote = try c.decodeIfPresent(String.self, forKey: .patientNote)
             // jsonb the model wrote; a null value or an odd shape degrades to "no micros", never to a lost meal.
             micronutrientTotals = ((try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)) ?? nil)?.compactMapValues { $0 } ?? [:]
+            analysisCoverage = try? c.decodeIfPresent(String.self, forKey: .analysisCoverage)
         }
 
         var model: MealLog {
@@ -174,7 +178,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 items: aiIdentifiedFoods ?? [],
                 scores: scores,
                 patientNote: patientNote,
-                micros: micronutrientTotals
+                micros: micronutrientTotals,
+                analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil
             )
         }
     }
@@ -261,9 +266,11 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct PreprocessBody: Encodable, Sendable { let transcript: String; let mealType: String?; let locale: String }
     private struct PreprocessReply: Decodable, Sendable {
         struct Item: Decodable, Sendable { let name: String?; let quantity: String?; let estimatedG: Double?; let volumeMeasure: String?; let confidence: String? }
+        struct Clarification: Decodable, Sendable { let itemIndex: Int?; let kind: String?; let question: String?; let options: [String]? }
         let language: String?
         let cleanedTranscript: String?
         let items: [Item]?
+        let clarifications: [Clarification]?
     }
 
     func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess {
@@ -272,7 +279,108 @@ struct SupabaseBackend: FunctionAlpsBackend {
             guard let name = i.name?.trimmingCharacters(in: .whitespaces), !name.isEmpty else { return nil }
             return MealPreprocess.Item(name: name, quantity: i.quantity, estimatedG: Int((i.estimatedG ?? 100).rounded()), volumeMeasure: i.volumeMeasure, confidence: i.confidence ?? "high")
         }
-        return MealPreprocess(language: reply.language, cleanedTranscript: reply.cleanedTranscript ?? transcript, items: Array(items))
+        // `kind` arrives unvalidated on purpose: the client classifies from the options whenever it is missing.
+        let clarifications = (reply.clarifications ?? []).compactMap { c -> MealClarification? in
+            guard let index = c.itemIndex, index >= 0, index < items.count, let question = c.question, !question.isEmpty else { return nil }
+            let options = (c.options ?? []).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            return MealClarification(itemIndex: index, question: question, options: options, kind: ClarificationLogic.classify(kind: c.kind, options: options))
+        }
+        return MealPreprocess(language: reply.language, cleanedTranscript: reply.cleanedTranscript ?? transcript, items: Array(items), clarifications: clarifications)
+    }
+
+    // MARK: Meal corrections (resolve-foods · nb_meal_logs update · nb_patient_food_aliases)
+
+    private struct ResolveBody: Encodable, Sendable { let items: [MealEdit.PricingRequest] }
+    private struct ResolveReply: Decodable, Sendable { let items: [MealEdit.ResolvedPricing]? }
+
+    func resolveFoods(_ requests: [MealEdit.PricingRequest]) async throws -> [MealEdit.ResolvedPricing]? {
+        if requests.isEmpty { return [] }
+        let reply: ResolveReply = try await functions.invoke("resolve-foods", body: ResolveBody(items: requests), snakeCase: false)
+        guard let items = reply.items, items.count == requests.count else { return nil }
+        return items
+    }
+
+    /// The Expo `updateSavedMeal` — the analysis columns only; `patient_note` and the photos are never touched here.
+    private struct AnalysisBody: Encodable, Sendable {
+        let name: String
+        let aiIdentifiedFoods: [MealItem]
+        let totalCalories: Double
+        let totalProteinG: Double
+        let totalCarbsG: Double
+        let totalFatG: Double
+        let totalFiberG: Double
+        let micronutrientTotals: [String: Double]
+        let inflammationScore: Int
+        let glycemicScore: Int
+        let gutScore: Int
+    }
+
+    func updateMealAnalysis(mealId: String, draft: MealDraft) async throws {
+        try await rest.update("nb_meal_logs", query: [PG.eq("id", mealId)], body: AnalysisBody(
+            name: draft.dishName, aiIdentifiedFoods: draft.items,
+            totalCalories: draft.totals.kcal, totalProteinG: draft.totals.proteinG, totalCarbsG: draft.totals.carbsG, totalFatG: draft.totals.fatG, totalFiberG: draft.totals.fiberG,
+            micronutrientTotals: draft.micros,
+            inflammationScore: draft.scores.inflammation, glycemicScore: draft.scores.glycemic, gutScore: draft.scores.digestion
+        ))
+    }
+
+    /// Generic first (the common case, the cheaper table), then the branded plane by its barcode.
+    func foodAliasTarget(foodItemId id: String) async throws -> FoodAliasTarget? {
+        struct ItemRow: Decodable, Sendable { let id: String; let name: String? }
+        struct ProductRow: Decodable, Sendable { let offCode: String?; let name: String? }
+        if let item: ItemRow = try? await rest.selectOne("nb_food_items", query: [PG.select("id,name"), PG.eq("id", id)]) {
+            return .foodItem(id: item.id, name: item.name ?? "")
+        }
+        if let product: ProductRow = try? await rest.selectOne("nb_food_products", query: [PG.select("off_code,name"), PG.eq("id", id)]), let code = product.offCode, !code.isEmpty {
+            return .product(offCode: code, name: product.name ?? "")
+        }
+        return nil
+    }
+
+    /// Exactly one of `food_item_id` / `off_code` (the CHECK constraint) — both keys are always written, one of them null.
+    private struct AliasBody: Encodable, Sendable {
+        let patientId: String?
+        let aliasNorm: String?
+        let foodItemId: String?
+        let offCode: String?
+        let gramsDefault: Int?
+        let source: String
+        let hitCount: Int?
+        let updatedAt: String?
+        private enum CodingKeys: String, CodingKey { case patientId, aliasNorm, foodItemId, offCode, gramsDefault, source, hitCount, updatedAt }
+        func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encodeIfPresent(patientId, forKey: .patientId)
+            try c.encodeIfPresent(aliasNorm, forKey: .aliasNorm)
+            try c.encode(foodItemId, forKey: .foodItemId)
+            try c.encode(offCode, forKey: .offCode)
+            try c.encode(gramsDefault, forKey: .gramsDefault)
+            try c.encode(source, forKey: .source)
+            try c.encodeIfPresent(hitCount, forKey: .hitCount)
+            try c.encodeIfPresent(updatedAt, forKey: .updatedAt)
+        }
+    }
+
+    func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite {
+        struct Existing: Decodable, Sendable { let id: String; let hitCount: Int?; let foodItemId: String?; let offCode: String? }
+        let existing: Existing? = try await rest.selectOne("nb_patient_food_aliases", query: [
+            PG.select("id,hit_count,food_item_id,off_code"), PG.eq("patient_id", row.patientId), PG.eq("alias_norm", row.aliasNorm),
+        ])
+        if let prev = existing {
+            // Same target → corroboration, bump the ledger. Different target → the member changed their mind: the
+            // NEW answer wins with the counter reset.
+            let sameTarget = prev.foodItemId == row.foodItemId && prev.offCode == row.offCode
+            try await rest.update("nb_patient_food_aliases", query: [PG.eq("id", prev.id)], body: AliasBody(
+                patientId: nil, aliasNorm: nil, foodItemId: row.foodItemId, offCode: row.offCode, gramsDefault: row.gramsDefault,
+                source: row.source, hitCount: sameTarget ? (prev.hitCount ?? 0) + 1 : 0, updatedAt: ISO8601.string(Date())
+            ))
+            return .corroborated
+        }
+        try await rest.insertRows("nb_patient_food_aliases", body: [AliasBody(
+            patientId: row.patientId, aliasNorm: row.aliasNorm, foodItemId: row.foodItemId, offCode: row.offCode, gramsDefault: row.gramsDefault,
+            source: row.source, hitCount: nil, updatedAt: nil
+        )])
+        return .inserted
     }
 
     private struct TranscribeBody: Encodable, Sendable { let audioBase64: String; let mimeType: String }

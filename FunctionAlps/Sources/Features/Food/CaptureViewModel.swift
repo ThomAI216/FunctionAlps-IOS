@@ -22,7 +22,10 @@ final class CaptureViewModel {
 
     let request: CaptureRequest
     var phase: Phase = .starting
-    var retryDescription = ""
+    /// The "tell us what you ate" card's machine — the SAME one the Food tab's describe card runs.
+    let describe: MealDictationModel
+    private(set) var submitting = false
+    var submitError: String?
     private(set) var mealId: String?
     /// The row as last read — the screen renders the row's truth, never the client's guess.
     private(set) var latest: MealLog?
@@ -36,6 +39,7 @@ final class CaptureViewModel {
         self.request = request
         self.meals = meals
         self.members = members
+        describe = MealDictationModel(meals: meals) { [input = request.input] in input.mealType }
     }
 
     func start() {
@@ -100,14 +104,32 @@ final class CaptureViewModel {
         }
     }
 
-    /// Re-run the analysis, with the member's extra words if they gave any.
-    func retry() {
-        guard case .attention(let meal) = phase else { return }
-        let words = retryDescription
+    /// The member answered the needs_input question. The row is re-identified from their words + structured
+    /// portions; the watcher restarts because needs_input was terminal.
+    func submitDescription() {
+        guard case .attention(let meal) = phase, describe.canAnalyse, !submitting else { return }
+        let words = describe.confirmedDescription()
+        let items = describe.confirmedItems()
+        guard !words.isEmpty || !items.isEmpty else { return }
+        submitting = true
+        submitError = nil
+        Task { [weak self] in
+            guard let self else { return }
+            await meals.describe(meal, description: words, items: items)
+            submitting = false
+            describe.reset()
+            phase = .working(.queued)
+            watch(meal.id)
+        }
+    }
+
+    /// "Or try the photo again": the server re-reads the stored photos and starts the attempt budget again.
+    func retryPhoto() {
+        guard case .attention(let meal) = phase, !meal.photoPaths.isEmpty else { return }
         phase = .working(.queued)
         Task { [weak self] in
             guard let self else { return }
-            await meals.reanalyze(meal, description: words)
+            await meals.reanalyze(meal, description: nil)
         }
         watch(meal.id)
     }
