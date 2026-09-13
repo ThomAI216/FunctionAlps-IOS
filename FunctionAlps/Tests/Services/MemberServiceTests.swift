@@ -94,6 +94,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws {}
+    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws {}
 }
 
 @Suite("MemberService")

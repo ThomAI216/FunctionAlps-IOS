@@ -533,6 +533,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
     }
 
     /// Every patient-written column, explicit nulls included: re-saving a slot REPLACES its answers.
+    /// The moment's own columns (no keys, no slot) — the upsert body and the RPC payload share them.
+    private static func momentColumns(_ m: CheckinMoment) -> ColumnPatch {
+        [
+            "submitted_at": .string(ISO8601.string(m.submittedAt)),
+            "energy_body": .int(m.energyBody),
+            "energy_mind": .int(m.energyMind),
+            "energy_stability": .int(m.energyStability),
+            "energy_overall": .int(m.energyOverall),
+            "mood_score": .int(m.moodScore),
+            "stress_score": .int(m.stressScore),
+            "sleep_overall": .int(m.sleepOverall),
+            "sleep_refreshed": .int(m.sleepRefreshed),
+            "sleep_duration_min": .int(m.sleepDurationMin),
+            "sleep_latency_band": .string(m.sleepLatencyBand),
+            "sleep_wake_count": .string(m.sleepWakeCount),
+            "pills": .pills(m.pills), // NOT NULL (default '{}') — always an object
+            "note": .string(m.note),
+        ]
+    }
+
+    private struct SubmitCheckinBody: Encodable, Sendable {
+        let pDay: String
+        let pSlot: String
+        let pMoment: ColumnPatch
+    }
+    private struct SubmitCheckinReply: Decodable, Sendable { let momentCount: Int? }
+
+    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws {
+        let _: SubmitCheckinReply = try await rest.rpc("member_submit_checkin", body: SubmitCheckinBody(pDay: day, pSlot: slot.rawValue, pMoment: Self.momentColumns(moment)))
+    }
+
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
         let row: ColumnPatch = [
             "patient_id": .string(patientId),

@@ -1,8 +1,10 @@
 import Foundation
 
-/// The multi-moment check-in, mirroring `lib/checkin/moment-persistence.ts`:
-/// the moment lands first (source of truth), the DAY SUMMARY is recomputed from every moment
-/// of the day, and the per-dimension events are appended LAST — exactly once per save.
+/// The multi-moment check-in. The phone scores the moment (`CheckinEngine`, the Expo `functional-engine`
+/// line for line) and hands it to ONE writer — RPC `member_submit_checkin` — which upserts it, recomputes the
+/// DAY SUMMARY from every moment of the day and appends the per-dimension events in one transaction
+/// (PRD §41: the roll-up lives in the database, not in each client). `CheckinEngine.daySummaryPatch` stays
+/// as the tested reference of that roll-up.
 struct CheckinService: Sendable {
     private let backend: any FunctionAlpsBackend
     private let calendar: Calendar
@@ -28,18 +30,7 @@ struct CheckinService: Sendable {
         let moment = CheckinEngine.momentFromAnswers(slot: slot, answers: answers, catalogPills: catalogPills, note: note, submittedAt: submittedAt)
         guard CheckinEngine.momentHasContent(moment) else { return nil }
 
-        try await backend.upsertCheckinMoment(patientId: patientId, day: day, moment: moment)
-
-        // Recompute from every moment of the day (this one included); never regress on an empty read-back.
-        let saved = try await backend.checkinMoments(patientId: patientId, day: day)
-        let all = saved.isEmpty ? [moment] : saved
-
-        // Read the day row FIRST — the felt prefill + no-wipe carry depend on it; a read failure aborts.
-        let existing = try await backend.dailyCheckinCarry(patientId: patientId, day: day)
-        let patch = CheckinEngine.daySummaryPatch(all, existing: existing, completedAt: submittedAt)
-        try await backend.upsertDailySummary(patientId: patientId, day: day, patch: patch)
-
-        try await backend.insertCheckinEvents(patientId: patientId, events: CheckinEngine.momentEvents(moment))
+        try await backend.submitCheckin(day: day, slot: slot, moment: moment)
         return moment
     }
 }

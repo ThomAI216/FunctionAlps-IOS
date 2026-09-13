@@ -116,6 +116,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { record("carry"); return carry }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws { record("upsertSummary"); lastPatch = patch }
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws { record("events:\(events.count)"); lastEvents = events }
+    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws { record("submit:\(slot.rawValue):\(day)"); lastMoment = moment }
 }
 
 @Suite("MealService")

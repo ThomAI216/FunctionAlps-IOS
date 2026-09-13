@@ -45,6 +45,9 @@ protocol FunctionAlpsBackend: Sendable {
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry?
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws
+    /// PRD §41 — ONE writer: RPC `member_submit_checkin` upserts the moment, recomputes the day summary from every
+    /// moment of the day and appends the events in one transaction; the patient is resolved from the JWT.
+    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws
 
     // MARK: Scores (server-side engine)
 
