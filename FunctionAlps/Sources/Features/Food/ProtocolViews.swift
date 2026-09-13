@@ -86,10 +86,10 @@ final class ProtocolLayer {
 /// deferred and collaborative. Hidden in silent mode, with no active protocol, and when the week is clean.
 struct ProtocolReviewCard: View {
     @Environment(AppDependencies.self) private var dependencies
-    @State private var state: State?
+    @State private var state: Snapshot?
     @State private var expanded = false
 
-    struct State: Equatable {
+    struct Snapshot: Equatable {
         let visibility: ProtocolLens.Visibility
         let week: ProtocolLens.Week
         let protocols: [ProtocolLens.PatientProtocol]
@@ -132,7 +132,7 @@ struct ProtocolReviewCard: View {
     }
 
     /// Only protocols whose OWN dial is coached are named — a silent/soft protocol's name never appears.
-    private func foodLine(_ food: ProtocolLens.Week.Food, _ state: State) -> String {
+    private func foodLine(_ food: ProtocolLens.Week.Food, _ state: Snapshot) -> String {
         let meals = food.count == 1 ? String(localized: "protocol.week.oneMeal", defaultValue: "1 meal") : String(localized: "protocol.week.meals", defaultValue: "\(food.count) meals")
         let names = food.protocols.filter { ProtocolLens.visibility(of: $0, in: state.protocols) == .coached }.compactMap(ProtocolLens.label(for:))
         return names.isEmpty ? meals : meals + " · " + names.joined(separator: ", ")
@@ -147,6 +147,6 @@ struct ProtocolReviewCard: View {
         let since = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: Date())) ?? Date()
         let meals = (try? await dependencies.backend.meals(patientId: member.patientId, since: since)) ?? []
         let week = dependencies.protocols.week(meals: meals, data: data)
-        state = week.flaggedFoods.isEmpty ? nil : State(visibility: visibility, week: week, protocols: data.protocols)
+        state = week.flaggedFoods.isEmpty ? nil : Snapshot(visibility: visibility, week: week, protocols: data.protocols)
     }
 }
