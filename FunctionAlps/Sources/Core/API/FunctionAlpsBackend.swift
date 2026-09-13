@@ -79,6 +79,10 @@ protocol FunctionAlpsBackend: Sendable {
     func stampOnboardingComplete(patientId: String) async throws -> Date
     /// RPC `confirm_member_adult(p_date_of_birth)` — true when 18+ (and the row is stamped); under-age is refused locally first.
     func confirmAdult(dateOfBirth: String) async throws -> Bool
+    /// The practice's record for the baseline prefill: the four intake answers (`patient_intake_questionnaire.answers`
+    /// gender / height_cm / weight_now / activity), when it was submitted, and `patients.date_of_birth` — the member's
+    /// own session under RLS `intake_self_read` / `patients_self_select`. Nothing else leaves the questionnaire.
+    func intakeBaseline(patientId: String) async throws -> IntakeBaselineRead?
 
     // MARK: Gut check-in (patient_daily_checkins gut_* + nb_checkin_events)
 
