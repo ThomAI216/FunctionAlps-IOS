@@ -5,6 +5,22 @@ import Observation
 struct CaptureRequest: Identifiable, Sendable {
     let id = UUID()
     let input: MealCaptureInput
+    /// "Separate meals · one per photo": the photos still to log after this one, in order.
+    var queue: [Data] = []
+    /// The original batch size, so the meal page can say "Next meal · 2 of 3".
+    var total: Int = 1
+
+    /// Where the NEXT meal sits in the batch (1-based) — nil when nothing is queued.
+    var nextPosition: Int? { queue.isEmpty ? nil : total - queue.count + 1 }
+
+    /// The request for the next queued photo, or nil when the batch is done.
+    func advanced() -> CaptureRequest? {
+        guard let first = queue.first else { return nil }
+        var next = CaptureRequest(input: MealCaptureInput(photos: [first], source: .photo))
+        next.queue = Array(queue.dropFirst())
+        next.total = total
+        return next
+    }
 }
 
 @MainActor

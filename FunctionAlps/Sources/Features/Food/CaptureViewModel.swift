@@ -1,8 +1,8 @@
 import Foundation
 import Observation
 
-/// Drives one capture: create → upload → analyse, while WATCHING the row (polling; Supabase
-/// Realtime is a later step). The screen renders the row's truth, never the client's guess.
+/// Drives one capture: create → upload → analyse, while WATCHING the row (Supabase Realtime with a poll
+/// fallback — `MealWatcher`). The screen renders the row's truth, never the client's guess.
 @MainActor
 @Observable
 final class CaptureViewModel {
@@ -20,7 +20,6 @@ final class CaptureViewModel {
         case failed(AppError)
     }
 
-    static let pollInterval: Duration = .seconds(3)
     static let maxWait: Duration = .seconds(150)
 
     let request: CaptureRequest
@@ -41,7 +40,7 @@ final class CaptureViewModel {
     private let meals: MealService
     private let members: MemberService
     private var captureTask: Task<Void, Never>?
-    private var watchTask: Task<Void, Never>?
+    private var watcher: MealWatcher?
 
     init(request: CaptureRequest, meals: MealService, members: MemberService) {
         self.request = request
@@ -86,21 +85,13 @@ final class CaptureViewModel {
     }
 
     private func watch(_ id: String) {
-        watchTask?.cancel()
-        watchTask = Task { [weak self] in
-            let started = ContinuousClock.now
-            while !Task.isCancelled {
-                guard let self else { return }
-                if let meal = try? await meals.meal(id: id) {
-                    apply(meal)
-                    if meal.status.isTerminal { return }
-                }
-                if ContinuousClock.now - started > Self.maxWait {
-                    phase = .stillWorking
-                    return
-                }
-                try? await Task.sleep(for: Self.pollInterval)
-            }
+        watcher?.stop()
+        let w = MealWatcher(meals: meals)
+        watcher = w
+        w.start(id: id, maxWait: Self.maxWait) { [weak self] meal in
+            self?.apply(meal)
+        } onTimeout: { [weak self] in
+            self?.phase = .stillWorking
         }
     }
 
@@ -175,7 +166,13 @@ final class CaptureViewModel {
     func cancel() {
         edit?.persistOnExit()
         captureTask?.cancel()
-        watchTask?.cancel()
+        watcher?.stop()
+    }
+
+    /// A prefetched capture the member never opened: stop watching, but let the upload and the analyse call
+    /// run to the end — the row exists and a meal with no photo is worse than a meal nobody looked at.
+    func release() {
+        watcher?.stop()
     }
 
     var status: MealLog.AnalysisStatus? {

@@ -16,7 +16,7 @@ final class MealDetailViewModel {
     private let mealId: String
     private let meals: MealService
     private let auth: AuthService
-    private var watchTask: Task<Void, Never>?
+    private var watcher: MealWatcher?
 
     init(mealId: String, meals: MealService, members: MemberService, auth: AuthService) {
         self.mealId = mealId
@@ -45,20 +45,15 @@ final class MealDetailViewModel {
         }
     }
 
-    /// A meal still being analysed keeps refreshing until it settles.
+    /// A meal still being analysed keeps refreshing until it settles (Realtime, polling underneath).
     private func watch() {
-        guard watchTask == nil else { return }
-        watchTask = Task { [weak self] in
-            for _ in 0..<50 {
-                try? await Task.sleep(for: .seconds(3))
-                guard let self, !Task.isCancelled else { return }
-                if let meal = try? await meals.meal(id: mealId) {
-                    state = .loaded(meal)
-                    edit.adopt(meal)
-                    if meal.status.isTerminal { break }
-                }
-            }
-            self?.watchTask = nil
+        if let watcher, !watcher.isStopped { return }
+        let w = MealWatcher(meals: meals)
+        watcher = w
+        w.start(id: mealId, maxWait: .seconds(150)) { [weak self] meal in
+            guard let self else { return }
+            state = .loaded(meal)
+            edit.adopt(meal)
         }
     }
 
@@ -95,5 +90,5 @@ final class MealDetailViewModel {
         return false
     }
 
-    func cancel() { edit.persistOnExit(); watchTask?.cancel(); watchTask = nil }
+    func cancel() { edit.persistOnExit(); watcher?.stop(); watcher = nil }
 }

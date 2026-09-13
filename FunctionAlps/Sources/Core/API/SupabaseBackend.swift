@@ -7,11 +7,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private let rest: PostgRESTClient
     private let functions: EdgeFunctionClient
     private let storage: StorageClient
+    /// Nil = no live channel (previews, tests): watchers poll.
+    private let realtime: RealtimeClient?
 
-    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient) {
+    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient, realtime: RealtimeClient? = nil) {
         self.rest = rest
         self.functions = functions
         self.storage = storage
+        self.realtime = realtime
     }
 
     // MARK: Identity
@@ -152,7 +155,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
             gutScore = try c.decodeIfPresent(Double.self, forKey: .gutScore)
             patientNote = try c.decodeIfPresent(String.self, forKey: .patientNote)
             // jsonb the model wrote; a null value or an odd shape degrades to "no micros", never to a lost meal.
-            micronutrientTotals = ((try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)) ?? nil)?.compactMapValues { $0 } ?? [:]
+            micronutrientTotals = SnakeKeys.normalise(((try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)) ?? nil)?.compactMapValues { $0 } ?? [:])
             analysisCoverage = try? c.decodeIfPresent(String.self, forKey: .analysisCoverage)
         }
 
@@ -198,6 +201,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func meal(id: String) async throws -> MealLog? {
         let row: MealRow? = try await rest.selectOne("nb_meal_logs", query: [PG.select(Self.mealColumns), PG.eq("id", id)])
         return row?.model
+    }
+
+    /// The `record` of a `postgres_changes` UPDATE is the whole new row in PostgREST's own JSON shape, so the
+    /// same `MealRow` decoder reads it. Topic `meal-<id>`, filter `id=eq.<id>` — the Expo channel, verbatim.
+    func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription {
+        guard let realtime else { return .inert }
+        let channel = realtime.channel(
+            topic: "meal-\(id)",
+            change: RealtimeChannel.PostgresChange(event: "UPDATE", schema: "public", table: "nb_meal_logs", filter: "id=eq.\(id)"),
+            onRecord: { data in
+                if let row = try? JSON.decode(MealRow.self, from: data) { onRow(row.model) }
+            },
+            onLifecycle: onLifecycle
+        )
+        channel.start()
+        return RealtimeSubscription { channel.stop() }
     }
 
     /// ⚠ Keys must match live columns exactly: PostgREST rejects the WHOLE insert on an
@@ -835,7 +854,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 mealType: mealType.flatMap(MealLog.MealType.init(rawValue:)) ?? .snack,
                 source: source.flatMap(MealLog.Source.init(rawValue:)) ?? .photo,
                 items: items ?? [], kcal: totalCalories, proteinG: totalProteinG, carbsG: totalCarbsG, fatG: totalFatG, fiberG: totalFiberG,
-                micros: micronutrientTotals?.compactMapValues { $0 } ?? [:], scores: scores,
+                micros: SnakeKeys.normalise(micronutrientTotals?.compactMapValues { $0 } ?? [:]), scores: scores,
                 photoPath: photoUrl.flatMap { MealPhotoRef.storagePath($0) }, sourceMealLogId: sourceMealLogId,
                 lastUsedAt: lastUsedAt ?? createdAt ?? Date()
             )

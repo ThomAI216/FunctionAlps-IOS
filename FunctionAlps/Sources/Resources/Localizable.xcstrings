@@ -274,6 +274,22 @@
         }
       }
     },
+    "action.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter"
+          }
+        }
+      }
+    },
     "action.back": {
       "localizations": {
         "en": {
@@ -366,6 +382,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diminuer"
+          }
+        }
+      }
+    },
+    "action.dismiss": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer"
           }
         }
       }
@@ -1234,6 +1266,22 @@
         }
       }
     },
+    "capture.failed.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us what was on the plate and the meal is logged just the same."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-nous ce qu’il y avait dans l’assiette et le repas est enregistré quand même."
+          }
+        }
+      }
+    },
     "capture.failed.short": {
       "localizations": {
         "en": {
@@ -1262,6 +1310,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossible d'enregistrer ce repas"
+          }
+        }
+      }
+    },
+    "capture.failed.title2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t read this photo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu lire cette photo."
+          }
+        }
+      }
+    },
+    "capture.failed.unreadable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The picture didn’t give us enough to go on. Tell us what was on the plate and the meal is logged just the same."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La photo ne nous a pas donné assez d’éléments. Dites-nous ce qu’il y avait dans l’assiette et le repas est enregistré quand même."
           }
         }
       }
@@ -1314,6 +1394,38 @@
         }
       }
     },
+    "capture.needsInput.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say it or type it, however you’d describe it to a friend. We’ll do the rest."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-le ou écrivez-le, comme vous le décririez à un ami. On s’occupe du reste."
+          }
+        }
+      }
+    },
+    "capture.needsInput.busy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Our nutrition service was busy just now. Say or type the meal and we’ll take it from there · this is faster anyway."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notre service nutrition était occupé à l’instant. Dites ou écrivez le repas et on prend le relais · c’est plus rapide de toute façon."
+          }
+        }
+      }
+    },
     "capture.needsInput.message": {
       "localizations": {
         "en": {
@@ -1342,6 +1454,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dites-nous en un peu plus"
+          }
+        }
+      }
+    },
+    "capture.nextMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next meal · %lld of %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas suivant · %lld sur %lld"
           }
         }
       }
@@ -1438,6 +1566,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lecture de votre description"
+          }
+        }
+      }
+    },
+    "capture.retryPhoto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or try the photo again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou réessayer avec la photo"
           }
         }
       }
@@ -1598,6 +1742,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Repas enregistré"
+          }
+        }
+      }
+    },
+    "capture.stopQueue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop · finish the rest later"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter · terminer le reste plus tard"
           }
         }
       }
@@ -4690,6 +4850,54 @@
         }
       }
     },
+    "food.clarify.about": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About “%@”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos de « %@ »"
+          }
+        }
+      }
+    },
+    "food.clarify.blocked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Answer the question above first · or keep it as is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répondez d’abord à la question ci-dessus · ou gardez tel quel."
+          }
+        }
+      }
+    },
+    "food.clarify.keep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep as is"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder tel quel"
+          }
+        }
+      }
+    },
     "food.describe.analyse": {
       "localizations": {
         "en": {
@@ -4722,6 +4930,22 @@
         }
       }
     },
+    "food.describe.extractFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t list the ingredients just now · your words are kept, try again or analyse as typed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lister les ingrédients pour l’instant · vos mots sont conservés, réessayez ou analysez tel quel."
+          }
+        }
+      }
+    },
     "food.describe.hint": {
       "localizations": {
         "en": {
@@ -4734,6 +4958,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le créneau (petit-déjeuner, déjeuner, collation, dîner) suit l'heure de la journée."
+          }
+        }
+      }
+    },
+    "food.describe.listing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listing your ingredients…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liste de vos ingrédients…"
           }
         }
       }
@@ -4862,6 +5102,182 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ou enregistrez à nouveau un favori"
+          }
+        }
+      }
+    },
+    "food.grouping.oneMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One meal · several plates"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un repas · plusieurs assiettes"
+          }
+        }
+      }
+    },
+    "food.grouping.question": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is this one meal with several plates, or several separate meals?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Est-ce un repas avec plusieurs assiettes, ou plusieurs repas séparés ?"
+          }
+        }
+      }
+    },
+    "food.grouping.separate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Separate meals · one per photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas séparés · un par photo"
+          }
+        }
+      }
+    },
+    "food.grouping.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld photos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld photos"
+          }
+        }
+      }
+    },
+    "food.grouping.tooMany": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than %lld photos · log these as separate meals, or pick fewer for one meal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus de %lld photos · enregistrez-les comme des repas séparés, ou choisissez-en moins pour un seul repas."
+          }
+        }
+      }
+    },
+    "food.item.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add item"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter un aliment"
+          }
+        }
+      }
+    },
+    "food.item.addPlaceholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food item…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliment…"
+          }
+        }
+      }
+    },
+    "food.item.grams.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld grams, tap to change"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld grammes, touchez pour modifier"
+          }
+        }
+      }
+    },
+    "food.item.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliment"
+          }
+        }
+      }
+    },
+    "food.item.quantity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quantity"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quantité"
+          }
+        }
+      }
+    },
+    "food.item.remove": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer %@"
           }
         }
       }
@@ -12978,6 +13394,150 @@
         }
       }
     },
+    "meal.edit.adjust": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust foods & portions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster les aliments et portions"
+          }
+        }
+      }
+    },
+    "meal.edit.editItems": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit items"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier les aliments"
+          }
+        }
+      }
+    },
+    "meal.edit.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Portions update instantly. Changed which food it is? Its nutrition updates a moment later · only that food, the rest stays put."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les portions se mettent à jour instantanément. Vous avez changé l’aliment ? Sa nutrition se met à jour un instant plus tard · seulement cet aliment, le reste ne bouge pas."
+          }
+        }
+      }
+    },
+    "meal.edit.pricing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding its calories & macros…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajout de ses calories et macros…"
+          }
+        }
+      }
+    },
+    "meal.edit.save": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save changes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer les modifications"
+          }
+        }
+      }
+    },
+    "meal.edit.unresolved.many": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t find nutrition for: %@. Try more specific names."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition introuvable pour : %@. Essayez des noms plus précis."
+          }
+        }
+      }
+    },
+    "meal.edit.unresolved.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t find nutrition for “%@” · try a more specific name, or remove it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition introuvable pour « %@ » · essayez un nom plus précis, ou retirez-le."
+          }
+        }
+      }
+    },
+    "meal.edit.updateNutrition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à jour la nutrition"
+          }
+        }
+      }
+    },
+    "meal.edit.updating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating nutrition…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mise à jour de la nutrition…"
+          }
+        }
+      }
+    },
     "meal.error.title": {
       "localizations": {
         "en": {
@@ -13138,6 +13698,22 @@
         }
       }
     },
+    "meal.item.notCounted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not in our food database · not counted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Absent de notre base alimentaire · non compté"
+          }
+        }
+      }
+    },
     "meal.item.unknown": {
       "localizations": {
         "en": {
@@ -13166,6 +13742,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dans l'assiette"
+          }
+        }
+      }
+    },
+    "meal.learned.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll remember that next time."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On s’en souviendra la prochaine fois."
+          }
+        }
+      }
+    },
+    "meal.learned.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it · “%@”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris · « %@ »"
           }
         }
       }
@@ -20638,6 +21246,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "vous."
+          }
+        }
+      }
+    },
+    "photoReview.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looks right"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est juste"
+          }
+        }
+      }
+    },
+    "photoReview.confirmUpdate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looks right · update nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est juste · mettre à jour la nutrition"
+          }
+        }
+      }
+    },
+    "photoReview.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your portions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifiez vos portions"
+          }
+        }
+      }
+    },
+    "photoReview.partial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We could not see the whole plate · check the portions before we count them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas vu toute l’assiette · vérifiez les portions avant qu’on les compte."
+          }
+        }
+      }
+    },
+    "photoReview.unidentified": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One of these is not in our food database · check the portions, and rename anything we got wrong."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’un de ces aliments est absent de notre base · vérifiez les portions, et renommez ce qu’on a mal identifié."
           }
         }
       }

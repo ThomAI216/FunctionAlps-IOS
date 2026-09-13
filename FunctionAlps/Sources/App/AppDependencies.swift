@@ -34,7 +34,7 @@ final class AppDependencies {
         let rest = PostgRESTClient(environment: environment, requester: requester)
         let functions = EdgeFunctionClient(environment: environment, requester: requester)
         let storage = StorageClient(environment: environment, requester: requester)
-        let backend = SupabaseBackend(rest: rest, functions: functions, storage: storage)
+        let backend = SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions))
 
         self.auth = AuthService(sessions: sessions, state: state)
         self.members = MemberService(sessions: sessions, backend: backend)

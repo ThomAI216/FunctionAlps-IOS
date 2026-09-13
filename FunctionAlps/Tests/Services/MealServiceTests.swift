@@ -63,6 +63,12 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func updateMealAnalysis(mealId: String, draft: MealDraft) async throws {}
     func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget? { nil }
     func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite { .inserted }
+    /// Tests of the watcher plug a fake channel in here; unset = no realtime (the poll path).
+    var subscribeHook: (@Sendable (String, @escaping @Sendable (MealLog) -> Void, @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription)?
+    func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription {
+        record("subscribe:\(id)")
+        return subscribeHook?(id, onRow, onLifecycle) ?? .inert
+    }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}

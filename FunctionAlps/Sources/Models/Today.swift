@@ -189,7 +189,7 @@ struct MealItem: Sendable, Equatable, Codable {
         portionLabel = (try? c.decodeIfPresent(String.self, forKey: .portionLabel)).flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 }
         category = try? c.decodeIfPresent(String.self, forKey: .category)
         basis = try? c.decodeIfPresent(String.self, forKey: .basis)
-        micros = ((try? c.decodeIfPresent([String: Double?].self, forKey: .micros)) ?? nil)?.compactMapValues { $0 } ?? [:]
+        micros = SnakeKeys.normalise(((try? c.decodeIfPresent([String: Double?].self, forKey: .micros)) ?? nil)?.compactMapValues { $0 } ?? [:])
     }
 
     private static func number(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> Double? {

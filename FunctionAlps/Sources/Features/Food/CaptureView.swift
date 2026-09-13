@@ -8,13 +8,16 @@ struct CaptureView: View {
     let request: CaptureRequest
     let onFinish: () -> Void
     @State private var model: CaptureViewModel?
+    /// "Separate meals": the next queued photo is captured while the member reads this one, so "Next meal" is
+    /// instant (the Expo queue prefetch). Never cancelled with the screen — its row is real and the server owns it.
+    @State private var prefetched: CaptureViewModel?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 if let model {
                     if model.showsResult {
-                        MealResultPage(model: model, onFinish: onFinish)
+                        MealResultPage(model: model, onFinish: onFinish, onNext: model.request.nextPosition == nil ? nil : { next() })
                             .transition(.opacity)
                     } else {
                         AnalyzingScreen(model: model, onFinish: onFinish)
@@ -33,13 +36,36 @@ struct CaptureView: View {
                 m.start()
             }
         }
-        .onDisappear { model?.cancel() }
+        .onDisappear { model?.cancel(); prefetched?.release() }
+        .onChange(of: model?.status) { _, status in
+            // One upload at a time: the next photo starts once this one's is over (the pipeline is identifying).
+            guard let model, prefetched == nil, model.mealId != nil, let next = model.request.advanced(),
+                  let status, status != .queued else { return }
+            let p = CaptureViewModel(request: next, meals: dependencies.meals, members: dependencies.members)
+            prefetched = p
+            p.start()
+        }
         .onChange(of: model?.mealId) { _, id in
             // The row exists: its 2.5 h "how do you feel?" is scheduled now (first meal = the moment to ask for permission).
             guard let id else { return }
             let notifications = dependencies.notifications
             Task { await notifications.askIfNeeded(); await notifications.mealLogged(id: id, at: Date()) }
         }
+    }
+
+    /// The next queued meal takes over the same cover — its capture is usually already in flight.
+    private func next() {
+        guard let current = model, let request = current.request.advanced() else { return }
+        current.cancel()
+        let following: CaptureViewModel
+        if let p = prefetched {
+            following = p
+        } else {
+            following = CaptureViewModel(request: request, meals: dependencies.meals, members: dependencies.members)
+            following.start()
+        }
+        prefetched = nil
+        model = following
     }
 }
 
@@ -219,6 +245,8 @@ private struct AnalyzingScreen: View {
 private struct MealResultPage: View {
     @Bindable var model: CaptureViewModel
     let onFinish: () -> Void
+    /// Non-nil while more photos wait in the batch: the primary button becomes "Next meal · X of N".
+    var onNext: (() -> Void)? = nil
 
     private var meal: MealLog? { model.displayed }
     private var numbersReady: Bool { meal?.status == .complete && meal?.scores != nil }
@@ -249,11 +277,27 @@ private struct MealResultPage: View {
                 if numbersReady, !editing, let scores = meal?.scores {
                     MealScoresRow(scores: scores).opacity(reanalyzing ? 0.4 : 1)
                 }
-                FAButton(title: String(localized: "capture.goHome", defaultValue: "Go back to home")) {
-                    model.edit?.persistOnExit()
-                    onFinish()
+                if let onNext, let position = model.request.nextPosition {
+                    FAButton(title: String(localized: "capture.nextMeal", defaultValue: "Next meal · \(position) of \(model.request.total)")) {
+                        model.edit?.persistOnExit()
+                        onNext()
+                    }
+                    Button {
+                        model.edit?.persistOnExit()
+                        onFinish()
+                    } label: {
+                        Text(String(localized: "capture.stopQueue", defaultValue: "Stop · finish the rest later"))
+                            .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FoodPalette.muted)
+                            .frame(maxWidth: .infinity).padding(.vertical, 12)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    FAButton(title: String(localized: "capture.goHome", defaultValue: "Go back to home")) {
+                        model.edit?.persistOnExit()
+                        onFinish()
+                    }
+                    .padding(.top, numbersReady ? 0 : 16)
                 }
-                .padding(.top, numbersReady ? 0 : 16)
             }
             .padding(.horizontal, 18)
             .padding(.top, 24)

@@ -63,6 +63,11 @@ struct MealService: Sendable {
     }
 
     /// How the meal felt afterwards, when the member rated it (`nb_meal_reactions`).
+    /// The live channel for one row — see `MealWatcher`, which owns the read/subscribe/poll choreography.
+    func subscribe(mealId: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription {
+        backend.subscribeMeal(id: mealId, onRow: onRow, onLifecycle: onLifecycle)
+    }
+
     func reaction(mealId: String) async -> MealReaction? {
         try? await backend.mealReaction(mealId: mealId)
     }

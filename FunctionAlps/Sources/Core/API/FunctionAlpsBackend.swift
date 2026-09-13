@@ -91,6 +91,10 @@ protocol FunctionAlpsBackend: Sendable {
     func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget?
     /// Write or corroborate one learned food (read-then-write on the unique (patient, alias_norm) key).
     func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite
+    /// Live updates to ONE meal row (Supabase Realtime, `postgres_changes` UPDATE on `nb_meal_logs`, the member's
+    /// own row under RLS). `onRow` gets each new snapshot; `onLifecycle` the channel's state. Never throws: a
+    /// transport that cannot subscribe reports `.channelError` / `.closed` and the caller polls instead.
+    func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription
     /// The practice's record for the baseline prefill: the four intake answers (`patient_intake_questionnaire.answers`
     /// gender / height_cm / weight_now / activity), when it was submitted, and `patients.date_of_birth` — the member's
     /// own session under RLS `intake_self_read` / `patients_self_select`. Nothing else leaves the questionnaire.
