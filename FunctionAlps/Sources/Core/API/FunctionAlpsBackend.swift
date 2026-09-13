@@ -250,9 +250,9 @@ struct MealPreprocess: Sendable, Equatable {
     }
     let language: String?
     let cleanedTranscript: String
+    let items: [Item]
     /// The model's follow-up questions, typed (identity / quantity) — see `ClarificationLogic`.
     var clarifications: [MealClarification] = []
-    let items: [Item]
 }
 
 /// Which reference plane a corrected food lives in. `ResolvedItem.food_item_id` carries an `nb_food_items` id for the
