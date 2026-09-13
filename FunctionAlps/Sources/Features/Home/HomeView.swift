@@ -37,6 +37,7 @@ struct HomeView: View {
                 await notifications.loadPrefs(patientId: patientId)
                 await notifications.refreshAuthorization()
                 await notifications.replan(snapshot: today, wearables: wearables)
+                await wearables.refreshSnapshot()
                 let fromHealth = await wearables.lastNightSleepHours()
                 let fromAnswer = today.moments.first { $0.slot == .morning }?.sleepDurationMin.map { Double($0) / 60 }
                 sleepHours = fromHealth ?? fromAnswer
@@ -84,6 +85,20 @@ struct HomeView: View {
                         .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
+
+                    if HealthKitReader.isAvailable {
+                        if dependencies.wearables.isConnected {
+                            NavigationLink(value: Route.health) {
+                                AppleHealthCard(snapshot: dependencies.wearables.snapshot, connected: true)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            NavigationLink(value: Route.wearables) {
+                                AppleHealthCard(snapshot: nil, connected: false)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()

@@ -23,6 +23,8 @@ enum Route: Hashable {
     case messagesAbout(mealId: String, name: String?)
     case help
     case wearables
+    /// The member's own Apple Health page (today next to their week).
+    case health
     // Macros & micros (the Expo `macros-details`, `nutrition-macros`, `micronutrients`, `micro-group/*`, `micro-nutrient/*`)
     case macros
     case nutritionTargets
@@ -96,6 +98,7 @@ final class AppRouter {
         case "settings": tab = .profile; profilePath = [.settings]
         case "notifications": tab = .profile; profilePath = [.settings, .notifications]
         case "home": tab = .home; homePath = []
+        case "health": tab = .home; homePath = [.health]
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }
     }
@@ -232,6 +235,7 @@ struct MainTabView: View {
         case .messagesAbout(let id, let name): MessagesView(initialContext: .meal(id: id), contextMealName: name)
         case .help: HelpView()
         case .wearables: WearablesView()
+        case .health: HealthView()
         case .macros: MacrosDetailsView()
         case .nutritionTargets: NutritionTargetsView()
         case .micronutrients: MicronutrientsView()

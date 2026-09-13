@@ -27,7 +27,7 @@ struct CheckinMomentView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .task {
             if model == nil {
-                let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth)
+                let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth, wearables: dependencies.wearables)
                 model = m
                 await m.prefill()
             }
@@ -106,6 +106,13 @@ private struct CheckinMomentScreen: View {
         case .sleep:
             sectionLabel(String(localized: "checkin.lastNight", defaultValue: "Last night"))
             DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep))
+            if let note = model.sleepFromHealthNote {
+                HStack(spacing: 6) {
+                    Image(systemName: "heart.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255))
+                    Text(note).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 6)
+            }
         case .intent:
             catalogCard([CatalogSection(group: .dayIntent, title: String(localized: "checkin.intent", defaultValue: "How are you walking into the day?"), accent: Color(hex: 0x6366F1))])
         case .markers:

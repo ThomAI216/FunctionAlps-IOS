@@ -1,4 +1,5 @@
 import Foundation
+import HealthKit
 import Observation
 
 /// Apple Health on this phone → CM OS (`wearable-ingest`). The phone reads HealthKit, reduces it to the
@@ -69,6 +70,7 @@ final class WearableService {
         defaults.removeObject(forKey: Key.connected)
         defaults.removeObject(forKey: Key.lastSync)
         defaults.removeObject(forKey: Key.lastCount)
+        snapshot = nil
         await reader.disableBackgroundDelivery()
         // Best effort: the phone is disconnected either way; CM OS just learns about it.
         _ = try? await backend.ingestWearable(WearableBatch(connection: "disconnected"))
@@ -112,6 +114,7 @@ final class WearableService {
             defaults.set(lastSyncAt, forKey: Key.lastSync)
             defaults.set(batch.count, forKey: Key.lastCount)
             state = .idle
+            snapshot = await readSnapshot()
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "wearables.sync")
             state = .failed(error.userMessage)
@@ -121,15 +124,60 @@ final class WearableService {
         }
     }
 
-    /// Last night's main sleep straight from HealthKit (hours asleep), for the Home card. Nil when the
-    /// phone is not connected, nothing was recorded, or the night ended more than a day ago.
-    func lastNightSleepHours(now: Date = Date()) async -> Double? {
+    /// Last night's main sleep straight from HealthKit, for the Home chip and the morning check-in's prefill.
+    /// Nil when the phone is not connected, nothing was recorded, or the night ended more than a day ago.
+    func lastNight(now: Date = Date()) async -> SleepNight? {
         guard isConnected, Self.isAvailable else { return nil }
         let from = now.addingTimeInterval(-40 * 3600)
         guard let samples = try? await reader.sleepSamples(from: from, to: now) else { return nil }
         let nights = SleepAssembler.nights(from: samples, calendar: calendar)
         guard let night = nights.max(by: { $0.end < $1.end }), now.timeIntervalSince(night.end) < 24 * 3600 else { return nil }
-        return night.asleepSeconds / 3600
+        return night
+    }
+
+    func lastNightSleepHours(now: Date = Date()) async -> Double? {
+        await lastNight(now: now).map { $0.asleepSeconds / 3600 }
+    }
+
+    // MARK: The member's own Apple Health view (Home card + the Apple Health page)
+
+    /// Today next to the last seven days, read straight from HealthKit — fresh, and there before the first
+    /// sync reaches CM OS. nil until the phone is connected (or when Health is unavailable).
+    private(set) var snapshot: HealthSnapshot?
+
+    func refreshSnapshot(now: Date = Date()) async {
+        guard isConnected, Self.isAvailable else { snapshot = nil; return }
+        snapshot = await readSnapshot(now: now)
+    }
+
+    /// The metrics the snapshot shows, each bound to the reader's daily type.
+    private static let snapshotTypes: [(HealthSnapshot.Metric, HealthKitReader.DailyType)] = {
+        func type(_ id: HKQuantityTypeIdentifier) -> HealthKitReader.DailyType? { HealthKitReader.dailyTypes.first { $0.identifier == id } }
+        let pairs: [(HealthSnapshot.Metric, HKQuantityTypeIdentifier)] = [
+            (.steps, .stepCount), (.distance, .distanceWalkingRunning), (.activeEnergy, .activeEnergyBurned),
+            (.exerciseMinutes, .appleExerciseTime), (.restingHeartRate, .restingHeartRate), (.hrv, .heartRateVariabilitySDNN),
+            (.respiratoryRate, .respiratoryRate), (.spo2, .oxygenSaturation), (.vo2max, .vo2Max), (.weight, .bodyMass),
+        ]
+        return pairs.compactMap { metric, id in type(id).map { (metric, $0) } }
+    }()
+
+    func readSnapshot(now: Date = Date()) async -> HealthSnapshot {
+        let days = HealthSnapshot.dayKeys(ending: now, count: 8, calendar: calendar)
+        let start = calendar.startOfDay(for: calendar.date(byAdding: .day, value: -7, to: now) ?? now)
+        var values: [HealthSnapshot.Metric: [String: Double]] = [:]
+        for (metric, type) in Self.snapshotTypes {
+            let rows = (try? await reader.dailyValues(type, from: start, to: now, calendar: calendar)) ?? []
+            values[metric] = Dictionary(rows.map { (ISO8601.day($0.day, calendar: calendar), $0.value) }, uniquingKeysWith: { _, b in b })
+        }
+        // A day earlier so the night that ended on the window's first day is whole.
+        let sleepStart = calendar.date(byAdding: .day, value: -1, to: start) ?? start
+        let nights = SleepAssembler.nights(from: (try? await reader.sleepSamples(from: sleepStart, to: now)) ?? [], calendar: calendar)
+        let workouts = (try? await reader.workouts(from: calendar.startOfDay(for: now), to: now)) ?? []
+        return HealthSnapshot.build(
+            days: days, values: values, nights: nights,
+            workoutsToday: workouts.map { HealthSnapshot.Workout(name: $0.activityName, minutes: $0.durationMinutes, kcal: $0.energyKcal) },
+            now: now, calendar: calendar
+        )
     }
 
     /// The window: 30 days on the first sync, otherwise from a few days before the last sync.

@@ -13,15 +13,40 @@ final class CheckinMomentViewModel {
     /// The morning's opt-in tier. A saved moment carrying "more" answers opens expanded.
     var showMore = false
 
+    /// Last night as Apple Health recorded it, when it prefilled the sleep inputs (morning, first save only).
+    private(set) var sleepFromHealth: SleepNight?
+
     private let checkins: CheckinService
     private let members: MemberService
     private let auth: AuthService
+    private let wearables: WearableService?
 
-    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService) {
+    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService, wearables: WearableService? = nil) {
         self.slot = slot
         self.checkins = checkins
         self.members = members
         self.auth = auth
+        self.wearables = wearables
+    }
+
+    /// The sleep inputs from Apple Health: bed → wake as the clock, the window as the duration, the Watch's
+    /// wake-ups and how long falling asleep took, mapped to the same bands the member would pick. All editable.
+    func applyHealthNight(_ night: SleepNight) {
+        var sleep = answers[.sleep] ?? .empty
+        let bed = HealthFormat.clock(night.start), wake = HealthFormat.clock(night.end)
+        sleep.specials.bedTime = bed
+        sleep.specials.wakeTime = wake
+        sleep.specials.durationMin = SleepInputsView.windowMinutes(bed: bed, wake: wake)
+        sleep.specials.wakeCount = night.interruptions == 0 ? "0" : (night.interruptions <= 2 ? "1_2" : "3plus")
+        let latencyMin = night.latencySeconds / 60
+        sleep.specials.latency = latencyMin < 15 ? "lt_15" : (latencyMin < 30 ? "15_30" : (latencyMin < 60 ? "30_60" : "gt_60"))
+        answers[.sleep] = sleep
+        sleepFromHealth = night
+    }
+
+    var sleepFromHealthNote: String? {
+        guard let night = sleepFromHealth else { return nil }
+        return String(localized: "checkin.sleep.fromHealth", defaultValue: "From Apple Health · in bed \(HealthFormat.clock(night.start)) → \(HealthFormat.clock(night.end)) · adjust anything that's off")
     }
 
     /// Re-opening a saved moment EDITS it (same row, upsert on the slot).
@@ -29,7 +54,11 @@ final class CheckinMomentViewModel {
         do {
             let member = try await members.currentMember()
             let moments = try await checkins.todayMoments(patientId: member.patientId)
-            guard let existing = CheckinEngine.moment(for: slot, in: moments) else { return }
+            guard let existing = CheckinEngine.moment(for: slot, in: moments) else {
+                // A first morning save: last night from Apple Health, when the phone is connected.
+                if slot == .morning, let wearables, let night = await wearables.lastNight() { applyHealthNight(night) }
+                return
+            }
             answers = CheckinEngine.answersFromMoment(existing)
             catalogPills = CheckinEngine.catalogPills(from: existing)
             isEditing = true
