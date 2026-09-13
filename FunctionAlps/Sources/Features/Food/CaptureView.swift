@@ -248,6 +248,8 @@ private struct MealResultPage: View {
     /// Non-nil while more photos wait in the batch: the primary button becomes "Next meal · X of N".
     var onNext: (() -> Void)? = nil
 
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var lens: ProtocolLayer?
     private var meal: MealLog? { model.displayed }
     private var numbersReady: Bool { meal?.status == .complete && meal?.scores != nil }
     private var editing: Bool { model.edit?.editing ?? false }
@@ -270,7 +272,8 @@ private struct MealResultPage: View {
                 } else if editing, let edit = model.edit {
                     MealItemsEditor(model: edit)
                 } else if let meal, !meal.items.isEmpty {
-                    MealItemRows(items: meal.items, numbersReady: numbersReady && !reanalyzing)
+                    if numbersReady, let flags = lens?.flags, flags.isEmpty { ProtocolFitsLine() }
+                    MealItemRows(items: meal.items, numbersReady: numbersReady && !reanalyzing, protocolFlags: lens?.flags) { lens?.why = $0 }
                     if numbersReady { FlagLegend(flags: FoodFlag.flags(in: meal.items)) }
                     if let edit = model.edit { MealAdjustBar(model: edit) }
                 }
@@ -304,6 +307,14 @@ private struct MealResultPage: View {
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .scrollDismissesKeyboard(.interactively)
+        .task(id: meal?.items.map(\.name) ?? []) {
+            let layer = lens ?? ProtocolLayer(protocols: dependencies.protocols, members: dependencies.members)
+            lens = layer
+            await layer.update(items: meal?.items ?? [])
+        }
+        .sheet(item: Binding(get: { lens?.why }, set: { lens?.why = $0 })) { flag in
+            ProtocolWhySheet(flag: flag).presentationDetents([.medium]).presentationDragIndicator(.visible)
+        }
         .overlay(alignment: .bottom) {
             if let food = model.edit?.learnedFood {
                 LearnedToast(food: food) { model.edit?.learnedFood = nil }

@@ -99,7 +99,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "total_calories", "total_protein_g", "total_carbs_g", "total_fat_g", "total_fiber_g",
         "photo_url", "photo_urls", "ai_identified_foods",
         "inflammation_score", "glycemic_score", "gut_score", "patient_note", "micronutrient_totals",
-        "analysis_coverage",
+        "analysis_coverage", "protocol_flags",
     ].joined(separator: ",")
 
     private struct MealRow: Decodable, Sendable {
@@ -124,12 +124,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let patientNote: String?
         let micronutrientTotals: [String: Double]
         let analysisCoverage: String?
+        let protocolFlags: [ProtocolLens.Flag]?
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
             case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
-            case analysisCoverage
+            case analysisCoverage, protocolFlags
         }
 
         init(from decoder: any Decoder) throws {
@@ -157,6 +158,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             // jsonb the model wrote; a null value or an odd shape degrades to "no micros", never to a lost meal.
             micronutrientTotals = SnakeKeys.normalise(((try? c.decodeIfPresent([String: Double?].self, forKey: .micronutrientTotals)) ?? nil)?.compactMapValues { $0 } ?? [:])
             analysisCoverage = try? c.decodeIfPresent(String.self, forKey: .analysisCoverage)
+            // A jsonb array of matches, or null; an odd shape reads as "not computed", never as a wrong flag.
+            protocolFlags = (try? c.decodeIfPresent([ProtocolLens.Flag].self, forKey: .protocolFlags)) ?? nil
         }
 
         var model: MealLog {
@@ -182,7 +185,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 scores: scores,
                 patientNote: patientNote,
                 micros: micronutrientTotals,
-                analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil
+                analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil,
+                protocolFlags: protocolFlags
             )
         }
     }
@@ -201,6 +205,33 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func meal(id: String) async throws -> MealLog? {
         let row: MealRow? = try await rest.selectOne("nb_meal_logs", query: [PG.select(Self.mealColumns), PG.eq("id", id)])
         return row?.model
+    }
+
+    private struct ProtocolRow: Decodable, Sendable { let protocolKey: String?; let strictness: String?; let patientVisibility: String? }
+    private struct OverrideRow: Decodable, Sendable { let protocolKey: String?; let foodTerm: String?; let action: String?; let severity: String? }
+
+    /// The member's ACTIVE protocols + their overrides (own rows under RLS). A failed override read leaves the
+    /// protocols; a failed protocol read is the caller's to swallow — the lens must never block a meal.
+    func activeProtocols(patientId: String) async throws -> ProtocolData {
+        let rows: [ProtocolRow] = try await rest.select("nb_patient_protocols", query: [
+            PG.select("protocol_key,strictness,patient_visibility"), PG.eq("patient_id", patientId), PG.eq("active", "true"),
+        ])
+        let overrideRows: [OverrideRow] = (try? await rest.select("nb_protocol_overrides", query: [
+            PG.select("protocol_key,food_term,action,severity"), PG.eq("patient_id", patientId),
+        ])) ?? []
+        let protocols = rows.compactMap { r -> ProtocolLens.PatientProtocol? in
+            guard let key = r.protocolKey else { return nil }
+            return ProtocolLens.PatientProtocol(
+                protocolKey: key,
+                strictness: ProtocolLens.Strictness(rawValue: r.strictness ?? "") ?? .relaxed,
+                visibility: ProtocolLens.Visibility(rawValue: r.patientVisibility ?? "") ?? .silent
+            )
+        }
+        let overrides = overrideRows.compactMap { r -> ProtocolLens.Override? in
+            guard let key = r.protocolKey, let term = r.foodTerm, let action = ProtocolLens.Override.Action(rawValue: r.action ?? "") else { return nil }
+            return ProtocolLens.Override(protocolKey: key, foodTerm: term, action: action, severity: r.severity.flatMap(ProtocolLens.Severity.init(rawValue:)))
+        }
+        return ProtocolData(protocols: protocols, overrides: overrides)
     }
 
     private struct PatternRow: Decodable, Sendable {

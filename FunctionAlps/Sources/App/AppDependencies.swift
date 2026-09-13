@@ -20,6 +20,7 @@ final class AppDependencies {
     let wearables: WearableService
     let notifications: NotificationService
     let gut: GutService
+    let protocols: ProtocolService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -48,6 +49,7 @@ final class AppDependencies {
         self.wearables = WearableService(backend: backend)
         self.notifications = NotificationService(backend: backend)
         self.gut = GutService(backend: backend)
+        self.protocols = ProtocolService(backend: backend)
         self.backend = backend
     }
 

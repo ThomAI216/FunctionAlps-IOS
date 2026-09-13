@@ -66,6 +66,7 @@ struct HomeView: View {
                         FunctionalHeroCard(today: content.today)
                     }
                     .buttonStyle(.plain)
+                    ProtocolReviewCard()
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {

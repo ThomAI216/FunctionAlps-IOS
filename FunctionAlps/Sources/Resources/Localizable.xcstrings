@@ -25378,6 +25378,278 @@
         }
       }
     },
+    "protocol.curiousWhy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curious why?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous vous demandez pourquoi ?"
+          }
+        }
+      }
+    },
+    "protocol.fits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ Fits your protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ S’adapte à votre protocole"
+          }
+        }
+      }
+    },
+    "protocol.lowFodmap.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low-FODMAP protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole « Low-FODMAP »"
+          }
+        }
+      }
+    },
+    "protocol.lowFodmap.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FODMAPs are short-chain carbohydrates (like the fructans in onion and garlic) that some guts ferment quickly, which can mean gas, bloating or discomfort. Your protocol temporarily lowers them so we can learn which ones matter for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les FODMAP sont des glucides à chaîne courte (comme les fructanes présents dans l’oignon et l’ail) que certains intestins fermentent rapidement, ce qui peut entraîner des gaz, des ballonnements ou une sensation d’inconfort. Votre protocole vise à réduire temporairement leur consommation afin que nous puissions déterminer lesquels comptent pour vous."
+          }
+        }
+      }
+    },
+    "protocol.lowOxalate.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low-oxalate protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole à faible teneur en oxalates"
+          }
+        }
+      }
+    },
+    "protocol.lowOxalate.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oxalates are natural plant compounds (high in spinach, beets, almonds) that can bind minerals and, for some people, contribute to kidney stones or irritation. Your protocol keeps them low while we watch how you respond."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les oxalates sont des composés végétaux naturels (présents en grande quantité dans les épinards, les betteraves et les amandes) qui peuvent se lier aux minéraux et, chez certaines personnes, favoriser la formation de calculs rénaux ou provoquer une irritation. Votre protocole vise à maintenir leur taux à un niveau bas pendant que nous observons votre réaction."
+          }
+        }
+      }
+    },
+    "protocol.lowSalicylate.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low-salicylate protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole à faible teneur en salicylates"
+          }
+        }
+      }
+    },
+    "protocol.lowSalicylate.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salicylates are natural aspirin-like compounds in many fruits, spices and mints. Some people are sensitive to them. Your protocol lowers them for a while so we can see what changes for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les salicylates sont des composés naturels apparentés à l’aspirine que l’on trouve dans de nombreux fruits, épices et menthes. Certaines personnes y sont sensibles. Votre protocole vise à réduire leur consommation pendant un certain temps afin que nous puissions observer les changements qui se produisent chez vous."
+          }
+        }
+      }
+    },
+    "protocol.week.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few foods this week are worth reviewing together · we’ll look at them at your next session."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette semaine, certains aliments méritent que nous les passions en revue ensemble · nous les examinerons lors de votre prochaine séance."
+          }
+        }
+      }
+    },
+    "protocol.week.fit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(state.week.fitMeals) of \\(state.week.totalMeals) meals fit your protocol this week."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld repas sur %lld correspondent à votre protocole cette semaine."
+          }
+        }
+      }
+    },
+    "protocol.week.hide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer"
+          }
+        }
+      }
+    },
+    "protocol.week.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(food.count) meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld repas"
+          }
+        }
+      }
+    },
+    "protocol.week.oneMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 repas"
+          }
+        }
+      }
+    },
+    "protocol.week.see": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir les aliments"
+          }
+        }
+      }
+    },
+    "protocol.week.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worth a look together"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À regarder ensemble"
+          }
+        }
+      }
+    },
+    "protocol.why.close": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to fix right now · just something we’ll explore together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n’y a rien à régler pour l’instant · c’est simplement un sujet que nous allons approfondir ensemble."
+          }
+        }
+      }
+    },
+    "protocol.why.gotIt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compris"
+          }
+        }
+      }
+    },
     "reaction.bloating": {
       "localizations": {
         "en": {

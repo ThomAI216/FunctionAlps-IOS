@@ -13,6 +13,7 @@ struct MealDetailView: View {
     @State private var editingNote = false
     @State private var confirmDelete = false
     @State private var explaining: MealScoreKind?
+    @State private var lens: ProtocolLayer?
 
     var body: some View {
         ZStack {
@@ -186,14 +187,23 @@ struct MealDetailView: View {
     private func ingredients(_ meal: MealLog) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             sectionLabel(String(localized: "meal.ingredients", defaultValue: "Ingredients"))
+            if let flags = lens?.flags, flags.isEmpty { ProtocolFitsLine() }
             VStack(spacing: 0) {
                 ForEach(Array(meal.items.enumerated()), id: \.offset) { _, item in
-                    MealItemRow(item: item)
+                    MealItemRow(item: item, protocolFlag: lens?.flag(for: item)) { lens?.why = $0 }
                     Divider().overlay(FAColor.separator)
                 }
             }
         }
         .padding(.top, 18)
+        .task(id: meal.items.map(\.name)) {
+            let layer = lens ?? ProtocolLayer(protocols: dependencies.protocols, members: dependencies.members)
+            lens = layer
+            await layer.update(items: meal.items)
+        }
+        .sheet(item: Binding(get: { lens?.why }, set: { lens?.why = $0 })) { flag in
+            ProtocolWhySheet(flag: flag).presentationDetents([.medium]).presentationDragIndicator(.visible)
+        }
     }
 
     /// `functionalps://meal/<id>?rate=1` (the 2.5 h notification): the sheet opens on arrival, once.

@@ -100,6 +100,8 @@ protocol FunctionAlpsBackend: Sendable {
     func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription
     /// The member's own `nb_user_patterns` rows (the frx engine's nightly food × reaction patterns), newest first.
     func userPatterns(patientId: String) async throws -> [UserPattern]
+    /// The member's active elimination protocols + per-member overrides (`nb_patient_protocols`, `nb_protocol_overrides`).
+    func activeProtocols(patientId: String) async throws -> ProtocolData
     /// The practice's record for the baseline prefill: the four intake answers (`patient_intake_questionnaire.answers`
     /// gender / height_cm / weight_now / activity), when it was submitted, and `patients.date_of_birth` — the member's
     /// own session under RLS `intake_self_read` / `patients_self_select`. Nothing else leaves the questionnaire.
@@ -262,6 +264,13 @@ struct MealPreprocess: Sendable, Equatable {
     let items: [Item]
     /// The model's follow-up questions, typed (identity / quantity) — see `ClarificationLogic`.
     var clarifications: [MealClarification] = []
+}
+
+/// What the Protocol Lens needs from the backend, in one read.
+struct ProtocolData: Sendable, Equatable {
+    let protocols: [ProtocolLens.PatientProtocol]
+    let overrides: [ProtocolLens.Override]
+    static let none = ProtocolData(protocols: [], overrides: [])
 }
 
 /// Which reference plane a corrected food lives in. `ResolvedItem.food_item_id` carries an `nb_food_items` id for the

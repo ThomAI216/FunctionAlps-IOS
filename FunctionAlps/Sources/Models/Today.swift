@@ -61,6 +61,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let micros: [String: Double]
     /// `analysis_coverage` — the model's verdict on the photos: "full", "partial", or nil when never judged.
     let analysisCoverage: String?
+    /// `protocol_flags` — the Protocol Lens matches `analyze-meal` stored; nil = never computed (no active protocol / legacy row).
+    let protocolFlags: [ProtocolLens.Flag]?
 
     init(
         id: String,
@@ -81,7 +83,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         scores: MealScores? = nil,
         patientNote: String? = nil,
         micros: [String: Double] = [:],
-        analysisCoverage: String? = nil
+        analysisCoverage: String? = nil,
+        protocolFlags: [ProtocolLens.Flag]? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -101,6 +104,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.patientNote = patientNote
         self.micros = micros
         self.analysisCoverage = analysisCoverage
+        self.protocolFlags = protocolFlags
     }
 
     var photoPath: String? { photoPaths.first }

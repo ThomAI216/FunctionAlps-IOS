@@ -75,6 +75,9 @@ struct ConfirmHero: View {
 struct MealItemRows: View {
     let items: [MealItem]
     let numbersReady: Bool
+    /// The Protocol Lens (coached mode only): nil = the layer is invisible.
+    var protocolFlags: [ProtocolLens.Flag]? = nil
+    var onWhy: (ProtocolLens.Flag) -> Void = { _ in }
     @State private var revealedItems = 0
     @State private var revealedNumbers = 0
 
@@ -88,7 +91,7 @@ struct MealItemRows: View {
                     }
                     .padding(.vertical, 12)
                 } else {
-                    MealItemRow(item: item, numbers: numbersReady && i < revealedNumbers)
+                    MealItemRow(item: item, numbers: numbersReady && i < revealedNumbers, protocolFlag: protocolFlags?.first { $0.item == item.name }, onWhy: onWhy)
                 }
                 Divider().overlay(FAColor.separator)
             }
@@ -115,6 +118,8 @@ struct MealItemRows: View {
 struct MealItemRow: View {
     let item: MealItem
     var numbers = true
+    var protocolFlag: ProtocolLens.Flag? = nil
+    var onWhy: (ProtocolLens.Flag) -> Void = { _ in }
 
     var body: some View {
         let flags = FoodFlag.flags(of: item)
@@ -131,6 +136,7 @@ struct MealItemRow: View {
                     }
                 }
             }
+            if let protocolFlag { ProtocolMarker(flag: protocolFlag, onWhy: onWhy) }
             if item.needsReview {
                 // The resolver could not identify this food and answered with zeros — said out loud, never counted silently.
                 Text(String(localized: "meal.item.notCounted", defaultValue: "Not in our food database · not counted"))

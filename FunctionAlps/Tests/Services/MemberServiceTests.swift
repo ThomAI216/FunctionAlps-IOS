@@ -52,6 +52,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget? { nil }
     func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite { .inserted }
     func userPatterns(patientId: String) async throws -> [UserPattern] { [] }
+    func activeProtocols(patientId: String) async throws -> ProtocolData { .none }
     func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription { .inert }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
