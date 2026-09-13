@@ -19,7 +19,8 @@ struct HealthSnapshotTests {
         let night = SleepNight(day: "2026-09-13", start: now.addingTimeInterval(-12 * 3600), end: now.addingTimeInterval(-4 * 3600),
                                asleepSeconds: 7.5 * 3600, inBedSeconds: 8 * 3600, remSeconds: 0, deepSeconds: 0, lightSeconds: 0, awakeSeconds: 0, latencySeconds: 600, interruptions: 1)
         let old = SleepNight(day: "2026-09-12", start: now, end: now, asleepSeconds: 6 * 3600, inBedSeconds: 6 * 3600, remSeconds: 0, deepSeconds: 0, lightSeconds: 0, awakeSeconds: 0, latencySeconds: 0, interruptions: 0)
-        let snap = HealthSnapshot.build(days: days, values: [.steps: steps, .restingHeartRate: hr], nights: [old, night], workoutsToday: [], now: now, calendar: utc)
+        let older = SleepNight(day: "2026-09-11", start: now, end: now, asleepSeconds: 8 * 3600, inBedSeconds: 8 * 3600, remSeconds: 0, deepSeconds: 0, lightSeconds: 0, awakeSeconds: 0, latencySeconds: 0, interruptions: 0)
+        let snap = HealthSnapshot.build(days: days, values: [.steps: steps, .restingHeartRate: hr], nights: [older, old, night], workoutsToday: [], now: now, calendar: utc)
 
         let s = try #require(snap.stat(.steps))
         #expect(s.today == 9_000)
@@ -29,7 +30,7 @@ struct HealthSnapshotTests {
 
         #expect(snap.stat(.restingHeartRate)?.weekMean == nil) // under two prior days → no week to compare
         #expect(snap.stat(.sleep)?.today == 7.5)
-        #expect(snap.stat(.sleep)?.weekMean == 6)
+        #expect(snap.stat(.sleep)?.weekMean == 7)               // (6 + 8) / 2 — two prior nights make a week
         #expect(snap.night == night)
         #expect(snap.stat(.weight) == nil)                    // nothing in the window → dropped
         #expect(snap.headline.map(\.metric) == [.steps, .sleep, .restingHeartRate])
