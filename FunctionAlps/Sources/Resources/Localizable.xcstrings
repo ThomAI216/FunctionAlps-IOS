@@ -8498,6 +8498,598 @@
         }
       }
     },
+    "gutSignal.comfort.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger or FODMAP foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments déclencheurs ou FODMAP"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large or late meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas copieux ou tardifs"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress & poor sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress et mauvais sommeil"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eating in a rush"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manger à la hâte"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comfort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confort"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How easy your gut feels through the day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quel point votre ventre se sent bien tout au long de la journée"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion comfort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confort digestif"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foods you tolerate well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les aliments que vous tolérez bien"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady meal timing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des horaires de repas réguliers"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydration"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydratation"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentle movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouvement en douceur"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.up4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower mealtime stress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moins de stress à table"
+          }
+        }
+      }
+    },
+    "gutSignal.comfort.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your lived experience of gut ease · little bloating, pain, or heaviness. It is the headline of your gut check-in, the subjective read of how settled your digestion feels."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre ressenti du bien-être intestinal : peu de ballonnements, de douleurs ou de lourdeur. C’est le point essentiel de votre check-in intestinal, l’impression subjective de l’équilibre de votre digestion."
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger / FODMAP foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments déclencheurs / FODMAP"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oversized portions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Portions trop copieuses"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rushed or stressed meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas pris à la hâte ou dans le stress"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very fatty or fried food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments très gras ou frits"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reactions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réactions"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How meals sit in the hours after"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment les repas se digèrent dans les heures qui suivent"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post-meal reactions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réactions après les repas"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foods you tolerate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les aliments que vous tolérez"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right-sized portions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des portions adaptées"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slow, calm eating"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manger lentement et sereinement"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chewing well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien mâcher"
+          }
+        }
+      }
+    },
+    "gutSignal.reactions.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How your meals feel afterwards · felt comfort minus any bloating, gas, or fullness in the hours after eating. It is your fastest food-sensitivity signal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sensation que vous ressentez après vos repas : le confort ressenti, moins les ballonnements, les gaz ou la lourdeur dans les heures qui suivent. C’est votre indicateur le plus rapide d’une éventuelle sensibilité alimentaire."
+          }
+        }
+      }
+    },
+    "gutSignal.stool.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low fibre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peu de fibres"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dehydration"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déshydratation"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very high-fat meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas très riches en graisses"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress & travel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress et voyages"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stool"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selles"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Form and rhythm · a window on transit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forme et rythme · une fenêtre sur le transit"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stool quality & regularity"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualité et régularité des selles"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre from plants"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibres d’origine végétale"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydration"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hydratation"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regular meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas réguliers"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activité physique quotidienne"
+          }
+        }
+      }
+    },
+    "gutSignal.stool.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stool form (Bristol type, ideal 3-4) and regularity (around 1-3 a day). Together they reflect transit time and gut motility · how smoothly things move through."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La consistance des selles (échelle de Bristol, idéalement 3-4) et la régularité (environ 1 à 3 par jour). Ces deux éléments reflètent le temps de transit et la motilité intestinale, c’est-à-dire la fluidité du transit."
+          }
+        }
+      }
+    },
     "help.checkins.body": {
       "localizations": {
         "en": {
@@ -25090,6 +25682,86 @@
         }
       }
     },
+    "score.band.attention": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs attention"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À surveiller"
+          }
+        }
+      }
+    },
+    "score.band.good": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bonne base"
+          }
+        }
+      }
+    },
+    "score.band.mixed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mixed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitigé"
+          }
+        }
+      }
+    },
+    "score.band.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sub-optimal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-optimal"
+          }
+        }
+      }
+    },
+    "score.band.thriving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thriving"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épanoui"
+          }
+        }
+      }
+    },
     "score.carbNote": {
       "localizations": {
         "en": {
@@ -25214,6 +25886,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Certains aliments de ce repas n'ont pas pu être associés avec précision à nos données de référence ; ce score est donc une approximation. La correction des ingrédients permettra d'affiner ce résultat."
+          }
+        }
+      }
+    },
+    "score.status.bad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak spot"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point faible"
+          }
+        }
+      }
+    },
+    "score.status.good": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solide"
+          }
+        }
+      }
+    },
+    "score.status.watch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stable"
           }
         }
       }
@@ -26226,6 +26946,22 @@
         }
       }
     },
+    "scoreX.exploreAll": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore all scores →"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorer tous les scores →"
+          }
+        }
+      }
+    },
     "scoreX.glycemic.congrats": {
       "localizations": {
         "en": {
@@ -27042,6 +27778,214 @@
         }
       }
     },
+    "scores.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
+        }
+      }
+    },
+    "scores.exploreAll": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore all scores"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorer tous les scores"
+          }
+        }
+      }
+    },
+    "scores.functional.caption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/100 · your day in one read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/100 · votre journée en une lecture"
+          }
+        }
+      }
+    },
+    "scores.functional.foot": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitality · Metabolic · Nutrition, blended · tap to learn how to steer by it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitalité · Métabolique · Nutrition, combinés · touchez pour apprendre à vous en servir"
+          }
+        }
+      }
+    },
+    "scores.functional.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Functional Score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Score fonctionnel"
+          }
+        }
+      }
+    },
+    "scores.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gut Intelligence"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intelligence intestinale"
+          }
+        }
+      }
+    },
+    "scores.section.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body signals · from your check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaux du corps · d’après votre check-in"
+          }
+        }
+      }
+    },
+    "scores.section.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gut signals · from your gut check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaux intestinaux · d’après votre check-in intestinal"
+          }
+        }
+      }
+    },
+    "scores.section.meal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal scores · from what you log"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scores repas · d’après ce que vous enregistrez"
+          }
+        }
+      }
+    },
+    "scores.section.pillars": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Functional pillars"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piliers fonctionnels"
+          }
+        }
+      }
+    },
+    "scores.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we measure, what it means, and how to move it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous mesurons, ce que cela signifie, et comment le faire bouger"
+          }
+        }
+      }
+    },
+    "scores.tile.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log to see"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrez pour voir"
+          }
+        }
+      }
+    },
+    "scores.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Scores"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos scores"
+          }
+        }
+      }
+    },
     "settings.about": {
       "localizations": {
         "en": {
@@ -27406,6 +28350,1110 @@
           "stringUnit": {
             "state": "translated",
             "value": "Homme"
+          }
+        }
+      }
+    },
+    "signal.bands": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the bands"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire les tranches"
+          }
+        }
+      }
+    },
+    "signal.connects": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it connects"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment il est lié"
+          }
+        }
+      }
+    },
+    "signal.ctx.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
+          }
+        }
+      }
+    },
+    "signal.ctx.inflammation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        }
+      }
+    },
+    "signal.energy.ctx0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If digestion is unsettled, energy often feels less steady even before symptoms become obvious."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque la digestion est perturbée, on a souvent l’impression que son niveau d’énergie est moins stable, avant même que les symptômes ne deviennent évidents."
+          }
+        }
+      }
+    },
+    "signal.energy.ctx1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher inflammatory load can make energy feel heavier, slower, and less reliable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une charge inflammatoire plus élevée peut donner l’impression que l’énergie est plus lourde, plus lente et moins fiable."
+          }
+        }
+      }
+    },
+    "signal.energy.ctx2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low or unstable energy often drags mood down because everything feels more effortful."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un niveau d’énergie faible ou instable a souvent pour effet de vous démoraliser, car tout vous semble demander plus d’efforts."
+          }
+        }
+      }
+    },
+    "signal.energy.ctx3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep quality still shapes the ceiling of how strong and stable energy can feel."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La qualité du sommeil continue de déterminer le niveau maximal de vitalité et d’équilibre que l’on peut ressentir."
+          }
+        }
+      }
+    },
+    "signal.energy.ctx4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress can burn through energy by pushing the system into output mode without enough recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress peut épuiser vos réserves d’énergie en poussant votre organisme à fonctionner à plein régime sans lui laisser le temps de récupérer."
+          }
+        }
+      }
+    },
+    "signal.energy.explanation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy reflects how usable your output feels, not just how awake you are. Stronger energy usually means food, recovery, and daily load are working together instead of competing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’énergie reflète la façon dont vous percevez votre capacité à agir, et pas seulement votre niveau d’éveil. Un niveau d’énergie plus élevé signifie généralement que l’alimentation, la récupération et la charge quotidienne se complètent mutuellement au lieu de s’opposer."
+          }
+        }
+      }
+    },
+    "signal.energy.focus0.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A stronger protein anchor early in the day often smooths out hunger and energy swings."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un apport protéiné plus important en début de journée permet souvent d’atténuer les fringales et les fluctuations d’énergie."
+          }
+        }
+      }
+    },
+    "signal.energy.focus0.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protein first"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les protéines d’abord"
+          }
+        }
+      }
+    },
+    "signal.energy.focus1.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Big peaks and crashes usually feel like low energy, even when calories are technically adequate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les pics et les creux s’accompagnent généralement d’une sensation de manque d’énergie, même lorsque l’apport calorique est techniquement suffisant."
+          }
+        }
+      }
+    },
+    "signal.energy.focus1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stable blood sugar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une glycémie stable"
+          }
+        }
+      }
+    },
+    "signal.energy.focus2.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If output keeps climbing while recovery stays flat, energy debt accumulates fast."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si la production continue d’augmenter alors que la récupération stagne, la dette énergétique s’accumule rapidement."
+          }
+        }
+      }
+    },
+    "signal.energy.focus2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery versus output"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Récupération ou rendement ?"
+          }
+        }
+      }
+    },
+    "signal.energy.insight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy is where nutrition becomes visible"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est au niveau de l’énergie que la nutrition prend tout son sens"
+          }
+        }
+      }
+    },
+    "signal.energy.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How steady and usable your output feels"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans quelle mesure votre production vous semble-t-elle régulière et exploitable ?"
+          }
+        }
+      }
+    },
+    "signal.energy.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "signal.fromGut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your gut check-in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après votre check-in intestinal."
+          }
+        }
+      }
+    },
+    "signal.influences": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What influences it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui l’influence"
+          }
+        }
+      }
+    },
+    "signal.last14": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 14 days · higher is better"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14 derniers jours · plus haut = mieux"
+          }
+        }
+      }
+    },
+    "signal.lowers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↓ Lowers it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↓ Le fait baisser"
+          }
+        }
+      }
+    },
+    "signal.mood.ctx0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A more irritated gut can quietly lower mood by making the day feel physically harder to move through."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un intestin plus irrité peut, sans que vous vous en rendiez compte, vous mettre de mauvaise humeur en vous donnant l’impression que la journée est physiquement plus difficile à vivre."
+          }
+        }
+      }
+    },
+    "signal.mood.ctx1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher inflammatory load often makes mood feel flatter, heavier, or less resilient."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une charge inflammatoire plus élevée entraîne souvent une humeur plus morose, plus pesante ou moins résistante."
+          }
+        }
+      }
+    },
+    "signal.mood.ctx2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When energy is steady, mood usually feels more flexible and easier to protect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque le niveau d’énergie est stable, l’humeur est généralement plus souple et plus facile à préserver."
+          }
+        }
+      }
+    },
+    "signal.mood.ctx3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep is one of the strongest levers for emotional steadiness across the whole day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le sommeil est l’un des principaux facteurs permettant de maintenir un équilibre émotionnel tout au long de la journée."
+          }
+        }
+      }
+    },
+    "signal.mood.ctx4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress and mood move together quickly, especially when recovery is already stretched."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress et l’humeur évoluent rapidement de concert, surtout lorsque le temps de récupération est déjà limité."
+          }
+        }
+      }
+    },
+    "signal.mood.explanation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood reflects how emotionally steady, resilient, and flexible the day feels. It is often shaped by sleep, stress, digestion, and energy more than by one isolated event."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’humeur reflète le sentiment de stabilité émotionnelle, de résilience et de souplesse que procure la journée. Elle est souvent davantage influencée par le sommeil, le stress, la digestion et le niveau d’énergie que par un événement isolé."
+          }
+        }
+      }
+    },
+    "signal.mood.focus0.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood usually gets more fragile when sleep debt and daily pressure pile up at the same time."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’humeur a tendance à devenir plus fragile lorsque le manque de sommeil et la pression quotidienne s’accumulent simultanément."
+          }
+        }
+      }
+    },
+    "signal.mood.focus0.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery load"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charge de récupération"
+          }
+        }
+      }
+    },
+    "signal.mood.focus1.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regular meals with enough protein and fewer crashes often make mood feel steadier across the day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des repas réguliers, riches en protéines et sans baisses d’énergie, permettent souvent de maintenir une humeur plus stable tout au long de la journée."
+          }
+        }
+      }
+    },
+    "signal.mood.focus1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food stability"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabilité alimentaire"
+          }
+        }
+      }
+    },
+    "signal.mood.focus2.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light movement, daylight, and social contact can all shift mood more reliably than waiting to feel better first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un peu d’activité physique, la lumière du jour et les contacts sociaux peuvent tous influencer votre humeur de manière plus fiable que d’attendre de vous sentir mieux."
+          }
+        }
+      }
+    },
+    "signal.mood.focus2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small lifts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petits coups de pouce"
+          }
+        }
+      }
+    },
+    "signal.mood.insight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood is where recovery becomes personal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’humeur : c’est là que la récupération prend une dimension personnelle"
+          }
+        }
+      }
+    },
+    "signal.mood.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emotional steadiness, resilience, and outlook"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabilité émotionnelle, résilience et attitude face à la vie"
+          }
+        }
+      }
+    },
+    "signal.mood.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humeur"
+          }
+        }
+      }
+    },
+    "signal.raises": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↑ Raises it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↑ Le fait monter"
+          }
+        }
+      }
+    },
+    "signal.sleep.ctx0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A restless night often makes digestion feel more reactive and less forgiving the next day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une nuit agitée rend souvent la digestion plus sensible et moins indulgente le lendemain."
+          }
+        }
+      }
+    },
+    "signal.sleep.ctx1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poor sleep can amplify inflammatory noise even when food choices are reasonable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un mauvais sommeil peut amplifier les réactions inflammatoires, même lorsque l’alimentation est équilibrée."
+          }
+        }
+      }
+    },
+    "signal.sleep.ctx2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mood usually becomes less resilient when recovery is shallow or inconsistent."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’humeur a généralement tendance à devenir moins stable lorsque la récupération est superficielle ou irrégulière."
+          }
+        }
+      }
+    },
+    "signal.sleep.ctx3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy is often the first place poor sleep becomes visible in the day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est souvent au niveau de l’énergie que les conséquences d’un mauvais sommeil se manifestent en premier lieu au cours de la journée."
+          }
+        }
+      }
+    },
+    "signal.sleep.ctx4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When sleep drops, the same daily load often feels much heavier than usual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque le sommeil vient à manquer, les tâches quotidiennes semblent souvent bien plus lourdes que d’habitude."
+          }
+        }
+      }
+    },
+    "signal.sleep.explanation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep is your recovery foundation. When sleep is deeper and more consistent, energy, stress resilience, digestion, and overall stability usually improve with it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le sommeil est la base de votre récupération. Lorsque le sommeil est plus profond et plus régulier, l’énergie, la résistance au stress, la digestion et l’équilibre général s’en trouvent généralement améliorés."
+          }
+        }
+      }
+    },
+    "signal.sleep.focus0.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the hour before bed quieter and dimmer so your nervous system can downshift properly."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veillez à ce que l’heure précédant le coucher soit plus calme et moins éclairée afin que votre système nerveux puisse se détendre correctement."
+          }
+        }
+      }
+    },
+    "signal.sleep.focus0.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wind-down consistency"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une routine du soir régulière"
+          }
+        }
+      }
+    },
+    "signal.sleep.focus1.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting daylight early anchors circadian rhythm and makes evening sleep pressure stronger."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’exposition précoce à la lumière du jour stabilise le rythme circadien et renforce le besoin de sommeil en fin de journée."
+          }
+        }
+      }
+    },
+    "signal.sleep.focus1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning light"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumière du matin"
+          }
+        }
+      }
+    },
+    "signal.sleep.focus2.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A firm cutoff earlier in the afternoon often improves sleep depth more than people expect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une limite ferme en début d’après-midi améliore souvent la profondeur du sommeil davantage qu’on ne s’y attend."
+          }
+        }
+      }
+    },
+    "signal.sleep.focus2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late caffeine cutoff"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heure limite pour la caféine"
+          }
+        }
+      }
+    },
+    "signal.sleep.insight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep drives the rest of the dashboard"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le sommeil influence l’ensemble du tableau de bord"
+          }
+        }
+      }
+    },
+    "signal.sleep.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How rested and recovered you feel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quel point vous vous sentez reposé(e) et en forme"
+          }
+        }
+      }
+    },
+    "signal.sleep.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
+          }
+        }
+      }
+    },
+    "signal.stress.ctx0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress often shows up in digestion quickly through tightness, discomfort, or symptom flares."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress se manifeste souvent rapidement au niveau de la digestion sous forme de tensions, d’inconfort ou d’aggravation des symptômes."
+          }
+        }
+      }
+    },
+    "signal.stress.ctx1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher stress can make the whole system feel more reactive, especially when recovery is already low."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un niveau de stress plus élevé peut rendre l’ensemble du système plus réactif, en particulier lorsque la capacité de récupération est déjà faible."
+          }
+        }
+      }
+    },
+    "signal.stress.ctx2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When pressure stays high, mood usually gets flatter, more fragile, or less resilient."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque la pression reste élevée, l’humeur a tendance à devenir plus morose, plus fragile ou moins résistante."
+          }
+        }
+      }
+    },
+    "signal.stress.ctx3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress can make energy feel jagged by pulling attention and recovery in too many directions at once."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress peut donner l’impression que votre énergie est irrégulière, car il disperse votre attention et vos efforts de récupération dans trop de directions à la fois."
+          }
+        }
+      }
+    },
+    "signal.stress.ctx4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A busy nervous system at night often turns into lighter sleep and weaker recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un système nerveux très actif la nuit se traduit souvent par un sommeil plus léger et une récupération moins efficace."
+          }
+        }
+      }
+    },
+    "signal.stress.explanation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress is a load signal. When stress climbs, it tends to amplify digestive sensitivity, reduce emotional flexibility, and make energy less stable across the day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress est un signal de surcharge. Lorsque le stress augmente, il a tendance à accentuer la sensibilité digestive, à réduire la souplesse émotionnelle et à rendre le niveau d’énergie moins stable tout au long de la journée."
+          }
+        }
+      }
+    },
+    "signal.stress.focus0.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two or three intentional breath or walking breaks often change the whole shape of a day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux ou trois pauses délibérées pour respirer ou marcher suffisent souvent à changer complètement le cours d’une journée."
+          }
+        }
+      }
+    },
+    "signal.stress.focus0.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short resets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauses brèves"
+          }
+        }
+      }
+    },
+    "signal.stress.focus1.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back-to-back commitments can quietly keep your system in a higher-alert state for hours."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des engagements successifs peuvent, sans que vous vous en rendiez compte, maintenir votre système dans un état d’alerte accru pendant des heures."
+          }
+        }
+      }
+    },
+    "signal.stress.focus1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar load"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charge de l’agenda"
+          }
+        }
+      }
+    },
+    "signal.stress.focus2.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A calmer evening improves both stress recovery and the next night of sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une soirée plus calme favorise à la fois la récupération après le stress et la qualité du sommeil de la nuit suivante."
+          }
+        }
+      }
+    },
+    "signal.stress.focus2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening decompression"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détente en fin de journée"
+          }
+        }
+      }
+    },
+    "signal.stress.insight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress is a multiplier, not an isolated score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stress est un facteur multiplicateur, et non un indicateur isolé"
+          }
+        }
+      }
+    },
+    "signal.stress.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load, pressure, and recovery capacity"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charge, pression et capacité de récupération"
+          }
+        }
+      }
+    },
+    "signal.stress.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress"
           }
         }
       }
@@ -30990,6 +33038,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "En hausse"
+          }
+        }
+      }
+    },
+    "trends.allScores": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your scores"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous vos scores"
           }
         }
       }

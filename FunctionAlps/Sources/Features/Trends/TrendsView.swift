@@ -4,6 +4,7 @@ import SwiftUI
 /// the check-in entry. Every number comes from `member-scores` — the app renders, it never scores.
 struct TrendsView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @State private var model: TrendsViewModel?
 
     var body: some View {
@@ -21,7 +22,16 @@ struct TrendsView: View {
         }
         .onAppear {
             if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
+            consumePendingPillar()
         }
+        .onChange(of: router.pendingPillar) { _, _ in consumePendingPillar() }
+    }
+
+    /// The hub handed over a pillar to expand: open it once the model exists, then clear the hand-over.
+    private func consumePendingPillar() {
+        guard let pillar = router.pendingPillar, let model else { return }
+        model.openPillar = pillar
+        router.pendingPillar = nil
     }
 
     @ViewBuilder
@@ -39,6 +49,14 @@ struct TrendsView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     FunctionalScoreCrown(scores: scores, open: model.openPillar) { model.toggle($0) }
+                    NavigationLink(value: Route.scores) {
+                        HStack(spacing: 4) {
+                            Text(String(localized: "trends.allScores", defaultValue: "All your scores")).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
+                            Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
                     NavigationLink(value: Route.gutIntelligence) { GutIntelligenceCard(breakdown: scores.gut) }.buttonStyle(.plain)
                     DailyCheckinCTA(slot: dependencies.checkins.currentSlot)
                 }

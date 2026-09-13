@@ -33,6 +33,10 @@ enum Route: Hashable {
     case notifications
     case gutCheckin
     case gutIntelligence
+    // The scores hub (the Expo `(screens)/scores`) and its signal pages (`score/[key]`)
+    case scores
+    case bodySignal(BodySignal)
+    case gutSignal(GutSignal)
 }
 
 @MainActor
@@ -47,6 +51,15 @@ final class AppRouter {
     /// The web app's five tabs, in its order.
     enum Tab: Hashable, CaseIterable { case home, trends, food, library, profile }
     var tab: Tab = .home
+    /// The pillar the Trends tab should open on arrival (the hub's pillar tiles); consumed once.
+    var pendingPillar: MemberScores.Pillar?
+
+    /// The scores hub's way into the Trends tab: switch, pop, and hand over the pillar to expand.
+    func openTrends(pillar: MemberScores.Pillar?) {
+        pendingPillar = pillar
+        trendsPath = []
+        tab = .trends
+    }
 
     /// Push onto the selected tab's stack — the pages that can be reached from several tabs.
     func push(_ route: Route) {
@@ -228,6 +241,9 @@ struct MainTabView: View {
         case .notifications: NotificationsSettingsView()
         case .gutCheckin: GutCheckinView()
         case .gutIntelligence: GutIntelligenceView()
+        case .scores: ScoresHubView()
+        case .bodySignal(let s): SignalDetailView(kind: .body(s))
+        case .gutSignal(let s): SignalDetailView(kind: .gut(s))
         }
     }
 }

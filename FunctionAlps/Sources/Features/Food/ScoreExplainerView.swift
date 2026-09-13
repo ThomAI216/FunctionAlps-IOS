@@ -9,6 +9,7 @@ struct ScoreExplainerView: View {
     var mealScore: Int? = nil
 
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @Environment(\.dismiss) private var dismiss
     @State private var history: [ScoreHistory.Day] = []
     @State private var objectives: [String] = []
@@ -125,6 +126,20 @@ struct ScoreExplainerView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .overlay { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1) }
                 .padding(.top, 26)
+
+                // The hub: every score the app shows, in one place. The sheet closes first so the push lands on the tab's stack.
+                Button {
+                    dismiss()
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(350))
+                        router.push(.scores)
+                    }
+                } label: {
+                    Text(String(localized: "scoreX.exploreAll", defaultValue: "Explore all scores →"))
+                        .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(copy.color)
+                        .frame(maxWidth: .infinity).padding(.vertical, 18)
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 18)
             .padding(.bottom, 32)
