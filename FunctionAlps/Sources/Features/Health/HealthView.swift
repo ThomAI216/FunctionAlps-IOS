@@ -84,7 +84,7 @@ struct HealthView: View {
                         Image(systemName: "figure.run").foregroundStyle(FAColor.forestSoft).frame(width: 18)
                         Text(HealthWorkoutLabel.label(w.name)).font(FATypography.sans(13, .medium, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
                         Spacer()
-                        Text(HealthFormat.integer(w.minutes, locale: .current) + " min" + (w.kcal.map { " · " + HealthFormat.integer($0, locale: .current) + " kcal" } ?? ""))
+                        Text(Self.workoutDetail(w))
                             .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
                     }
                 }
@@ -92,12 +92,20 @@ struct HealthView: View {
         }
     }
 
+    /// "42 min · 310 kcal" — built outside the view tree so the type-checker has one string to look at.
+    private static func workoutDetail(_ w: HealthSnapshot.Workout) -> String {
+        var text = HealthFormat.integer(w.minutes, locale: .current) + " min"
+        if let kcal = w.kcal { text += " · " + HealthFormat.integer(kcal, locale: .current) + " kcal" }
+        return text
+    }
+
     private func footer(_ snapshot: HealthSnapshot) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "health.footer", defaultValue: "FunctionAlps shows these readings next to what you log; it never diagnoses. Nothing is written back to Health."))
                 .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
             HStack {
-                Text(String(localized: "home.health.synced", defaultValue: "Read \(HealthFormat.clock(snapshot.capturedAt))")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
+                let readAt = HealthFormat.clock(snapshot.capturedAt)
+                Text(String(localized: "home.health.synced", defaultValue: "Read \(readAt)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
                 Spacer()
                 Button { router.push(.wearables) } label: {
                     Text(String(localized: "health.manage.short", defaultValue: "Manage in Devices")).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
@@ -128,7 +136,8 @@ struct HealthStatRow: View {
                 HealthMiniBars(series: stat.series).frame(height: 22)
                 Spacer(minLength: 0)
                 if let mean = stat.weekMean {
-                    Text(String(localized: "health.week.mean", defaultValue: "7-day average \(HealthFormat.value(mean, metric: stat.metric))"))
+                    let meanText = HealthFormat.value(mean, metric: stat.metric)
+                    Text(String(localized: "health.week.mean", defaultValue: "7-day average \(meanText)"))
                         .font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
                 }
                 if let delta = stat.deltaRatio { HealthDeltaChip(ratio: delta) }
@@ -186,7 +195,7 @@ struct SleepNightCard: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text(String(localized: "health.section.sleep", defaultValue: "Last night")).font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
                     Spacer()
-                    Text("\(HealthFormat.clock(night.start)) → \(HealthFormat.clock(night.end))").font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                    Text(window).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(HealthFormat.hours(night.asleepSeconds / 3600)).font(FATypography.display(24, relativeTo: .title2)).foregroundStyle(FAColor.ink)
@@ -208,7 +217,7 @@ struct SleepNightCard: View {
                         ForEach(Array(stages.enumerated()), id: \.offset) { _, s in
                             HStack(spacing: 4) {
                                 Circle().fill(s.color).frame(width: 6, height: 6)
-                                Text("\(s.label) \(HealthFormat.hours(s.seconds / 3600))").font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
+                                Text(s.label + " " + HealthFormat.hours(s.seconds / 3600)).font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
                             }
                         }
                     }
@@ -216,14 +225,25 @@ struct SleepNightCard: View {
                 HStack(spacing: 14) {
                     detail(HealthFormat.hours(night.inBedSeconds / 3600), String(localized: "health.sleep.inBed", defaultValue: "in bed"))
                     if let eff = night.efficiencyPct { detail("\(eff) %", String(localized: "health.sleep.efficiency", defaultValue: "efficiency")) }
-                    detail(HealthFormat.integer(night.latencySeconds / 60, locale: .current) + " min", String(localized: "health.sleep.latency", defaultValue: "to fall asleep"))
+                    detail(latencyText, String(localized: "health.sleep.latency", defaultValue: "to fall asleep"))
                     detail("\(night.interruptions)", String(localized: "health.sleep.interruptions", defaultValue: "wake-ups"))
                 }
-                if let stat { HStack(spacing: 10) { HealthMiniBars(series: stat.series).frame(height: 22); if let mean = stat.weekMean { Text(String(localized: "health.week.mean", defaultValue: "7-day average \(HealthFormat.value(mean, metric: .sleep))")).font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary) } } }
+                if let stat {
+                    HStack(spacing: 10) {
+                        HealthMiniBars(series: stat.series).frame(height: 22)
+                        if let mean = stat.weekMean {
+                            let meanText = HealthFormat.value(mean, metric: .sleep)
+                            Text(String(localized: "health.week.mean", defaultValue: "7-day average \(meanText)")).font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
+                        }
+                    }
+                }
                 Text(HealthSnapshot.Metric.sleep.about).font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(FAColor.inkMuted).fixedSize(horizontal: false, vertical: true)
             }
         }
     }
+
+    private var window: String { HealthFormat.clock(night.start) + " → " + HealthFormat.clock(night.end) }
+    private var latencyText: String { HealthFormat.integer(night.latencySeconds / 60, locale: .current) + " min" }
 
     private func detail(_ value: String, _ label: String) -> some View {
         VStack(alignment: .leading, spacing: 1) {
