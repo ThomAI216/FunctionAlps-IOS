@@ -13,14 +13,16 @@ struct CheckinServiceTests {
         return a
     }
 
-    @Test func oneScoredMomentGoesToTheOneWriter() async throws {
+    @Test func theRawAnswersGoToTheOneWriterWhichScoresThem() async throws {
         let backend = RecordingBackend()
         let service = CheckinService(backend: backend, calendar: utc, now: { noon })
         let saved = try await service.save(slot: .midday, answers: answers(calm: 58), catalogPills: ["drained": ["travel"]], patientId: "p1")
-        #expect(saved?.stressScore == 58)
+        #expect(saved?.moment.stressScore == 58 && saved?.scoredBy == "server") // the row as the server scored it
         #expect(backend.calls == ["submit:midday:2026-09-02"])
-        let sent = try #require(backend.lastMoment)
-        #expect(sent.slot == .midday && sent.stressScore == 58 && sent.pills["drained"] == ["travel"] && sent.submittedAt == noon)
+        let sent = try #require(backend.lastSubmission)
+        #expect(sent.submittedAt == noon && sent.pills["drained"] == ["travel"] && sent.note == nil)
+        #expect(sent.answers[.stress]?.sliders["calm"] == 58) // RAW answers travel — no marker column leaves the phone
+        #expect(CheckinEngine.answersJSON(sent.answers) == .object(["stress": .object(["calm": .number(58)])]))
     }
 
     /// The roll-up the RPC performs, as the phone's reference implementation still computes it.

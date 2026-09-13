@@ -85,6 +85,10 @@ struct HomeView: View {
                     }
                     .frame(maxHeight: 230)
 
+                    if content.today.checkin?.redFlags.any == true {
+                        RedFlagSignpostCard()
+                    }
+
                     NavigationLink(value: Route.gutCheckin) {
                         GutCheckinCard(done: content.today.checkin?.isGutDone ?? false, score: content.today.checkin?.gutOverall)
                     }

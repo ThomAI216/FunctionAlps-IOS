@@ -250,6 +250,8 @@ struct DailyCheckin: Sendable, Equatable {
     let sleep: Int?
     let calmness: Int?
     let gutOverall: Int?
+    /// The signpost source — raised by the gut check-in (or the web daily form), never by a score.
+    var redFlags: RedFlags = .none
 
     var isFunctionalDone: Bool { functionalCompletedAt != nil }
     var isGutDone: Bool { gutCompletedAt != nil }

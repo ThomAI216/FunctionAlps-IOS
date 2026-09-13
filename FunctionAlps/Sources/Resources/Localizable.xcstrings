@@ -6919,7 +6919,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Editing today's gut check-in Â· tweak anything and save."
+            "value": "Editing today's gut check-in · tweak anything and save."
           }
         },
         "fr": {
@@ -6935,7 +6935,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Three quick reads Â· comfort, stool, and food reactions."
+            "value": "Three quick reads · comfort, stool, and food reactions."
           }
         },
         "fr": {
@@ -7191,7 +7191,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "How comfortable and tolerant your gut feels Â· daily comfort, how meals sit afterwards, and stool regularity."
+            "value": "How comfortable and tolerant your gut feels · daily comfort, how meals sit afterwards, and stool regularity."
           }
         },
         "fr": {
@@ -7511,7 +7511,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log a few meals and how they felt, and your food Â· feeling patterns appear here."
+            "value": "Log a few meals and how they felt, and your food · feeling patterns appear here."
           }
         },
         "fr": {
@@ -8290,6 +8290,38 @@
         }
       }
     },
+    "gut.redflags.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional · these are for a doctor's eye, not a nutrition read. Tick anything that applies today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facultatif · c'est pour l'œil d'un médecin, pas une lecture nutritionnelle. Cochez ce qui s'applique aujourd'hui."
+          }
+        }
+      }
+    },
+    "gut.redflags.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything serious to flag?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelque chose de sérieux à signaler ?"
+          }
+        }
+      }
+    },
     "gut.save": {
       "localizations": {
         "en": {
@@ -8311,7 +8343,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your answers are still here Â· tap Save to try again. If it keeps failing, let us know and we'll look into it."
+            "value": "Your answers are still here · tap Save to try again. If it keeps failing, let us know and we'll look into it."
           }
         },
         "fr": {
@@ -11095,7 +11127,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "â Done today Â· tap to adjust"
+            "value": "✓ Done today · tap to adjust"
           }
         },
         "fr": {
@@ -11111,7 +11143,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Three quick reads Â· comfort, stool, food reactions"
+            "value": "Three quick reads · comfort, stool, food reactions"
           }
         },
         "fr": {
@@ -11534,6 +11566,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "jour de série"
+          }
+        }
+      }
+    },
+    "home.redflag.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worth a doctor's eye"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À montrer à un médecin"
           }
         }
       }
@@ -15943,7 +15991,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Photograph or describe it â 20 seconds."
+            "value": "Photograph or describe it — 20 seconds."
           }
         },
         "fr": {
@@ -16007,7 +16055,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notifications never carry health details â just a nudge and a link. Everything stays in the app."
+            "value": "Notifications never carry health details — just a nudge and a link. Everything stays in the app."
           }
         },
         "fr": {
@@ -16055,7 +16103,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Energy, focus, digestion â how is the afternoon starting?"
+            "value": "Energy, focus, digestion — how is the afternoon starting?"
           }
         },
         "fr": {
@@ -16151,7 +16199,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Energy, digestion, bloating â 10 seconds, and it teaches the pattern."
+            "value": "Energy, digestion, bloating — 10 seconds, and it teaches the pattern."
           }
         },
         "fr": {
@@ -16231,7 +16279,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "2Â½ hours after each meal, once"
+            "value": "2½ hours after each meal, once"
           }
         },
         "fr": {
@@ -16263,7 +16311,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lunch at 13:30 and dinner at 20:15 â only when nothing was logged"
+            "value": "Lunch at 13:30 and dinner at 20:15 — only when nothing was logged"
           }
         },
         "fr": {
@@ -16535,7 +16583,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seven days of meals, check-ins and nights â see what moved."
+            "value": "Seven days of meals, check-ins and nights — see what moved."
           }
         },
         "fr": {
@@ -25991,7 +26039,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Overall, 2â3 hours later"
+            "value": "Overall, 2–3 hours later"
           }
         },
         "fr": {
@@ -26110,6 +26158,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ouvre l'image en plein écran ; pincez pour zoomer"
+          }
+        }
+      }
+    },
+    "redflag.black_stool": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black stool"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selles noires"
+          }
+        }
+      }
+    },
+    "redflag.blood_in_stool": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blood in stool"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sang dans les selles"
+          }
+        }
+      }
+    },
+    "redflag.fever": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fever"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fièvre"
+          }
+        }
+      }
+    },
+    "redflag.persistent_vomiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Persistent vomiting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vomissements persistants"
+          }
+        }
+      }
+    },
+    "redflag.severe_worsening_pain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Severe or worsening pain"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Douleur intense ou qui s'aggrave"
+          }
+        }
+      }
+    },
+    "redflag.signpost": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some of what you logged · like blood in your stool or persistent vomiting · is worth discussing with a doctor. FunctionAlps is a wellness mirror, not a medical service."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certaines choses que vous avez notées · comme du sang dans les selles ou des vomissements persistants · méritent d'en parler à un médecin. FunctionAlps est un miroir de bien-être, pas un service médical."
+          }
+        }
+      }
+    },
+    "redflag.unintentional_weight_loss": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unintentional weight loss"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perte de poids involontaire"
           }
         }
       }

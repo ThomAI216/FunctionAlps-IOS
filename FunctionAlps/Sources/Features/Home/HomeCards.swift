@@ -347,3 +347,30 @@ struct GutCheckinCard: View {
         .accessibilityElement(children: .combine)
     }
 }
+
+/// The doctor signpost — shown only while today's day row carries a red flag (raised by the gut check-in or
+/// the web daily form). The Expo `RED_FLAG_SIGNPOST`, verbatim: never a diagnosis, never a food link.
+struct RedFlagSignpostCard: View {
+    var body: some View {
+        FACard {
+            HStack(alignment: .top, spacing: 12) {
+                ZStack {
+                    Circle().fill(ProfilePalette.red.opacity(0.14))
+                    Image(systemName: "stethoscope").font(.system(size: 16, weight: .semibold)).foregroundStyle(ProfilePalette.red)
+                }
+                .frame(width: 40, height: 40)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "home.redflag.title", defaultValue: "Worth a doctor's eye"))
+                        .font(FATypography.sans(15, .semibold, relativeTo: .headline))
+                        .foregroundStyle(FAColor.ink)
+                    Text(RedFlags.signpost)
+                        .font(FATypography.sans(13, relativeTo: .callout))
+                        .foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}

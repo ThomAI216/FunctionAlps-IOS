@@ -30,6 +30,7 @@ final class GutCheckinViewModel {
     var answers: GutAnswerSet = .blank
     var notes = ""
     var notesOpen = false
+    var redFlags: RedFlags = .none
     var isSaving = false
     var saveError: String?
     private(set) var editing = false
@@ -56,6 +57,7 @@ final class GutCheckinViewModel {
                 answers = today.answers
                 notes = today.notes ?? ""
                 notesOpen = !notes.isEmpty
+                redFlags = today.redFlags
                 editing = true
             }
             // Today's rated meals feed the reactions read (the saved score wins when editing — Expo behaviour).
@@ -84,7 +86,7 @@ final class GutCheckinViewModel {
         defer { isSaving = false }
         do {
             let member = try await members.currentMember()
-            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes)
+            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes, redFlags: redFlags)
             return true
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "gut.save")
@@ -94,6 +96,38 @@ final class GutCheckinViewModel {
             saveError = String(describing: error)
         }
         return false
+    }
+}
+
+/// "Anything serious to flag?" — the six red-flag symptoms (Expo `red-flags.ts`, the `red_flag_*` columns).
+/// Stored as booleans, never scored, never linked to a food. Ticking one shows the doctor signpost right here
+/// and on Home, and reaches the practitioner as one `red_flag` event.
+struct GutRedFlagsCard: View {
+    @Binding var flags: RedFlags
+
+    var body: some View {
+        FACard {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(String(localized: "gut.redflags.title", defaultValue: "Anything serious to flag?"))
+                    .font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
+                Text(String(localized: "gut.redflags.intro", defaultValue: "Optional · these are for a doctor's eye, not a nutrition read. Tick anything that applies today."))
+                    .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                PillGroupView(
+                    title: nil,
+                    options: RedFlag.allCases.map { PillOption(key: $0.rawValue, label: $0.label) },
+                    isOn: { key in RedFlag(rawValue: key).map(flags.contains) ?? false },
+                    onToggle: { key in if let flag = RedFlag(rawValue: key) { flags.toggle(flag) } },
+                    accent: ProfilePalette.red
+                )
+                if flags.any {
+                    Text(RedFlags.signpost)
+                        .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
+                        .fixedSize(horizontal: false, vertical: true).padding(.top, 2)
+                        .transition(.opacity)
+                }
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: flags.any)
     }
 }
 
@@ -135,6 +169,8 @@ struct GutCheckinScreen: View {
                 ForEach(GutSchema.dimensions) { spec in
                     GutDimensionCard(spec: spec, answers: binding(spec.key), ratedMeals: spec.key == .reactions ? model.ratedMeals : [])
                 }
+
+                GutRedFlagsCard(flags: $model.redFlags)
 
                 notesBlock
 

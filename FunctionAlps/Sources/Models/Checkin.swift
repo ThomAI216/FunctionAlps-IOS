@@ -172,6 +172,7 @@ struct CheckinEvent: Sendable, Equatable {
 enum ColumnValue: Sendable, Equatable, Encodable {
     case int(Int)
     case string(String)
+    case bool(Bool)
     case null
     case pills([String: [String]])
     /// A jsonb column whose keys must travel verbatim (`JSONValue`).
@@ -185,6 +186,7 @@ enum ColumnValue: Sendable, Equatable, Encodable {
             switch self {
             case .int(let v): try c.encode(v)
             case .string(let s): try c.encode(s)
+            case .bool(let b): try c.encode(b)
             case .null: try c.encodeNil()
             case .pills(let p): try c.encode(p)
             case .json: break
@@ -197,3 +199,72 @@ enum ColumnValue: Sendable, Equatable, Encodable {
 }
 
 typealias ColumnPatch = [String: ColumnValue]
+
+// MARK: - Red flags (patient_daily_checkins.red_flag_*)
+
+/// The six red-flag symptoms on `patient_daily_checkins` (`red_flag_*`) — the Expo `red-flags.ts` list.
+/// Asked by the gut check-in, stored as booleans, NEVER scored. When any is true the member sees the
+/// signpost (a doctor's eye, not a nutrition read) and one `red_flag` event reaches the practitioner side.
+enum RedFlag: String, Sendable, Hashable, CaseIterable, Identifiable {
+    case bloodInStool = "blood_in_stool"
+    case blackStool = "black_stool"
+    case persistentVomiting = "persistent_vomiting"
+    case fever
+    case unintentionalWeightLoss = "unintentional_weight_loss"
+    case severeWorseningPain = "severe_worsening_pain"
+
+    var id: String { rawValue }
+    var column: String { "red_flag_" + rawValue }
+
+    var label: String {
+        switch self {
+        case .bloodInStool: String(localized: "redflag.blood_in_stool", defaultValue: "Blood in stool")
+        case .blackStool: String(localized: "redflag.black_stool", defaultValue: "Black stool")
+        case .persistentVomiting: String(localized: "redflag.persistent_vomiting", defaultValue: "Persistent vomiting")
+        case .fever: String(localized: "redflag.fever", defaultValue: "Fever")
+        case .unintentionalWeightLoss: String(localized: "redflag.unintentional_weight_loss", defaultValue: "Unintentional weight loss")
+        case .severeWorseningPain: String(localized: "redflag.severe_worsening_pain", defaultValue: "Severe or worsening pain")
+        }
+    }
+}
+
+struct RedFlags: Sendable, Equatable, Hashable {
+    var raised: Set<RedFlag> = []
+
+    static let none = RedFlags()
+    var any: Bool { !raised.isEmpty }
+    func contains(_ flag: RedFlag) -> Bool { raised.contains(flag) }
+    mutating func toggle(_ flag: RedFlag) {
+        if raised.contains(flag) { raised.remove(flag) } else { raised.insert(flag) }
+    }
+
+    /// From the six `red_flag_*` booleans — a missing or null column is "not raised".
+    static func from(_ column: (RedFlag) -> Bool?) -> RedFlags {
+        RedFlags(raised: Set(RedFlag.allCases.filter { column($0) == true }))
+    }
+
+    /// The member-facing signpost, verbatim from the Expo app (`RED_FLAG_SIGNPOST`). Never a diagnosis.
+    static var signpost: String {
+        String(localized: "redflag.signpost", defaultValue: "Some of what you logged · like blood in your stool or persistent vomiting · is worth discussing with a doctor. FunctionAlps is a wellness mirror, not a medical service.")
+    }
+}
+
+// MARK: - The moment submission (member_submit_checkin v2)
+
+/// What the phone SENDS for a moment: the RAW answers. The server scores them (`member_submit_checkin` v2,
+/// `checkin_energy_overall` / `checkin_sleep_overall`) so every client agrees to the point; `CheckinEngine`
+/// stays the tested reference of that scoring and still guards "nothing answered → nothing sent".
+struct CheckinSubmission: Sendable, Equatable {
+    let submittedAt: Date
+    let answers: FunctionalAnswers
+    let pills: [String: [String]]
+    let note: String?
+}
+
+/// What comes back: the row as the SERVER scored it, plus the day's red flags for the signpost.
+struct CheckinSubmitResult: Sendable, Equatable {
+    let moment: CheckinMoment
+    let momentCount: Int
+    let scoredBy: String
+    let redFlags: RedFlags
+}

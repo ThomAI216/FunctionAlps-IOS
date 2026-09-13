@@ -8,6 +8,19 @@ import Testing
 struct CheckinEngineTests {
     private let t0 = Date(timeIntervalSince1970: 1_788_350_400)
 
+    @Test func theServerPayloadCarriesOnlyWhatWasTouched() {
+        var a = FunctionalAnswers.blank
+        a[.energy]?.sliders = ["body": 72.4, "mind": 73]
+        a[.sleep]?.specials = SleepSpecials(durationMin: 480, latency: "15_30", wakeCount: nil)
+        a[.stress]?.sliders = ["calm": 58]
+        #expect(CheckinEngine.answersJSON(a) == .object([
+            "energy": .object(["body": .number(72.4), "mind": .number(73)]),
+            "sleep": .object(["duration_min": .int(480), "latency": .string("15_30")]),
+            "stress": .object(["calm": .number(58)]),
+        ]))
+        #expect(CheckinEngine.answersJSON(.blank) == .object([:]))
+    }
+
     @Test func energyIsMeanModulatedByStability() {
         #expect(CheckinEngine.energyOverall(body: 60, mind: 80, stability: nil) == 70)
         #expect(CheckinEngine.energyOverall(body: 60, mind: 80, stability: 100) == 81)

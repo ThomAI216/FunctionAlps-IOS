@@ -288,4 +288,35 @@ enum CheckinEngine {
     static func stateRampIndex(_ v: Double) -> Int {
         4 - jsRound(clamp(v) / 100 * 4)
     }
+
+    // MARK: Server scoring payload (member_submit_checkin v2)
+
+    /// The RAW answers as the RPC reads them (`p_moment.answers`): only what the member touched, sliders
+    /// unrounded — the server rounds the columns and scores the overalls from the raw values, exactly as
+    /// `momentFromAnswers` does here. Keys are the DB vocabulary (`duration_min`, `wake_count`).
+    static func answersJSON(_ answers: FunctionalAnswers) -> JSONValue {
+        var out: [String: JSONValue] = [:]
+        func slider(_ dim: DimKey, _ key: String) -> JSONValue? { answers[dim]?.sliders[key].map { .number($0) } }
+        var energy: [String: JSONValue] = [:]
+        if let v = slider(.energy, "body") { energy["body"] = v }
+        if let v = slider(.energy, "mind") { energy["mind"] = v }
+        if let v = slider(.energy, "stability") { energy["stability"] = v }
+        if !energy.isEmpty { out["energy"] = .object(energy) }
+        var sleep: [String: JSONValue] = [:]
+        if let v = slider(.sleep, "refreshed") { sleep["refreshed"] = v }
+        if let s = answers[.sleep]?.specials {
+            if let v = s.durationMin { sleep["duration_min"] = .int(v) }
+            if let v = s.latency { sleep["latency"] = .string(v) }
+            if let v = s.wakeCount { sleep["wake_count"] = .string(v) }
+        }
+        if !sleep.isEmpty { out["sleep"] = .object(sleep) }
+        if let v = slider(.mood, "mood") { out["mood"] = .object(["mood": v]) }
+        if let v = slider(.stress, "calm") { out["stress"] = .object(["calm": v]) } // calmness — the server never inverts it either
+        return .object(out)
+    }
+
+    /// The submission for a moment the reference engine already built (pills merged, note trimmed).
+    static func submission(from moment: CheckinMoment, answers: FunctionalAnswers) -> CheckinSubmission {
+        CheckinSubmission(submittedAt: moment.submittedAt, answers: answers, pills: moment.pills, note: moment.note)
+    }
 }

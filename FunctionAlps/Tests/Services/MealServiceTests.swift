@@ -118,7 +118,13 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { record("carry"); return carry }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws { record("upsertSummary"); lastPatch = patch }
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws { record("events:\(events.count)"); lastEvents = events }
-    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws { record("submit:\(slot.rawValue):\(day)"); lastMoment = moment }
+    private(set) var lastSubmission: CheckinSubmission?
+    /// Echoes what the RPC would reply: the reference engine's scoring of the same raw answers.
+    func submitCheckin(day: String, slot: MomentSlot, submission: CheckinSubmission) async throws -> CheckinSubmitResult {
+        record("submit:\(slot.rawValue):\(day)"); lastSubmission = submission
+        let scored = CheckinEngine.momentFromAnswers(slot: slot, answers: submission.answers, catalogPills: [:], note: submission.note, submittedAt: submission.submittedAt)
+        return CheckinSubmitResult(moment: scored, momentCount: 1, scoredBy: "server", redFlags: .none)
+    }
 }
 
 @Suite("MealService")

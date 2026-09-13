@@ -36,9 +36,10 @@ struct GutService: Sendable {
     }
 
     /// Nothing answered → nothing written (the Expo rule); otherwise the day upsert + one event per read.
+    /// A raised red flag counts as an answer: it is the one thing worth writing on its own.
     @discardableResult
-    func save(patientId: String, answers: GutAnswerSet, notes: String?) async throws -> Bool {
-        guard GutEngine.hasAnyAnswer(answers) else { return false }
+    func save(patientId: String, answers: GutAnswerSet, notes: String?, redFlags: RedFlags = .none) async throws -> Bool {
+        guard GutEngine.hasAnyAnswer(answers) || redFlags.any else { return false }
         let at = now()
         let stool = GutEngine.dimensionOverall(.stool, answers[.stool] ?? .empty)
         let write = GutCheckinWrite(
@@ -46,7 +47,7 @@ struct GutService: Sendable {
             reactions: GutEngine.dimensionOverall(.reactions, answers[.reactions] ?? .empty), overall: GutEngine.overall(answers),
             answers: answers, notes: notes,
             stoolType: answers[.stool]?.specials.bristol, stoolQuality: GutEngine.to15(stool), stoolFrequency: answers[.stool]?.specials.frequency,
-            completedAt: at
+            completedAt: at, redFlags: redFlags
         )
         try await backend.upsertGutCheckin(patientId: patientId, day: today, write: write)
         try await backend.insertCheckinEvents(patientId: patientId, events: GutEngine.events(answers, at: at))

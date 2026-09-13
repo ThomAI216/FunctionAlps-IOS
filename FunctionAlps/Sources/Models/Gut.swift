@@ -18,6 +18,7 @@ struct GutTodayRead: Sendable, Equatable {
     let notes: String?
     let completedAt: Date
     let day: GutDay
+    var redFlags: RedFlags = .none
 }
 
 /// The gut save — the Expo `saveGutCheckinV2` row, every column explicit.
@@ -32,6 +33,8 @@ struct GutCheckinWrite: Sendable, Equatable {
     let stoolQuality: Int?
     let stoolFrequency: Int?
     let completedAt: Date
+    /// Stored-not-scored, every one written explicitly (see `upsertGutCheckin`).
+    var redFlags: RedFlags = .none
 }
 
 /// A JSON value encoded with its keys VERBATIM (the request must be sent with `snakeCase: false`) —

@@ -49,7 +49,8 @@ protocol FunctionAlpsBackend: Sendable {
     func insertCheckinEvents(patientId: String, events: [CheckinEvent]) async throws
     /// PRD §41 — ONE writer: RPC `member_submit_checkin` upserts the moment, recomputes the day summary from every
     /// moment of the day and appends the events in one transaction; the patient is resolved from the JWT.
-    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws
+    /// RAW answers up, the SERVER-scored row back (`member_submit_checkin` v2) — one scorer for every client.
+    func submitCheckin(day: String, slot: MomentSlot, submission: CheckinSubmission) async throws -> CheckinSubmitResult
 
     // MARK: Scores (server-side engine)
 

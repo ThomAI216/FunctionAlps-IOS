@@ -568,36 +568,55 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.compactMap(\.model)
     }
 
-    /// Every patient-written column, explicit nulls included: re-saving a slot REPLACES its answers.
-    /// The moment's own columns (no keys, no slot) — the upsert body and the RPC payload share them.
-    private static func momentColumns(_ m: CheckinMoment) -> ColumnPatch {
-        [
-            "submitted_at": .string(ISO8601.string(m.submittedAt)),
-            "energy_body": .int(m.energyBody),
-            "energy_mind": .int(m.energyMind),
-            "energy_stability": .int(m.energyStability),
-            "energy_overall": .int(m.energyOverall),
-            "mood_score": .int(m.moodScore),
-            "stress_score": .int(m.stressScore),
-            "sleep_overall": .int(m.sleepOverall),
-            "sleep_refreshed": .int(m.sleepRefreshed),
-            "sleep_duration_min": .int(m.sleepDurationMin),
-            "sleep_latency_band": .string(m.sleepLatencyBand),
-            "sleep_wake_count": .string(m.sleepWakeCount),
-            "pills": .pills(m.pills), // NOT NULL (default '{}') — always an object
-            "note": .string(m.note),
-        ]
-    }
-
     private struct SubmitCheckinBody: Encodable, Sendable {
         let pDay: String
         let pSlot: String
         let pMoment: ColumnPatch
     }
-    private struct SubmitCheckinReply: Decodable, Sendable { let momentCount: Int? }
+    private struct RedFlagsRow: Decodable, Sendable {
+        let bloodInStool: Bool?; let blackStool: Bool?; let persistentVomiting: Bool?
+        let fever: Bool?; let unintentionalWeightLoss: Bool?; let severeWorseningPain: Bool?
+        var model: RedFlags {
+            RedFlags.from { flag in
+                switch flag {
+                case .bloodInStool: bloodInStool
+                case .blackStool: blackStool
+                case .persistentVomiting: persistentVomiting
+                case .fever: fever
+                case .unintentionalWeightLoss: unintentionalWeightLoss
+                case .severeWorseningPain: severeWorseningPain
+                }
+            }
+        }
+    }
+    /// The RPC reply: the saved row (same keys as a `patient_checkin_moments` select) + the extras.
+    private struct SubmitCheckinReply: Decodable, Sendable {
+        let moment: MomentRow
+        let momentCount: Int?
+        let scoredBy: String?
+        let redFlags: RedFlagsRow?
+        private enum CodingKeys: String, CodingKey { case momentCount, scoredBy, redFlags }
+        init(from decoder: any Decoder) throws {
+            moment = try MomentRow(from: decoder)
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            momentCount = try c.decodeIfPresent(Int.self, forKey: .momentCount)
+            scoredBy = try c.decodeIfPresent(String.self, forKey: .scoredBy)
+            redFlags = try? c.decodeIfPresent(RedFlagsRow.self, forKey: .redFlags)
+        }
+    }
 
-    func submitCheckin(day: String, slot: MomentSlot, moment: CheckinMoment) async throws {
-        let _: SubmitCheckinReply = try await rest.rpc("member_submit_checkin", body: SubmitCheckinBody(pDay: day, pSlot: slot.rawValue, pMoment: Self.momentColumns(moment)))
+    /// The RAW answers go up (`answers`), the server scores them and the scored row comes back.
+    /// No marker column is written by the phone any more — one scorer for every client.
+    func submitCheckin(day: String, slot: MomentSlot, submission s: CheckinSubmission) async throws -> CheckinSubmitResult {
+        let payload: ColumnPatch = [
+            "submitted_at": .string(ISO8601.string(s.submittedAt)),
+            "answers": .json(CheckinEngine.answersJSON(s.answers)),
+            "pills": .pills(s.pills), // NOT NULL (default '{}') — always an object
+            "note": .string(s.note),
+        ]
+        let reply: SubmitCheckinReply = try await rest.rpc("member_submit_checkin", body: SubmitCheckinBody(pDay: day, pSlot: slot.rawValue, pMoment: payload))
+        guard let moment = reply.moment.model else { throw AppError.decoding(detail: "member_submit_checkin: slot outside the vocabulary in the reply") }
+        return CheckinSubmitResult(moment: moment, momentCount: reply.momentCount ?? 1, scoredBy: reply.scoredBy ?? "server", redFlags: reply.redFlags?.model ?? .none)
     }
 
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
@@ -733,9 +752,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let mood: Int?
         let sleep: Int?
         let stress: Int?
+        // the red-flag signpost source (v2 select only; absent on the legacy list)
+        let redFlagBloodInStool: Bool?; let redFlagBlackStool: Bool?; let redFlagPersistentVomiting: Bool?
+        let redFlagFever: Bool?; let redFlagUnintentionalWeightLoss: Bool?; let redFlagSevereWorseningPain: Bool?
+        var redFlags: RedFlags {
+            RedFlags.from { flag in
+                switch flag {
+                case .bloodInStool: redFlagBloodInStool
+                case .blackStool: redFlagBlackStool
+                case .persistentVomiting: redFlagPersistentVomiting
+                case .fever: redFlagFever
+                case .unintentionalWeightLoss: redFlagUnintentionalWeightLoss
+                case .severeWorseningPain: redFlagSevereWorseningPain
+                }
+            }
+        }
     }
 
-    private static let checkinV2Columns = "checkin_date,functional_completed_at,intelligence_completed_at,energy_overall,mood_score,sleep_overall,stress_score,gut_overall,energy,mood,sleep,stress"
+    private static let checkinV2Columns = "checkin_date,functional_completed_at,intelligence_completed_at,energy_overall,mood_score,sleep_overall,stress_score,gut_overall,energy,mood,sleep,stress,red_flag_blood_in_stool,red_flag_black_stool,red_flag_persistent_vomiting,red_flag_fever,red_flag_unintentional_weight_loss,red_flag_severe_worsening_pain"
     private static let checkinLegacyColumns = "checkin_date,functional_completed_at,intelligence_completed_at,energy,mood,sleep,stress"
 
     func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? {
@@ -772,7 +806,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             mood: row.moodScore ?? scaled(row.mood),
             sleep: row.sleepOverall ?? scaled(row.sleep),
             calmness: row.stressScore ?? row.stress.map { 100 - (($0 - 1) * 100 / 9) },
-            gutOverall: row.gutOverall
+            gutOverall: row.gutOverall,
+            redFlags: row.redFlags
         )
     }
 
@@ -1134,13 +1169,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? {
         // Raw JSON on purpose: `gut_detail` mixes camelCase (`reactionsScore`) and snake_case (`stool_off`) keys,
         // and the shared decoder would rewrite the latter.
-        let data = try await rest.selectRaw("patient_daily_checkins", query: [PG.select(Self.gutColumns + ",gut_detail"), PG.eq("patient_id", patientId), PG.eq("checkin_date", day), PG.limit(1)])
+        let data = try await rest.selectRaw("patient_daily_checkins", query: [PG.select(Self.gutColumns + ",gut_detail," + RedFlag.allCases.map(\.column).joined(separator: ",")), PG.eq("patient_id", patientId), PG.eq("checkin_date", day), PG.limit(1)])
         guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]], let row = rows.first,
               let completedRaw = row["intelligence_completed_at"] as? String, let completedAt = ISO8601.parse(completedRaw) else { return nil }
         let decoded = GutDetailCodec.decode(row["gut_detail"])
         let int = { (k: String) -> Int? in (row[k] as? NSNumber)?.intValue }
         let dayRow = GutDay(day: day, comfort: int("gut_comfort"), stool: int("gut_stool"), reactions: int("gut_reactions"), overall: int("gut_overall"), stoolQuality: int("stool_quality"), stoolFrequency: int("stool_frequency"), completedAt: completedAt)
-        return GutTodayRead(answers: decoded?.answers ?? .blank, notes: decoded?.notes, completedAt: completedAt, day: dayRow)
+        let redFlags = RedFlags.from { row[$0.column] as? Bool }
+        return GutTodayRead(answers: decoded?.answers ?? .blank, notes: decoded?.notes, completedAt: completedAt, day: dayRow, redFlags: redFlags)
     }
 
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] {
@@ -1153,13 +1189,16 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func upsertGutCheckin(patientId: String, day: String, write w: GutCheckinWrite) async throws {
         let stamp = ISO8601.string(w.completedAt)
-        let row: ColumnPatch = [
+        var row: ColumnPatch = [
             "patient_id": .string(patientId), "checkin_date": .string(day),
             "gut_comfort": .int(w.comfort), "gut_stool": .int(w.stool), "gut_reactions": .int(w.reactions), "gut_overall": .int(w.overall),
             "gut_detail": .json(GutDetailCodec.encode(answers: w.answers, notes: w.notes)),
             "stool_type": .int(w.stoolType), "stool_quality": .int(w.stoolQuality), "stool_frequency": .int(w.stoolFrequency),
             "intelligence_completed_at": .string(stamp), "completed_at": .string(stamp), "last_submission_form": .string("intelligence"),
         ]
+        // The six red flags, every one explicit: an edit that unticks a flag must clear it, and a newly raised
+        // one fires the `red_flag` event server-side (trg_checkin_red_flag_event).
+        for flag in RedFlag.allCases { row[flag.column] = .bool(w.redFlags.contains(flag)) }
         try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
     }
 
