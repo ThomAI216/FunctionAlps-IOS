@@ -65,6 +65,18 @@ struct MealDetailView: View {
                         .accessibilityHint(String(localized: "meal.felt.hint", defaultValue: "Rate how this meal felt"))
                     noteCard(meal, model).padding(.top, 16)
                     if let scores = meal.scores, !model.edit.editing { scoreCards(scores).opacity(model.edit.reanalyzing ? 0.4 : 1) }
+                    Button { router.push(.messagesAbout(mealId: meal.id, name: meal.name)) } label: {
+                        HStack(spacing: 7) {
+                            Image(systemName: "bubble.left").font(.system(size: 13, weight: .semibold))
+                            Text(String(localized: "meal.askNutritionist", defaultValue: "Ask your nutritionist about this meal")).font(FATypography.sans(12.5, .bold, relativeTo: .caption))
+                        }
+                        .foregroundStyle(FAColor.forestSoft)
+                        .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft.opacity(0.4), lineWidth: 1) }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 18)
                     FAButton(title: String(localized: "meal.delete", defaultValue: "Delete this meal"), style: .destructive, isLoading: model.isDeleting) {
                         confirmDelete = true
                     }
@@ -95,9 +107,9 @@ struct MealDetailView: View {
                     .presentationDetents([.medium, .large])
             }
             .sheet(item: $explaining) { kind in
-                if let scores = meal.scores {
-                    ScoreExplainerSheet(kind: kind, value: kind.value(in: scores)).presentationDetents([.medium])
-                }
+                ScoreExplainerView(kind: kind, mealScore: meal.scores.map { kind.value(in: $0) })
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
             .alert(String(localized: "error.title", defaultValue: "Something went wrong"), isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
                 Button(String(localized: "action.ok", defaultValue: "OK"), role: .cancel) {}

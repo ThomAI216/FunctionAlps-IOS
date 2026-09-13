@@ -19,6 +19,8 @@ enum Route: Hashable {
     case viewData
     case legal(String)
     case messages
+    /// Messages opened FROM a meal: the thread starts with that meal as its context chip.
+    case messagesAbout(mealId: String, name: String?)
     case help
     case wearables
     // Macros & micros (the Expo `macros-details`, `nutrition-macros`, `micronutrients`, `micro-group/*`, `micro-nutrient/*`)
@@ -214,6 +216,7 @@ struct MainTabView: View {
         case .viewData: ViewDataView()
         case .legal(let key): LegalDocumentView(key: key)
         case .messages: MessagesView()
+        case .messagesAbout(let id, let name): MessagesView(initialContext: .meal(id: id), contextMealName: name)
         case .help: HelpView()
         case .wearables: WearablesView()
         case .macros: MacrosDetailsView()

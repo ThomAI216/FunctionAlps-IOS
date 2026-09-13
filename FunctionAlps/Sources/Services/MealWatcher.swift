@@ -52,7 +52,7 @@ final class MealWatcher {
             onRow: { meal in Task { @MainActor in handle(meal, .realtime) } },
             onLifecycle: { [weak self] status in Task { @MainActor in self?.lifecycle(status, id: id, handle) } }
         )
-        graceTask = Task { [weak self] in
+        graceTask = Task { [weak self, grace] in
             try? await Task.sleep(for: grace)
             guard !Task.isCancelled else { return }
             self?.startPolling(id, handle)

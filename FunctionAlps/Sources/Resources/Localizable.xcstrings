@@ -13362,6 +13362,22 @@
         }
       }
     },
+    "meal.askNutritionist": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask your nutritionist about this meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander à votre nutritionniste à propos de ce repas"
+          }
+        }
+      }
+    },
     "meal.delete": {
       "localizations": {
         "en": {
@@ -21250,6 +21266,262 @@
         }
       }
     },
+    "pattern.consistent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(%lld%% consistent)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(%lld %% de constance)"
+          }
+        }
+      }
+    },
+    "pattern.lead.confirmed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We've seen that when"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous avons observé que lorsque"
+          }
+        }
+      }
+    },
+    "pattern.lead.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Early signal · when"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signal précoce · lorsque"
+          }
+        }
+      }
+    },
+    "pattern.reaction.bloating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bloating tends to follow"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "des ballonnements ont tendance à suivre"
+          }
+        }
+      }
+    },
+    "pattern.reaction.fullness": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you tend to feel uncomfortably full"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vous avez tendance à vous sentir trop plein"
+          }
+        }
+      }
+    },
+    "pattern.reaction.nextEnergy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your next-morning energy tends to run lower"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "votre énergie du lendemain matin a tendance à être plus basse"
+          }
+        }
+      }
+    },
+    "pattern.reaction.nextSleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your sleep that night tends to suffer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "votre sommeil cette nuit-là a tendance à en pâtir"
+          }
+        }
+      }
+    },
+    "pattern.reaction.stool": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your stool quality tends to dip"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la qualité de vos selles a tendance à baisser"
+          }
+        }
+      }
+    },
+    "pattern.seenTimes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "seen %lld times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "observé %lld fois"
+          }
+        }
+      }
+    },
+    "pattern.sentence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@, %@ · %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@, %@ · %@."
+          }
+        }
+      }
+    },
+    "pattern.sentence.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ is on your plate, %@ · %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ est dans votre assiette, %@ · %@."
+          }
+        }
+      }
+    },
+    "pattern.subject.highFatDinner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dinner runs heavy on fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "le dîner est riche en graisses"
+          }
+        }
+      }
+    },
+    "pattern.subject.highFibre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you eat more fibre than usual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vous mangez plus de fibres que d’habitude"
+          }
+        }
+      }
+    },
+    "pattern.subject.highGlycemic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your meals run high-glycemic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vos repas sont à index glycémique élevé"
+          }
+        }
+      }
+    },
+    "pattern.subject.largeDinner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dinner runs large"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "le dîner est copieux"
+          }
+        }
+      }
+    },
+    "pattern.subject.lateDinner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you eat dinner late"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vous dînez tard"
+          }
+        }
+      }
+    },
     "photoReview.confirm": {
       "localizations": {
         "en": {
@@ -24786,6 +25058,54 @@
         }
       }
     },
+    "score.about.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score describes selected characteristics of the recorded meal. It does not measure or diagnose your body's inflammation, blood glucose, gut health or another medical condition."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score décrit certaines caractéristiques du repas enregistré. Il ne mesure ni ne diagnostique l'inflammation de votre organisme, votre glycémie, votre santé intestinale ou toute autre affection médicale."
+          }
+        }
+      }
+    },
+    "score.about.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About this score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos de ce score"
+          }
+        }
+      }
+    },
+    "score.carbNote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a food-composition estimate based on the carbohydrate and fibre recorded in the meal. It is not a measurement or prediction of your individual blood glucose response."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il s'agit d'une estimation de la composition nutritionnelle basée sur la teneur en glucides et en fibres indiquée pour ce repas. Elle ne constitue ni une mesure ni une prévision de votre réponse glycémique individuelle."
+          }
+        }
+      }
+    },
     "score.digestion.short": {
       "localizations": {
         "en": {
@@ -24878,6 +25198,1846 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qualité des graisses"
+          }
+        }
+      }
+    },
+    "score.lowConfidence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some foods in this meal could not be matched precisely to our reference data, so this score is an approximation. Correcting the ingredients will sharpen it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certains aliments de ce repas n'ont pas pu être associés avec précision à nos données de référence ; ce score est donc une approximation. La correction des ingrédients permettra d'affiner ce résultat."
+          }
+        }
+      }
+    },
+    "scoreP.base.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score reflects the fibre and plant variety in the meals you log."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score reflète les fibres et la variété végétale des repas que vous enregistrez."
+          }
+        }
+      }
+    },
+    "scoreP.base.glycemic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score reflects how much of your carbohydrate arrives with its fibre intact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score reflète la part de vos glucides qui arrive avec ses fibres intactes."
+          }
+        }
+      }
+    },
+    "scoreP.base.inflammation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score reflects where the fat in your meals has been coming from."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score reflète d’où proviennent les graisses de vos repas."
+          }
+        }
+      }
+    },
+    "scoreP.digestion.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre-rich meals drawing on several plants are a common feature of energy-focused eating patterns."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des repas riches en fibres, composés de plusieurs végétaux, sont une caractéristique fréquente des habitudes alimentaires axées sur l’énergie."
+          }
+        }
+      }
+    },
+    "scoreP.digestion.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre and plant variety are the meal characteristics most directly relevant to this goal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fibres et la variété végétale sont les caractéristiques du repas les plus directement liées à cet objectif."
+          }
+        }
+      }
+    },
+    "scoreP.digestion.hormones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre and plant diversity are staples of the dietary patterns studied for hormonal health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fibres et la diversité végétale sont des piliers des habitudes alimentaires étudiées pour la santé hormonale."
+          }
+        }
+      }
+    },
+    "scoreP.digestion.mind": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plant variety and fibre are the composition factors most studied alongside cognitive outcomes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La variété végétale et les fibres sont les facteurs de composition les plus étudiés en lien avec les fonctions cognitives."
+          }
+        }
+      }
+    },
+    "scoreP.digestion.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A varied, fibre-rich day is a frequent recommendation alongside work on sleep."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une journée variée et riche en fibres est une recommandation fréquente en accompagnement d’un travail sur le sommeil."
+          }
+        }
+      }
+    },
+    "scoreP.glycemic.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carbohydrate eaten with its fibre intact is a common starting point when steady energy is the goal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des glucides consommés avec leurs fibres intactes sont un point de départ courant lorsque l’objectif est une énergie stable."
+          }
+        }
+      }
+    },
+    "scoreP.glycemic.mind": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intact carbohydrate sources are a frequent first change when people are working on focus through the day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des sources de glucides non raffinées sont souvent le premier changement lorsqu’on travaille sa concentration au fil de la journée."
+          }
+        }
+      }
+    },
+    "scoreP.glycemic.resilience": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole grains and legumes are staples of the dietary patterns most associated with resilience."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les céréales complètes et les légumineuses sont des piliers des habitudes alimentaires les plus associées à la résilience."
+          }
+        }
+      }
+    },
+    "scoreP.glycemic.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening meals built on whole-food carbohydrate are a common adjustment when sleep is the goal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des repas du soir construits autour de glucides non raffinés sont un ajustement courant lorsque l’objectif est le sommeil."
+          }
+        }
+      }
+    },
+    "scoreP.glycemic.weight": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole-food carbohydrate sources are central to most dietary patterns built around metabolic health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sources de glucides non raffinées sont au cœur de la plupart des habitudes alimentaires axées sur la santé métabolique."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.ageWell": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat source and quality are among the most consistently studied dietary factors in healthy ageing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La source et la qualité des graisses comptent parmi les facteurs alimentaires les plus étudiés pour bien vieillir."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat source is a useful thing to look at when building meals for the day ahead."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La source des graisses mérite un coup d’œil lorsqu’on compose ses repas pour la journée."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole-food fat sources tend to arrive alongside fibre and plants rather than in place of them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sources de graisses non transformées arrivent généralement avec des fibres et des végétaux, plutôt qu’à leur place."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.hormones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fats are the raw material for hormone synthesis, so their food sources are worth attention."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les graisses sont la matière première de la synthèse hormonale ; leurs sources alimentaires méritent donc attention."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.resilience": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole-food fat sources · olive oil, nuts, oily fish · are characteristic of the patterns studied for recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sources de graisses non transformées · huile d’olive, noix, poissons gras · caractérisent les habitudes étudiées pour la récupération."
+          }
+        }
+      }
+    },
+    "scoreP.inflammation.strongBody": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-3-bearing foods are a common addition to eating patterns built around training and recovery."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les aliments porteurs d’oméga-3 sont un ajout courant aux habitudes alimentaires axées sur l’entraînement et la récupération."
+          }
+        }
+      }
+    },
+    "scoreP.trend.down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average slipped to %lld this week · the tips below are where to look."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours est descendue à %lld cette semaine · les conseils ci-dessous indiquent où regarder."
+          }
+        }
+      }
+    },
+    "scoreP.trend.flat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average is holding at %lld."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours se maintient à %lld."
+          }
+        }
+      }
+    },
+    "scoreP.trend.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average so far is %lld."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours est pour l’instant de %lld."
+          }
+        }
+      }
+    },
+    "scoreP.trend.up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average is %lld and climbing · it's working."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours est de %lld et elle monte · ça fonctionne."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add one more vegetable rather than more of the one already there."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez un légume de plus plutôt que davantage de celui déjà présent."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a legume · lentils, chickpeas or beans lift fibre and plant count together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez une légumineuse · lentilles, pois chiches ou haricots augmentent à la fois les fibres et le nombre de végétaux."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scatter nuts or seeds over what you already made · a small handful counts as a plant."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parsemez de noix ou de graines ce que vous avez déjà préparé · une petite poignée compte comme un végétal."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rotate which plants you use across the week rather than repeating the same three."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variez les végétaux au fil de la semaine plutôt que de répéter les trois mêmes."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an intact grain · oats, barley, quinoa and whole-grain rice all count here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une céréale complète · avoine, orge, quinoa et riz complet comptent tous ici."
+          }
+        }
+      }
+    },
+    "scoreT.digestion.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the skins on where you can · much of a vegetable's fibre sits just under them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gardez la peau quand c’est possible · une bonne part des fibres d’un légume se trouve juste dessous."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap a refined grain for an intact one · brown rice, whole-grain bread, oats."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacez une céréale raffinée par une céréale complète · riz complet, pain complet, avoine."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add lentils or beans · they raise the fibre-to-carbohydrate ratio directly."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des lentilles ou des haricots · ils augmentent directement le rapport fibres/glucides."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eat fruit whole rather than as juice · the fibre stays in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mangez les fruits entiers plutôt qu’en jus · les fibres restent."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add vegetables alongside a starch · more fibre, little extra carbohydrate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des légumes à côté d’un féculent · plus de fibres, peu de glucides en plus."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace a sweetened drink with water or unsweetened tea · the single largest move on this score."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacez une boisson sucrée par de l’eau ou un thé non sucré · le geste qui pèse le plus sur ce score."
+          }
+        }
+      }
+    },
+    "scoreT.glycemic.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an unsweetened breakfast · sweetened cereals and spreads weigh most here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un petit-déjeuner non sucré · céréales et pâtes à tartiner sucrées pèsent le plus ici."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cook with olive or rapeseed oil rather than a hard cooking fat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuisinez à l’huile d’olive ou de colza plutôt qu’avec une matière grasse solide."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add nuts, seeds or avocado · they lift this score even though they add fat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des noix, des graines ou de l’avocat · ils font monter ce score même s’ils ajoutent des graisses."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose oily fish once or twice this week · salmon, sardines, mackerel."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un poisson gras une ou deux fois cette semaine · saumon, sardines, maquereau."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap a cured or processed meat for fresh fish, meat or a legume."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacez une charcuterie ou viande transformée par du poisson frais, de la viande fraîche ou une légumineuse."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bake, roast or grill instead of deep-frying · the fat source changes, not just the amount."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuisez au four, rôtissez ou grillez plutôt que de frire · c’est la source de graisse qui change, pas seulement la quantité."
+          }
+        }
+      }
+    },
+    "scoreT.inflammation.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where a meal leans on cheese or cream, let a whole-food fat carry some of it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand un repas repose sur le fromage ou la crème, laissez une graisse non transformée en porter une partie."
+          }
+        }
+      }
+    },
+    "scoreX.avg.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average appears here.\nLog meals to build it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours apparaîtra ici.\nEnregistrez des repas pour la construire."
+          }
+        }
+      }
+    },
+    "scoreX.avg.excelling": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're excelling."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous excellez."
+          }
+        }
+      }
+    },
+    "scoreX.avg.higher": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher = better."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus haut = mieux."
+          }
+        }
+      }
+    },
+    "scoreX.avg.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your 7-day average · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre moyenne sur 7 jours · %@"
+          }
+        }
+      }
+    },
+    "scoreX.avg.onTrack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're on track."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes sur la bonne voie."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.congrats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A fibre-rich plate drawing on several different plants."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une assiette riche en fibres, élaborée à partir de plusieurs plantes différentes."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One plant food only"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un seul aliment végétal"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refined grains"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Céréales raffinées"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No vegetables recorded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun légume enregistré"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plants as a garnish"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les végétaux en guise de garniture"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.science": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fibre intake across populations is consistently associated with better long-term outcomes; the WHO-commissioned Reynolds 2019 review of 185 studies found the clearest benefits at 25-29 g a day. This score describes the food, not your digestion or gut health."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La consommation de fibres au sein des différentes populations est systématiquement associée à de meilleurs résultats à long terme ; l’étude de synthèse réalisée en 2019 par Reynolds à la demande de l’OMS, portant sur 185 études, a mis en évidence les bienfaits les plus marqués à raison de 25 à 29 g par jour. Ce score concerne l’alimentation, et non votre digestion ni votre santé intestinale."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much fibre and plant variety this meal contains."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle quantité de fibres et quelle variété de plantes ce repas contient-il ?"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.tip0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add one more vegetable rather than more of the same one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez un légume supplémentaire plutôt que d'en rajouter du même."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.tip1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add lentils, chickpeas or beans · they lift fibre and plant count together."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des lentilles, des pois chiches ou des haricots : ils permettent d'augmenter à la fois l'apport en fibres et la part de végétaux dans votre alimentation."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.tip2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scatter nuts or seeds over what you already made."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parsemez de noix ou de graines ce que vous venez de préparer."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legumes & pulses"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumes secs et légumineuses"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several different vegetables"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plusieurs légumes différents"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole grains"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Céréales complètes"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuts & seeds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix et graines"
+          }
+        }
+      }
+    },
+    "scoreX.digestion.whatItIs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score describes two things about the meal you recorded: how much fibre it contains, and how many different plant foods contributed. Vegetables, fruit, legumes, whole grains, nuts and seeds each bring different fibres, so variety counts alongside the total."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score fournit deux informations sur le repas que vous avez enregistré : sa teneur en fibres et le nombre d'aliments végétaux différents qui y ont contribué. Les légumes, les fruits, les légumineuses, les céréales complètes, les fruits à coque et les graines apportent chacun des fibres différentes ; la variété est donc tout aussi importante que la quantité totale."
+          }
+        }
+      }
+    },
+    "scoreX.digestion.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most meals draw their fibre from one or two foods. Adding a third or fourth plant is usually the easiest change to make."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La plupart des repas tirent leurs fibres d'un ou deux aliments. Ajouter un troisième ou un quatrième végétal est généralement le changement le plus facile à mettre en œuvre."
+          }
+        }
+      }
+    },
+    "scoreX.excellent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Excellent"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Excellent"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.congrats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The carbohydrate here arrives largely with its fibre intact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ici, les glucides arrivent en grande partie avec leurs fibres intactes."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole grains"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Céréales complètes"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legumes & pulses"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Légumes secs et légumineuses"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole fruit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fruit entier"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vegetables alongside a starch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des légumes accompagnés d'un féculent"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.science": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A food carrying at least 1 g of fibre per 10 g of carbohydrate is behaving like an intact whole food · the widely used 10:1 rule. This is a food-composition estimate, not a measurement or prediction of your individual blood glucose response."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un aliment contenant au moins 1 g de fibres pour 10 g de glucides se comporte comme un aliment complet et non transformé · c’est ce qu’on appelle la règle du 10 :1, largement répandue. Il s’agit d’une estimation de la composition alimentaire, et non d’une mesure ou d’une prévision de votre réponse glycémique individuelle."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much of the carbohydrate arrives with its fibre intact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle proportion des glucides est absorbée avec ses fibres intactes ?"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.tip0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an intact grain: whole-grain bread, brown rice, oats."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez des céréales complètes : pain complet, riz complet, avoine."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.tip1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a legume to raise the fibre-to-carbohydrate ratio directly."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez un légume sec pour augmenter directement le rapport fibres/glucides."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.tip2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eat fruit whole rather than as juice."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mangez les fruits entiers plutôt que sous forme de jus."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "White bread & rice"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pain blanc et riz"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweetened drinks & juice"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boissons sucrées et jus de fruits"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confectionery"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confiserie"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refined, low-fibre foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments raffinés et pauvres en fibres"
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.whatItIs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score describes the FORM the carbohydrate took: the ratio of fibre to carbohydrate, how much came from intact sources, and an estimate of sugar from sweetened foods. Sugar inside whole fruit, vegetables and plain dairy is not counted against the meal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score décrit la FORME sous laquelle les glucides ont été consommés : le rapport entre les fibres et les glucides, la part provenant de sources intactes, ainsi qu'une estimation de la quantité de sucre issue des aliments sucrés. Le sucre présent dans les fruits entiers, les légumes et les produits laitiers nature n'est pas compté contre le repas."
+          }
+        }
+      }
+    },
+    "scoreX.glycemic.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intact carbohydrate sources · whole grains, legumes, whole fruit · carry their fibre with them. Refined flour and sweetened drinks largely do not."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sources de glucides non transformées · céréales complètes, légumineuses, fruits entiers · conservent leurs fibres. Ce n'est généralement pas le cas de la farine raffinée et des boissons sucrées."
+          }
+        }
+      }
+    },
+    "scoreX.impact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ impact"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impact · %@"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.congrats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The fat in this meal comes mostly from whole-food sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les matières grasses contenues dans ce repas proviennent principalement d'aliments non transformés."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.down0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olive & rapeseed oil"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Huile d'olive et huile de colza"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.down1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuts, seeds & avocado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noix, graines et avocat"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.down2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oily fish"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poissons gras"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.down3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fresh whole foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments frais et non transformés"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.science": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PREDIMED randomised participants to a Mediterranean diet with extra olive oil or nuts against a low-fat control, and the higher-fat arms fared better · evidence that fat source matters more than fat quantity. This score describes the meal, not your cholesterol or cardiovascular risk."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'étude PREDIMED a réparti de manière aléatoire les participants entre un régime méditerranéen enrichi en huile d'olive ou en fruits à coque et un groupe témoin suivant un régime pauvre en graisses ; les groupes ayant consommé davantage de graisses ont obtenu de meilleurs résultats, ce qui démontre que la source des graisses importe davantage que leur quantité. Ce score évalue le repas, et non votre taux de cholestérol ou votre risque cardiovasculaire."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where the fat in this meal comes from · the sources, not the amount."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’où proviennent les graisses contenues dans ce repas · les sources, et non la quantité."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.tip0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cook with olive or rapeseed oil rather than a hard cooking fat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparez vos plats avec de l'huile d'olive ou de colza plutôt qu'avec une matière grasse solide."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.tip1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add nuts, seeds or avocado · they raise this score even though they raise total fat."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez des noix, des graines ou de l'avocat : ils améliorent ce score même s'ils augmentent la teneur totale en matières grasses."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.tip2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose oily fish once or twice a week for the omega-3 contribution."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optez pour du poisson gras une à deux fois par semaine afin d'apporter des oméga-3 à votre alimentation."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.up0": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deep-fried foods"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments frits"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.up1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cured & processed meats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charcuterie et viandes transformées"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.up2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confectionery"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confiserie"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.up3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hard cooking fats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graisses solides destinées à la cuisson"
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.whatItIs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This score describes which foods the fat in the meal came from, and what kind of fat they carry. Total fat is deliberately excluded: a handful of walnuts is almost entirely fat and scores well, while a low-fat biscuit does not. The question is what kind, not how much."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce score indique d'où proviennent les graisses contenues dans le repas et de quel type de graisses il s'agit. Les graisses totales sont délibérément exclues : une poignée de noix, qui est presque entièrement composée de graisses, obtient un bon score, tandis qu'un biscuit allégé n'en obtient pas. Ce qui importe, c'est le type de graisse, et non la quantité."
+          }
+        }
+      }
+    },
+    "scoreX.inflammation.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fat quality moves with the sources on the plate rather than the total. Meals built around olive oil, nuts and oily fish sit at the top of this range."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La qualité des graisses dépend davantage de la provenance des aliments présents dans l'assiette que de leur quantité totale. Les repas à base d'huile d'olive, de fruits à coque et de poissons gras se situent dans le haut de cette fourchette."
+          }
+        }
+      }
+    },
+    "scoreX.keepItUp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep it up"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuez comme ça"
+          }
+        }
+      }
+    },
+    "scoreX.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Meal score"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ Score du repas"
+          }
+        }
+      }
+    },
+    "scoreX.liftsIt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifts it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le fait monter"
+          }
+        }
+      }
+    },
+    "scoreX.limitsIt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limits it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le limite"
+          }
+        }
+      }
+    },
+    "scoreX.makeBetter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make it even better"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encore mieux"
+          }
+        }
+      }
+    },
+    "scoreX.noticed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we've noticed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous avons remarqué"
+          }
+        }
+      }
+    },
+    "scoreX.science.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Understand the science →"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprendre la science →"
+          }
+        }
+      }
+    },
+    "scoreX.theScience": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The science"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La science"
+          }
+        }
+      }
+    },
+    "scoreX.thisMeal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This meal · %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce repas · %lld"
+          }
+        }
+      }
+    },
+    "scoreX.trend.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough scored meals yet · your 14-day trend builds as you log."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore assez de repas notés · votre tendance sur 14 jours se construit au fil de vos enregistrements."
+          }
+        }
+      }
+    },
+    "scoreX.trend14": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your trend · 14 days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre tendance · 14 jours"
+          }
+        }
+      }
+    },
+    "scoreX.trending.down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trending down ↓"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en baisse ↓"
+          }
+        }
+      }
+    },
+    "scoreX.trending.flat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trending steady →"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "stable →"
+          }
+        }
+      }
+    },
+    "scoreX.trending.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "building your baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "construction de votre référence"
+          }
+        }
+      }
+    },
+    "scoreX.trending.up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trending up ↑"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en hausse ↑"
+          }
+        }
+      }
+    },
+    "scoreX.whatItIs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it is"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que c’est"
+          }
+        }
+      }
+    },
+    "scoreX.whatMoves": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What moves it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui le fait bouger"
+          }
+        }
+      }
+    },
+    "scoreX.whyForYou": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why it matters for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pourquoi c’est important pour vous"
           }
         }
       }

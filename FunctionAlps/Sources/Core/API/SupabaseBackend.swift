@@ -203,6 +203,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return row?.model
     }
 
+    private struct PatternRow: Decodable, Sendable {
+        let kind: String?; let subject: String?; let reaction: String?; let direction: String?
+        let effect: Double?; let nObs: Int?; let consistency: Double?; let tier: String?
+    }
+
+    func userPatterns(patientId: String) async throws -> [UserPattern] {
+        let rows: [PatternRow] = try await rest.select("nb_user_patterns", query: [
+            PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier"),
+            PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24),
+        ])
+        return rows.map {
+            UserPattern(kind: $0.kind ?? "pattern", subject: $0.subject ?? "", reaction: $0.reaction ?? "", direction: $0.direction ?? "worse",
+                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint")
+        }
+    }
+
     /// The `record` of a `postgres_changes` UPDATE is the whole new row in PostgREST's own JSON shape, so the
     /// same `MealRow` decoder reads it. Topic `meal-<id>`, filter `id=eq.<id>` — the Expo channel, verbatim.
     func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription {

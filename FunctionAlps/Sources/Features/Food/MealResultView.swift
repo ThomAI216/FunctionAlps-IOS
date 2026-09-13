@@ -247,29 +247,10 @@ struct MealScoresRow: View {
                 .padding(.horizontal, 10).padding(.bottom, 14)
         }
         .sheet(item: $explaining) { kind in
-            ScoreExplainerSheet(kind: kind, value: kind.value(in: scores))
-                .presentationDetents([.medium])
+            ScoreExplainerView(kind: kind, mealScore: kind.value(in: scores))
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
 }
 
-/// What is driving one score, in plain words.
-struct ScoreExplainerSheet: View {
-    let kind: MealScoreKind
-    let value: Int
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        VStack(spacing: FASpacing.md) {
-            ScoreWheel(value: value, color: kind.color, size: 84)
-            Text(kind.title).font(FATypography.display(22, relativeTo: .title2)).foregroundStyle(FAColor.ink)
-            Text(kind.verdict(value)).font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.inkSecondary).multilineTextAlignment(.center)
-            Text(String(localized: "meal.score.foodOnly", defaultValue: "This describes the food on the plate, not your body. It changes only when the plate changes."))
-                .font(FATypography.sans(12, relativeTo: .footnote)).foregroundStyle(FAColor.inkMuted).multilineTextAlignment(.center)
-            FAButton(title: String(localized: "action.done", defaultValue: "Done")) { dismiss() }
-        }
-        .padding(FASpacing.lg)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FAColor.warm)
-    }
-}

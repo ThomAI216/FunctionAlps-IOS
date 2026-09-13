@@ -63,6 +63,11 @@ struct MealService: Sendable {
     }
 
     /// How the meal felt afterwards, when the member rated it (`nb_meal_reactions`).
+    /// The pattern engine's rows for the score explainers. Never throws: no patterns reads as none yet.
+    func patterns(patientId: String) async -> [UserPattern] {
+        (try? await backend.userPatterns(patientId: patientId)) ?? []
+    }
+
     /// The live channel for one row — see `MealWatcher`, which owns the read/subscribe/poll choreography.
     func subscribe(mealId: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription {
         backend.subscribeMeal(id: mealId, onRow: onRow, onLifecycle: onLifecycle)
