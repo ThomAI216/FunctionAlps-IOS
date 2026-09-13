@@ -35,6 +35,11 @@ struct ProfileService: Sendable {
         return try? await backend.memberProfile(patientId: patientId)
     }
 
+    /// The practice's record for the baseline prefill — fail-soft: unreadable means "ask them", never a broken screen.
+    func intakeBaseline(patientId: String) async -> IntakeBaselineRead? {
+        try? await backend.intakeBaseline(patientId: patientId)
+    }
+
     /// The last onboarding screen's stamp (`onboarding_completed_at` + `onboarding_source='app_baseline'`).
     /// Returns the timestamp CM OS now holds — the gate trusts the row, never a local flag.
     func completeOnboarding(patientId: String) async throws -> Date {

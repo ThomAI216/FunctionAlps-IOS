@@ -874,6 +874,44 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return raw?.trimmingCharacters(in: .whitespacesAndNewlines) == "true"
     }
 
+    /// The Expo `readIntakeBaseline`: only the four baseline answers, the submission date and the DOB leave the
+    /// row — data minimisation at the boundary, because the ~81-key `answers` blob is Art. 9 health data that must
+    /// never reach a model, a log or a prompt. Both reads are the member's own session under RLS; either failing
+    /// alone still returns what the other found, both failing returns nil ("ask them").
+    func intakeBaseline(patientId: String) async throws -> IntakeBaselineRead? {
+        /// The questionnaire stores free text against a picker; a number typed as a number must not break the read.
+        struct Loose: Decodable, Sendable {
+            let value: String?
+            init(from decoder: any Decoder) throws {
+                let c = try decoder.singleValueContainer()
+                if let s = try? c.decode(String.self) { value = s }
+                else if let i = try? c.decode(Int.self) { value = String(i) }
+                else if let d = try? c.decode(Double.self) { value = String(d) }
+                else { value = nil }
+            }
+        }
+        struct Answers: Decodable, Sendable { let gender: Loose?; let heightCm: Loose?; let weightNow: Loose?; let activity: Loose? }
+        struct IntakeRow: Decodable, Sendable { let answers: Answers?; let submittedAt: String?; let updatedAt: String? }
+        struct PatientRow: Decodable, Sendable { let dateOfBirth: String? }
+        async let intake: IntakeRow? = rest.selectOne("patient_intake_questionnaire", query: [
+            PG.select("answers,submitted_at,updated_at"),
+            PG.eq("patient_id", patientId),
+            URLQueryItem(name: "order", value: "submitted_at.desc.nullslast"),
+        ])
+        async let patient: PatientRow? = rest.selectOne("patients", query: [PG.select("date_of_birth"), PG.eq("id", patientId)])
+        let row = try? await intake
+        let dob = (try? await patient)?.dateOfBirth
+        guard row != nil || dob != nil else { return nil }
+        return IntakeBaselineRead(
+            gender: row?.answers?.gender?.value,
+            heightCm: row?.answers?.heightCm?.value,
+            weightNow: row?.answers?.weightNow?.value,
+            activity: row?.answers?.activity?.value,
+            capturedOn: row?.submittedAt ?? row?.updatedAt,
+            dateOfBirth: dob
+        )
+    }
+
     // MARK: Gut check-in (patient_daily_checkins gut_* · nb_checkin_events)
 
     private struct GutDayRow: Decodable, Sendable {

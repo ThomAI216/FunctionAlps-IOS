@@ -55,6 +55,13 @@ final class OnboardingModel {
     var stamping = false
     var stampFailed = false
     var stamped = false
+    /// What we hold for this person (own profile + the practice's intake), once the read lands (the Expo `useBaselinePrefill`).
+    var prefill: BaselinePrefill?
+    /// Frozen the moment the read lands: the sentence describes what we FOUND and must not rewrite itself while they type.
+    var banner: PrefillCopy.Banner?
+    private var prefillStarted = false
+    /// All five were already in the draft when the flow opened — the title says "confirm", not "understand".
+    private(set) var knownAtOpen = false
 
     private let profile: ProfileService
     private let checkins: CheckinService
@@ -77,6 +84,7 @@ final class OnboardingModel {
             d.activity = p.activityLevel
         }
         self.draft = d
+        self.knownAtOpen = d.sex != nil && !d.age.isEmpty && !d.height.isEmpty && !d.weight.isEmpty && d.activity != nil
         // Resume at the high-water mark: every step up to it, minus the two the welcome skipped.
         self.path = OnboardingStep.allCases
             .filter { $0.rawValue >= 2 && $0.rawValue <= d.step }
@@ -131,6 +139,55 @@ final class OnboardingModel {
     }
 
     var values: BaselineValues? { BaselineLogic.resolve(sex: sex, age: draft.age, height: draft.height, weight: draft.weight, activity: activity) }
+
+    // MARK: Prefill (the practice's record — the Expo `useBaselinePrefill` + `prefill-copy`)
+
+    /// Reads both sources once and drops what we found into the fields still EMPTY — never over an answer already
+    /// on screen: the member's own typing outranks both sources, and a value that changes under a cursor is worse
+    /// than a blank. Starts when the baseline screen opens; the form is fully usable meanwhile and stays usable if
+    /// the read fails, because the feature is "don't ask twice", not "can't ask at all".
+    func loadPrefill() async {
+        guard !prefillStarted else { return }
+        prefillStarted = true
+        let read = await profile.intakeBaseline(patientId: member.patientId)
+        let merged = IntakeBaselineLogic.merge(
+            profile: IntakeBaselineLogic.partial(fromProfile: member.profile),
+            intake: IntakeBaselineLogic.baseline(from: read),
+            capturedOn: read?.capturedOn
+        )
+        prefill = merged
+        if draft.sex == nil, let s = merged.values.sex { draft.sex = s.rawValue }
+        if draft.age.trimmingCharacters(in: .whitespaces).isEmpty, let a = merged.values.age { draft.age = "\(a)" }
+        if draft.height.trimmingCharacters(in: .whitespaces).isEmpty, let h = merged.values.heightCm { draft.height = Self.format(h) }
+        if draft.weight.trimmingCharacters(in: .whitespaces).isEmpty, let w = merged.values.weightKg { draft.weight = Self.format(w) }
+        if draft.activity == nil, let a = merged.values.activity { draft.activity = a.rawValue }
+        persist()
+        if merged.showsBanner { banner = PrefillCopy.banner(known: merged.fromRecord, missing: merged.missing, capturedOn: merged.capturedOn) }
+    }
+
+    enum FieldChip: Equatable { case known, needed }
+
+    /// Chips only appear in the partly-known state. A field the member themselves answered gets none: "from your
+    /// record" would be a false claim, and a value they typed needs no explanation.
+    func chip(for field: BaselineField) -> FieldChip? {
+        guard banner != nil, let prefill else { return nil }
+        if prefill.fromRecord.contains(field) { return .known }
+        if prefill.origins[field] != nil { return nil }
+        return .needed
+    }
+
+    var baselineTitle: String {
+        if let banner { return banner.title }
+        return knownAtOpen
+            ? String(localized: "ob.baseline.title.confirm", defaultValue: "Let's confirm your baseline.")
+            : String(localized: "ob.baseline.title", defaultValue: "Let's understand your baseline.")
+    }
+
+    /// Under a prefilled weight: dated, with an invitation to change it.
+    var weightNote: String? {
+        guard banner != nil, let prefill, prefill.fromRecord.contains(.weightKg) else { return nil }
+        return PrefillCopy.weightRecordedNote(prefill.capturedOn)
+    }
 
     /// The one write, once all five are known. A failed write never costs an answer — the draft holds them.
     func saveActivity() async {
@@ -237,45 +294,53 @@ private struct OBBaselineScreen: View {
     @Bindable var model: OnboardingModel
     @FocusState private var focus: String?
 
-    private var hadValues: Bool { model.member.profile?.age != nil || model.member.profile?.heightCm != nil }
-
     var body: some View {
         OnboardingScaffold(
             step: .baseline,
             eyebrow: String(localized: "ob.baseline.eyebrow", defaultValue: "Your baseline"),
-            title: Text(hadValues
-                ? String(localized: "ob.baseline.title.confirm", defaultValue: "Let's confirm your baseline.")
-                : String(localized: "ob.baseline.title", defaultValue: "Let's understand your baseline.")),
+            title: Text(model.baselineTitle),
             onBack: { model.back() },
             primary: String(localized: "action.continue", defaultValue: "Continue"),
             primaryEnabled: model.bodyOk,
             onPrimary: { focus = nil; model.advance(from: .baseline) },
             footnote: AnyView(Text(String(localized: "baseline.later", defaultValue: "You can update any of this later in your profile.")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).frame(maxWidth: .infinity))
         ) {
-            OBParagraph(String(localized: "baseline.intro1", defaultValue: "We’ll start with a few basic measurements to estimate how much energy your body typically needs each day.")).padding(.bottom, 8)
-            OBParagraph(String(localized: "baseline.intro2", defaultValue: "This gives us useful context when looking at your meals.")).padding(.bottom, 22)
+            if let banner = model.banner {
+                PrefillBanner(label: banner.bannerLabel, sentence: banner.sentence)
+            } else {
+                OBParagraph(String(localized: "baseline.intro1", defaultValue: "We’ll start with a few basic measurements to estimate how much energy your body typically needs each day.")).padding(.bottom, 8)
+                OBParagraph(String(localized: "baseline.intro2", defaultValue: "This gives us useful context when looking at your meals.")).padding(.bottom, 22)
+            }
 
-            field(String(localized: "baseline.age", defaultValue: "How old are you?"), error: model.touched.contains("age") ? BaselineLogic.ageError(model.draft.age) : nil) {
+            field(String(localized: "baseline.age", defaultValue: "How old are you?"), error: model.touched.contains("age") ? BaselineLogic.ageError(model.draft.age) : nil, chip: model.chip(for: .age)) {
                 numberInput($model.draft.age, id: "age", placeholder: "e.g. 42", suffix: String(localized: "baseline.years", defaultValue: "years"), decimal: false)
             }
-            field(String(localized: "baseline.sex", defaultValue: "Biological sex"), helper: String(localized: "baseline.sex.helper", defaultValue: "Used to estimate your energy requirements.")) {
+            field(String(localized: "baseline.sex", defaultValue: "Biological sex"), helper: String(localized: "baseline.sex.helper", defaultValue: "Used to estimate your energy requirements."), chip: model.chip(for: .sex)) {
                 HStack(spacing: 10) {
                     chip(String(localized: "baseline.female", defaultValue: "Female"), selected: model.sex == .female) { model.sex = .female }
                     chip(String(localized: "baseline.male", defaultValue: "Male"), selected: model.sex == .male) { model.sex = .male }
                 }
             }
-            field(String(localized: "profile.height", defaultValue: "Height"), error: model.touched.contains("height") ? BaselineLogic.heightError(model.draft.height) : nil) {
+            field(String(localized: "profile.height", defaultValue: "Height"), error: model.touched.contains("height") ? BaselineLogic.heightError(model.draft.height) : nil, chip: model.chip(for: .heightCm)) {
                 numberInput($model.draft.height, id: "height", placeholder: "e.g. 172", suffix: "cm", decimal: true)
             }
-            field(String(localized: "baseline.weight", defaultValue: "Current weight"), error: model.touched.contains("weight") ? BaselineLogic.weightError(model.draft.weight) : nil) {
+            field(String(localized: "baseline.weight", defaultValue: "Current weight"), error: model.touched.contains("weight") ? BaselineLogic.weightError(model.draft.weight) : nil, chip: model.chip(for: .weightKg)) {
                 numberInput($model.draft.weight, id: "weight", placeholder: "e.g. 68", suffix: "kg", decimal: true)
+                if let note = model.weightNote {
+                    Text(note).font(FATypography.sans(11.5, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted).padding(.top, -2)
+                }
             }
         }
+        // The read starts as the screen opens, so the copy they are reading absorbs the latency.
+        .task { await model.loadPrefill() }
     }
 
-    private func field<Content: View>(_ label: String, helper: String? = nil, error: String? = nil, @ViewBuilder content: () -> Content) -> some View {
+    private func field<Content: View>(_ label: String, helper: String? = nil, error: String? = nil, chip: OnboardingModel.FieldChip? = nil, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label).font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+            HStack(spacing: 7) {
+                Text(label).font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                if let chip { PrefillChip(chip: chip) }
+            }
             if let helper { Text(helper).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted) }
             content()
             if let error { Text(error).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.red) }
@@ -310,6 +375,44 @@ private struct OBBaselineScreen: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+/// The "we already have some of this" banner. Green, not amber: this is good news — we are asking for LESS than
+/// the screen normally would — and it must not read as a warning about missing data.
+private struct PrefillBanner: View {
+    let label: String
+    let sentence: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark").font(.system(size: 11, weight: .bold)).foregroundStyle(FAColor.forestSoft)
+                Text(label.uppercased()).font(FATypography.sans(10.5, .semibold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.forestSoft)
+            }
+            Text(sentence).font(FATypography.sans(13.5, relativeTo: .subheadline)).foregroundStyle(FAColor.ink).lineSpacing(6)
+        }
+        .padding(13)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ProfilePalette.accentSoft, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(FAColor.forestSoft, lineWidth: 1) }
+        .padding(.bottom, 22)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// A small marker next to a field label: where its value came from, or that it still needs one.
+private struct PrefillChip: View {
+    let chip: OnboardingModel.FieldChip
+
+    var body: some View {
+        let known = chip == .known
+        Text((known ? PrefillCopy.chipKnown : PrefillCopy.chipNeeded).uppercased())
+            .font(FATypography.sans(9.5, .semibold, relativeTo: .caption2)).tracking(0.7)
+            .foregroundStyle(known ? FAColor.forestSoft : FAColor.goldSoft)
+            .padding(.horizontal, 7).padding(.vertical, 2)
+            .background(known ? ProfilePalette.accentSoft : FAColor.goldSoft.opacity(0.14), in: Capsule())
+            .overlay { Capsule().strokeBorder(known ? FAColor.forestSoft : FAColor.goldSoft, lineWidth: 1) }
     }
 }
 
