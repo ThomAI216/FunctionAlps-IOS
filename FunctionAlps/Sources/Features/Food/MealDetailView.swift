@@ -24,7 +24,7 @@ struct MealDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             if model == nil {
-                let m = MealDetailViewModel(mealId: mealId, meals: dependencies.meals, auth: dependencies.auth)
+                let m = MealDetailViewModel(mealId: mealId, meals: dependencies.meals, members: dependencies.members, auth: dependencies.auth)
                 model = m
                 await m.load()
             }
@@ -45,7 +45,8 @@ struct MealDetailView: View {
             }
         case .empty:
             FAErrorState(title: String(localized: "meal.missing.title", defaultValue: "Meal not found"), message: String(localized: "meal.missing.message", defaultValue: "It may have been deleted."), retryTitle: nil, retry: nil)
-        case .loaded(let meal):
+        case .loaded(let loaded):
+            let meal = model.edit.display(loaded)
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     backRow(meal)
@@ -53,12 +54,17 @@ struct MealDetailView: View {
                     MacroLine(kcal: meal.totalCalories, protein: meal.totalProteinG, carbs: meal.totalCarbsG, fat: meal.totalFatG)
                         .padding(.top, 14)
                     if meal.status != .complete { statusCard(meal).padding(.top, 14) }
-                    if !meal.items.isEmpty { ingredients(meal) }
+                    if model.edit.editing {
+                        MealItemsEditor(model: model.edit).padding(.top, 18)
+                    } else if !meal.items.isEmpty {
+                        ingredients(meal)
+                        MealAdjustBar(model: model.edit)
+                    }
                     Button { rating = true } label: { feltSection(model.reaction) }
                         .buttonStyle(.plain)
                         .accessibilityHint(String(localized: "meal.felt.hint", defaultValue: "Rate how this meal felt"))
                     noteCard(meal, model).padding(.top, 16)
-                    if let scores = meal.scores { scoreCards(scores) }
+                    if let scores = meal.scores, !model.edit.editing { scoreCards(scores).opacity(model.edit.reanalyzing ? 0.4 : 1) }
                     FAButton(title: String(localized: "meal.delete", defaultValue: "Delete this meal"), style: .destructive, isLoading: model.isDeleting) {
                         confirmDelete = true
                     }
@@ -68,6 +74,13 @@ struct MealDetailView: View {
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load() }
+            .overlay(alignment: .bottom) {
+                if let food = model.edit.learnedFood {
+                    LearnedToast(food: food) { model.edit.learnedFood = nil }
+                        .padding(.horizontal, 16).padding(.bottom, FASpacing.navBarClearance)
+                }
+            }
+            .animation(.spring(duration: 0.35, bounce: 0.15), value: model.edit.learnedFood)
             .confirmationDialog(String(localized: "meal.delete.confirm", defaultValue: "Delete this meal? This can't be undone."), isPresented: $confirmDelete, titleVisibility: .visible) {
                 Button(String(localized: "meal.delete", defaultValue: "Delete this meal"), role: .destructive) {
                     Task { if await model.delete() { dismiss() } }

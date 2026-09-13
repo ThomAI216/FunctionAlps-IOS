@@ -188,6 +188,43 @@ struct MealService: Sendable {
 
     // MARK: Edits
 
+    /// One `resolve-foods` round trip. Nil = transport / contract failure — the caller shows a retry. Never throws.
+    func resolvePricing(_ requests: [MealEdit.PricingRequest]) async -> [MealEdit.ResolvedPricing]? {
+        if requests.isEmpty { return [] }
+        do { return try await backend.resolveFoods(requests) } catch {
+            Log.data.error("resolve-foods: \(String(describing: error), privacy: .public)")
+            return nil
+        }
+    }
+
+    /// The edited meal back onto its row (name, foods, totals, micros, scores).
+    func updateAnalysis(mealId: String, draft: MealDraft) async throws {
+        try await backend.updateMealAnalysis(mealId: mealId, draft: draft)
+    }
+
+    /// Tier 0a, the learning loop: resolve the corrected name with the SAME ladder that prices meals, pin it to a
+    /// reference plane, refuse anything that would teach something false or empty, write. Never throws, never
+    /// logs the name. Returns whether a row was written or corroborated.
+    func learnCorrection(patientId: String, _ c: CorrectionOrigins.Correction) async -> Bool {
+        let key = FoodNameNormaliser.aliasKey(c.fromName)
+        guard !key.isEmpty, key != FoodNameNormaliser.aliasKey(c.toName) else { return false }
+        let grams = c.grams.flatMap { $0 > 0 ? Int($0.rounded()) : nil }
+        guard let resolved = await resolvePricing([MealEdit.PricingRequest(name: c.toName.trimmingCharacters(in: .whitespaces), grams: grams ?? 100)])?.first,
+              resolved.basis != nil, resolved.needsReview != true, let id = resolved.foodItemId,
+              let target = try? await backend.foodAliasTarget(foodItemId: id) else { return false }
+        // Aliasing a name to the food it ALREADY resolves to is a no-op that costs a row.
+        guard key != FoodNameNormaliser.aliasKey(target.name) else { return false }
+        let row: FoodAliasRow
+        switch target {
+        case .foodItem(let itemId, _): row = FoodAliasRow(patientId: patientId, aliasNorm: key, foodItemId: itemId, offCode: nil, gramsDefault: grams, source: "correction")
+        case .product(let code, _): row = FoodAliasRow(patientId: patientId, aliasNorm: key, foodItemId: nil, offCode: code, gramsDefault: grams, source: "correction")
+        }
+        do { _ = try await backend.upsertFoodAlias(row); return true } catch {
+            Log.data.error("food-alias: \(String(describing: error), privacy: .public)")
+            return false
+        }
+    }
+
     func updateNote(mealId: String, note: String?) async throws {
         try await backend.updateMealNote(mealId: mealId, note: Self.normalizeNote(note))
     }

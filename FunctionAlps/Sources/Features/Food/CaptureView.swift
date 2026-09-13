@@ -55,6 +55,10 @@ private struct AnalyzingScreen: View {
     private var done: Bool { model.status == .complete || model.status == .pricing }
 
     var body: some View {
+        Group {
+        if model.isReviewing, let review = model.review {
+            reviewScreen(review)
+        } else {
         GeometryReader { geo in
             let hero = min(geo.size.width - 36, (geo.size.height * 0.46).rounded())
             ScrollView {
@@ -91,6 +95,8 @@ private struct AnalyzingScreen: View {
                 .frame(maxWidth: .infinity)
             }
         }
+        }
+        }
         .overlay(alignment: .topLeading) {
             Button { onFinish() } label: {
                 Image(systemName: "xmark").font(.system(size: 14, weight: .semibold)).foregroundStyle(FAColor.charcoal)
@@ -107,6 +113,29 @@ private struct AnalyzingScreen: View {
                 tipIndex = tips.isEmpty ? 0 : Int.random(in: 0..<tips.count)
             }
         }
+    }
+
+    /// THE SAME SCREEN, deliberately: the plate shrinks to a thumbnail and the card takes the space the scan
+    /// animation had — no route change, so it reads as the scan finishing rather than as a new page.
+    private func reviewScreen(_ review: PhotoReviewModel) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 12) {
+                if let data = model.request.input.photos.first, let image = UIImage(data: data) {
+                    Image(uiImage: image).resizable().scaledToFill()
+                        .frame(width: 190, height: 190)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color(hex: 0x1A1A16, opacity: 0.08), lineWidth: 1) }
+                }
+                ColorCycleMark(size: 40)
+                Text(String(localized: "capture.reading", defaultValue: "Your plate, read.")).font(FATypography.display(20, relativeTo: .title3)).foregroundStyle(FAColor.charcoal)
+                PhotoPortionReviewCard(model: review) { model.confirmReview() }
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 52)
+            .padding(.bottom, 28)
+            .frame(maxWidth: .infinity)
+        }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private var title: String {
@@ -191,8 +220,10 @@ private struct MealResultPage: View {
     @Bindable var model: CaptureViewModel
     let onFinish: () -> Void
 
-    private var meal: MealLog? { model.latest }
+    private var meal: MealLog? { model.displayed }
     private var numbersReady: Bool { meal?.status == .complete && meal?.scores != nil }
+    private var editing: Bool { model.edit?.editing ?? false }
+    private var reanalyzing: Bool { model.edit?.reanalyzing ?? false }
     private var needsAttention: Bool { if case .attention = model.phase { return true } else { return false } }
 
     var body: some View {
@@ -208,21 +239,34 @@ private struct MealResultPage: View {
                 )
                 if needsAttention, let meal {
                     attention(meal)
+                } else if editing, let edit = model.edit {
+                    MealItemsEditor(model: edit)
                 } else if let meal, !meal.items.isEmpty {
-                    MealItemRows(items: meal.items, numbersReady: numbersReady)
+                    MealItemRows(items: meal.items, numbersReady: numbersReady && !reanalyzing)
                     if numbersReady { FlagLegend(flags: FoodFlag.flags(in: meal.items)) }
+                    if let edit = model.edit { MealAdjustBar(model: edit) }
                 }
-                if numbersReady, let scores = meal?.scores {
-                    MealScoresRow(scores: scores)
+                if numbersReady, !editing, let scores = meal?.scores {
+                    MealScoresRow(scores: scores).opacity(reanalyzing ? 0.4 : 1)
                 }
-                FAButton(title: String(localized: "capture.goHome", defaultValue: "Go back to home")) { onFinish() }
-                    .padding(.top, numbersReady ? 0 : 16)
+                FAButton(title: String(localized: "capture.goHome", defaultValue: "Go back to home")) {
+                    model.edit?.persistOnExit()
+                    onFinish()
+                }
+                .padding(.top, numbersReady ? 0 : 16)
             }
             .padding(.horizontal, 18)
             .padding(.top, 24)
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .scrollDismissesKeyboard(.interactively)
+        .overlay(alignment: .bottom) {
+            if let food = model.edit?.learnedFood {
+                LearnedToast(food: food) { model.edit?.learnedFood = nil }
+                    .padding(.horizontal, 16).padding(.bottom, 24)
+            }
+        }
+        .animation(.spring(duration: 0.35, bounce: 0.15), value: model.edit?.learnedFood)
     }
 
     /// The last tier of the pipeline, and the one that makes it a 100 % pipeline rather than an 86 % one: ASK THE

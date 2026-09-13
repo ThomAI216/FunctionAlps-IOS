@@ -10,16 +10,19 @@ final class MealDetailViewModel {
     var isDeleting = false
     var errorMessage: String?
     private(set) var reaction: MealReaction?
+    /// Corrections, days later — the same editor as the capture page.
+    let edit: MealEditModel
 
     private let mealId: String
     private let meals: MealService
     private let auth: AuthService
     private var watchTask: Task<Void, Never>?
 
-    init(mealId: String, meals: MealService, auth: AuthService) {
+    init(mealId: String, meals: MealService, members: MemberService, auth: AuthService) {
         self.mealId = mealId
         self.meals = meals
         self.auth = auth
+        edit = MealEditModel(mealId: mealId, meals: meals, members: members)
     }
 
     func load() async {
@@ -29,6 +32,7 @@ final class MealDetailViewModel {
                 return
             }
             state = .loaded(meal)
+            edit.adopt(meal)
             noteDraft = meal.patientNote ?? ""
             reaction = await meals.reaction(mealId: mealId)
             if meal.status.isWorking { watch() }
@@ -50,6 +54,7 @@ final class MealDetailViewModel {
                 guard let self, !Task.isCancelled else { return }
                 if let meal = try? await meals.meal(id: mealId) {
                     state = .loaded(meal)
+                    edit.adopt(meal)
                     if meal.status.isTerminal { break }
                 }
             }
@@ -90,5 +95,5 @@ final class MealDetailViewModel {
         return false
     }
 
-    func cancel() { watchTask?.cancel(); watchTask = nil }
+    func cancel() { edit.persistOnExit(); watchTask?.cancel(); watchTask = nil }
 }

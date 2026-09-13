@@ -10,6 +10,9 @@ final class CaptureViewModel {
         case starting
         case working(MealLog.AnalysisStatus)
         case done(MealLog)
+        /// The photo flow's mid-flight confirmation: the model was unsure, so the portions are checked ON THIS
+        /// SCREEN before the final page (the Expo `PhotoPortionReview`).
+        case review(MealLog, PhotoReview.Reason)
         /// `needs_input` or `failed`: the member can add words and try again, or keep the row.
         case attention(MealLog)
         /// The interactive window closed; the server-side worker finishes the row later.
@@ -26,6 +29,11 @@ final class CaptureViewModel {
     let describe: MealDictationModel
     private(set) var submitting = false
     var submitError: String?
+    /// Post-analysis corrections — exists from the moment the row does.
+    private(set) var edit: MealEditModel?
+    /// The portion review, while it is up.
+    private(set) var review: PhotoReviewModel?
+    private var reviewDone = false
     private(set) var mealId: String?
     /// The row as last read — the screen renders the row's truth, never the client's guess.
     private(set) var latest: MealLog?
@@ -72,6 +80,7 @@ final class CaptureViewModel {
 
     private func rowCreated(_ id: String) {
         mealId = id
+        edit = MealEditModel(mealId: id, meals: meals, members: members)
         phase = .working(.queued)
         watch(id)
     }
@@ -98,9 +107,38 @@ final class CaptureViewModel {
     private func apply(_ meal: MealLog) {
         latest = meal
         switch meal.status {
-        case .complete: phase = .done(meal)
+        case .complete:
+            // A complete photo meal the model was unsure about stops here first, once. It waits for `complete`
+            // rather than `pricing` so each portion is shown NEXT TO ITS CALORIES.
+            if !reviewDone, !request.input.photos.isEmpty, review == nil, let reason = PhotoReview.reason(for: meal), let draft = MealDraft(meal: meal) {
+                review = PhotoReviewModel(draft: draft, reason: reason, meals: meals)
+                phase = .review(meal, reason)
+                return
+            }
+            edit?.adopt(meal)
+            phase = .done(meal)
         case .needsInput, .failed: phase = .attention(meal)
         case .queued, .identifying, .pricing: phase = .working(meal.status)
+        }
+    }
+
+    /// The member answered the review: their edited, priced meal is what the final page gets — and the row.
+    func confirmReview() {
+        guard case .review(let meal, _) = phase, let review else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            let draft = await review.confirm()
+            if review.changed {
+                do { try await meals.updateAnalysis(mealId: meal.id, draft: draft) } catch {
+                    Log.data.error("meal.review.persist: \(String(describing: error), privacy: .public)")
+                }
+            }
+            reviewDone = true
+            let shown = draft.applied(to: meal)
+            latest = shown
+            edit?.replace(with: draft)
+            self.review = nil
+            phase = .done(shown)
         }
     }
 
@@ -135,6 +173,7 @@ final class CaptureViewModel {
     }
 
     func cancel() {
+        edit?.persistOnExit()
         captureTask?.cancel()
         watchTask?.cancel()
     }
@@ -150,9 +189,14 @@ final class CaptureViewModel {
         switch phase {
         case .done, .attention: return true
         case .working(let s): return s == .pricing && !(latest?.items.isEmpty ?? true)
-        case .starting, .stillWorking, .failed: return false
+        case .starting, .stillWorking, .failed, .review: return false
         }
     }
+
+    var isReviewing: Bool { if case .review = phase { return true } else { return false } }
+
+    /// The row as the page renders it: the member's edits folded in.
+    var displayed: MealLog? { latest.map { edit?.display($0) ?? $0 } }
 
     var stepIndex: Int {
         switch phase {
@@ -164,7 +208,7 @@ final class CaptureViewModel {
             case .pricing: return 3
             default: return 3
             }
-        case .done: return 4
+        case .done, .review: return 4
         case .attention, .stillWorking, .failed: return 3
         }
     }

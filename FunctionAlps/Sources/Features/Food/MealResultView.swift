@@ -131,8 +131,12 @@ struct MealItemRow: View {
                     }
                 }
             }
-            if numbers {
-                (Text(item.kcal.map { "\(Int($0.rounded())) kcal" } ?? "· kcal").foregroundColor(FAColor.forestSoft).bold()
+            if item.needsReview {
+                // The resolver could not identify this food and answered with zeros — said out loud, never counted silently.
+                Text(String(localized: "meal.item.notCounted", defaultValue: "Not in our food database · not counted"))
+                    .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.goldSoft)
+            } else if numbers, let kcal = item.kcal {
+                (Text("\(Int(kcal.rounded())) kcal").foregroundColor(FAColor.forestSoft).bold()
                     + Text("  ·  ").foregroundColor(FAColor.inkSecondary)
                     + Text("P \(Int((item.proteinG ?? 0).rounded()))").foregroundColor(FAColor.protein).bold()
                     + Text("  ").foregroundColor(FAColor.inkSecondary)
