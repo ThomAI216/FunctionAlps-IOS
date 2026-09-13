@@ -25,6 +25,7 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func analyzeMeal(_ request: AnalyzeMealRequest) async throws {}
     func updateMealNote(mealId: String, note: String?) async throws {}
     func deleteMeal(id: String) async throws {}
+    func updateMealType(mealId: String, mealType: MealLog.MealType) async throws {}
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String { "stub/photo.jpg" }
     func mealPhotoURL(path: String) async throws -> URL { URL(string: "https://example.invalid/\(path)")! }
     func removeMealPhotos(paths: [String]) async throws {}

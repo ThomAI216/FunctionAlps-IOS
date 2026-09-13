@@ -38,6 +38,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     }
     func updateMealNote(mealId: String, note: String?) async throws { record("note"); lastNote = (mealId, note) }
     func deleteMeal(id: String) async throws { record("delete:\(id)") }
+    func updateMealType(mealId: String, mealType: MealLog.MealType) async throws { record("type:\(mealId):\(mealType.rawValue)") }
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String {
         record("upload:\(userId)")
         if uploadFails { throw AppError.server(status: 500) }

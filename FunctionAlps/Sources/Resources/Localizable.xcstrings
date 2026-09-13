@@ -3586,6 +3586,182 @@
         }
       }
     },
+    "day.analyzing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "analyzing…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "analyse…"
+          }
+        }
+      }
+    },
+    "day.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No photos to review."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune photo à vérifier."
+          }
+        }
+      }
+    },
+    "day.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read this photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lire cette photo"
+          }
+        }
+      }
+    },
+    "day.failed.kept": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn’t read this one. It’s kept in your log · add details or remove it there."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu lire celle-ci. Elle reste dans votre journal · ajoutez des détails ou retirez-la là-bas."
+          }
+        }
+      }
+    },
+    "day.save.analyzing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse…"
+          }
+        }
+      }
+    },
+    "day.save.many": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save all · \\(n) meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout enregistrer · %lld repas"
+          }
+        }
+      }
+    },
+    "day.save.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save all · 1 meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout enregistrer · 1 repas"
+          }
+        }
+      }
+    },
+    "day.save.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement…"
+          }
+        }
+      }
+    },
+    "day.stillWorking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos still being read finish on their own · no need to wait for them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les photos encore en cours de lecture se terminent d’elles-mêmes · inutile de les attendre."
+          }
+        }
+      }
+    },
+    "day.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the meal for each photo, then save them all."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez le repas pour chaque photo, puis enregistrez-les toutes."
+          }
+        }
+      }
+    },
+    "day.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre journée"
+          }
+        }
+      }
+    },
     "day.today": {
       "localizations": {
         "en": {
@@ -5182,6 +5358,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plus de %lld photos · enregistrez-les comme des repas séparés, ou choisissez-en moins pour un seul repas."
+          }
+        }
+      }
+    },
+    "food.grouping.wholeDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A whole day · set the meal for each photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une journée entière · choisissez le repas pour chaque photo"
           }
         }
       }

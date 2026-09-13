@@ -240,6 +240,20 @@ struct MealService: Sendable {
     }
 
     /// Photos first (best-effort), then the row. Deleting lives on meal detail only.
+    /// A row minted for a photo nobody will review (removed mid-flight, or the batch cancelled). Best effort.
+    func discard(id: String) async {
+        do { try await backend.deleteMeal(id: id) } catch {
+            Log.data.error("meal.discard: \(String(describing: error), privacy: .public)")
+        }
+    }
+
+    /// Best effort: a slot that fails to stick is corrected from the log later, never a blocked review.
+    func setMealType(id: String, _ type: MealLog.MealType) async {
+        do { try await backend.updateMealType(mealId: id, mealType: type) } catch {
+            Log.data.error("meal.setType: \(String(describing: error), privacy: .public)")
+        }
+    }
+
     func delete(_ meal: MealLog) async throws {
         if !meal.photoPaths.isEmpty {
             do { try await backend.removeMealPhotos(paths: meal.photoPaths) } catch {

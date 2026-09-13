@@ -21,6 +21,15 @@ final class MealCaptureCoordinator {
         let id = UUID()
         let photos: [Data]
     }
+    /// "A whole day": the review cover, while it is up.
+    var dayBatch: PhotoGroup?
+
+    /// A WHOLE DAY: every photo becomes its own row up front and the member sets the slot per photo.
+    func wholeDay(_ photos: [Data]) {
+        grouping = nil
+        guard !photos.isEmpty else { return }
+        dayBatch = PhotoGroup(photos: photos)
+    }
 
     func openPhotoChooser() { showPhotoSource = true }
 
@@ -120,12 +129,19 @@ struct MealCaptureHost: ViewModifier {
                     photos: group.photos,
                     onOneMeal: { coordinator.oneMeal(group.photos) },
                     onSeparateMeals: { coordinator.separateMeals(group.photos) },
+                    onWholeDay: { coordinator.wholeDay(group.photos) },
                     onCancel: { coordinator.grouping = nil }
                 )
-                .presentationDetents([.height(MealPhotoGrouping.oneMealAllowed(group.photos.count) ? 372 : 404)])
+                .presentationDetents([.height(MealPhotoGrouping.oneMealAllowed(group.photos.count) ? 428 : 460)])
                 .presentationBackground(.clear)
                 .presentationDragIndicator(.hidden)
                 .preferredColorScheme(.light)
+            }
+            .fullScreenCover(item: $coordinator.dayBatch) { batch in
+                DayReviewView(photos: batch.photos) {
+                    coordinator.dayBatch = nil
+                    onFinished()
+                }
             }
             .fullScreenCover(item: $coordinator.request) { request in
                 CaptureView(request: request) {
@@ -207,6 +223,7 @@ struct PhotoGroupingSheet: View {
     let photos: [Data]
     let onOneMeal: () -> Void
     let onSeparateMeals: () -> Void
+    var onWholeDay: () -> Void = {}
     let onCancel: () -> Void
 
     private var combinable: Bool { MealPhotoGrouping.oneMealAllowed(photos.count) }
@@ -248,6 +265,15 @@ struct PhotoGroupingSheet: View {
             }
             Button(action: onSeparateMeals) {
                 Text(String(localized: "food.grouping.separate", defaultValue: "Separate meals · one per photo"))
+                    .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                    .frame(maxWidth: .infinity).padding(.vertical, 12)
+                    .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1) }
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+            Button(action: onWholeDay) {
+                Text(String(localized: "food.grouping.wholeDay", defaultValue: "A whole day · set the meal for each photo"))
                     .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                     .frame(maxWidth: .infinity).padding(.vertical, 12)
                     .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))

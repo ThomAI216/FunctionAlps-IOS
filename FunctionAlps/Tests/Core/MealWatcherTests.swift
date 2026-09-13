@@ -163,3 +163,22 @@ struct SnakeKeysTests {
         #expect(SnakeKeys.normalise(["vitaminCMg": 1, "iron_mg": 2]) == ["vitamin_c_mg": 1, "iron_mg": 2])
     }
 }
+
+struct DayBatchTests {
+    @Test func slotsSpreadAcrossTheDayThenSnacks() {
+        #expect((0..<6).map(DayBatch.mealType(forIndex:)) == [.breakfast, .lunch, .dinner, .snack, .snack, .snack])
+    }
+
+    @Test func rowStatusMapsToTheCardVocabulary() {
+        func m(_ s: MealLog.AnalysisStatus) -> MealLog { MealLog(id: "x", loggedAt: Date(), analysisStatus: s) }
+        #expect(DayBatch.status(of: m(.queued)) == .analyzing && DayBatch.status(of: m(.pricing)) == .analyzing)
+        #expect(DayBatch.status(of: m(.complete)) == .done)
+        #expect(DayBatch.status(of: m(.needsInput)) == .error && DayBatch.status(of: m(.failed)) == .error)
+    }
+
+    @Test func onlyRowBackedPhotosCountAsSaved() {
+        var a = DayBatch.Item(jpeg: Data([1]), mealType: .lunch); a.mealId = "r1"; a.status = .analyzing
+        let b = DayBatch.Item(jpeg: Data([2]), mealType: .dinner)
+        #expect(DayBatch.saveable([a, b]) == 1)
+    }
+}

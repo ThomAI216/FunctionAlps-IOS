@@ -477,6 +477,11 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.delete("nb_meal_logs", query: [PG.eq("id", id)])
     }
 
+    private struct MealTypeBody: Encodable, Sendable { let mealType: String }
+    func updateMealType(mealId: String, mealType: MealLog.MealType) async throws {
+        try await rest.update("nb_meal_logs", query: [PG.eq("id", mealId)], body: MealTypeBody(mealType: mealType.rawValue))
+    }
+
     // MARK: Meal photos (storage bucket meal-images, folder = auth uid)
 
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String {

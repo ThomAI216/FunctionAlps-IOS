@@ -30,6 +30,8 @@ protocol FunctionAlpsBackend: Sendable {
     func preprocessMeal(transcript: String, mealType: String?, locale: String) async throws -> MealPreprocess
     func updateMealNote(mealId: String, note: String?) async throws
     func deleteMeal(id: String) async throws
+    /// The day review re-slots a photo after its row was minted with the slot the order guessed.
+    func updateMealType(mealId: String, mealType: MealLog.MealType) async throws
     /// Uploads a JPEG to the private bucket under the AUTH user's folder; returns the storage path.
     func uploadMealPhoto(userId: String, jpeg: Data) async throws -> String
     func mealPhotoURL(path: String) async throws -> URL
