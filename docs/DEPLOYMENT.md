@@ -166,11 +166,14 @@ syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use
      the client secret — unset means the webhook path stays closed (fail closed).
    - **WHOOP** — https://developer.whoop.com (self-serve). In the app's dashboard set the webhook URL above and
      enable events. The signature key is the client secret — no extra secret.
-   - **Polar** — https://admin.polaraccesslink.com (self-serve). Webhooks are one per application, registered by API,
-     and the signing secret is shown ONCE. Run once from your machine (client id/secret from the portal):
-     `curl -u "$POLAR_CLIENT_ID:$POLAR_CLIENT_SECRET" -H "Content-Type: application/json" -d '{"events":["EXERCISE","SLEEP","CONTINUOUS_HEART_RATE","ACTIVITY_SUMMARY","PHYSICAL_INFORMATION"],"url":"https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/polar"}' https://www.polaraccesslink.com/v3/webhooks`
-     (the webhook function must already be deployed — Polar pings it and needs a 200) → store `data.signature_secret_key`
-     as secret `POLAR_WEBHOOK_SECRET`.
+   - **Polar** — https://admin.polaraccesslink.com (self-serve). Client id + secret → Supabase secrets. The
+     application webhook is registered BY THE BACKEND (Polar shows its signing key once, so it never passes through a
+     screen): from the SQL editor, POST `{"probe":"polar-register-webhook"}` to `wearable-reconcile` with the
+     `x-report-secret` header (see "Live checks"); the key is stored AES-GCM-encrypted (token key ring, AAD
+     `app|polar|webhook|<version>`) in the app-level `wearable_webhook_subscriptions` row and `parseWebhook` reads it
+     from there (`POLAR_WEBHOOK_SECRET`, if set, still wins). `{"probe":"polar-credentials"}` answers whether Polar
+     accepts the stored client credentials (status + webhook list, never a secret). Deliveries are parsed only with
+     `POLAR_WEBHOOKS_ENABLED=1` (v3-webhook / v4-data compatibility flag).
    - **Withings** — https://developer.withings.com/dashboard/ (Public Cloud; self-serve). Add BOTH URLs above to the
      app's Callback URIs (the webhook URL must be listed or `notify subscribe` is refused). No webhook secret
      (notifications are unsigned; the backend only treats them as a "pull now" hint).
@@ -222,7 +225,7 @@ A **sixth function**, `wearable-reconcile` (verify_jwt off, `x-report-secret`), 
 | `<VENDOR>_CLIENT_ID` / `<VENDOR>_CLIENT_SECRET` | start · callback · sync | uppercase vendor key: `OURA_`, `WHOOP_`, `POLAR_`, `GARMIN_`, `WITHINGS_`, `SUUNTO_`, `GOOGLE_`. |
 | `OURA_WEBHOOK_VERIFICATION_TOKEN` | webhook | the verification token you chose in the Oura portal (Phase 2 removes the client-secret fallback). |
 | `OURA_MAINTAIN_SUBSCRIPTIONS=1` | sync (cron) | opt-in flag for the hourly subscription create/renew call (off until Phase 2 pins the operation). |
-| `POLAR_WEBHOOK_SECRET` | webhook | `signature_secret_key` from the one-time webhook registration. |
+| `POLAR_WEBHOOK_SECRET` | webhook | optional override; normally the key lives encrypted in the app-level `wearable_webhook_subscriptions` row written by the backend registration. |
 | `POLAR_WEBHOOKS_ENABLED=1` | webhook | opt-in: Polar webhooks are parsed only once v3-webhook / v4-data compatibility is confirmed in writing (the adapter runs on Dynamic API v4 since 2026-09-14). |
 | `SUUNTO_SUBSCRIPTION_KEY`, `SUUNTO_WEBHOOK_SECRET` | sync · webhook | from the Suunto partner profile. |
 | `GOOGLE_WEBHOOK_SECRET`, `GOOGLE_CLOUD_PROJECT_NUMBER` | webhook · callback | subscriber registration (Phase 2). |
