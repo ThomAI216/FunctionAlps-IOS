@@ -145,8 +145,11 @@ Supabase CLI, exactly the functions a push to `main` touched (a change under `_s
 `workflow_dispatch` → "wearables" or one slug). It reads the live `verify_jwt` of every function first and refuses
 to deploy if the `NO_JWT` list disagrees with the dashboard. It needs ONE repository secret:
 `SUPABASE_ACCESS_TOKEN` (Settings → Secrets and variables → Actions) — the same account token FunctionAlps-APP's
-workflow already uses (https://supabase.com/dashboard/account/tokens). **Until that secret exists the five
-functions are not deployed** — the first push after adding it (or a manual run) deploys them.
+workflow already uses (https://supabase.com/dashboard/account/tokens). **Set on 2026-09-14** as a scoped token
+(project CM OS only: Project Settings Read + Edge Functions Read-write, nothing else); run 6 deployed the six connector
+functions (verify_jwt: start/disconnect true, callback/webhook/sync/reconcile false — verified live), run 7 the updated
+`member-scores` and `wearable-ingest`. The GitHub App cannot press "Run workflow" (403): to redeploy without a code
+change, edit the marker comment in `_shared/wearables/registry.ts` (all six) or in the function's own `index.ts`.
 `supabase/functions/build-wearables.sh` still bundles each function into `bundle/<name>.ts` (gitignored) as a
 syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use the bundles.
 
