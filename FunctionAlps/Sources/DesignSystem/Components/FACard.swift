@@ -22,10 +22,23 @@ struct FACard<Content: View>: View {
 /// `FACard`) for any new surface; never `.ultraThinMaterial`, `.regularMaterial` or a solid fill.
 struct FAGlassSurface: ViewModifier {
     let cornerRadius: CGFloat
+    /// `true` for a small pane that sits INSIDE a glass card (the Apple Health tiles, chips over glass): a
+    /// see-through veil with a hairline bevel and no shadow. Liquid Glass must not be nested — a second
+    /// `glassEffect` inside a card renders as a milky slab, which is exactly what the owner saw (2026-09-14).
+    var inset = false
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        if #available(iOS 26.0, *) {
+        if inset {
+            content
+                .background(Color.white.opacity(0.12), in: shape)
+                .overlay {
+                    shape.strokeBorder(
+                        LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        lineWidth: 1
+                    )
+                }
+        } else if #available(iOS 26.0, *) {
             content
                 .glassEffect(.clear, in: shape)
                 .shadow(color: .black.opacity(0.10), radius: 14, y: 8)

@@ -318,11 +318,7 @@ private struct VendorCard: View {
         FACard {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 13) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(hex: vendor.tintHex, opacity: 0.12))
-                        Image(systemName: vendor.symbol).font(.system(size: 17, weight: .semibold)).foregroundStyle(Color(hex: vendor.tintHex))
-                    }
-                    .frame(width: 44, height: 44)
+                    VendorMark(vendor: vendor)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(vendor.name).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
                         Text(statusLine).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(statusColor)
@@ -404,5 +400,36 @@ private struct VendorCard: View {
             }
             return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "Coming soon")
         }
+    }
+}
+
+/// The brand mark on a vendor card: the official logo from the asset catalog when the owner has added it
+/// (`vendor-<key>` image set, or `GoogleG`), else the brand's wordmark in its colour on a soft tile.
+struct VendorMark: View {
+    let vendor: WearableVendor
+
+    private var hasLogo: Bool { UIImage(named: vendor.logoAsset) != nil }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(hasLogo ? Color.white.opacity(0.85) : Color(hex: vendor.tintHex, opacity: 0.12))
+            if hasLogo {
+                Image(vendor.logoAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(vendor.key == "google" ? 10 : 7)
+            } else {
+                Text(vendor.wordmark)
+                    .font(.system(size: vendor.wordmark.count > 6 ? 9 : 10, weight: .heavy, design: .rounded))
+                    .tracking(vendor.wordmark == vendor.wordmark.uppercased() ? 0.6 : 0)
+                    .foregroundStyle(Color(hex: vendor.tintHex))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .padding(.horizontal, 4)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .accessibilityLabel(vendor.name)
     }
 }

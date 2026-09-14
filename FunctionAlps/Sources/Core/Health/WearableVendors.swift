@@ -15,6 +15,25 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
     let viaAppleHealth: String
     var id: String { key }
 
+    /// The asset-catalog image set for the brand's official logo (owner adds the press-kit file to
+    /// `Assets.xcassets/vendor-<key>.imageset`; Google reuses the existing `GoogleG`). Until the file exists,
+    /// `VendorMark` draws the `wordmark` in the brand colour instead — never a generic symbol.
+    var logoAsset: String { key == "google" ? "GoogleG" : "vendor-\(key)" }
+
+    /// The brand's own spelling of its name, for the fallback mark.
+    var wordmark: String {
+        switch key {
+        case "oura": "ŌURA"
+        case "whoop": "WHOOP"
+        case "polar": "Polar"
+        case "garmin": "GARMIN"
+        case "withings": "withings"
+        case "suunto": "SUUNTO"
+        case "google": "Fitbit"
+        default: name
+        }
+    }
+
     static var all: [WearableVendor] {
         [
             WearableVendor(key: "oura", name: "Oura", sourceId: 1_000_018, symbol: "circle.circle", tintHex: 0x3F3F46,

@@ -448,6 +448,6 @@ struct AppleHealthTile: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
-        .modifier(FAGlassSurface(cornerRadius: 12))
+        .modifier(FAGlassSurface(cornerRadius: 12, inset: true))
     }
 }
