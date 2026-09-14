@@ -1,0 +1,7 @@
+{
+  "_note": "Shape from whoop.md §10 (official v2 payload: user_id, id, type, trace_id). UUID values are placeholders; `id` is the sleep UUID of sleep.json's main sleep. The test signs the exact serialised bytes of this object minus `_note`.",
+  "user_id": 456,
+  "id": "6b1b2a4e-3c5f-4d2a-9e1f-0a1b2c3d4e5f",
+  "type": "sleep.updated",
+  "trace_id": "7d8e9fa0-b1c2-4d3e-8f4a-5b6c7d8e9fa0"
+}
