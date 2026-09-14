@@ -1,0 +1,63 @@
+{
+  "_note": "SYNTHETIC — the corpus (vendors/withings.md §12/§18, pack 15_BODY_COMPOSITION.md, 16_BLOOD_PRESSURE_PWV_AFIB.md) contains no example `getmeas` body; the shape follows the Withings Measure reference. VERIFY on the first live capture: (1) numeric `type` codes 1 weight, 6 fat ratio, 9 diastolic, 10 systolic, 11 heart pulse, 91 pulse wave velocity; (2) `value × 10^unit` scaling (PWV 7850 / unit -3 → 7.85 m/s); (3) `attrib` 0/1 = device reading, 2+ = manual; (4) `timezone` at body level; (5) `modified`/`deviceid` on the group.",
+  "status": 0,
+  "body": {
+    "updatetime": 1789340000,
+    "timezone": "Europe/Zurich",
+    "measuregrps": [
+      {
+        "grpid": 5001,
+        "attrib": 0,
+        "date": 1789279200,
+        "created": 1789279205,
+        "modified": 1789279205,
+        "category": 1,
+        "deviceid": "dev-scale-1",
+        "model": 6,
+        "measures": [
+          { "value": 72450, "type": 1, "unit": -3, "algo": 0, "fm": 3 },
+          { "value": 2180, "type": 6, "unit": -2, "algo": 0, "fm": 3 }
+        ]
+      },
+      {
+        "grpid": 5002,
+        "attrib": 0,
+        "date": 1789338600,
+        "created": 1789338610,
+        "category": 1,
+        "deviceid": "dev-bpm-1",
+        "model": 45,
+        "measures": [
+          { "value": 121, "type": 10, "unit": 0 },
+          { "value": 79, "type": 9, "unit": 0 },
+          { "value": 68, "type": 11, "unit": 0 }
+        ]
+      },
+      {
+        "grpid": 5003,
+        "attrib": 0,
+        "date": 1789279260,
+        "created": 1789279265,
+        "modified": 1789279265,
+        "category": 1,
+        "deviceid": "dev-scale-1",
+        "model": 6,
+        "measures": [
+          { "value": 7850, "type": 91, "unit": -3 }
+        ]
+      },
+      {
+        "grpid": 5004,
+        "attrib": 2,
+        "date": 1789282800,
+        "created": 1789282800,
+        "category": 1,
+        "measures": [
+          { "value": 70000, "type": 1, "unit": -3 }
+        ]
+      }
+    ],
+    "more": 0,
+    "offset": 0
+  }
+}

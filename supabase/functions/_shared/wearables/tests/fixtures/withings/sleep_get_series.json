@@ -1,0 +1,22 @@
+{
+  "_note": "SYNTHETIC — per-night series (`/v2/sleep action=get`) for the night in sleep_getsummary.json; shape follows the Withings Sleep v2 reference (per-minute maps keyed by unix seconds). VERIFY on the first live capture: field names `hr`, `rr`, `sdnn_1`, `rmssd`, `state`, and whether HRV series values are per-minute statistics. The sdnn_1/rmssd values here must produce NO rows (D4) — only HR/RR become epoch rows.",
+  "status": 0,
+  "body": {
+    "series": [
+      {
+        "startdate": 1789250400,
+        "enddate": 1789277400,
+        "state": 2,
+        "model": 32,
+        "model_id": 63,
+        "hash_deviceid": "hd-sleep-1",
+        "hr": { "1789261200": 52 },
+        "rr": { "1789261200": 13 },
+        "sdnn_1": { "1789261200": 60 },
+        "rmssd": { "1789261200": 45 }
+      }
+    ],
+    "model": 32,
+    "model_id": 63
+  }
+}

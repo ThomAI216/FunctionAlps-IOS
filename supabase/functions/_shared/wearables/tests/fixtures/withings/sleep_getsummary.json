@@ -1,0 +1,42 @@
+{
+  "_note": "SYNTHETIC — the corpus flags the exact Sleep v2 schema as an open blocker (vendors/withings.md §19/§30; pack 08_SLEEP.md 'Withings'); the shape follows the Withings Sleep v2 getsummary reference. VERIFY on the first live capture: (1) whether `sdnn_1`/`rmssd` are exposed by getsummary at all (else only the per-night `get` series carries them); (2) durations in seconds, `sleep_efficiency` as a percentage (the adapter also accepts a 0–1 fraction); (3) `hash_deviceid`, `model`, `modified` on the series entry; (4) `date` is the vendor-local night date. Whatever the answer, sdnn_1/rmssd are RAW-ONLY (strategy D4) and never reach 3100/3106/3112.",
+  "status": 0,
+  "body": {
+    "series": [
+      {
+        "id": 9001,
+        "timezone": "Europe/Zurich",
+        "model": 32,
+        "model_id": 63,
+        "hash_deviceid": "hd-sleep-1",
+        "startdate": 1789250400,
+        "enddate": 1789277400,
+        "date": "2026-09-13",
+        "created": 1789277600,
+        "modified": 1789277700,
+        "data": {
+          "total_timeinbed": 27000,
+          "total_sleep_time": 25200,
+          "sleep_efficiency": 93,
+          "sleep_latency": 600,
+          "waso": 900,
+          "deepsleepduration": 6000,
+          "lightsleepduration": 12600,
+          "remsleepduration": 6600,
+          "wakeupduration": 1800,
+          "wakeupcount": 2,
+          "hr_average": 54,
+          "hr_min": 47,
+          "rr_average": 14,
+          "snoring": 300,
+          "breathing_disturbances_intensity": 5,
+          "sleep_score": 81,
+          "sdnn_1": 62,
+          "rmssd": 48
+        }
+      }
+    ],
+    "more": false,
+    "offset": 0
+  }
+}

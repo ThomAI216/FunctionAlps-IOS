@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC — form-encoded notification bodies as described in vendors/withings.md §10 and pack 20_WEBHOOK_SYNC_SECURITY.md ('userid, appli, startdate, enddate etc.'); the corpus prints no example body. Unsigned (no per-notification HMAC is documented) → trigger only. VERIFY on the first live delivery: (1) no stable event/notification id exists (the adapter derives `appli:userid:startdate:enddate`); (2) `deviceid` presence; (3) the unlink/revocation signal (appli 46 + action) is from the notification reference, not the corpus.",
+  "content_type": "application/x-www-form-urlencoded",
+  "sleep_update": "userid=12345&appli=44&startdate=1789250400&enddate=1789277400&deviceid=hd-sleep-1",
+  "unlink": "userid=12345&appli=46&action=unlink",
+  "head_probe": ""
+}
