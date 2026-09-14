@@ -1,0 +1,6 @@
+{
+  "_note": "SYNTHETIC (not a live capture). VERIFY: the `/247/daily-activity-statistics` path, the field names (`stepcount`, `energyconsumption`) and the energy unit (raw in details only).",
+  "payload": [
+    { "timestamp": "2026-09-13T00:00:00+02:00", "stepcount": 8421, "energyconsumption": 9800000 }
+  ]
+}

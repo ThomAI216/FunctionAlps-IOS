@@ -1,0 +1,41 @@
+{
+  "_note": "SYNTHETIC (not a live capture). Field names are the ones the public Suunto webhook page documents (corpus 08_SLEEP.md 'Suunto'). VERIFY: the pull response envelope (`payload` list assumed), duration UNIT (magnitudes look like seconds but must not be inferred — suunto.md §19), AvgHRV statistic/window/unit (§20), SleepQualityScore scale (§22), HRMin meaning.",
+  "payload": [
+    {
+      "timestamp": "2026-09-13T06:42:00+02:00",
+      "entryData": {
+        "SleepId": 1757738520,
+        "IsNap": false,
+        "DateTime": "2026-09-13T06:42:00+02:00",
+        "BedtimeStart": "2026-09-12T22:58:00+02:00",
+        "BedtimeEnd": "2026-09-13T06:42:00+02:00",
+        "Duration": 25920,
+        "DeepSleepDuration": 5400,
+        "LightSleepDuration": 14400,
+        "REMSleepDuration": 4800,
+        "SleepOnsetLatencyDuration": 600,
+        "WakeAfterSleepOnsetDuration": 720,
+        "WakeBeforeOffBedDuration": 300,
+        "HRAvg": 52,
+        "HRMin": 45,
+        "AvgHRV": 58,
+        "AvgHRVSampleCount": 121,
+        "SleepQualityScore": 78
+      }
+    },
+    {
+      "timestamp": "2026-09-13T14:35:00+02:00",
+      "entryData": {
+        "SleepId": 1757766900,
+        "IsNap": true,
+        "DateTime": "2026-09-13T14:35:00+02:00",
+        "BedtimeStart": "2026-09-13T14:00:00+02:00",
+        "BedtimeEnd": "2026-09-13T14:35:00+02:00",
+        "Duration": 2100,
+        "LightSleepDuration": 2100,
+        "HRAvg": 58,
+        "AvgHRV": 61
+      }
+    }
+  ]
+}

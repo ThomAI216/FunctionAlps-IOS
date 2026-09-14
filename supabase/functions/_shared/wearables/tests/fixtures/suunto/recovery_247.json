@@ -1,0 +1,8 @@
+{
+  "_note": "SYNTHETIC (not a live capture). `Balance` and `StressState` are the field names the corpus quotes (suunto.md §18, 13_STRESS.md, 14_RECOVERY_READINESS_STRAIN.md). VERIFY: the response envelope, the Balance scale (no numeric scale documented → stored as text), the StressState enumeration (numeric code here — the old adapter's '1 relaxing / 2 active / 3 passive / 4 stressful' reading is unverified). Two samples on one day prove the epoch series + latest-sample-of-the-day daily row.",
+  "payload": [
+    { "timestamp": "2026-09-13T08:00:00+02:00", "entryData": { "Balance": 72, "StressState": 2 } },
+    { "timestamp": "2026-09-13T20:00:00+02:00", "entryData": { "Balance": 65, "StressState": 4 } },
+    { "timestamp": "2026-09-13T21:00:00+02:00", "entryData": {} }
+  ]
+}

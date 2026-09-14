@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC (not a live capture). The public corpus does NOT list the 24/7 activity field names — every key here (HR, StepCount, EnergyConsumption, SpO2, HRV) is VERIFY against the partner schema. EnergyConsumption unit, SpO2 scale and HRV statistic are unverified → raw in details only; the second sample has no HR (absent fields are skipped).",
+  "payload": [
+    { "timestamp": "2026-09-13T10:00:00+02:00", "entryData": { "HR": 71, "StepCount": 340, "EnergyConsumption": 125600, "SpO2": 0.97, "HRV": 44 } },
+    { "timestamp": "2026-09-13T10:10:00+02:00", "entryData": { "StepCount": 120 } }
+  ]
+}

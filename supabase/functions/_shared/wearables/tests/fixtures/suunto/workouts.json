@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC (not a live capture). VERIFY: the `/v3/workouts` path, pagination (`since`/`limit`), `startTime` as epoch milliseconds (suunto.md §21 'known examples'), `totalTime` / `totalDistance` / `energyConsumption` units, the average-HR field name (`avgHR`). The second workout is outside the requested window and must be skipped.",
+  "payload": [
+    { "workoutKey": "wk-abc123", "activityId": 3, "startTime": 1789292400000, "totalTime": 3600, "totalDistance": 10250, "energyConsumption": 2500000, "avgHR": 148 },
+    { "workoutKey": "wk-old", "activityId": 1, "startTime": 1789023600000, "totalTime": 1800, "totalDistance": 4000 }
+  ]
+}
