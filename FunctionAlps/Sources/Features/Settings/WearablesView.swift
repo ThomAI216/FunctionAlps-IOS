@@ -403,8 +403,9 @@ private struct VendorCard: View {
     }
 }
 
-/// The brand mark on a vendor card: the official logo from the asset catalog when the owner has added it
-/// (`vendor-<key>` image set, or `GoogleG`), else the brand's wordmark in its colour on a soft tile.
+/// The brand mark on a vendor card: the brand's monochrome logo from the asset catalog (`vendor-<key>` image
+/// set, template-rendered in the brand colour), else the brand's wordmark in its colour. Sources and licences:
+/// THIRD_PARTY_NOTICES.md (simple-icons CC0, Arcticons CC BY-SA 4.0); the owner may swap in a press-kit logo.
 struct VendorMark: View {
     let vendor: WearableVendor
 
@@ -412,13 +413,14 @@ struct VendorMark: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(hasLogo ? Color.white.opacity(0.85) : Color(hex: vendor.tintHex, opacity: 0.12))
+            RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(hex: vendor.tintHex, opacity: 0.12))
             if hasLogo {
                 Image(vendor.logoAsset)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .padding(vendor.key == "google" ? 10 : 7)
+                    .foregroundStyle(Color(hex: vendor.tintHex))
+                    .padding(vendor.key == "garmin" ? 6 : 9)
             } else {
                 Text(vendor.wordmark)
                     .font(.system(size: vendor.wordmark.count > 6 ? 9 : 10, weight: .heavy, design: .rounded))

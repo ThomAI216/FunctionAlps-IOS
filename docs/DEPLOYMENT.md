@@ -255,12 +255,11 @@ and `source_device_id` = the writing app's bundle id** (a night uses its FIRST s
 outbox come in a later phase.
 
 ### Vendor logos on the Devices screen (2026-09-14)
-The vendor cards show the brand's official logo when an image set named `vendor-<key>` exists in
-`FunctionAlps/Sources/Resources/Assets.xcassets` (`vendor-oura`, `vendor-whoop`, `vendor-polar`, `vendor-garmin`,
-`vendor-withings`, `vendor-suunto`; Google reuses the existing `GoogleG`). Download each logo from the vendor's press /
-brand page (respect its usage rules: no recolouring, clear space), then add a folder `vendor-<key>.imageset` with the SVG or
-PNG and a `Contents.json` shaped like `GoogleG.imageset/Contents.json` (`preserves-vector-representation` for SVG).
-Until the file exists the card draws the brand's wordmark in its colour — nothing breaks without the assets.
+Six brand marks are bundled as template SVG image sets (`vendor-oura`, `vendor-whoop`, `vendor-polar`, `vendor-suunto`,
+`vendor-garmin`, `vendor-google`) and tinted in the brand colour at runtime; sources and licences in
+`THIRD_PARTY_NOTICES.md`. Withings has no open-licence mark, so its card draws the wordmark. To replace any mark with
+the official press-kit logo: drop the SVG/PNG into the matching `vendor-<key>.imageset`, update its `Contents.json`
+(`filename`; remove `template-rendering-intent` for a full-colour logo) — for Withings, create `vendor-withings.imageset`.
 
 ## Notifications (added 2026-09-04)
 

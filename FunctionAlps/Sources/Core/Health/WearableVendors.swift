@@ -15,10 +15,10 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
     let viaAppleHealth: String
     var id: String { key }
 
-    /// The asset-catalog image set for the brand's official logo (owner adds the press-kit file to
-    /// `Assets.xcassets/vendor-<key>.imageset`; Google reuses the existing `GoogleG`). Until the file exists,
-    /// `VendorMark` draws the `wordmark` in the brand colour instead — never a generic symbol.
-    var logoAsset: String { key == "google" ? "GoogleG" : "vendor-\(key)" }
+    /// The asset-catalog image set for the brand's monochrome mark (`Assets.xcassets/vendor-<key>.imageset`,
+    /// template-rendered in `tintHex`). Bundled 2026-09-14 for every vendor but Withings (no open-licence mark
+    /// exists); a missing set falls back to the `wordmark` — never a generic symbol.
+    var logoAsset: String { "vendor-\(key)" }
 
     /// The brand's own spelling of its name, for the fallback mark.
     var wordmark: String {
