@@ -328,6 +328,14 @@ private struct VendorCard: View {
                         pill(String(localized: "vendor.connect", defaultValue: "Connect"), action: onConnect)
                     } else if presentation == .reconnect {
                         pill(String(localized: "vendor.reconnect", defaultValue: "Reconnect"), action: onConnect)
+                    } else if presentation == .off, account == nil {
+                        // Not open to members yet: a quiet tag where Connect will appear once the vendor is `available`.
+                        Text(String(localized: "vendor.tag.inDevelopment", defaultValue: "In development"))
+                            .font(FATypography.sans(11, .semibold, relativeTo: .caption2))
+                            .foregroundStyle(ProfilePalette.muted)
+                            .padding(.horizontal, 10).padding(.vertical, 5)
+                            .background(Capsule().fill(Color.white.opacity(0.14)))
+                            .overlay(Capsule().stroke(Color.white.opacity(0.35), lineWidth: 0.5))
                     }
                 }
                 if isLive || presentation == .reconnect {
@@ -398,7 +406,7 @@ private struct VendorCard: View {
             if account?.status == "disconnected" {
                 return String(localized: "vendor.status.disconnected", defaultValue: "Disconnected")
             }
-            return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "Coming soon")
+            return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "In development")
         }
     }
 }

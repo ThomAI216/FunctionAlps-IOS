@@ -35191,13 +35191,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Coming soon"
+            "value": "In development"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bientôt disponible"
+            "value": "En développement"
           }
         }
       }
@@ -35310,6 +35310,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Séances, pas, FC des séances (pas de sommeil, pas de VFC)"
+          }
+        }
+      }
+    },
+    "vendor.tag.inDevelopment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In development"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En développement"
           }
         }
       }
