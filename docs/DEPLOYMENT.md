@@ -261,6 +261,13 @@ Six brand marks are bundled as template SVG image sets (`vendor-oura`, `vendor-w
 the official press-kit logo: drop the SVG/PNG into the matching `vendor-<key>.imageset`, update its `Contents.json`
 (`filename`; remove `template-rendering-intent` for a full-colour logo) — for Withings, create `vendor-withings.imageset`.
 
+### Public legal pages (2026-09-14)
+`legal-page` (verify_jwt off) serves the CURRENT approved documents from `consent_definitions` as HTML, in EN and FR:
+`https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/legal-page/privacy` (also `/terms`, `/legal-notice`,
+`/health-data`, `/ai`; `?lang=fr`). This is the privacy-policy URL to give vendor portals (WHOOP, Oura, Withings…) and
+App Store Connect. Approving a new notice version changes the page with no deploy. A prettier address under the
+practice domain is one `vercel.json` rewrite in FunctionAlps-APP (`/privacy` → that URL).
+
 ## Notifications (added 2026-09-04)
 
 **Phone:** local reminders are planned on the device (`NotificationPlanner` → `LocalNotifications`), no server

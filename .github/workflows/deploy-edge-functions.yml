@@ -32,7 +32,7 @@ env:
   # ⚠ THIS LIST CUTS BOTH WAYS: deploying a listed function WITHOUT --no-verify-jwt flips its live
   # setting on and breaks the vendor/cron calls; deploying an UNLISTED function WITH the flag silently
   # re-opens an endpoint. The `verify` step reads the live values first and fails on any disagreement.
-  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send'
+  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page'
   WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile'
 
 jobs:
