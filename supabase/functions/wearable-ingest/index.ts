@@ -1,3 +1,4 @@
+// Deployed by CI from FunctionAlps-IOS (first CLI deploy 2026-09-14; the D7 provenance columns ship with it).
 // wearable-ingest — authenticated MEMBER endpoint for DEVICE-submitted samples.
 //
 // The native iOS app reads Apple Health locally (HealthKitReader) and POSTs a batch of

@@ -1,3 +1,4 @@
+// Deployed by CI from FunctionAlps-IOS (first CLI deploy 2026-09-14; the Phase 4 wearable inputs ship with it).
 // member-scores — the FunctionAlps scoring engine, SERVER-SIDE (PRD §41).
 //
 // The engine under ./engine is the Expo app's `lib/health/*` (+ nutrition snapshot,
