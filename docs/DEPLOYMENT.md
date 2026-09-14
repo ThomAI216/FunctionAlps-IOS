@@ -184,9 +184,10 @@ syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use
    random bytes base64 (`openssl rand -base64 32`). Never paste any of these into chat or a repo.
 3. Flip the vendor on: `update wearable_vendors set status = 'available' where key = '<vendor>';` — the app shows
    its Connect button on the next open (after Privacy Notice v10 is approved). `paused` hides it again.
-4. Privacy Notice **v10** (`supabase/migrations/20260904_privacy_policy_v10_vendor_accounts.sql`, applied as a
-   draft; v9 still current) must be approved before any vendor button appears
-   (`WearableDisclosure.vendorNoticeVersion = 10`). Approval SQL in the file header.
+4. Privacy Notice **v10** — approved 2026-09-14 (`supabase/migrations/20260914_privacy_policy_v10_amend_and_approve.sql`:
+   amended with the delete-on-unlink choice, the member-readable log, the 30-day raw retention and the no-AI rule,
+   then v9 superseded). `WearableDisclosure.vendorNoticeVersion = 10` is satisfied: a vendor's Connect button appears
+   the moment its row is `available`. Members re-accept the notice on their next launch, as with every version.
 5. Test with your own account: Devices → Connect → the vendor's consent page → back in the app → "Connected · since";
    `wearable_vendor_accounts` has the row, `wearable_sync_queue` a backfill job, and within 10 minutes
    `wearable_daily` rows under the vendor's source id (1000018 Oura, 1000042 WHOOP, 1000003 Polar, 1000002 Garmin,
