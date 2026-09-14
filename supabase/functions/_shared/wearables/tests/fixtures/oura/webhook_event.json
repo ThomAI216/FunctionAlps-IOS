@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC — corpus (vendors/oura.md §10) names exactly these four POST body fields: event_type, data_type, object_id, user_id. No vendor event id is documented (architecture/07-provenance-deduplication.md), so the adapter derives `eventId` = data_type.event_type.object_id. VERIFY on a captured live delivery: the exact bytes Oura signs (raw body vs JSON.stringify), any extra fields, and whether `object_id` is a string.",
+  "event_type": "update",
+  "data_type": "sleep",
+  "object_id": "sl-long-1",
+  "user_id": "oura-user-1"
+}

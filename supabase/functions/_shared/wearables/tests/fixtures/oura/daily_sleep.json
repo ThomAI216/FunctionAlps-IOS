@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC — corpus (vendors/oura.md §18, 14_RECOVERY_READINESS_STRAIN.md): `score` is the proprietary Oura sleep score → 1000105; contributors stay in details. VERIFY on a live capture: `id` format, contributor key set.",
+  "data": [
+    { "id": "ds-1", "day": "2026-09-13", "score": 82, "timestamp": "2026-09-13T00:00:00+02:00", "contributors": { "deep_sleep": 90, "efficiency": 95, "latency": 80, "rem_sleep": 70, "restfulness": 60, "timing": 85, "total_sleep": 88 } }
+  ],
+  "next_token": null
+}

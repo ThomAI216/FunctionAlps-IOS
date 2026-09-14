@@ -1,0 +1,7 @@
+{
+  "_note": "SYNTHETIC — corpus (vendors/oura.md §18): `score` → 1000100; `temperature_deviation` is explicitly a deviation → 1000106. VERIFY on a live capture: `id` format, deviation unit (°C assumed), contributor key set.",
+  "data": [
+    { "id": "dr-1", "day": "2026-09-13", "score": 77, "timestamp": "2026-09-13T00:00:00+02:00", "temperature_deviation": -0.2, "temperature_trend_deviation": -0.1, "contributors": { "activity_balance": 80, "body_temperature": 90, "hrv_balance": 70, "previous_day_activity": 75, "previous_night": 85, "recovery_index": 88, "resting_heart_rate": 92, "sleep_balance": 79 } }
+  ],
+  "next_token": null
+}

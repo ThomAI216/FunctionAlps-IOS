@@ -1,0 +1,22 @@
+{
+  "_note": "SYNTHETIC — corpus (vendors/oura.md §22): `steps` → 1000 identity. VERIFY on a live capture: `id` format, `total_calories` / `active_calories` unit (kcal assumed — 1010 only after the unit is pinned), `*_activity_time` and `sedentary_time` in seconds, `met.interval` seconds, `equivalent_walking_distance` in metres.",
+  "data": [
+    {
+      "id": "da-1",
+      "day": "2026-09-13",
+      "timestamp": "2026-09-13T04:00:00+02:00",
+      "score": 85,
+      "steps": 8421,
+      "active_calories": 412,
+      "total_calories": 2310,
+      "equivalent_walking_distance": 6900,
+      "high_activity_time": 600,
+      "medium_activity_time": 1800,
+      "low_activity_time": 7200,
+      "sedentary_time": 30000,
+      "average_met_minutes": 1.4,
+      "met": { "interval": 60, "items": [1.2, 1.5], "timestamp": "2026-09-13T04:00:00+02:00" }
+    }
+  ],
+  "next_token": null
+}
