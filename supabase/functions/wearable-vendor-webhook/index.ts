@@ -65,6 +65,8 @@ Deno.serve(async (req) => {
     await enqueue(db, { patientId: acc.patient_id, vendor: a.key, vendorUserId: ev.vendorUserId, kind: ev.kind, syncKind: ev.rows ? "push" : "notification", windowStart: start, windowEnd: end, rawEventId: rawId, priority: 3, accountId: acc.id, dedupeKey: `notification:${acc.id}:${start}:${end}` })
   }
   log("info", "webhook.ok", { fn: FN, vendor: a.key, events: events.length, accepted, duplicates, unknown, ms: t() })
-  // 204, no body: the universal ACK (Google's subscriber contract asks for it; every other vendor accepts any 2xx).
-  return new Response(null, { status: 204 })
+  // Google's subscriber contract asks for 204 with no body. Polar and Withings document "200 OK" for the creation
+  // ping / notifications, so everyone else gets an explicit 200 rather than relying on "any 2xx".
+  if (a.key === "google") return new Response(null, { status: 204 })
+  return new Response("ok", { status: 200, headers: { "Content-Type": "text/plain" } })
 })
