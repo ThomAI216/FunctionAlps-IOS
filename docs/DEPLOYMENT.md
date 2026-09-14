@@ -158,9 +158,12 @@ syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use
    Webhook URL where the vendor asks for one: `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/<vendor>`
    (`<vendor>` = `oura` | `whoop` | `polar` | `garmin` | `withings` | `suunto` | `google`). Privacy policy URL: the
    published FunctionAlps notice. Per vendor:
-   - **Oura** — https://cloud.ouraring.com/oauth/applications (self-serve; > 10 users needs Oura's review). Webhooks are
-     created by the backend itself (`ouraMaintain()` on first connect + hourly renewal) — nothing to click. Optional
-     secret `OURA_VERIFICATION_TOKEN` (any random string; defaults to the client secret).
+   - **Oura** — https://cloud.ouraring.com/oauth/applications (self-serve; > 10 users needs Oura's review). The portal
+     has NO webhook or verification-token field: subscriptions are created by the backend itself (`ouraMaintain()`,
+     hourly, only when the secret `OURA_MAINTAIN_SUBSCRIPTIONS=1` is set). The verification token lives in ONE place —
+     the Supabase secret `OURA_WEBHOOK_VERIFICATION_TOKEN` (any random string you invent, e.g. 32 base64 chars): the
+     backend sends it to Oura when it creates a subscription and Oura echoes it on the GET challenge. No fallback to
+     the client secret — unset means the webhook path stays closed (fail closed).
    - **WHOOP** — https://developer.whoop.com (self-serve). In the app's dashboard set the webhook URL above and
      enable events. The signature key is the client secret — no extra secret.
    - **Polar** — https://admin.polaraccesslink.com (self-serve). Webhooks are one per application, registered by API,
