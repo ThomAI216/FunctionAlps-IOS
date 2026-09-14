@@ -4,7 +4,7 @@
 // 3 days), on Sundays the longer one (default 14 days) — then the queue is drained right away. Also
 // re-encrypts tokens still under an old key version (rotation path) and releases stale leases.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-import { type AccountRow, LIVE_STATUSES, currentKeyVersion, json, rotateAccountTokens, serviceClient, vendorStatus } from "../_shared/wearables/core.ts"
+import { type AccountRow, LIVE_STATUSES, currentKeyVersion, json, rotateAccountTokens, serviceClient, vendorClient, vendorStatus } from "../_shared/wearables/core.ts"
 import { adapter } from "../_shared/wearables/registry.ts"
 import { drainQueue, enqueueAccountWindow } from "../_shared/wearables/worker.ts"
 import { errorSummary, log } from "../_shared/wearables/log.ts"
@@ -15,6 +15,22 @@ const REPORT_SECRET = Deno.env.get("REPORT_SECRET")
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405)
   if (!REPORT_SECRET || req.headers.get("x-report-secret") !== REPORT_SECRET) return json({ error: "Unauthorized" }, 401)
+  // Ops probe (`{"probe":"polar-credentials"}`): does Polar accept the client credentials held in the function
+  // secrets? Answers the HTTP status of the app-level webhook list plus the registered webhooks' id/events/url —
+  // never a secret, never a body. Lets the owner tell "wrong values in Supabase" from "wrong values typed locally".
+  let probe: string | null = null
+  try { probe = ((await req.clone().json()) as { probe?: string }).probe ?? null } catch { /* no body */ }
+  if (probe === "polar-credentials") {
+    const { clientId, clientSecret } = vendorClient("polar")
+    const r = await fetch("https://www.polaraccesslink.com/v3/webhooks", { headers: { Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`, Accept: "application/json" } })
+    let webhooks: unknown = null
+    if (r.ok) {
+      const j = (await r.json()) as { data?: { id?: string; events?: string[]; url?: string }[] }
+      webhooks = (j.data ?? []).map((w) => ({ id: w.id, events: w.events, url: w.url }))
+    }
+    log("info", "probe.polar_credentials", { fn: FN, vendor: "polar", status: r.status, clientIdLength: clientId.length, secretLength: clientSecret.length })
+    return json({ probe, status: r.status, clientIdLength: clientId.length, secretLength: clientSecret.length, webhooks })
+  }
   const db = serviceClient()
   const weekly = new Date().getUTCDay() === 0
   const { data: accounts } = await db.from("wearable_vendor_accounts").select("*").in("status", LIVE_STATUSES)
