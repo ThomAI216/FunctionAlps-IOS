@@ -7,6 +7,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { type AccountRow, LIVE_STATUSES, currentKeyVersion, json, rotateAccountTokens, serviceClient, vendorClient, vendorStatus } from "../_shared/wearables/core.ts"
 import { adapter } from "../_shared/wearables/registry.ts"
 import { drainQueue, enqueueAccountWindow } from "../_shared/wearables/worker.ts"
+import { polarRegisterWebhook } from "../_shared/wearables/polar.ts"
 import { errorSummary, log } from "../_shared/wearables/log.ts"
 
 const FN = "wearable-reconcile"
@@ -32,6 +33,14 @@ Deno.serve(async (req) => {
     return json({ probe, status: r.status, clientIdLength: clientId.length, secretLength: clientSecret.length, webhooks })
   }
   const db = serviceClient()
+  // Ops action (`{"probe":"polar-register-webhook"}`, optional `"force":true`): the backend registers Polar's
+  // application webhook and keeps the once-shown signing key encrypted in the app-level subscription row.
+  if (probe === "polar-register-webhook") {
+    let force = false
+    try { force = ((await req.clone().json()) as { force?: boolean }).force === true } catch { /* no body */ }
+    try { return json({ probe, ...(await polarRegisterWebhook(db, { force })) }) }
+    catch (e) { log("warn", "probe.polar_register_failed", { fn: FN, vendor: "polar", ...errorSummary(e) }); return json({ probe, error: errorSummary(e).message }, 502) }
+  }
   const weekly = new Date().getUTCDay() === 0
   const { data: accounts } = await db.from("wearable_vendor_accounts").select("*").in("status", LIVE_STATUSES)
   let queued = 0, skipped = 0, rotated = 0

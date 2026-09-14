@@ -314,7 +314,7 @@ export function _setKeyForTests(version: number, raw32: Uint8Array<ArrayBuffer>)
   keyCache.set(version, crypto.subtle.importKey("raw", raw32, "AES-GCM", false, ["encrypt", "decrypt"]))
 }
 
-export type TokenType = "access" | "refresh" | "verifier"
+export type TokenType = "access" | "refresh" | "verifier" | "webhook"
 /** What a ciphertext is bound to: a blob moved to another row, vendor or column fails to decrypt. */
 export interface TokenAAD { accountId: string; vendor: string; tokenType: TokenType }
 const aadBytes = (a: TokenAAD, version: number) => new TextEncoder().encode(`${a.accountId}|${a.vendor}|${a.tokenType}|${version}`)

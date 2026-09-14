@@ -23,7 +23,8 @@
 //   • §17       reconcile nightly 3 days / weekly 14 days (inside the 28-day range).
 // Field names inside the v4 records are NOT captured by the corpus beyond those listed in §12/§18/§19 — every other key
 // this file reads is marked VERIFY and mirrored in tests/fixtures/polar/*.json `_note`.
-import { type DailyRow, type EpochRow, type RowBatch, type TokenSet, type VendorAdapter, type WebhookEvent, T, VendorHttpError, addDays, compact, daily, dailyDate, dailyText, daysBetween, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient } from "./core.ts"
+import { type SupabaseClient } from "npm:@supabase/supabase-js@2"
+import { type DailyRow, type EpochRow, type RowBatch, type TokenAAD, type TokenSet, type VendorAdapter, type WebhookEvent, T, VendorHttpError, addDays, compact, currentKeyVersion, daily, dailyDate, dailyText, daysBetween, decrypt, encrypt, env, epoch, getJSON, hmacSha256, num, offsetMinutes, serviceClient, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
 import { log } from "./log.ts"
 
 export const POLAR_AUTH = "https://auth.polar.com/oauth/authorize"          // §6
@@ -230,7 +231,7 @@ export const polar: VendorAdapter = {
     let e: Rec = {}
     try { const j: unknown = JSON.parse(rawBody); if (isRec(j)) e = j } catch { throw new Error("polar webhook: malformed body") }
     if (e.event === "PING") return []            // §11: the creation ping arrives before any secret exists
-    const secret = env("POLAR_WEBHOOK_SECRET")   // D10
+    const secret = await polarWebhookSecret()    // D10: env, else the app-level row written by polarRegisterWebhook
     const sig = (req.headers.get("Polar-Webhook-Signature") ?? "").trim().toLowerCase()
     const mac = await hmacSha256(secret, rawBody, "hex")
     if (!sig || !timingSafeEqual(mac, sig)) throw new Error("polar signature mismatch")
@@ -264,4 +265,68 @@ export const polar: VendorAdapter = {
   },
 }
 
-export const _polarTest = { rmssdFromPPI, rangeChunks, profileIdentity, unwrap, nightlyRechargeRows, sleepRows, ppiRows, first }
+export const _polarTest = { rmssdFromPPI, rangeChunks, profileIdentity, unwrap, nightlyRechargeRows, sleepRows, ppiRows, first, resetWebhookSecretCache: () => { cachedWebhookSecret = null } }
+
+// MARK: - App-level webhook (v3 AccessLink): registered by the backend, its once-shown signing key kept encrypted
+
+export const POLAR_WEBHOOKS = "https://www.polaraccesslink.com/v3/webhooks"
+/** §10: the documented webhook event types the adapter understands. */
+export const POLAR_WEBHOOK_EVENTS = ["EXERCISE", "SLEEP", "CONTINUOUS_HEART_RATE", "ACTIVITY_SUMMARY", "PHYSICAL_INFORMATION"]
+/** The signing key is bound to the app row, not to a member account. */
+const WEBHOOK_AAD: TokenAAD = { accountId: "app", vendor: "polar", tokenType: "webhook" }
+let cachedWebhookSecret: { value: string; at: number } | null = null
+
+/**
+ * `POLAR_WEBHOOK_SECRET` (D10, hand-registered) wins; otherwise the active app-level row of
+ * `wearable_webhook_subscriptions` carries `meta.secret_enc`, written by `polarRegisterWebhook` and decrypted with
+ * the token key ring. Cached 10 minutes per isolate. Throws when neither exists (fail closed, like Oura).
+ */
+export async function polarWebhookSecret(db?: SupabaseClient): Promise<string> {
+  const fromEnv = Deno.env.get("POLAR_WEBHOOK_SECRET")
+  if (fromEnv) return fromEnv
+  if (cachedWebhookSecret && Date.now() - cachedWebhookSecret.at < 600_000) return cachedWebhookSecret.value
+  const client = db ?? serviceClient()
+  const { data } = await client.from("wearable_webhook_subscriptions").select("meta").eq("vendor", "polar").is("account_id", null).eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle()
+  const enc = (data?.meta as { secret_enc?: string } | null | undefined)?.secret_enc
+  if (!enc) throw new Error("polar webhook secret unset (no POLAR_WEBHOOK_SECRET and no registered webhook)")
+  const value = await decrypt(enc, WEBHOOK_AAD)
+  cachedWebhookSecret = { value, at: Date.now() }
+  return value
+}
+
+export interface PolarWebhookRegistration { action: "kept" | "created" | "recreated"; id: string; events: string[]; url: string }
+
+/**
+ * Registers the application webhook with Polar from the backend (client credentials, §10/§11) so the once-shown
+ * `signature_secret_key` never passes through a screen: it is encrypted (AAD `app|polar|webhook|<key version>`)
+ * into the app-level subscription row. Polar allows one webhook per client and returns the key only at creation,
+ * so an existing webhook we hold no key for is deleted and recreated; `force` recreates unconditionally.
+ * Never returns or logs the key.
+ */
+export async function polarRegisterWebhook(db: SupabaseClient, opts: { force?: boolean; fetchImpl?: typeof fetch } = {}): Promise<PolarWebhookRegistration> {
+  const f = opts.fetchImpl ?? fetch
+  const { clientId, clientSecret } = vendorClient("polar")
+  const h = { Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`, Accept: "application/json", "Content-Type": "application/json" }
+  const url = webhookUrl("polar")
+  const list = await f(POLAR_WEBHOOKS, { headers: h })
+  if (!list.ok) throw new VendorHttpError(list.status, "polar webhooks list")
+  const existing = ((await list.json()) as { data?: { id: string; events: string[]; url: string }[] }).data ?? []
+  const { data: row } = await db.from("wearable_webhook_subscriptions").select("vendor_subscription_id, callback_url, meta").eq("vendor", "polar").is("account_id", null).eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle()
+  const held = row as { vendor_subscription_id: string | null; callback_url: string | null; meta: { secret_enc?: string } | null } | null
+  const known = existing.find((w) => w.id === held?.vendor_subscription_id)
+  if (known && held?.meta?.secret_enc && known.url === url && !opts.force) return { action: "kept", id: known.id, events: known.events, url: known.url }
+  for (const w of existing) {
+    const del = await f(`${POLAR_WEBHOOKS}/${w.id}`, { method: "DELETE", headers: h })
+    if (!del.ok && del.status !== 404) throw new VendorHttpError(del.status, "polar webhook delete")
+  }
+  const create = await f(POLAR_WEBHOOKS, { method: "POST", headers: h, body: JSON.stringify({ events: POLAR_WEBHOOK_EVENTS, url }) })
+  if (!create.ok) throw new VendorHttpError(create.status, "polar webhook create")
+  const made = ((await create.json()) as { data: { id: string; events: string[]; url: string; signature_secret_key: string } }).data
+  const secret_enc = await encrypt(made.signature_secret_key, WEBHOOK_AAD)
+  await db.from("wearable_webhook_subscriptions").update({ status: "revoked", updated_at: new Date().toISOString() }).eq("vendor", "polar").is("account_id", null).eq("status", "active")
+  const { error } = await db.from("wearable_webhook_subscriptions").insert({ vendor: "polar", vendor_subscription_id: made.id, data_type: made.events.join(","), event_type: "webhook", callback_url: made.url, status: "active", meta: { secret_enc, key_version: currentKeyVersion(), registered_by: "backend" } })
+  if (error) throw new Error(`polar webhook row: ${error.message}`)
+  cachedWebhookSecret = null
+  log("info", "polar.webhook_registered", { fn: "polar", vendor: "polar", action: existing.length ? "recreated" : "created", id: made.id, events: made.events })
+  return { action: existing.length ? "recreated" : "created", id: made.id, events: made.events, url: made.url }
+}

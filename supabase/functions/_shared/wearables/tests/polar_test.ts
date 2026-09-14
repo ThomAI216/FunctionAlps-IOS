@@ -3,8 +3,8 @@
 // 1000105, provenance), NO 3106 row while the RMSSD unit is unpinned (§30), the FunctionAlps RMSSD, the webhook flag
 // + signature (§11), and identity from the profile call (§9).
 import { assert, assertAlmostEquals, assertEquals, assertRejects } from "jsr:@std/assert@1"
-import { T } from "../core.ts"
-import { NIGHTLY_MAX_DAYS, POLAR_DATA, POLAR_PROFILE, POLAR_TOKEN, _polarTest, polar } from "../polar.ts"
+import { T, _setKeyForTests, decrypt, encrypt } from "../core.ts"
+import { NIGHTLY_MAX_DAYS, POLAR_DATA, POLAR_PROFILE, POLAR_TOKEN, POLAR_WEBHOOKS, _polarTest, polar, polarRegisterWebhook, polarWebhookSecret } from "../polar.ts"
 
 const { rmssdFromPPI, rangeChunks, profileIdentity, unwrap, nightlyRechargeRows } = _polarTest
 
@@ -223,3 +223,77 @@ Deno.test("parseWebhook (flag set): lowercase-hex HMAC over the raw body, kind f
     assertEquals(await polar.parseWebhook(new Request("https://fn/x", { method: "POST", body: ping }), ping, new URL("https://fn/x")), [])
   } finally { Deno.env.delete("POLAR_WEBHOOKS_ENABLED") }
 })
+
+// MARK: - App-level webhook: the signing key lives encrypted in the subscription row, registered by the backend
+
+const WEBHOOK_AAD = { accountId: "app", vendor: "polar", tokenType: "webhook" } as const
+Deno.env.set("SUPABASE_URL", "https://proj.supabase.co")   // webhookUrl() derives the callback from it
+
+/** A tiny awaitable query builder: `from(table)…maybeSingle()` returns `state.row`, writes are recorded. */
+function stubDb(state: { row: Record<string, unknown> | null; inserted: Record<string, unknown>[]; updated: Record<string, unknown>[] }) {
+  const builder = (table: string) => {
+    let op: "select" | "insert" | "update" = "select"
+    const b: Record<string, unknown> = {}
+    const self = () => b
+    for (const m of ["select", "eq", "is", "order", "limit"]) b[m] = self
+    b.insert = (v: Record<string, unknown>) => { op = "insert"; state.inserted.push({ table, ...v }); return b }
+    b.update = (v: Record<string, unknown>) => { op = "update"; state.updated.push({ table, ...v }); return b }
+    b.maybeSingle = () => Promise.resolve({ data: state.row, error: null })
+    b.then = (res: (v: unknown) => void) => res({ data: op === "select" ? state.row : null, error: null })
+    return b
+  }
+  return { from: builder } as unknown as Parameters<typeof polarRegisterWebhook>[0]
+}
+
+Deno.test("polarWebhookSecret: env wins; otherwise the active app row's meta.secret_enc decrypts with the key ring; neither → throws", async () => {
+  _setKeyForTests(1, new Uint8Array(32))
+  Deno.env.set("POLAR_WEBHOOK_SECRET", "from-env")
+  assertEquals(await polarWebhookSecret(stubDb({ row: null, inserted: [], updated: [] })), "from-env")
+  Deno.env.delete("POLAR_WEBHOOK_SECRET")
+  _polarTest.resetWebhookSecretCache()
+  const secret_enc = await encrypt("abe1f3ae-once-shown", WEBHOOK_AAD, 1)
+  assertEquals(await polarWebhookSecret(stubDb({ row: { meta: { secret_enc } }, inserted: [], updated: [] })), "abe1f3ae-once-shown")
+  _polarTest.resetWebhookSecretCache()
+  await assertRejects(() => polarWebhookSecret(stubDb({ row: null, inserted: [], updated: [] })), Error, "polar webhook secret unset")
+  Deno.env.set("POLAR_WEBHOOK_SECRET", "whsec")
+})
+
+Deno.test("polarRegisterWebhook: a foreign webhook is deleted, ours is created with the documented events, the key is stored encrypted and never returned", async () => {
+  _setKeyForTests(1, new Uint8Array(32))
+  Deno.env.set("POLAR_CLIENT_ID", "polar-client-id"); Deno.env.set("POLAR_CLIENT_SECRET", "polar-client-secret")
+  const calls: { method: string; url: string; body?: string }[] = []
+  const fetchImpl = ((input: string | URL | Request, init?: RequestInit) => {
+    const url = String(input), method = init?.method ?? "GET"
+    calls.push({ method, url, body: typeof init?.body === "string" ? init.body : undefined })
+    if (method === "GET") return Promise.resolve(new Response(JSON.stringify({ data: [{ id: "old1", events: ["EXERCISE"], url: "https://elsewhere/hook" }] }), { status: 200 }))
+    if (method === "DELETE") return Promise.resolve(new Response(null, { status: 204 }))
+    return Promise.resolve(new Response(JSON.stringify({ data: { id: "new7", events: JSON.parse(init!.body as string).events, url: JSON.parse(init!.body as string).url, signature_secret_key: "once-shown-key" } }), { status: 201 }))
+  }) as typeof fetch
+  const state = { row: null, inserted: [] as Record<string, unknown>[], updated: [] as Record<string, unknown>[] }
+  const r = await polarRegisterWebhook(stubDb(state), { fetchImpl })
+  assertEquals(r.action, "recreated"); assertEquals(r.id, "new7")
+  assertEquals(r.events, ["EXERCISE", "SLEEP", "CONTINUOUS_HEART_RATE", "ACTIVITY_SUMMARY", "PHYSICAL_INFORMATION"])
+  assert(!JSON.stringify(r).includes("once-shown-key"))
+  assertEquals(calls.map((c) => c.method), ["GET", "DELETE", "POST"])
+  assertEquals(calls[1].url, `${POLAR_WEBHOOKS}/old1`)
+  assertEquals(calls[2].url, POLAR_WEBHOOKS)
+  assertEquals(state.updated.length, 1)                    // the previous app row (if any) is retired
+  const row = state.inserted[0] as { vendor: string; vendor_subscription_id: string; status: string; meta: { secret_enc: string } }
+  assertEquals([row.vendor, row.vendor_subscription_id, row.status], ["polar", "new7", "active"])
+  assert(!row.meta.secret_enc.includes("once-shown-key"))
+  assertEquals(await decrypt(row.meta.secret_enc, WEBHOOK_AAD), "once-shown-key")
+})
+
+Deno.test("polarRegisterWebhook: kept when Polar's webhook is the one we hold a key for at our URL", async () => {
+  _setKeyForTests(1, new Uint8Array(32))
+  Deno.env.set("POLAR_CLIENT_ID", "polar-client-id"); Deno.env.set("POLAR_CLIENT_SECRET", "polar-client-secret")
+  const ours = (await import("../core.ts")).webhookUrl("polar")
+  const fetchImpl = ((_i: string | URL | Request, init?: RequestInit) => {
+    if ((init?.method ?? "GET") !== "GET") throw new Error("must not write")
+    return Promise.resolve(new Response(JSON.stringify({ data: [{ id: "keep1", events: ["SLEEP"], url: ours }] }), { status: 200 }))
+  }) as typeof fetch
+  const state = { row: { vendor_subscription_id: "keep1", callback_url: ours, meta: { secret_enc: "v2.1.xx" } }, inserted: [], updated: [] }
+  const r = await polarRegisterWebhook(stubDb(state), { fetchImpl })
+  assertEquals(r.action, "kept"); assertEquals(state.inserted.length, 0)
+})
+
