@@ -16,3 +16,5 @@ export function adapter(key: string | null | undefined): VendorAdapter | null {
   if (!key) return null
   return (adapters as Record<string, VendorAdapter>)[key] ?? null
 }
+
+// Platform v2 + Phase 2 adapters — first CI deploy to CM OS on 2026-09-14 (a change here deploys all six connector functions).
