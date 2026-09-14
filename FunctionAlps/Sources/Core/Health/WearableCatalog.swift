@@ -33,6 +33,7 @@ struct WearableMetric: Sendable, Equatable, Hashable {
     static let burnedCalories = WearableMetric(typeId: 1010, name: "BurnedCalories", valueType: "LONG")
     static let activeCalories = WearableMetric(typeId: 1011, name: "ActiveBurnedCalories", valueType: "LONG")
     static let activityDuration = WearableMetric(typeId: 1100, name: "ActivityDuration", valueType: "LONG")
+    static let floorsClimbed = WearableMetric(typeId: 1002, name: "FloorsClimbed", valueType: "LONG")
     // Sleep (analytics layer — the "main sleep" the engine reads; durations in seconds)
     static let sleepDuration = WearableMetric(typeId: 2300, name: "ThryveMainSleepDuration", valueType: "LONG")
     static let sleepInBed = WearableMetric(typeId: 2301, name: "ThryveMainSleepInBedDuration", valueType: "LONG")
@@ -53,6 +54,9 @@ struct WearableMetric: Sendable, Equatable, Hashable {
     static let hrvSDNN = WearableMetric(typeId: 3112, name: "SDNN", valueType: "DOUBLE")
     static let respirationRate = WearableMetric(typeId: 4000, name: "RespirationRate", valueType: "LONG")
     static let weight = WearableMetric(typeId: 5020, name: "Weight", valueType: "DOUBLE")
+    /// Body fat in PERCENT (HealthKit reports a 0–1 fraction; the reader multiplies by 100), rounded like every LONG.
+    static let fatRatio = WearableMetric(typeId: 5025, name: "FatRatio", valueType: "LONG")
+    static let bodyTemperature = WearableMetric(typeId: 5040, name: "BodyTemperature", valueType: "DOUBLE")
     // Native-only (id 0): kept by name for the dashboard, not scored
     static let exerciseMinutes = WearableMetric(typeId: 0, name: "apple_exercise_minutes", valueType: "LONG")
     static let standHours = WearableMetric(typeId: 0, name: "apple_stand_hours", valueType: "LONG")
@@ -71,8 +75,13 @@ struct WearableDailyRow: Encodable, Sendable, Equatable {
     let timezoneOffset: Int?        // minutes east of UTC
     let details: [String: Double]?
     let recordedAt: String?         // ISO 8601
+    /// Provenance (D7): the HealthKit object UUID + the writing app's bundle id. nil for statistics rows
+    /// (a day's sum/mean has no single object); an assembled night carries its FIRST sample's.
+    let sourceRecordId: String?
+    let sourceDeviceId: String?
 
-    init(day: String, metric: WearableMetric, value: Double, timezoneOffset: Int, details: [String: Double]? = nil, recordedAt: Date? = nil) {
+    init(day: String, metric: WearableMetric, value: Double, timezoneOffset: Int, details: [String: Double]? = nil, recordedAt: Date? = nil,
+         sourceRecordId: String? = nil, sourceDeviceId: String? = nil) {
         self.day = day
         self.dataTypeName = metric.name
         self.dataTypeId = metric.typeId
@@ -83,6 +92,8 @@ struct WearableDailyRow: Encodable, Sendable, Equatable {
         self.timezoneOffset = timezoneOffset
         self.details = details
         self.recordedAt = recordedAt.map { ISO8601.string($0) }
+        self.sourceRecordId = sourceRecordId
+        self.sourceDeviceId = sourceDeviceId
     }
 }
 
@@ -98,8 +109,12 @@ struct WearableEpochRow: Encodable, Sendable, Equatable {
     let valueType: String?
     let timezoneOffset: Int?
     let details: [String: Double]?
+    /// Provenance (D7): `HKObject.uuid` + `sourceRevision.source.bundleIdentifier` → `source_record_id` / `source_device_id`.
+    let sourceRecordId: String?
+    let sourceDeviceId: String?
 
-    init(start: Date, end: Date?, metric: WearableMetric, value: Double?, valueText: String? = nil, timezoneOffset: Int, details: [String: Double]? = nil) {
+    init(start: Date, end: Date?, metric: WearableMetric, value: Double?, valueText: String? = nil, timezoneOffset: Int, details: [String: Double]? = nil,
+         sourceRecordId: String? = nil, sourceDeviceId: String? = nil) {
         self.startTs = ISO8601.string(start)
         self.endTs = end.map { ISO8601.string($0) }
         self.dataTypeName = metric.name
@@ -110,6 +125,8 @@ struct WearableEpochRow: Encodable, Sendable, Equatable {
         self.valueType = metric.valueType
         self.timezoneOffset = timezoneOffset
         self.details = details
+        self.sourceRecordId = sourceRecordId
+        self.sourceDeviceId = sourceDeviceId
     }
 }
 
@@ -186,6 +203,9 @@ struct SleepSample: Sendable, Equatable {
     let start: Date
     let end: Date
     let stage: Stage
+    /// Provenance (D7): the sample's `HKObject.uuid` and the writing app's bundle id; nil in tests and fixtures.
+    var sourceRecordId: String? = nil
+    var sourceDeviceId: String? = nil
     var seconds: Double { end.timeIntervalSince(start) }
     var isAsleep: Bool { stage == .core || stage == .deep || stage == .rem || stage == .asleepUnspecified }
 }
@@ -206,6 +226,9 @@ struct SleepNight: Sendable, Equatable {
     let latencySeconds: Double
     /// Awake samples that occur between two sleep samples (what the Watch records).
     let interruptions: Int
+    /// Provenance (D7): the FIRST sample's uuid + bundle id — the night is assembled from several samples.
+    var sourceRecordId: String? = nil
+    var sourceDeviceId: String? = nil
     var efficiencyPct: Int? { inBedSeconds > 0 ? min(100, Int((100 * asleepSeconds / inBedSeconds).rounded())) : nil }
 }
 
@@ -260,23 +283,28 @@ enum SleepAssembler {
             day: day, start: first.start, end: last.end,
             asleepSeconds: asleepSeconds, inBedSeconds: max(inBedSeconds, asleepSeconds),
             remSeconds: rem, deepSeconds: deep, lightSeconds: light, awakeSeconds: awake,
-            latencySeconds: latency, interruptions: interruptions
+            latencySeconds: latency, interruptions: interruptions,
+            sourceRecordId: first.sourceRecordId, sourceDeviceId: first.sourceDeviceId
         )
     }
 
     /// The catalogue rows for one night.
     static func rows(for night: SleepNight, timezoneOffset: Int) -> [WearableDailyRow] {
+        func row(_ metric: WearableMetric, _ value: Double) -> WearableDailyRow {
+            WearableDailyRow(day: night.day, metric: metric, value: value, timezoneOffset: timezoneOffset, recordedAt: night.end,
+                             sourceRecordId: night.sourceRecordId, sourceDeviceId: night.sourceDeviceId)
+        }
         var out: [WearableDailyRow] = [
-            WearableDailyRow(day: night.day, metric: .sleepDuration, value: night.asleepSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end),
-            WearableDailyRow(day: night.day, metric: .sleepInBed, value: night.inBedSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end),
-            WearableDailyRow(day: night.day, metric: .sleepAwake, value: night.awakeSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end),
-            WearableDailyRow(day: night.day, metric: .sleepLatency, value: night.latencySeconds, timezoneOffset: timezoneOffset, recordedAt: night.end),
-            WearableDailyRow(day: night.day, metric: .sleepInterruptions, value: Double(night.interruptions), timezoneOffset: timezoneOffset, recordedAt: night.end),
+            row(.sleepDuration, night.asleepSeconds),
+            row(.sleepInBed, night.inBedSeconds),
+            row(.sleepAwake, night.awakeSeconds),
+            row(.sleepLatency, night.latencySeconds),
+            row(.sleepInterruptions, Double(night.interruptions)),
         ]
-        if night.remSeconds > 0 { out.append(WearableDailyRow(day: night.day, metric: .sleepREM, value: night.remSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end)) }
-        if night.deepSeconds > 0 { out.append(WearableDailyRow(day: night.day, metric: .sleepDeep, value: night.deepSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end)) }
-        if night.lightSeconds > 0 { out.append(WearableDailyRow(day: night.day, metric: .sleepLight, value: night.lightSeconds, timezoneOffset: timezoneOffset, recordedAt: night.end)) }
-        if let eff = night.efficiencyPct { out.append(WearableDailyRow(day: night.day, metric: .sleepEfficiency, value: Double(eff), timezoneOffset: timezoneOffset, recordedAt: night.end)) }
+        if night.remSeconds > 0 { out.append(row(.sleepREM, night.remSeconds)) }
+        if night.deepSeconds > 0 { out.append(row(.sleepDeep, night.deepSeconds)) }
+        if night.lightSeconds > 0 { out.append(row(.sleepLight, night.lightSeconds)) }
+        if let eff = night.efficiencyPct { out.append(row(.sleepEfficiency, Double(eff))) }
         return out
     }
 }

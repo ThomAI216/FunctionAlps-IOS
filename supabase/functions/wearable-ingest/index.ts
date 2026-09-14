@@ -10,6 +10,9 @@
 //   • daily/epoch — data_source_id defaults to the Apple Health sentinel 1000001; data_type_id
 //     is the CM OS wearable CATALOGUE id (Steps 1000, …, SDNN 3112) so `wearable_daily_labeled`
 //     labels the rows; workouts travel as id 0 + data_type_name "workout" epochs.
+//     Provenance (D7, 2026-09-14): optional source_record_id (HealthKit object UUID), source_device_id
+//     (the writing app's bundle id), source_resource_type, source_modified_at land in the columns of the
+//     same name; normalization_version is stamped, source_connection_id is null (no vendor account).
 //   • connection — records "Apple Health on this phone" in `wearable_connections` (upsert on
 //     patient_id + data_source_id, the same row shape thryve-webhook writes). A body with only
 //     `connection` is valid: connecting a phone with no health data yet is still a connection.
@@ -33,8 +36,17 @@ const json = (body: unknown, status = 200) =>
 
 const APPLE_HEALTH_SOURCE_ID = 1000001
 const APPLE_HEALTH_SOURCE_NAME = "apple_health"
+/** Keep in step with `_shared/wearables/core.ts` NORMALIZATION_VERSION (this file stays import-free for the MCP deploy). */
+const NORMALIZATION_VERSION = "2026.09.14"
 
-type DailyIn = {
+type ProvenanceIn = {
+  source_record_id?: string | null
+  source_device_id?: string | null
+  source_resource_type?: string | null
+  source_modified_at?: string | null
+}
+
+type DailyIn = ProvenanceIn & {
   day: string
   data_type_name: string
   value?: number | null
@@ -46,7 +58,7 @@ type DailyIn = {
   data_source_id?: number
   data_type_id?: number
 }
-type EpochIn = {
+type EpochIn = ProvenanceIn & {
   start_ts: string
   end_ts?: string | null
   data_type_name: string
@@ -63,6 +75,22 @@ type ConnectionIn = "connected" | "disconnected"
 function num(v: unknown): number | null {
   const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN
   return Number.isFinite(n) ? n : null
+}
+
+function text(v: unknown): string | null {
+  return typeof v === "string" && v.length > 0 ? v : null
+}
+
+/** The provenance columns shared by wearable_daily / wearable_epoch (all nullable; the phone has no vendor connection). */
+function provenance(p: ProvenanceIn) {
+  return {
+    source_connection_id: null,
+    source_resource_type: text(p.source_resource_type),
+    source_record_id: text(p.source_record_id),
+    source_device_id: text(p.source_device_id),
+    source_modified_at: text(p.source_modified_at),
+    normalization_version: NORMALIZATION_VERSION,
+  }
 }
 
 function createServiceRoleClient(): SupabaseClient {
@@ -140,6 +168,7 @@ Deno.serve(async (req: Request) => {
           details: d.details ?? null,
           raw_event_id: rawEventId,
           recorded_at: d.recorded_at ?? null,
+          ...provenance(d),
         }))
 
       const epochRows = epochIn
@@ -157,6 +186,7 @@ Deno.serve(async (req: Request) => {
           timezone_offset: e.timezone_offset ?? null,
           details: e.details ?? null,
           raw_event_id: rawEventId,
+          ...provenance(e),
         }))
 
       if (epochRows.length) {

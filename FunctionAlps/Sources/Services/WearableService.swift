@@ -213,7 +213,8 @@ final class WearableService {
             var details: [String: Double] = ["duration_min": (w.durationMinutes * 10).rounded() / 10]
             if let kcal = w.energyKcal { details["energy_kcal"] = kcal.rounded() }
             if let m = w.distanceM { details["distance_m"] = m.rounded() }
-            batch.epoch.append(WearableEpochRow(start: w.start, end: w.end, metric: .workout, value: w.durationMinutes.rounded(), valueText: w.activityName, timezoneOffset: offset, details: details))
+            batch.epoch.append(WearableEpochRow(start: w.start, end: w.end, metric: .workout, value: w.durationMinutes.rounded(), valueText: w.activityName, timezoneOffset: offset, details: details,
+                                                sourceRecordId: w.sourceRecordId, sourceDeviceId: w.sourceDeviceId))
         }
         return batch
     }

@@ -27,6 +27,7 @@ final class HealthKitReader: @unchecked Sendable {
         DailyType(identifier: .activeEnergyBurned, metric: .activeCalories, unit: .kilocalorie(), options: .cumulativeSum),
         DailyType(identifier: .basalEnergyBurned, metric: .burnedCalories, unit: .kilocalorie(), options: .cumulativeSum),
         DailyType(identifier: .appleExerciseTime, metric: .activityDuration, unit: .minute(), options: .cumulativeSum),
+        DailyType(identifier: .flightsClimbed, metric: .floorsClimbed, unit: .count(), options: .cumulativeSum),
         DailyType(identifier: .restingHeartRate, metric: .restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()), options: .discreteAverage),
         DailyType(identifier: .heartRate, metric: .heartRate, unit: HKUnit.count().unitDivided(by: .minute()), options: .discreteAverage),
         DailyType(identifier: .heartRateVariabilitySDNN, metric: .hrvSDNN, unit: .secondUnit(with: .milli), options: .discreteAverage),
@@ -34,6 +35,9 @@ final class HealthKitReader: @unchecked Sendable {
         DailyType(identifier: .oxygenSaturation, metric: .spo2, unit: .percent(), options: .discreteAverage),
         DailyType(identifier: .vo2Max, metric: .vo2max, unit: HKUnit.literUnit(with: .milli).unitDivided(by: HKUnit.gramUnit(with: .kilo).unitMultiplied(by: .minute())), options: .discreteAverage),
         DailyType(identifier: .bodyMass, metric: .weight, unit: .gramUnit(with: .kilo), options: .discreteAverage),
+        // D7 (2026-09-14): body fat and temperature are point-in-time readings; the statistics query gives the day's mean.
+        DailyType(identifier: .bodyFatPercentage, metric: .fatRatio, unit: .percent(), options: .discreteAverage),
+        DailyType(identifier: .bodyTemperature, metric: .bodyTemperature, unit: .degreeCelsius(), options: .discreteAverage),
     ]
 
     /// Every type the authorisation sheet asks for: the daily quantities, sleep, and workouts.
@@ -68,7 +72,7 @@ final class HealthKitReader: @unchecked Sendable {
             let quantity = type.options.contains(.cumulativeSum) ? stats.sumQuantity() : stats.averageQuantity()
             guard let quantity else { continue }
             var value = quantity.doubleValue(for: type.unit)
-            if type.identifier == .oxygenSaturation { value *= 100 } // HealthKit's percent is 0–1
+            if type.identifier == .oxygenSaturation || type.identifier == .bodyFatPercentage { value *= 100 } // HealthKit's percent is 0–1
             out.append((stats.startDate, value))
         }
         return out.map { (day: $0.0, value: $0.1) }
@@ -98,7 +102,8 @@ final class HealthKitReader: @unchecked Sendable {
             case .asleepUnspecified: stage = .asleepUnspecified
             @unknown default: return nil
             }
-            return SleepSample(start: sample.startDate, end: sample.endDate, stage: stage)
+            return SleepSample(start: sample.startDate, end: sample.endDate, stage: stage,
+                               sourceRecordId: sample.uuid.uuidString, sourceDeviceId: sample.sourceRevision.source.bundleIdentifier)
         }
     }
 
@@ -111,6 +116,9 @@ final class HealthKitReader: @unchecked Sendable {
         let durationMinutes: Double
         let energyKcal: Double?
         let distanceM: Double?
+        /// Provenance (D7): the workout's `HKObject.uuid` and the writing app's bundle id.
+        var sourceRecordId: String? = nil
+        var sourceDeviceId: String? = nil
     }
 
     func workouts(from start: Date, to end: Date) async throws -> [Workout] {
@@ -120,7 +128,8 @@ final class HealthKitReader: @unchecked Sendable {
         return samples.map { w in
             let energy = w.statistics(for: HKQuantityType(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie())
             let distance = w.statistics(for: HKQuantityType(.distanceWalkingRunning))?.sumQuantity()?.doubleValue(for: .meter())
-            return Workout(start: w.startDate, end: w.endDate, activityName: Self.name(of: w.workoutActivityType), durationMinutes: w.duration / 60, energyKcal: energy, distanceM: distance)
+            return Workout(start: w.startDate, end: w.endDate, activityName: Self.name(of: w.workoutActivityType), durationMinutes: w.duration / 60, energyKcal: energy, distanceM: distance,
+                           sourceRecordId: w.uuid.uuidString, sourceDeviceId: w.sourceRevision.source.bundleIdentifier)
         }
     }
 
