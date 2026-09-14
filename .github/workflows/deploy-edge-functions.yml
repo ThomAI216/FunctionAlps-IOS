@@ -57,7 +57,9 @@ jobs:
             BEFORE="${{ github.event.before }}"
             if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then BEFORE="${{ github.sha }}~1"; fi
             CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- supabase/functions || true)"
-            LIST="$(echo "$CHANGED" | sed -n 's#^supabase/functions/\([^_/][^/]*\)/.*#\1#p' | grep -v '^bundle$' | sort -u | tr '\n' ' ')"
+            # `|| true`: with pipefail, `grep -v` exits 1 when nothing survives (a change only under _shared/), which
+            # killed the step silently (run 5, and FunctionAlps-APP run 10 before it).
+            LIST="$(echo "$CHANGED" | sed -n 's#^supabase/functions/\([^_/][^/]*\)/.*#\1#p' | grep -v '^bundle$' | sort -u | tr '\n' ' ' || true)"
             if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/wearables/'; then LIST="$LIST $WEARABLES"; fi
             LIST="$(echo "$LIST" | tr ' ' '\n' | sed '/^$/d' | sort -u | tr '\n' ' ')"
           fi
