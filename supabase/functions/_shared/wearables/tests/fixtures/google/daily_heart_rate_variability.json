@@ -1,0 +1,15 @@
+{
+  "_note": "Synthetic shape of GET /v4/users/me/dataTypes/daily-heart-rate-variability/dataPoints (corpus §20: a daily aggregate documented as RMSSD → 3100, never 3106). VERIFY: envelope fields as in heart_rate_variability.json; `dailyHeartRateVariability.{averageHeartRateVariabilityMilliseconds,deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds,nonRemHeartRateBeatsPerMinute,date}`.",
+  "dataPoints": [
+    {
+      "name": "users/me/dataTypes/daily-heart-rate-variability/dataPoints/dhrv-20260913",
+      "metadata": { "version": "2", "lastModifiedTime": "2026-09-13T07:12:00Z", "dataOrigin": { "deviceId": "dev-fitbit-01" } },
+      "dailyHeartRateVariability": {
+        "date": { "year": 2026, "month": 9, "day": 13 },
+        "averageHeartRateVariabilityMilliseconds": 46.5,
+        "deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds": 52.0,
+        "nonRemHeartRateBeatsPerMinute": 54
+      }
+    }
+  ]
+}

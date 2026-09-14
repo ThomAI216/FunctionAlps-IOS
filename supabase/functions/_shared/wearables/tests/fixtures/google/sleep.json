@@ -1,0 +1,39 @@
+{
+  "_note": "Synthetic shape of GET /v4/users/me/dataTypes/sleep/dataPoints (corpus §19; pageSize 25 per §13). VERIFY: envelope fields; `sleep.interval.{startTime,endTime,startUtcOffset,endUtcOffset}`; `sleep.metadata.{mainSleep,stagesStatus}`; `sleep.summary.*` minute fields and `stagesSummary[]`; `sleep.stages[]` types. Stage intervals are deliberately shorter than the summary — this is a shape fixture, not a captured night.",
+  "dataPoints": [
+    {
+      "name": "users/me/dataTypes/sleep/dataPoints/slp-20260913-1",
+      "metadata": { "version": "3", "lastModifiedTime": "2026-09-13T07:10:00Z", "dataOrigin": { "deviceId": "dev-fitbit-01" } },
+      "sleep": {
+        "type": "STAGES",
+        "metadata": { "mainSleep": true, "stagesStatus": "COMPLETE" },
+        "interval": { "startTime": "2026-09-12T21:30:00Z", "endTime": "2026-09-13T05:00:00Z", "startUtcOffset": "+02:00", "endUtcOffset": "+02:00" },
+        "summary": {
+          "minutesAsleep": 420, "minutesInSleepPeriod": 450, "minutesAwake": 30, "minutesToFallAsleep": 10,
+          "stagesSummary": [
+            { "type": "DEEP", "minutes": 90, "count": 4 },
+            { "type": "LIGHT", "minutes": 240, "count": 20 },
+            { "type": "REM", "minutes": 90, "count": 6 },
+            { "type": "AWAKE", "minutes": 30, "count": 5 }
+          ]
+        },
+        "stages": [
+          { "type": "DEEP", "startTime": "2026-09-12T21:30:00Z", "endTime": "2026-09-12T22:30:00Z" },
+          { "type": "LIGHT", "startTime": "2026-09-12T22:30:00Z", "endTime": "2026-09-13T00:00:00Z" },
+          { "type": "REM", "startTime": "2026-09-13T00:00:00Z", "endTime": "2026-09-13T00:30:00Z" }
+        ]
+      }
+    },
+    {
+      "name": "users/me/dataTypes/sleep/dataPoints/slp-20260913-nap",
+      "metadata": { "version": "1", "lastModifiedTime": "2026-09-13T14:40:00Z" },
+      "sleep": {
+        "type": "CLASSIC",
+        "metadata": { "mainSleep": false, "stagesStatus": "NOT_AVAILABLE" },
+        "interval": { "startTime": "2026-09-13T12:00:00Z", "endTime": "2026-09-13T12:40:00Z", "startUtcOffset": "+02:00", "endUtcOffset": "+02:00" },
+        "summary": { "minutesAsleep": 38, "minutesInSleepPeriod": 40, "minutesAwake": 2, "minutesToFallAsleep": 2, "stagesSummary": [] },
+        "stages": []
+      }
+    }
+  ]
+}

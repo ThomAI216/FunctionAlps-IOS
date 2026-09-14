@@ -1,0 +1,22 @@
+{
+  "_note": "Synthetic shape of GET /v4/users/me/dataTypes/heart-rate-variability/dataPoints (corpus google-fitbit.md §12/§18, 07_HRV.md 'Google Health — strong mapping'). VERIFY against a live capture: the data-point envelope fields (`name`, `metadata.version`, `metadata.lastModifiedTime`, `metadata.dataOrigin.deviceId`), the `heartRateVariability.sampleTime.{physicalTime,utcOffset}` shape and the list filter field. The two statistic field names are the corpus-pinned ones.",
+  "dataPoints": [
+    {
+      "name": "users/me/dataTypes/heart-rate-variability/dataPoints/hrv-20260913-0405",
+      "metadata": { "version": "1", "lastModifiedTime": "2026-09-13T04:06:10Z", "dataOrigin": { "deviceId": "dev-fitbit-01" } },
+      "heartRateVariability": {
+        "sampleTime": { "physicalTime": "2026-09-13T02:05:00Z", "utcOffset": "+02:00" },
+        "rootMeanSquareOfSuccessiveDifferencesMilliseconds": 48.2,
+        "standardDeviationMilliseconds": 55.1
+      }
+    },
+    {
+      "name": "users/me/dataTypes/heart-rate-variability/dataPoints/hrv-20260913-0410",
+      "metadata": { "version": "1", "lastModifiedTime": "2026-09-13T04:11:10Z", "dataOrigin": { "deviceId": "dev-fitbit-01" } },
+      "heartRateVariability": {
+        "sampleTime": { "physicalTime": "2026-09-13T02:10:00Z", "utcOffset": "+02:00" },
+        "rootMeanSquareOfSuccessiveDifferencesMilliseconds": 51.7
+      }
+    }
+  ]
+}

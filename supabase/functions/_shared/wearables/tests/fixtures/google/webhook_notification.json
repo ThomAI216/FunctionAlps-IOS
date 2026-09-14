@@ -1,0 +1,31 @@
+{
+  "_note": "Synthetic notification batch (corpus google-fitbit.md §10: batched messages carrying health user, operation UPSERT/DELETE, data type and record/interval/version). `body` is what Google POSTs; google_test.ts serialises it and signs those exact bytes with a test-generated P-256 key (the keyset is generated in the test, not stored here). VERIFY: the batch envelope (array vs {messages:[]}), the message-id field (`messageId` assumed; the second message has none so the adapter derives the user|dataType|record@version triple), `data.dataPointName`, `data.version`, `data.intervals[].physicalTimeInterval`.",
+  "body": [
+    {
+      "messageId": "msg-7f3a1c",
+      "publishTime": "2026-09-13T07:20:00Z",
+      "data": {
+        "healthUserId": "hu-123",
+        "dataType": "heart-rate-variability",
+        "operation": "UPSERT",
+        "dataPointName": "users/me/dataTypes/heart-rate-variability/dataPoints/hrv-20260913-0405",
+        "version": "1",
+        "intervals": [
+          { "physicalTimeInterval": { "startTime": "2026-09-13T02:05:00Z", "endTime": "2026-09-13T02:10:00Z" } }
+        ]
+      }
+    },
+    {
+      "data": {
+        "healthUserId": "hu-123",
+        "dataType": "sleep",
+        "operation": "DELETE",
+        "dataPointName": "users/me/dataTypes/sleep/dataPoints/slp-20260913-nap",
+        "version": "2",
+        "intervals": [
+          { "physicalTimeInterval": { "startTime": "2026-09-13T12:00:00Z", "endTime": "2026-09-13T12:40:00Z" } }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "_note": "Synthetic shape of GET /v4/users/me/dataTypes/daily-sleep-temperature-derivations/dataPoints (12_TEMPERATURE.md: nightlyTemperatureCelsius, baselineTemperatureCelsius, relativeNightlyStddev30dCelsius are the corpus-pinned field names). VERIFY: envelope fields and the `date` shape.",
+  "dataPoints": [
+    {
+      "name": "users/me/dataTypes/daily-sleep-temperature-derivations/dataPoints/tmp-20260913",
+      "metadata": { "version": "1", "lastModifiedTime": "2026-09-13T07:15:00Z", "dataOrigin": { "deviceId": "dev-fitbit-01" } },
+      "dailySleepTemperatureDerivations": {
+        "date": { "year": 2026, "month": 9, "day": 13 },
+        "nightlyTemperatureCelsius": 33.9,
+        "baselineTemperatureCelsius": 33.6,
+        "relativeNightlyStddev30dCelsius": 0.4
+      }
+    }
+  ]
+}
