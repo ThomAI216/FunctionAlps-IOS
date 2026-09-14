@@ -1,0 +1,29 @@
+{
+  "_note": "SYNTHETIC — vendors/polar.md §12/§18 pin the field NAMES ansStatus, meanNightlyRecoveryRri, meanNightlyRecoveryRmssd (unit NOT pinned, §30) and that the response is range-based (§13). VERIFY: response wrapper (served here as a bare array), record `id`, the date key (`date`), the status key (`status`) and its enum, the ansStatus scale, `sleepCharge` exposure, `created`/`modified` presence.",
+  "response": [
+    {
+      "id": "nr-101",
+      "date": "2026-09-11",
+      "status": "GOOD",
+      "ansStatus": 2.1,
+      "meanNightlyRecoveryRri": 1058,
+      "meanNightlyRecoveryRmssd": 52.8,
+      "meanNightlyRecoveryRespirationInterval": 4215,
+      "baselineMeanRmssd": 49.6,
+      "created": "2026-09-11T05:10:00Z",
+      "modified": "2026-09-11T05:10:00Z"
+    },
+    {
+      "id": "nr-102",
+      "date": "2026-09-12",
+      "status": "COMPROMISED",
+      "ansStatus": -1.4,
+      "meanNightlyRecoveryRri": 1041,
+      "meanNightlyRecoveryRmssd": 47.3,
+      "meanNightlyRecoveryRespirationInterval": 4180,
+      "baselineMeanRmssd": 49.6,
+      "created": "2026-09-12T05:12:00Z",
+      "modified": "2026-09-12T05:12:00Z"
+    }
+  ]
+}

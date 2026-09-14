@@ -1,0 +1,10 @@
+{
+  "_note": "SYNTHETIC — the corpus (vendors/polar.md §9, §12) only pins that identity comes from a v4 profile call under /v4/data. VERIFY: the exact path (`/v4/data/profile`) and the identity key (`userId`; adapter also accepts polarUserId/memberId/id) against the live v4 schema before lock-in.",
+  "response": {
+    "userId": "polar-v4-8123456",
+    "firstName": "Test",
+    "memberSince": "2021-03-04T10:15:00Z",
+    "created": "2021-03-04T10:15:00Z",
+    "modified": "2026-09-01T07:00:00Z"
+  }
+}

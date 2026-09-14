@@ -1,0 +1,20 @@
+{
+  "_note": "SYNTHETIC — vendors/polar.md §12 pins GET /ppi-samples?from&to[&features=samples] (one day per call, §15) and §21 pins 'record anchor + offsetMillis'; canonical-metric-map pins `ppInterval` in milliseconds. VERIFY: the anchor key (`startTime`), the `samples` array key, per-sample quality flags (none applied in functionalps_rmssd_v1), the response wrapper (served as a bare array).",
+  "response": [
+    {
+      "id": "ppi-301",
+      "date": "2026-09-12",
+      "startTime": "2026-09-12T01:00:00Z",
+      "samples": [
+        { "offsetMillis": 0, "ppInterval": 800 },
+        { "offsetMillis": 800, "ppInterval": 810 },
+        { "offsetMillis": 1610, "ppInterval": 790 },
+        { "offsetMillis": 2400, "ppInterval": 805 },
+        { "offsetMillis": 3205, "ppInterval": 815 },
+        { "offsetMillis": 4020, "ppInterval": 798 }
+      ],
+      "created": "2026-09-12T06:40:00Z",
+      "modified": "2026-09-12T06:40:00Z"
+    }
+  ]
+}

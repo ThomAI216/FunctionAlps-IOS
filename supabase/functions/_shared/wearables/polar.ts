@@ -1,154 +1,267 @@
-// Polar AccessLink v3 — spec §4 (tier B). Basic client auth at the token endpoint, mandatory user
-// registration (`POST /v3/users`), long-lived tokens (v3: no refresh → a 401 means re-consent), one
-// application-level webhook whose secret is returned once (POLAR_WEBHOOK_SECRET).
-import { type DailyRow, type EpochRow, type TokenSet, type VendorAdapter, type WebhookEvent, T, UnauthorizedError, compact, dailyDate, dailyMap, daysBetween, env, epoch, hmacSha256, mean, num, randomToken, timingSafeEqual, tokenPost, unixOf, vendorClient } from "./core.ts"
+// Polar Dynamic API v4 — strategy 2026-09-14 Phase 2 (D4, D10), rebuilt from the corpus
+// `.context/research/2026-09-14_wearables-implementation/vendors/polar.md` (the authority; § numbers below refer to it).
+//
+// What the corpus pins (and this file relies on):
+//   • §6/§7/§8  hosts: authorize + token at `auth.polar.com`, HTTP Basic client auth at the token endpoint, refresh via
+//               `grant_type=refresh_token`; `expires_in` from the response (~43199 s), never a hardcoded 12 h.
+//   • §6        granular, space-delimited `<family>:read` scopes; PKCE NOT DOCUMENTED → `pkce: "not_documented"`.
+//   • §9        identity = the v4 profile call, never the v3 `x_user_id`; no `/v3/users` registration (§28: v4 only).
+//   • §12/§13/§21  data base `www.polaraccesslink.com/v4/data`; `nightly-recharge-results`, `sleeps`, `ppi-samples`
+//               take `from` (inclusive) / `to` (EXCLUSIVE) dates; range-based, not cursor-paginated.
+//   • §15       28-day maximum range without `features=samples`, ONE day when samples are requested → `rangeChunks`.
+//   • §18/§20/§30  `meanNightlyRecoveryRmssd` is semantically RMSSD but its v4 UNIT IS NOT PINNED → raw-only in
+//               `details` (VERIFY), NOT written to 3106. `ansStatus` → 1000132 (numeric only; never coerced when
+//               categorical). PPI `ppInterval` is pinned as ms → FunctionAlps-derived RMSSD (`functionalps_rmssd_v1`) → 3100.
+//   • §19       sleep: `sleepDate` is the vendor day (wake/end day), canonical uses the CURRENT `sleepResult`, never
+//               `originalSleepResult` (§16); efficiency % → 2200 DIRECT; `sleepScore` → 1000105 VENDOR-ONLY;
+//               stage durations "verify v4 unit" → raw-only.
+//   • §10/§11   webhooks are the v3 AccessLink mechanism (`Polar-Webhook-Signature` HMAC-SHA256 lowercase hex over the
+//               raw body with the once-returned `signature_secret_key` = POLAR_WEBHOOK_SECRET (D10); `Polar-Webhook-Event`
+//               is the category; PING must be acknowledged). v3-webhook/v4-data compatibility is UNCONFIRMED → the whole
+//               parse path sits behind `POLAR_WEBHOOKS_ENABLED=1` (§28 "feature-flag v3 webhook").
+//   • §25       revocation "REQUIRES PORTAL VERIFICATION" → `revoke` stays undefined; the webhook is app-level → no `unsubscribe`.
+//   • §17       reconcile nightly 3 days / weekly 14 days (inside the 28-day range).
+// Field names inside the v4 records are NOT captured by the corpus beyond those listed in §12/§18/§19 — every other key
+// this file reads is marked VERIFY and mirrored in tests/fixtures/polar/*.json `_note`.
+import { type DailyRow, type EpochRow, type RowBatch, type TokenSet, type VendorAdapter, type WebhookEvent, T, VendorHttpError, addDays, compact, daily, dailyDate, dailyText, daysBetween, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient } from "./core.ts"
+import { log } from "./log.ts"
 
-const AUTH = "https://flow.polar.com/oauth2/authorization"
-const TOKEN = "https://polarremote.com/v2/oauth2/token"
-const API = "https://www.polaraccesslink.com"
+export const POLAR_AUTH = "https://auth.polar.com/oauth/authorize"          // §6
+export const POLAR_TOKEN = "https://auth.polar.com/oauth/token"             // §7
+export const POLAR_DATA = "https://www.polaraccesslink.com/v4/data"         // §12
+/** VERIFY (§9/§12): the profile family exists under /v4/data; the exact path + identity field need the live v4 schema. */
+export const POLAR_PROFILE = `${POLAR_DATA}/profile`
 
-async function pget(path: string, tokens: TokenSet): Promise<Record<string, unknown> | null> {
-  const r = await fetch(API + path, { headers: { Authorization: `Bearer ${tokens.accessToken}`, Accept: "application/json" } })
-  if (r.status === 401 || r.status === 403) throw new UnauthorizedError(`polar ${r.status}`)
-  if (r.status === 204 || r.status === 404) return null
-  const text = await r.text()
-  if (!r.ok) throw new Error(`polar GET ${path} ${r.status}: ${text.slice(0, 200)}`)
-  return text ? JSON.parse(text) : null
+/** §15: 28 days without samples; 1 day with `features=samples`. Sleep maximum is not pinned (§15) → same 28 (VERIFY). */
+export const NIGHTLY_MAX_DAYS = 28
+export const SLEEPS_MAX_DAYS = 28
+export const SAMPLES_MAX_DAYS = 1
+
+/** §6: space-delimited `<family>:read`. `ppi:read` follows the documented family list ("PPI") + pattern — VERIFY the literal. */
+const SCOPES = ["profile:read", "sleep:read", "nightly_recharge:read", "ppi:read", "activity:read", "continuous_samples:read", "training_sessions:read"]
+
+// MARK: - Pure helpers (exported through _polarTest)
+
+type Rec = Record<string, unknown>
+const isRec = (v: unknown): v is Rec => typeof v === "object" && v != null && !Array.isArray(v)
+const str = (v: unknown): string | null => (typeof v === "string" && v ? v : typeof v === "number" ? String(v) : null)
+
+/** First present key of `keys` in `obj` (the v4 field names are only partly pinned → ordered candidates, VERIFY). */
+function first(obj: Rec | null | undefined, keys: string[]): unknown {
+  if (!obj) return undefined
+  for (const k of keys) if (obj[k] !== undefined && obj[k] !== null) return obj[k]
+  return undefined
 }
 
-/** `{ "HH:MM": value }` clock series anchored at `startIso` (wraps past midnight). */
-function clockSeries(id: number, samples: Record<string, unknown> | undefined, startIso: string | undefined, extra: Record<string, unknown> = {}): EpochRow[] {
-  if (!samples || !startIso) return []
-  const startT = Date.parse(startIso), startDay = startIso.slice(0, 10)
-  const out: EpochRow[] = []
-  for (const [hhmm, v] of Object.entries(samples)) {
-    const [h, m] = hhmm.split(":").map(Number)
-    let t = Date.parse(`${startDay}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00${startIso.slice(19) || "Z"}`)
-    if (t < startT - 3_600_000) t += 86_400_000
-    const row = epoch(new Date(t).toISOString(), id, num(v), { details: extra })
-    if (row) out.push(row)
+/** A v4 collection body: a bare array, or a wrapper object whose first array-valued key is the collection (VERIFY §13). */
+function unwrap(body: unknown, preferred: string[]): Rec[] {
+  if (Array.isArray(body)) return body.filter(isRec)
+  if (!isRec(body)) return []
+  for (const k of preferred) if (Array.isArray(body[k])) return (body[k] as unknown[]).filter(isRec)
+  for (const v of Object.values(body)) if (Array.isArray(v)) return v.filter(isRec)
+  return []
+}
+
+/** §9: the stable v4 profile identifier. Fails closed — an empty id would silently break webhook routing. VERIFY the key. */
+function profileIdentity(profile: Rec): string {
+  const id = str(first(profile, ["userId", "polarUserId", "memberId", "id"]))
+  if (!id) throw new Error("polar v4 profile carried no user identifier (VERIFY identity field, polar.md §9)")
+  return id
+}
+
+/** Splits the inclusive day window [start, end] into `{from, to}` pairs with `to` EXCLUSIVE (§21), each ≤ maxDays. */
+function rangeChunks(start: string, end: string, maxDays: number): { from: string; to: string }[] {
+  const out: { from: string; to: string }[] = []
+  const stop = addDays(end, 1)
+  let from = start
+  while (from < stop && out.length < 400) {
+    const to = addDays(from, Math.max(1, maxDays))
+    out.push({ from, to: to < stop ? to : stop })
+    from = to
   }
   return out
 }
 
-const isoMinutes = (d: unknown): number | null => {
-  if (typeof d !== "string") return null
-  const m = /P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:([\d.]+)S)?/.exec(d)
-  if (!m) return null
-  return (Number(m[1] ?? 0) * 1440) + (Number(m[2] ?? 0) * 60) + Number(m[3] ?? 0) + Number(m[4] ?? 0) / 60
+/**
+ * FunctionAlps-derived RMSSD (`functionalps_rmssd_v1`): sqrt(mean((PP[i+1] − PP[i])²)) over successive intervals in
+ * milliseconds (corpus metrics/hrv-semantics.md "FunctionAlps-derived HRV"). Non-finite / non-positive intervals are
+ * dropped before differencing; needs at least 2 accepted intervals.
+ */
+function rmssdFromPPI(ppiMs: number[]): number | null {
+  const xs = ppiMs.filter((x) => typeof x === "number" && Number.isFinite(x) && x > 0)
+  if (xs.length < 2) return null
+  let sum = 0
+  for (let i = 1; i < xs.length; i++) { const d = xs[i] - xs[i - 1]; sum += d * d }
+  return Math.sqrt(sum / (xs.length - 1))
 }
+
+const RES_NIGHTLY = "nightly-recharge-results", RES_SLEEPS = "sleeps", RES_PPI = "ppi-samples"
+
+/** One Nightly Recharge result → rows (§18/§20/§30). */
+function nightlyRechargeRows(rec: Rec): DailyRow[] {
+  const day = str(first(rec, ["date", "nightlyRechargeDate", "sleepDate"]))?.slice(0, 10)   // VERIFY: date key
+  if (!day) return []
+  const prov: Partial<DailyRow> = {
+    sourceRecordId: str(rec.id) ?? `${RES_NIGHTLY}:${day}`, sourceResourceType: RES_NIGHTLY,
+    sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
+  }
+  const status = first(rec, ["nightlyRechargeStatus", "status"])                                   // VERIFY: status key
+  const ans = first(rec, ["ansStatus"])
+  const details: Rec = {
+    // §30: unit NOT pinned → raw only, never 3106. §18: `meanNightlyRecoveryRri`, respiration interval, baselines are raw.
+    mean_nightly_recovery_rmssd: num(rec.meanNightlyRecoveryRmssd),
+    mean_nightly_recovery_rri: num(rec.meanNightlyRecoveryRri),
+    mean_nightly_recovery_respiration_interval: num(first(rec, ["meanNightlyRecoveryRespirationInterval", "respirationInterval"])),
+    unverified: ["VERIFY: meanNightlyRecoveryRmssd unit not pinned in v4 schema (polar.md §30) — raw only, not 3106"],
+    ...(typeof ans === "string" ? { ans_status_raw: ans } : {}),
+  }
+  return compact([
+    dailyText(day, T.PolarNightlyRechargeStatus, status == null ? null : String(status), { ...prov, sourceField: "status", details }),
+    // 1000132 is numeric in the catalogue; a categorical ansStatus is kept raw (§18 "do not coerce if categorical").
+    daily(day, T.PolarAnsStatus, typeof ans === "number" ? ans : null, { ...prov, sourceField: "ansStatus", details }),
+    daily(day, T.PolarSleepCharge, num(first(rec, ["sleepCharge"])), { ...prov, sourceField: "sleepCharge", details }),   // §18 "if exposed" (VERIFY)
+  ])
+}
+
+/** One v4 sleep → rows from the CURRENT `sleepResult` (§16/§19). */
+function sleepRows(rec: Rec): DailyRow[] {
+  const day = str(rec.sleepDate)?.slice(0, 10)
+  if (!day) return []
+  const sr = isRec(rec.sleepResult) ? rec.sleepResult : rec                    // VERIFY: nesting of the result fields
+  const startIso = str(first(sr, ["sleepStartTime", "startTime"])) ?? str(first(rec, ["sleepStartTime", "startTime"]))
+  const endIso = str(first(sr, ["sleepEndTime", "endTime"])) ?? str(first(rec, ["sleepEndTime", "endTime"]))
+  const tz = offsetMinutes(startIso?.slice(19))
+  const prov: Partial<DailyRow> = {
+    sourceRecordId: str(rec.id) ?? `${RES_SLEEPS}:${day}`, sourceResourceType: RES_SLEEPS, timezoneOffset: tz,
+    sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
+  }
+  const details: Rec = {
+    edited: rec.originalSleepResult != null,
+    // "verify v4 unit" (canonical-metric-map) → stage durations stay raw until pinned.
+    stages_raw: { light: num(first(sr, ["lightSleep", "light"])), deep: num(first(sr, ["deepSleep", "deep"])), rem: num(first(sr, ["remSleep", "rem"])), wake: num(first(sr, ["wake", "awake"])), unknown: num(first(sr, ["unknown"])) },
+    continuity: num(first(sr, ["continuity"])),
+    unverified: ["VERIFY: stage duration unit not pinned (canonical-metric-map) — raw only"],
+  }
+  return compact([
+    daily(day, T.SleepEfficiency, num(first(sr, ["efficiency", "sleepEfficiency"])), { ...prov, sourceField: "efficiency", details }),
+    daily(day, T.SleepScore, num(first(sr, ["sleepScore"]) ?? first(rec, ["sleepScore"])), { ...prov, sourceField: "sleepScore", details }),
+    dailyDate(day, T.SleepStart, startIso, { ...prov, sourceField: "sleepStartTime" }),
+    dailyDate(day, T.SleepEnd, endIso, { ...prov, sourceField: "sleepEndTime" }),
+  ])
+}
+
+/** One PPI sample set → one 3100 epoch row (FunctionAlps-derived RMSSD, ms pinned for `ppInterval`). */
+function ppiRows(rec: Rec, queryDay: string): EpochRow[] {
+  const samples = (Array.isArray(rec.samples) ? rec.samples : []).filter(isRec)   // VERIFY: `samples` key (§21 anchor + offsetMillis)
+  const raw = samples.map((s) => num(s.ppInterval))
+  const accepted = raw.filter((x): x is number => x != null && Number.isFinite(x) && x > 0)
+  const value = rmssdFromPPI(accepted)
+  if (value == null) return []
+  const anchor = str(first(rec, ["startTime", "start", "timestamp"]))
+  const startTs = anchor ? new Date(Date.parse(anchor)).toISOString() : `${queryDay}T00:00:00Z`
+  const lastOff = num(samples[samples.length - 1]?.offsetMillis)
+  const endTs = lastOff != null ? new Date(Date.parse(startTs) + lastOff).toISOString() : null
+  const row = epoch(startTs, T.Rmssd, value, {
+    endTs, sourceRecordId: str(rec.id) ?? `${RES_PPI}:${queryDay}:${startTs}`, sourceResourceType: RES_PPI, sourceField: "ppInterval", sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
+    details: { algorithm: "functionalps_rmssd_v1", n: accepted.length, rejected: raw.length - accepted.length, quality: "functionalps_derived", window_ms: lastOff, anchor: anchor ? "record_start" : "day_start" },
+  })
+  return row ? [row] : []
+}
+
+// MARK: - HTTP
+
+async function v4get(resource: string, q: Record<string, string>, tokens: TokenSet): Promise<Rec[]> {
+  try {
+    const body: unknown = await getJSON(`${POLAR_DATA}/${resource}?${new URLSearchParams(q)}`, { Authorization: `Bearer ${tokens.accessToken}` })
+    return unwrap(body, [resource, "items", "data", "results"])
+  } catch (e) {
+    if (e instanceof VendorHttpError && e.status === 404) return []   // §24: missing data is not a failure
+    throw e
+  }
+}
+
+const tokenSet = (t: Rec, fallbackRefresh?: string): TokenSet => {
+  const exp = num(t.expires_in)
+  return {
+    accessToken: String(t.access_token), refreshToken: (t.refresh_token as string | undefined) ?? fallbackRefresh,
+    expiresAt: exp ? Math.floor(Date.now() / 1000) + exp : undefined,   // §7: response expiry, no 12 h constant
+    scopes: typeof t.scope === "string" ? t.scope.split(" ").filter(Boolean) : undefined,
+  }
+}
+
+// MARK: - Adapter
 
 export const polar: VendorAdapter = {
   key: "polar",
   name: "Polar",
-  pkce: "not_documented",
-  scopes: ["accesslink.read_all"],
+  pkce: "not_documented",          // §6
+  scopes: SCOPES,
+  reconcile: { nightlyDays: 3, weeklyDays: 14 },   // §17
 
   authorizeURL({ clientId, redirectUri, state }) {
-    return `${AUTH}?${new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, scope: "accesslink.read_all", state })}`
+    return `${POLAR_AUTH}?${new URLSearchParams({ client_id: clientId, response_type: "code", scope: SCOPES.join(" "), redirect_uri: redirectUri, state })}`
   },
 
   async exchangeCode({ code, redirectUri }) {
     const { clientId, clientSecret } = vendorClient("polar")
-    const t = await tokenPost(TOKEN, { grant_type: "authorization_code", code, redirect_uri: redirectUri }, { basic: { id: clientId, secret: clientSecret } })
-    const exp = num(t.expires_in)
-    return { accessToken: String(t.access_token), refreshToken: t.refresh_token as string | undefined, expiresAt: exp ? Math.floor(Date.now() / 1000) + exp : undefined, scopes: polar.scopes, vendorUserId: String(t.x_user_id ?? "") }
+    const t = await tokenPost(POLAR_TOKEN, { grant_type: "authorization_code", code, redirect_uri: redirectUri }, { basic: { id: clientId, secret: clientSecret } })
+    const set = tokenSet(t)
+    // §9: identity from the v4 profile, never `x_user_id`.
+    const profile = await getJSON(POLAR_PROFILE, { Authorization: `Bearer ${set.accessToken}` })
+    return { ...set, scopes: set.scopes ?? SCOPES, vendorUserId: profileIdentity(profile) }
   },
 
   async refresh(refreshToken) {
-    if (!refreshToken) throw new UnauthorizedError("polar v3 tokens do not refresh — reconnect")
+    // §8: rotation semantics not documented → keep the old refresh token when none is returned; the core serialises refreshes.
     const { clientId, clientSecret } = vendorClient("polar")
-    const t = await tokenPost(TOKEN, { grant_type: "refresh_token", refresh_token: refreshToken }, { basic: { id: clientId, secret: clientSecret } })
-    const exp = num(t.expires_in)
-    return { accessToken: String(t.access_token), refreshToken: (t.refresh_token as string) ?? refreshToken, expiresAt: exp ? Math.floor(Date.now() / 1000) + exp : undefined }
+    const t = await tokenPost(POLAR_TOKEN, { grant_type: "refresh_token", refresh_token: refreshToken }, { basic: { id: clientId, secret: clientSecret } })
+    return tokenSet(t, refreshToken)
   },
 
-  async revoke(tokens, ctx) {
-    if (!ctx.vendorUserId) return
-    await fetch(`${API}/v3/users/${ctx.vendorUserId}`, { method: "DELETE", headers: { Authorization: `Bearer ${tokens.accessToken}` } })
-  },
-
-  async afterConnect(tokens, ctx) {
-    // Registration is mandatory before any data flows; 409 = already registered. member-id = an unguessable alias.
-    const memberId = randomToken(18)
-    const r = await fetch(`${API}/v3/users`, { method: "POST", headers: { Authorization: `Bearer ${tokens.accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ "member-id": memberId }) })
-    if (![200, 201, 409].includes(r.status)) throw new Error(`polar register ${r.status}: ${(await r.text()).slice(0, 200)}`)
-    const meta: Record<string, unknown> = { member_id: memberId, registered_status: r.status }
-    if (r.status !== 409) {
-      try { const u = await r.json(); meta.polar_user_id = u["polar-user-id"] ?? null; meta.registration_date = u["registration-date"] ?? null } catch { /* fine */ }
-    }
-    return { vendorUserId: ctx.vendorUserId || (meta.polar_user_id ? String(meta.polar_user_id) : undefined), meta }
-  },
+  // revoke: undefined on purpose — §25 "REQUIRES PORTAL VERIFICATION" for the v4 unlink request. The core erases tokens locally.
+  // unsubscribe: undefined — the v3 webhook is one per client (§10), never per user.
+  // afterConnect: none — v4 needs no `/v3/users` registration (§28).
 
   async parseWebhook(req, rawBody): Promise<WebhookEvent[]> {
-    const e = JSON.parse(rawBody) as Record<string, unknown>
-    if (e.event === "PING") return []                      // the creation ping — must be 200 before any secret exists
-    const secret = env("POLAR_WEBHOOK_SECRET")
-    const sig = (req.headers.get("Polar-Webhook-Signature") ?? "").toLowerCase()
+    if (env("POLAR_WEBHOOKS_ENABLED", "") !== "1") {
+      log("warn", "polar.webhook_disabled", { fn: "polar", vendor: "polar", reason: "v3-webhook/v4-data compatibility unconfirmed (polar.md §10)" })
+      return []
+    }
+    let e: Rec = {}
+    try { const j: unknown = JSON.parse(rawBody); if (isRec(j)) e = j } catch { throw new Error("polar webhook: malformed body") }
+    if (e.event === "PING") return []            // §11: the creation ping arrives before any secret exists
+    const secret = env("POLAR_WEBHOOK_SECRET")   // D10
+    const sig = (req.headers.get("Polar-Webhook-Signature") ?? "").trim().toLowerCase()
     const mac = await hmacSha256(secret, rawBody, "hex")
     if (!sig || !timingSafeEqual(mac, sig)) throw new Error("polar signature mismatch")
-    if (e.user_id == null) return []
-    const date = typeof e.date === "string" ? e.date.slice(0, 10) : undefined
-    return [{ vendorUserId: String(e.user_id), kind: String(e.event ?? "event"), windowStart: date ?? (typeof e.from === "string" ? e.from.slice(0, 10) : undefined), windowEnd: date ?? (typeof e.to === "string" ? e.to.slice(0, 10) : undefined) }]
+    // VERIFY (§9): the v3 `user_id` is not guaranteed to equal the v4 profile identity — one more reason for the flag.
+    const userId = str(e.user_id)
+    if (!userId) return []
+    const kind = req.headers.get("Polar-Webhook-Event") ?? str(e.event) ?? "event"
+    const date = str(e.date)?.slice(0, 10)
+    return [{
+      vendorUserId: userId, kind,
+      eventId: str(first(e, ["event_id", "id"])),   // no vendor event id is documented → body-hash dedupe in the core
+      ...(date ? { windowStart: date, windowEnd: date } : {}),
+      // `url` in the payload is never fetched (§11): the sync pulls the known v4 resources for the window instead.
+    }]
   },
 
-  async fetchRange(tokens, start, end) {
+  async fetchRange(tokens, start, end): Promise<RowBatch> {
     const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
-    for (const day of daysBetween(start, end)) {
-      const s = await pget(`/v3/users/sleep/${day}`, tokens)
-      if (s) {
-        const light = num(s.light_sleep) ?? 0, deep = num(s.deep_sleep) ?? 0, rem = num(s.rem_sleep) ?? 0
-        const st = s.sleep_start_time as string | undefined, en = s.sleep_end_time as string | undefined
-        dailyRows.push(...dailyMap(day, {
-          [T.MainSleepDuration]: light + deep + rem || null, [T.InBed]: st && en ? unixOf(en) - unixOf(st) : null, [T.REM]: rem || null, [T.Deep]: deep || null, [T.Light]: light || null,
-          [T.Awake]: num(s.total_interruption_duration), [T.AwakeAfterWakeup]: num(s.total_interruption_duration), [T.SleepQuality]: num(s.sleep_score), [T.SleepScore]: num(s.sleep_score), [T.SleepIntensity]: num(s.continuity),
-        }, { details: { cycles: num(s.sleep_cycles), sleep_charge: num(s.sleep_charge), continuity_class: num(s.continuity_class), device_id: s.device_id ?? null } }))
-        dailyRows.push(...compact([dailyDate(day, T.SleepStart, st), dailyDate(day, T.SleepEnd, en)]))
-        const hr = clockSeries(T.HeartRate, s.heart_rate_samples as Record<string, unknown>, st, { source: "sleep" })
-        epochRows.push(...hr)
-        const lowest = hr.length ? Math.min(...hr.map((r) => r.value as number)) : null
-        dailyRows.push(...dailyMap(day, { [T.HeartRateSleepLowest]: lowest, [T.HeartRateResting]: lowest }, { details: { proxy: "min_sleep_hr" } }))
-        const hyp = s.hypnogram as Record<string, unknown> | undefined
-        if (hyp && st) {
-          const map: Record<number, number> = { 0: T.SleepAwakeBinary, 1: T.SleepREMBinary, 2: T.SleepLightBinary, 3: T.SleepLightBinary, 4: T.SleepDeepBinary }
-          for (const row of clockSeries(T.SleepAwakeBinary, hyp, st)) { const id = map[row.value as number]; if (id) epochRows.push({ ...row, dataTypeId: id, dataTypeName: String(id), value: 5 }) }
-        }
-      }
-      const n = await pget(`/v3/users/nightly-recharge/${day}`, tokens)
-      if (n) {
-        const hrv = num(n.heart_rate_variability_avg)
-        dailyRows.push(...dailyMap(day, { [T.RmssdSleep]: hrv, [T.Rmssd]: hrv, [T.HeartRateSleep]: num(n.heart_rate_avg), [T.RespirationRateSleep]: num(n.breathing_rate_avg), [T.ANSCharge]: num(n.ans_charge), [T.RecoveryScore]: num(n.nightly_recharge_status) },
-          { details: { statistic: "rmssd", window: "4h_after_onset", ans_charge_status: num(n.ans_charge_status), beat_to_beat_avg: num(n.beat_to_beat_avg), recovery_scale: "nightly_recharge_status_1_6" } }))
-        const st = (s?.sleep_start_time as string | undefined) ?? `${day}T00:00:00Z`
-        epochRows.push(...clockSeries(T.Rmssd, n.hrv_samples as Record<string, unknown>, st, { statistic: "rmssd" }), ...clockSeries(T.RespirationRate, n.breathing_samples as Record<string, unknown>, st))
-      }
-      const a = await pget(`/v3/users/activities/${day}?steps=true&activity_zones=true`, tokens)
-      if (a) {
-        dailyRows.push(...dailyMap(day, { [T.Steps]: num(a.steps), [T.CoveredDistance]: num(a.distance_from_steps), [T.BurnedCalories]: num(a.calories), [T.ActiveBurnedCalories]: num(a.active_calories), [T.ActivityDuration]: isoMinutes(a.active_duration) }, { details: { daily_activity_pct: num(a.daily_activity) } }))
-        const steps = ((a.samples as Record<string, unknown>)?.steps as Record<string, unknown> | undefined)
-        for (const sm of (steps?.samples as Record<string, unknown>[]) ?? []) { const row = epoch(String(sm.timestamp), T.Steps, num(sm.steps)); if (row) epochRows.push(row) }
-      }
-      const c = await pget(`/v3/users/continuous-heart-rate/${day}`, tokens)
-      for (const h of (c?.heart_rate_samples as Record<string, unknown>[]) ?? []) { const row = epoch(`${day}T${h.sample_time}Z`, T.HeartRate, num(h.heart_rate), { details: { source: "continuous" } }); if (row) epochRows.push(row) }
+    const inRange = (r: DailyRow) => r.day >= start && r.day <= end
+    for (const { from, to } of rangeChunks(start, end, NIGHTLY_MAX_DAYS)) {
+      for (const rec of await v4get(RES_NIGHTLY, { from, to }, tokens)) dailyRows.push(...nightlyRechargeRows(rec).filter(inRange))
     }
-    // Exercises (last 30 days, post-registration) + physical info: once per range.
-    try {
-      const ex = await fetch(`${API}/v3/exercises`, { headers: { Authorization: `Bearer ${tokens.accessToken}`, Accept: "application/json" } })
-      if (ex.ok) for (const e of ((await ex.json()) as Record<string, unknown>[]) ?? []) {
-        const startTs = String(e.start_time), day = startTs.slice(0, 10)
-        if (day < start || day > end) continue
-        const hr = (e.heart_rate ?? {}) as Record<string, unknown>
-        epochRows.push(...compact([
-          epoch(startTs, T.ActivityType, 0, { valueText: String(e.sport ?? e.detailed_sport_info ?? ""), valueType: "STRING", details: { exercise_id: e.id, duration_min: isoMinutes(e.duration), training_load: num(e.training_load) } }),
-          epoch(startTs, T.ActiveBurnedCalories, num(e.calories), { details: { workout: true } }), epoch(startTs, T.CoveredDistance, num(e.distance), { details: { workout: true } }),
-          epoch(startTs, T.HeartRate, num(hr.average), { details: { workout: true, max: num(hr.maximum) } }),
-        ]))
-      }
-      const pi = await pget("/v3/users/physical-info", tokens)
-      if (pi) dailyRows.push(...dailyMap(end, { [T.Weight]: num(pi.weight), [T.Height]: num(pi.height), [T.VO2max]: num(pi.vo2_max) }, { details: { source: "polar_setting" } }))
-    } catch (e) { console.warn("[polar] exercises/physical", String(e).slice(0, 120)) }
+    for (const { from, to } of rangeChunks(start, end, SLEEPS_MAX_DAYS)) {
+      for (const rec of await v4get(RES_SLEEPS, { from, to }, tokens)) dailyRows.push(...sleepRows(rec).filter(inRange))
+    }
+    // §15: sample endpoints are one day per call.
+    for (const day of daysBetween(start, end)) {
+      for (const rec of await v4get(RES_PPI, { from: day, to: addDays(day, SAMPLES_MAX_DAYS), features: "samples" }, tokens)) epochRows.push(...ppiRows(rec, day))
+    }
     return { daily: dailyRows, epoch: epochRows }
   },
 }
 
-export const _polarTest = { clockSeries, isoMinutes, mean }
+export const _polarTest = { rmssdFromPPI, rangeChunks, profileIdentity, unwrap, nightlyRechargeRows, sleepRows, ppiRows, first }

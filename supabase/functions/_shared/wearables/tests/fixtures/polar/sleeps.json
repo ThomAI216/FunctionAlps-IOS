@@ -1,0 +1,33 @@
+{
+  "_note": "SYNTHETIC — vendors/polar.md §12/§19 pin sleepDate (vendor day = wake/end day), sleepResult (current) vs originalSleepResult (edited), sleep score, efficiency and a hypnogram; §21 pins ISO-offset hypnogram timestamps and UTC created/modified. VERIFY: nesting of `efficiency`/`sleepScore`/`sleepStartTime`/`sleepEndTime` inside `sleepResult`, stage-duration keys and their UNIT (raw-only until pinned), the response wrapper (served as a bare array).",
+  "response": [
+    {
+      "id": "sl-201",
+      "sleepDate": "2026-09-12",
+      "sleepResult": {
+        "sleepStartTime": "2026-09-11T22:41:00+02:00",
+        "sleepEndTime": "2026-09-12T06:35:00+02:00",
+        "efficiency": 91,
+        "sleepScore": 78,
+        "continuity": 3.2,
+        "lightSleep": 14760,
+        "deepSleep": 5820,
+        "remSleep": 6120,
+        "wake": 1740,
+        "unknown": 0
+      },
+      "originalSleepResult": {
+        "sleepStartTime": "2026-09-11T22:30:00+02:00",
+        "sleepEndTime": "2026-09-12T06:35:00+02:00",
+        "efficiency": 88,
+        "sleepScore": 76
+      },
+      "hypnogram": [
+        { "time": "2026-09-11T22:41:00+02:00", "phase": "LIGHT" },
+        { "time": "2026-09-11T23:20:00+02:00", "phase": "DEEP" }
+      ],
+      "created": "2026-09-12T04:40:00Z",
+      "modified": "2026-09-12T09:05:00Z"
+    }
+  ]
+}

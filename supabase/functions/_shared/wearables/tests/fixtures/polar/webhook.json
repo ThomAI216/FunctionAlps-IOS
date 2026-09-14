@@ -1,0 +1,11 @@
+{
+  "_note": "SYNTHETIC v3 AccessLink SLEEP notification shape — vendors/polar.md §10/§11 pin the headers Polar-Webhook-Signature (HMAC-SHA256 of the raw body, lowercase hex, key = signature_secret_key) and Polar-Webhook-Event, and that the payload `url` must never be fetched. VERIFY: `user_id` equality with the v4 profile identity (§9), the `date` key, and whether any event id is sent (none documented → body-hash dedupe). Only parsed when POLAR_WEBHOOKS_ENABLED=1.",
+  "headers": { "Polar-Webhook-Event": "SLEEP" },
+  "body": {
+    "event": "SLEEP",
+    "user_id": 475,
+    "date": "2026-09-12",
+    "timestamp": "2026-09-12T06:40:12Z",
+    "url": "https://www.polaraccesslink.com/v3/users/sleep/2026-09-12"
+  }
+}
