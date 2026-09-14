@@ -216,6 +216,7 @@ A **sixth function**, `wearable-reconcile` (verify_jwt off, `x-report-secret`), 
 | `OURA_WEBHOOK_VERIFICATION_TOKEN` | webhook | the verification token you chose in the Oura portal (Phase 2 removes the client-secret fallback). |
 | `OURA_MAINTAIN_SUBSCRIPTIONS=1` | sync (cron) | opt-in flag for the hourly subscription create/renew call (off until Phase 2 pins the operation). |
 | `POLAR_WEBHOOK_SECRET` | webhook | `signature_secret_key` from the one-time webhook registration. |
+| `POLAR_WEBHOOKS_ENABLED=1` | webhook | opt-in: Polar webhooks are parsed only once v3-webhook / v4-data compatibility is confirmed in writing (the adapter runs on Dynamic API v4 since 2026-09-14). |
 | `SUUNTO_SUBSCRIPTION_KEY`, `SUUNTO_WEBHOOK_SECRET` | sync · webhook | from the Suunto partner profile. |
 | `GOOGLE_WEBHOOK_SECRET`, `GOOGLE_CLOUD_PROJECT_NUMBER` | webhook · callback | subscriber registration (Phase 2). |
 | `WITHINGS_REGION=EU` | callback · sync | region pin. |
@@ -231,6 +232,23 @@ shows queue depth per status, accounts per state and webhooks in the last 24 h. 
 The member's "Disconnect and delete synced data" calls `wearable-vendor-disconnect` with `erase: true` →
 `wearable_erase_vendor_data()` deletes that vendor's `wearable_daily` / `wearable_epoch` rows and marks its raw events
 for the nightly purge; nothing from another source is touched.
+
+### Apple Health relay — FunctionAlps sleep rule (own rule, 2026-09-14) and decision D7
+
+**Sleep rule** (`SleepAssembler`, `FunctionAlps/Sources/Core/Health/WearableCatalog.swift` — FunctionAlps' own rule, not a
+vendor convention): (1) a gap of more than **3 h** between two HealthKit sleep samples starts a new session; (2) a session
+counts as the **main sleep only when it holds ≥ 3 h asleep** (or one explicit in-bed sample ≥ 3 h) — shorter sessions are
+naps and are dropped; (3) **one main sleep per day: the longest session wins** (the night, not the siesta); (4) the day a
+night belongs to is **the local day the sleep ended**. Durations travel in seconds on the catalogue ids 2300–2307, 2402, 2200.
+
+**D7 (wearables strategy):** the relay keeps its **rolling-window resync (30 d backfill on the first sync, 3 d on every
+later sync) as a documented deviation** — HealthKit deletions and edits older than 3 days are not picked up, and a day is
+re-upserted whole. `dailyTypes` now also reads **flights climbed** (1002 `FloorsClimbed`, day sum), **body fat %**
+(5025 `FatRatio`, day mean ×100, rounded) and **body temperature** (5040 `BodyTemperature`, °C, day mean); blood glucose is
+parked (CGM later). Every workout epoch and every assembled night carries **`source_record_id` = the HealthKit object UUID
+and `source_device_id` = the writing app's bundle id** (a night uses its FIRST sample's); `wearable-ingest` writes them with
+`normalization_version` and a null `source_connection_id`. Anchored queries (`HKAnchoredObjectQuery`), deletions and an
+outbox come in a later phase.
 
 ## Notifications (added 2026-09-04)
 

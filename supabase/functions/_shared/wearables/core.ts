@@ -32,6 +32,10 @@ export const VENDOR_SOURCE_IDS: Record<VendorKey, number> = {
   google: 1000011,
 }
 
+/** Reserved `data_source_id`s for the two phone relays (strategy 2026-09-14): Apple Health is live at 1000001
+ *  (`wearable-ingest`); Android Health Connect is RESERVED only — nothing writes it until an Android client exists. */
+export const RELAY_SOURCE_IDS = { apple_health: 1000001, health_connect: 1000060 } as const
+
 /** Bumped whenever the mapping of vendor fields → catalogue rows changes shape; stored on every row. */
 export const NORMALIZATION_VERSION = "2026.09.14"
 
@@ -97,6 +101,10 @@ export interface WebhookEvent {
   kind: string
   /** The vendor's own event id when it sends one (WHOOP trace_id, Oura event id…) — the first dedupe key. */
   eventId?: string | null
+  /** The vendor record the event is about, when named (WHOOP sleep/workout id, Oura object_id…). */
+  resourceId?: string | null
+  /** A deletion tombstone: the record named above no longer exists at the vendor (WHOOP `*.deleted`). */
+  deleted?: boolean
   /** Inclusive day range to (re)pull; undefined = the last 3 days. */
   windowStart?: string
   windowEnd?: string
@@ -523,7 +531,13 @@ export async function storeTokens(db: SupabaseClient, account: AccountRow, token
   const version = currentKeyVersion()
   const row: Record<string, unknown> = {
     access_token_enc: await encrypt(tokens.accessToken, { accountId: account.id, vendor: account.vendor, tokenType: "access" }, version),
-    refresh_token_enc: tokens.refreshToken ? await encrypt(tokens.refreshToken, { accountId: account.id, vendor: account.vendor, tokenType: "refresh" }, version) : null,
+    // A refresh token is REPLACED when the vendor sends one and KEPT when the reply omits it (Google, Withings
+    // and others only return it on the first consent); it is cleared only by disconnect/revoke paths.
+    ...(tokens.refreshToken
+      ? { refresh_token_enc: await encrypt(tokens.refreshToken, { accountId: account.id, vendor: account.vendor, tokenType: "refresh" }, version) }
+      : account.refresh_token_enc && account.token_key_version !== version
+        ? { refresh_token_enc: await encrypt((await decodeTokens(account)).refreshToken ?? "", { accountId: account.id, vendor: account.vendor, tokenType: "refresh" }, version) }
+        : {}),
     token_expires_at: tokens.expiresAt ? new Date(tokens.expiresAt * 1000).toISOString() : null,
     scopes: tokens.scopes ?? account.scopes ?? null,
     token_version: Number(account.token_version ?? 1) + 1,

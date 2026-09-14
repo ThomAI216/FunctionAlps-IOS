@@ -65,5 +65,6 @@ Deno.serve(async (req) => {
     await enqueue(db, { patientId: acc.patient_id, vendor: a.key, vendorUserId: ev.vendorUserId, kind: ev.kind, syncKind: ev.rows ? "push" : "notification", windowStart: start, windowEnd: end, rawEventId: rawId, priority: 3, accountId: acc.id, dedupeKey: `notification:${acc.id}:${start}:${end}` })
   }
   log("info", "webhook.ok", { fn: FN, vendor: a.key, events: events.length, accepted, duplicates, unknown, ms: t() })
-  return new Response(JSON.stringify({ ok: true, events: events.length, accepted, duplicates }), { status: 200, headers: { "Content-Type": "application/json" } })
+  // 204, no body: the universal ACK (Google's subscriber contract asks for it; every other vendor accepts any 2xx).
+  return new Response(null, { status: 204 })
 })
