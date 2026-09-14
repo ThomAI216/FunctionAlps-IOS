@@ -17,6 +17,7 @@ import type { MealLog, AnalyzedItem, MealMicros } from "./engine/types/log-store
 import type { CheckinHistoryEntry } from "./engine/types/daily-store.ts"
 import type { GutHistoryEntry } from "./engine/checkin/marker-trends.ts"
 import { overallTrend } from "./engine/health/overall-trend.ts"
+import { loadWearableInputs } from "../_shared/scoring/wearable-inputs.ts"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -53,6 +54,9 @@ Deno.serve(async (req: Request) => {
   const dayCutoff = (back: number) => { const d = new Date(now); d.setDate(d.getDate() - back); return localDayISO(d) }
   const sinceMeals = new Date(Date.now() - MEAL_DAYS * 86_400_000).toISOString()
 
+  // Wearables (Phase 4): typed inputs, one primary source per metric, the HRV chain, a robust 42-day baseline.
+  // Own rows under the caller's JWT; a read failure never blocks the score (the member's day still counts).
+  const wearablePromise = loadWearableInputs(db, String(patientId), today, TREND_DAYS).catch((e) => ({ error: String((e as Error).message ?? e) }))
   const [mealsRes, reactionsRes, fnRes, gutRes, todayRes, profileRes] = await Promise.all([
     db.from("nb_meal_logs")
       .select("id, name, meal_type, logged_at, total_calories, total_protein_g, total_carbs_g, total_fat_g, total_fiber_g, micronutrient_totals, inflammation_score, glycemic_score, gut_score, ai_identified_foods")
@@ -147,6 +151,8 @@ Deno.serve(async (req: Request) => {
     customCalorieOffset: num(p.custom_calorie_offset_kcal),
   }
 
+  const wearable = await wearablePromise
+  const wearableOk = !("error" in wearable)
   const result = deriveTrends({
     meals,
     metricHistory,
@@ -156,6 +162,8 @@ Deno.serve(async (req: Request) => {
     gutCompletedToday: !!todayCheckin?.intelligenceDoneAt,
     profile,
     now,
+    wearableByDay: wearableOk && wearable.wearableByDay.size ? wearable.wearableByDay : undefined,
+    recoveryBaseline: wearableOk && wearable.wearableByDay.size ? wearable.recoveryBaseline : undefined,
   })
 
   // The crown's direction, from the same composite series the headline number ends.
@@ -167,7 +175,10 @@ Deno.serve(async (req: Request) => {
     tzOffsetMinutes: offset,
     generatedAt: new Date().toISOString(),
     trend,
-    inputs: { meals: meals.length, functionalDays: metricHistory.length, gutDays: gutHistory.length, hasToday: !!todayCheckin, hasProfile: !!profileRes.data },
+    inputs: { meals: meals.length, functionalDays: metricHistory.length, gutDays: gutHistory.length, hasToday: !!todayCheckin, hasProfile: !!profileRes.data, wearableDays: wearableOk ? wearable.wearableByDay.size : 0 },
+    // How the wearable inputs were built (source per metric, the HRV level, baseline days) — the app shows it as
+    // "Recovery signals from WHOOP · 21-day baseline" or "not enough data yet". Never a vendor score, never an LLM.
+    wearable: wearableOk ? wearable.summary : { error: wearable.error },
     ...result,
   })
 })

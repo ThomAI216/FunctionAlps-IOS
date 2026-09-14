@@ -54,6 +54,9 @@ struct MemberScores: Sendable, Equatable, Decodable {
     let nutrition: ScoreBreakdown
     let gut: ScoreBreakdown
     let compositeSeries14d: [Double?]
+    /// How the wearable inputs were built server-side (Phase 4): the HRV level, the source per metric, the
+    /// baseline days. Optional — absent on older servers, `{error}` when the read failed (every field nil).
+    let wearable: WearableInputSummary?
 
     var crownSeries: [Int?] { compositeSeries14d.map { $0.map { Int($0.rounded()) } } }
 
@@ -89,5 +92,52 @@ struct MemberScores: Sendable, Equatable, Decodable {
         case .metabolic: metabolic
         case .nutrition: nutrition
         }
+    }
+}
+
+/// `member-scores.wearable` — never a vendor score, never a judgement: which device feeds which signal and how
+/// many days the member's own baseline stands on.
+struct WearableInputSummary: Sendable, Equatable, Decodable {
+    struct Metric: Sendable, Equatable, Decodable {
+        let source: String?
+        let days: Int?
+        let baselineDays: Int?
+        let baseline: Double?
+        let eligible: Bool?
+    }
+    let hrvMetric: String?
+    let hrv: Metric?
+    let restingHr: Metric?
+    let sleep: Metric?
+    let steps: Metric?
+    let daysWithData: Int?
+    let sources: [String]?
+
+    /// A device name a member recognises (`whoop` → "WHOOP", `apple_health` → "Apple Health").
+    static func displayName(_ source: String) -> String {
+        switch source {
+        case "apple_health": "Apple Health"
+        case "health_connect": "Health Connect"
+        case "whoop": "WHOOP"
+        case "oura": "Oura"
+        case "polar": "Polar"
+        case "garmin": "Garmin"
+        case "withings": "Withings"
+        case "suunto": "Suunto"
+        case "google": "Google (Fitbit)"
+        case "thryve": "linked device"
+        default: source
+        }
+    }
+
+    /// The one line under "Body signals": where the recovery signals come from and whether the baseline is ready.
+    var caption: String? {
+        guard let hrv, let source = hrv.source else { return nil }
+        let name = Self.displayName(source)
+        let days = hrv.baselineDays ?? 0
+        if hrv.eligible == true {
+            return String(localized: "scores.wearable.ready", defaultValue: "Recovery signals from \(name) · \(days)-day baseline")
+        }
+        return String(localized: "scores.wearable.building", defaultValue: "Recovery signals from \(name) · baseline in \(max(0, 14 - days)) more days")
     }
 }

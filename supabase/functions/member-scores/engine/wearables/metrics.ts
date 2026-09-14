@@ -12,7 +12,7 @@ export const AGG_RULE = {
   ActiveDurationManual: 'max', ActivityDuration: 'max',
   ActiveBurnedCalories: 'max', CoveredDistance: 'max',
   // point-in-time → MEDIAN across sources
-  HeartRateResting: 'median', Rmssd: 'median', RmssdSleep: 'median',
+  HeartRateResting: 'median', Rmssd: 'median', RmssdSleep: 'median', SDNN: 'median', // SDNN = the HRV chain's last step (3106 → 3100 → 3112), never converted
   AverageStress: 'median', RespirationRate: 'median', MetabolicEquivalentMax5Min: 'median',
   // sleep (single Thryve source) → MAX is a no-op collapse
   ThryveMainSleepDuration: 'max', ThryveMainSleepInBedDuration: 'max',

@@ -29490,6 +29490,38 @@
         }
       }
     },
+    "scores.wearable.building": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery signals from %1$@ · baseline in %2$lld more days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaux de récupération de %1$@ · base prête dans %2$lld jours"
+          }
+        }
+      }
+    },
+    "scores.wearable.ready": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery signals from %1$@ · %2$lld-day baseline"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaux de récupération de %1$@ · base de %2$lld jours"
+          }
+        }
+      }
+    },
     "settings.about": {
       "localizations": {
         "en": {

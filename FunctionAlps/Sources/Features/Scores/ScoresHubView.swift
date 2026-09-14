@@ -54,6 +54,13 @@ struct ScoresHubView: View {
                             ScoreHubTile(score: model.body[s]?.score, label: s.title, tint: s.tint) { router.push(.bodySignal(s)) }
                         }
                     }
+                    if let caption = model.scores?.wearable?.caption {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "applewatch").font(.system(size: 12, weight: .semibold)).foregroundStyle(ProfilePalette.muted).padding(.top, 1)
+                            Text(caption).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
+                        }
+                        .padding(.top, 8)
+                    }
                     section(String(localized: "scores.section.gut", defaultValue: "Gut signals · from your gut check-in"))
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(GutSignal.allCases) { s in

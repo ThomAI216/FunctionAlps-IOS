@@ -39,4 +39,4 @@ jobs:
             echo "::group::check $fn"; deno check "$fn/index.ts"; echo "::endgroup::"
           done
       - name: Unit tests
-        run: deno test --allow-env --allow-read _shared/wearables/tests/
+        run: deno test --allow-env --allow-read _shared/wearables/tests/ _shared/scoring/tests/
