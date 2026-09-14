@@ -262,11 +262,14 @@ the official press-kit logo: drop the SVG/PNG into the matching `vendor-<key>.im
 (`filename`; remove `template-rendering-intent` for a full-colour logo) — for Withings, create `vendor-withings.imageset`.
 
 ### Public legal pages (2026-09-14)
-`legal-page` (verify_jwt off) serves the CURRENT approved documents from `consent_definitions` as HTML, in EN and FR:
-`https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/legal-page/privacy` (also `/terms`, `/legal-notice`,
-`/health-data`, `/ai`; `?lang=fr`). This is the privacy-policy URL to give vendor portals (WHOOP, Oura, Withings…) and
-App Store Connect. Approving a new notice version changes the page with no deploy. A prettier address under the
-practice domain is one `vercel.json` rewrite in FunctionAlps-APP (`/privacy` → that URL).
+`legal-page` (verify_jwt off) serves the CURRENT approved documents from `consent_definitions` as HTML, in EN and FR.
+**Public address (give this one to vendor portals — WHOOP, Oura, Withings… — and App Store Connect):**
+`https://app.functionalps.ch/privacy` (also `/terms`, `/legal-notice`, `/health-data`, `/ai`; `?lang=fr`).
+It is served by `api/legal.js` in FunctionAlps-APP (Vercel), which proxies
+`https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/legal-page/<slug>`. Do NOT hand out the supabase.co URL:
+the Supabase gateway serves HTML from the shared functions domain as `text/plain` with a sandbox CSP
+(anti-phishing), so a browser shows raw source there. Approving a new notice version changes the pages with no
+deploy (5-minute cache).
 
 ## Notifications (added 2026-09-04)
 
