@@ -1444,6 +1444,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     }
 
     private struct VendorBody: Encodable, Sendable { let vendor: String }
+    private struct VendorDisconnectBody: Encodable, Sendable { let vendor: String; let erase: Bool }
     private struct OkBody: Decodable, Sendable { let ok: Bool? }
 
     func wearableVendors() async throws -> [WearableVendorRow] {
@@ -1454,8 +1455,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await functions.invoke("wearable-oauth-start", body: VendorBody(vendor: vendor))
     }
 
-    func vendorDisconnect(vendor: String) async throws {
-        let _: OkBody = try await functions.invoke("wearable-vendor-disconnect", body: VendorBody(vendor: vendor))
+    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] {
+        try await rest.select("wearable_vendor_accounts", query: [
+            PG.select("vendor,status,reconnect_required,last_successful_sync_at,last_error_code,connected_at"), PG.eq("patient_id", patientId),
+        ])
+    }
+
+    func vendorDisconnect(vendor: String, erase: Bool) async throws {
+        let _: OkBody = try await functions.invoke("wearable-vendor-disconnect", body: VendorDisconnectBody(vendor: vendor, erase: erase))
     }
 
     func vendorSyncNow() async throws {

@@ -1,7 +1,7 @@
 // Withings Public Cloud — spec §1 (tier B). Form-encoded POSTs, `{status, body}` envelopes (HTTP 200 always —
 // `status !== 0` is the error), comma-separated scopes, 30-second authorization codes, 3-hour access tokens.
 // Notify API: per user per `appli` category, unsigned notifications → we only trust them as a "pull now" hint.
-import { type DailyRow, type EpochRow, type TokenSet, type VendorAdapter, type WebhookEvent, T, UnauthorizedError, compact, dailyDate, dailyMap, daysBetween, epoch, hmacSha256, mean, num, unixOf, vendorClient } from "./core.ts"
+import { type DailyRow, type EpochRow, type ExchangeResult, type TokenSet, type VendorAdapter, type WebhookEvent, T, UnauthorizedError, compact, dailyDate, dailyMap, daysBetween, epoch, hmacSha256, mean, num, unixOf, vendorClient } from "./core.ts"
 
 const AUTH = "https://account.withings.com/oauth2_user/authorize2"
 const API = "https://wbsapi.withings.net"
@@ -18,7 +18,7 @@ async function wapi(path: string, params: Record<string, string | number>, acces
   return j.body ?? {}
 }
 
-const tokenSet = (b: Record<string, unknown>): TokenSet => ({
+const tokenSet = (b: Record<string, unknown>): ExchangeResult => ({
   accessToken: String(b.access_token), refreshToken: b.refresh_token as string | undefined,
   expiresAt: Math.floor(Date.now() / 1000) + (num(b.expires_in) ?? 10_800), scopes: String(b.scope ?? SCOPES).split(","), vendorUserId: b.userid != null ? String(b.userid) : undefined,
 })
@@ -28,7 +28,7 @@ const MEAS: Record<number, number> = { 1: T.Weight, 4: T.Height, 5: T.FatFreeMas
 export const withings: VendorAdapter = {
   key: "withings",
   name: "Withings",
-  usesPKCE: false,
+  pkce: "not_documented",
   scopes: SCOPES.split(","),
 
   authorizeURL({ clientId, redirectUri, state }) {
@@ -46,14 +46,14 @@ export const withings: VendorAdapter = {
     return { ...t, refreshToken: t.refreshToken ?? refreshToken }
   },
 
-  async revoke(tokens) {
+  async revoke(tokens, ctx) {
     // Signature mode: nonce → HMAC-SHA256(client_secret, values of the params sorted by name, comma-joined).
     const { clientId, clientSecret } = vendorClient("withings")
-    if (!tokens.vendorUserId) return
+    if (!ctx.vendorUserId) return
     const ts = Math.floor(Date.now() / 1000)
     const nonceBody = await wapi("/v2/signature", { action: "getnonce", client_id: clientId, timestamp: ts, signature: await hmacSha256(clientSecret, `getnonce,${clientId},${ts}`) })
     const nonce = String(nonceBody.nonce ?? "")
-    await wapi("/v2/oauth2", { action: "revoke", client_id: clientId, nonce, userid: tokens.vendorUserId, signature: await hmacSha256(clientSecret, `revoke,${clientId},${nonce}`) })
+    await wapi("/v2/oauth2", { action: "revoke", client_id: clientId, nonce, userid: ctx.vendorUserId, signature: await hmacSha256(clientSecret, `revoke,${clientId},${nonce}`) })
   },
 
   async afterConnect(tokens, { webhookUrl }) {
@@ -124,7 +124,7 @@ export const withings: VendorAdapter = {
         if (id === T.Height) v *= 100
         const row = epoch(ts, id, v, { details: { grpid: g.grpid, attrib, model: g.model, meastype: q.type } })
         if (row) epochRows.push(row)
-        if ([T.Weight, T.FatRatio, T.FatMass, T.FatFreeMass, T.MuscleMass, T.BoneMass, T.WaterMass, T.Height, T.VO2max, T.SPO2, T.DiastolicBP, T.SystolicBP, T.BodyTemperature, T.SkinTemperature].includes(id)) {
+        if (([T.Weight, T.FatRatio, T.FatMass, T.FatFreeMass, T.MuscleMass, T.BoneMass, T.WaterMass, T.Height, T.VO2max, T.SPO2, T.DiastolicBP, T.SystolicBP, T.BodyTemperature, T.SkinTemperature] as number[]).includes(id)) {
           dailyRows.push(...dailyMap(day, { [id]: v }, { details: { grpid: g.grpid, model: g.model } }))
         }
       }

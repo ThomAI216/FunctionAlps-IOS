@@ -76,7 +76,36 @@ enum VendorCallback {
         switch reason {
         case "denied", "access_denied": String(localized: "vendor.err.denied", defaultValue: "You didn't allow the connection. Nothing was linked.")
         case "expired": String(localized: "vendor.err.expired", defaultValue: "The sign-in took too long. Please try again.")
+        case "already_linked": String(localized: "vendor.err.alreadyLinked", defaultValue: "This wearable account is already linked to another FunctionAlps account. Unlink it there first.")
+        case "vendor_paused": String(localized: "vendor.err.paused", defaultValue: "This connection is paused by the practice for the moment. Please try again later.")
         default: String(localized: "vendor.err.generic", defaultValue: "The connection didn't complete. Please try again in a moment.")
         }
     }
+}
+
+/// One `wearable_vendor_accounts` row as the member may read it (platform v2: status columns only, never the
+/// tokens — the column grant + RLS on CM OS enforce that). The nine server states collapse into what the
+/// Devices card shows.
+struct WearableVendorAccountRow: Decodable, Sendable, Equatable {
+    let vendor: String
+    let status: String
+    let reconnectRequired: Bool?
+    let lastSuccessfulSyncAt: Date?
+    let lastErrorCode: String?
+    let connectedAt: Date?
+
+    enum Presentation: Sendable, Equatable { case live, syncing, degraded, reconnect, off }
+
+    var presentation: Presentation {
+        switch status {
+        case "connected": .live
+        case "syncing": .syncing
+        case "degraded": .degraded
+        case "reconnect_required", "revoked", "error": .reconnect
+        default: .off   // not_connected · connecting · disconnected
+        }
+    }
+
+    /// The account still holds a credential and the backend keeps pulling.
+    var isLive: Bool { presentation == .live || presentation == .syncing || presentation == .degraded }
 }

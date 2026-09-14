@@ -24,7 +24,7 @@ const kcal = (kj: unknown) => { const v = num(kj); return v == null ? null : v /
 export const whoop: VendorAdapter = {
   key: "whoop",
   name: "WHOOP",
-  usesPKCE: false,
+  pkce: "not_documented",
   scopes: ["offline", "read:profile", "read:body_measurement", "read:cycles", "read:recovery", "read:sleep", "read:workout"],
 
   authorizeURL({ clientId, redirectUri, state }) {

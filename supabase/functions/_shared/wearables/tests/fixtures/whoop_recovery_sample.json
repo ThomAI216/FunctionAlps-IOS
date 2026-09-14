@@ -1,0 +1,15 @@
+{
+  "_note": "Synthetic shape (not a live capture) used only by the core persist golden trace; a real WHOOP fixture arrives with the Phase 2 adapter PR.",
+  "day": "2026-09-13",
+  "rows": {
+    "daily": [
+      { "day": "2026-09-13", "dataTypeId": 3106, "dataTypeName": "RmssdSleep", "value": 61.5, "valueType": "DOUBLE", "timezoneOffset": 120, "sourceRecordId": "rec-1", "sourceResourceType": "recovery" },
+      { "day": "2026-09-13", "dataTypeId": 3001, "dataTypeName": "HeartRateResting", "value": 52, "valueType": "LONG", "timezoneOffset": 120, "sourceRecordId": "rec-1", "sourceResourceType": "recovery" },
+      { "day": "2026-09-13", "dataTypeId": 1000110, "dataTypeName": "SkinTemperature", "value": 33.4, "valueType": "DOUBLE", "timezoneOffset": 120, "sourceRecordId": "rec-1", "sourceResourceType": "recovery" },
+      { "day": "2026-09-13", "dataTypeId": 3001, "dataTypeName": "HeartRateResting", "value": 53, "valueType": "LONG", "timezoneOffset": 120 }
+    ],
+    "epoch": [
+      { "startTs": "2026-09-13T06:10:00Z", "endTs": "2026-09-13T07:00:00Z", "dataTypeId": 1000102, "dataTypeName": "StrainScore", "value": 8.7, "valueType": "DOUBLE", "timezoneOffset": 120, "sourceRecordId": "wk-9", "sourceResourceType": "workout" }
+    ]
+  }
+}

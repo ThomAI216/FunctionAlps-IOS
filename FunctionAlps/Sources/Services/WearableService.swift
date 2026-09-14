@@ -250,8 +250,14 @@ final class WearableService {
         }
     }
 
-    func disconnectVendor(_ vendor: String) async throws {
-        try await backend.vendorDisconnect(vendor: vendor)
+    /// The member's own vendor accounts (nine server states → `presentation`).
+    func vendorAccounts(patientId: String) async -> [WearableVendorAccountRow] {
+        (try? await backend.wearableVendorAccounts(patientId: patientId)) ?? []
+    }
+
+    /// `erase` = also delete the readings that vendor already synced (the delete-my-data flow).
+    func disconnectVendor(_ vendor: String, erase: Bool = false) async throws {
+        try await backend.vendorDisconnect(vendor: vendor, erase: erase)
     }
 
     /// "Sync now" for the vendor accounts (the last 3 days, server side).

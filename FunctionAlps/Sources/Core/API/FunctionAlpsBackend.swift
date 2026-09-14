@@ -191,8 +191,11 @@ protocol FunctionAlpsBackend: Sendable {
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)
     func wearableVendors() async throws -> [WearableVendorRow]
+    /// The member's own vendor accounts (status columns only; platform v2 nine states).
+    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow]
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart
-    func vendorDisconnect(vendor: String) async throws
+    /// `erase` = the delete-my-data flow: the stored readings of that vendor are deleted as well.
+    func vendorDisconnect(vendor: String, erase: Bool) async throws
     func vendorSyncNow() async throws
 }
 

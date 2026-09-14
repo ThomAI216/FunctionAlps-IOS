@@ -39,7 +39,7 @@ async function rollup(tokens: TokenSet, dt: string, day: string): Promise<Record
 export const google: VendorAdapter = {
   key: "google",
   name: "Google Health",
-  usesPKCE: true,
+  pkce: "required",
   scopes: SCOPES,
 
   authorizeURL({ clientId, redirectUri, state, codeChallenge }) {

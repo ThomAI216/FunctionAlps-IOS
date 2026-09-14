@@ -2,7 +2,7 @@
 #
 # Mirrors FunctionAlps-APP/.github/workflows/deploy-edge-functions.yml — same secret, same guard rails.
 # It never deploys "everything": only the functions the pushed commit touched, or the one named in a
-# manual run. A change under `_shared/wearables/` maps to the five direct-connector functions.
+# manual run. A change under `_shared/wearables/` maps to the six direct-connector functions.
 #
 # SETUP (one time): repository secret `SUPABASE_ACCESS_TOKEN`
 #   Settings -> Secrets and variables -> Actions -> New repository secret
@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'Function slug, or "wearables" for the five direct-connector functions'
+        description: 'Function slug, or "wearables" for the six direct-connector functions'
         required: true
         default: 'wearables'
         type: string
@@ -32,8 +32,8 @@ env:
   # ⚠ THIS LIST CUTS BOTH WAYS: deploying a listed function WITHOUT --no-verify-jwt flips its live
   # setting on and breaks the vendor/cron calls; deploying an UNLISTED function WITH the flag silently
   # re-opens an endpoint. The `verify` step reads the live values first and fails on any disagreement.
-  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync push-send'
-  WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect'
+  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send'
+  WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile'
 
 jobs:
   deploy:

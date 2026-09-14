@@ -106,7 +106,8 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     func wearableVendors() async throws -> [WearableVendorRow] { [] }
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart { VendorConnectStart(url: URL(string: "https://example.test")!, vendor: vendor) }
-    func vendorDisconnect(vendor: String) async throws {}
+    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { [] }
+    func vendorDisconnect(vendor: String, erase: Bool) async throws {}
     func vendorSyncNow() async throws {}
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?

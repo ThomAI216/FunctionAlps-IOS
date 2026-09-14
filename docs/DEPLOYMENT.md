@@ -197,6 +197,41 @@ written from the specs and marked `VERIFY:` where a field name or endpoint could
 The first real connection per vendor is the test; the raw payloads land verbatim in `wearable_raw_events`
 (`vendor_webhook` / `vendor_api`) so a wrong field name is fixed from the stored payload, not guessed.
 
+### Platform v2 (2026-09-14) — what changed and the secret names that are authoritative
+
+Two additive migrations are applied on CM OS and kept in `supabase/migrations/`:
+`20260914_wearable_catalogue_v2.sql` (catalogue reconciliation: `*Alt` aliases → canonical ids, glucose stored in mg/dL,
+ids 1000114–1000118 and 1000130–1000138 reserved) and `20260914_wearables_platform_v2.sql` (nine account states, refresh
+lease + `token_version` CAS, hashed OAuth state + encrypted PKCE verifier, queue lease/dedupe/retry scheduling,
+webhook receipts, audit log, retention purge, `wearable_reconcile` cron 03:25 UTC, `wearable-retention-purge` 03:40 UTC).
+A **sixth function**, `wearable-reconcile` (verify_jwt off, `x-report-secret`), re-pulls every live account nightly
+(adapter window, default 3 d; Sundays 14 d) and re-encrypts tokens after a key rotation.
+`deno test` (`.github/workflows/edge-functions.yml`) type-checks every function and runs the platform tests on each push.
+
+| Secret (Supabase → Edge Functions → Secrets) | Used by | Notes |
+|---|---|---|
+| `WEARABLE_TOKEN_KEY` | all | key **version 1**: 32 random bytes base64 (`openssl rand -base64 32`). |
+| `WEARABLE_TOKEN_KEY_V2`, `_V3`… + `WEARABLE_TOKEN_KEY_VERSION` | all | rotation: add the new key, set the version, the nightly reconcile re-encrypts every live account (v1 blobs still decrypt). |
+| `<VENDOR>_CLIENT_ID` / `<VENDOR>_CLIENT_SECRET` | start · callback · sync | uppercase vendor key: `OURA_`, `WHOOP_`, `POLAR_`, `GARMIN_`, `WITHINGS_`, `SUUNTO_`, `GOOGLE_`. |
+| `OURA_WEBHOOK_VERIFICATION_TOKEN` | webhook | the verification token you chose in the Oura portal (Phase 2 removes the client-secret fallback). |
+| `OURA_MAINTAIN_SUBSCRIPTIONS=1` | sync (cron) | opt-in flag for the hourly subscription create/renew call (off until Phase 2 pins the operation). |
+| `POLAR_WEBHOOK_SECRET` | webhook | `signature_secret_key` from the one-time webhook registration. |
+| `SUUNTO_SUBSCRIPTION_KEY`, `SUUNTO_WEBHOOK_SECRET` | sync · webhook | from the Suunto partner profile. |
+| `GOOGLE_WEBHOOK_SECRET`, `GOOGLE_CLOUD_PROJECT_NUMBER` | webhook · callback | subscriber registration (Phase 2). |
+| `WITHINGS_REGION=EU` | callback · sync | region pin. |
+| `REPORT_SECRET` | sync · reconcile | already set: the Vault `report_secret` pg_cron sends as `x-report-secret`. |
+| `WEARABLE_RAW_RETENTION_DAYS` (optional) | all | default: raw vendor events are kept; set to purge `wearable_raw_events` after N days. |
+| `WEARABLE_DISCONNECT_RAW_RETENTION_DAYS` (optional, default 30) | disconnect | a disconnected vendor's raw events are purged after this window; **erase** purges on the next nightly run. |
+| `WEARABLE_LOG_SALT` (optional) | all | salt for the hashed patient ids in log lines. |
+
+Operator notes: the kill switch is `update wearable_vendors set status = 'paused' where key = '<vendor>'` — every outbound
+call stops, tokens stay, members see "paused"; `available` resumes. `select * from wearable_platform_health` (service role)
+shows queue depth per status, accounts per state and webhooks in the last 24 h. Members can read their own rows of
+`wearable_vendor_accounts` (status columns only — the token columns are not granted) and `wearable_audit_log`.
+The member's "Disconnect and delete synced data" calls `wearable-vendor-disconnect` with `erase: true` →
+`wearable_erase_vendor_data()` deletes that vendor's `wearable_daily` / `wearable_epoch` rows and marks its raw events
+for the nightly purge; nothing from another source is touched.
+
 ## Notifications (added 2026-09-04)
 
 **Phone:** local reminders are planned on the device (`NotificationPlanner` → `LocalNotifications`), no server

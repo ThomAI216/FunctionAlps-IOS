@@ -38,7 +38,7 @@ function phases(code: string | undefined, start: string | undefined): EpochRow[]
 export const oura: VendorAdapter = {
   key: "oura",
   name: "Oura",
-  usesPKCE: false,
+  pkce: "not_documented",
   scopes: ["email", "personal", "daily", "heartrate", "workout", "tag", "session", "spo2Daily"],
 
   authorizeURL({ clientId, redirectUri, state }) {

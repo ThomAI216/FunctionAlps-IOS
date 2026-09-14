@@ -1,0 +1,699 @@
+{
+ "exported_at": "2026-09-14",
+ "source": "CM OS ndojytvvlvlbgtodujkf public.wearable_data_types after 20260914_wearable_catalogue_v2",
+ "rows": [
+  {
+   "id": 1000,
+   "name": "Steps",
+   "unit": "count",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1001,
+   "name": "CoveredDistance",
+   "unit": "meters",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1002,
+   "name": "FloorsClimbed",
+   "unit": "count",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1003,
+   "name": "ElevationGain",
+   "unit": "meters",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1010,
+   "name": "BurnedCalories",
+   "unit": "kcal",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1011,
+   "name": "ActiveBurnedCalories",
+   "unit": "kcal",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1012,
+   "name": "MetabolicEquivalent",
+   "unit": null,
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1016,
+   "name": "RestingMetabolicRate",
+   "unit": "calories",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1100,
+   "name": "ActivityDuration",
+   "unit": "minutes",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1101,
+   "name": "ActivityLowBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 1102,
+   "name": "ActivityMidBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 1103,
+   "name": "ActivityHighBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 1104,
+   "name": "ActivitySedentaryBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 1200,
+   "name": "ActivityType",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2002,
+   "name": "SleepREMBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 2003,
+   "name": "SleepDeepBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 2005,
+   "name": "SleepLightBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 2006,
+   "name": "SleepAwakeBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 2200,
+   "name": "SleepEfficiency",
+   "unit": "percent",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2201,
+   "name": "SleepQuality",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2210,
+   "name": "SleepIntensity",
+   "unit": null,
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 2300,
+   "name": "ThryveMainSleepDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2301,
+   "name": "ThryveMainSleepInBedDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2302,
+   "name": "ThryveMainSleepREMDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2303,
+   "name": "ThryveMainSleepDeepDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2305,
+   "name": "ThryveMainSleepLightDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2306,
+   "name": "ThryveMainSleepAwakeDuration",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2307,
+   "name": "ThryveMainSleepLatency",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2308,
+   "name": "ThryveMainSleepAwakeAfterWakeup",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 2400,
+   "name": "ThryveMainSleepStartTime",
+   "unit": null,
+   "value_type": "DATE",
+   "canonical_id": null
+  },
+  {
+   "id": 2401,
+   "name": "ThryveMainSleepEndTime",
+   "unit": null,
+   "value_type": "DATE",
+   "canonical_id": null
+  },
+  {
+   "id": 2402,
+   "name": "ThryveMainSleepInterruptions",
+   "unit": "count",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3000,
+   "name": "HeartRate",
+   "unit": "bpm",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3001,
+   "name": "HeartRateResting",
+   "unit": "bpm",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3002,
+   "name": "HeartRateSleep",
+   "unit": "bpm",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3008,
+   "name": "PulseWaveVelocity",
+   "unit": null,
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3009,
+   "name": "SPO2",
+   "unit": "percent",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3020,
+   "name": "HeartRateSleepLowest",
+   "unit": "bpm",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3030,
+   "name": "VO2max",
+   "unit": "mL per min per kg",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3090,
+   "name": "HeartRateZoneLightDuration",
+   "unit": "minutes",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3091,
+   "name": "HeartRateZoneModerateDuration",
+   "unit": "minutes",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3092,
+   "name": "HeartRateZoneIntenseDuration",
+   "unit": "minutes",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3093,
+   "name": "HeartRateZoneMaximalDuration",
+   "unit": "minutes",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3100,
+   "name": "Rmssd",
+   "unit": "milliseconds",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3106,
+   "name": "RmssdSleep",
+   "unit": "milliseconds",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3107,
+   "name": "RmssdSleepHighest",
+   "unit": "milliseconds",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3112,
+   "name": "SDNN",
+   "unit": "milliseconds",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3113,
+   "name": "SDRR",
+   "unit": "milliseconds",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 3120,
+   "name": "AtrialFibrillationDetection",
+   "unit": null,
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 3300,
+   "name": "BloodPressureDiastolic",
+   "unit": "mmHg",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 3301,
+   "name": "BloodPressureSystolic",
+   "unit": "mmHg",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 4000,
+   "name": "RespirationRate",
+   "unit": "count",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 4002,
+   "name": "RespirationRateSleep",
+   "unit": "count",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 4100,
+   "name": "Breathing",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 4101,
+   "name": "SnoringBinary",
+   "unit": null,
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 5020,
+   "name": "Weight",
+   "unit": "kilogram",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5021,
+   "name": "MuscleMass",
+   "unit": "kilograms",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5022,
+   "name": "BoneMass",
+   "unit": "kilograms",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5023,
+   "name": "FatFreeMass",
+   "unit": "kilograms",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 5024,
+   "name": "FatMass",
+   "unit": "kilograms",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5025,
+   "name": "FatRatio",
+   "unit": "percent",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 5026,
+   "name": "BMI",
+   "unit": null,
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5029,
+   "name": "WaterMass",
+   "unit": "kilograms",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5030,
+   "name": "Height",
+   "unit": "centimeters",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 5040,
+   "name": "BodyTemperature",
+   "unit": "degree celsius",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5041,
+   "name": "SkinTemperature",
+   "unit": "degree celsius",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 5042,
+   "name": "UndefinedTemperature",
+   "unit": "degree celsius",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 6010,
+   "name": "AverageStress",
+   "unit": null,
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 6011,
+   "name": "HighStressBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 6012,
+   "name": "MediumStressBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 6013,
+   "name": "LowStressBinary",
+   "unit": "minutes",
+   "value_type": "BOOLEAN",
+   "canonical_id": null
+  },
+  {
+   "id": 1000100,
+   "name": "ReadinessScore",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000101,
+   "name": "RecoveryScore",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000102,
+   "name": "StrainScore",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000103,
+   "name": "BodyBattery",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000104,
+   "name": "ANSCharge",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000105,
+   "name": "SleepScore",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000106,
+   "name": "SkinTemperatureDeviation",
+   "unit": "\u00b0C",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000107,
+   "name": "BloodGlucose",
+   "unit": "mg/dL",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000108,
+   "name": "MenstrualCycleDay",
+   "unit": "day",
+   "value_type": "LONG",
+   "canonical_id": null
+  },
+  {
+   "id": 1000109,
+   "name": "StressScore",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000110,
+   "name": "SkinTemperatureAlt",
+   "unit": "\u00b0C",
+   "value_type": "DOUBLE",
+   "canonical_id": 5041
+  },
+  {
+   "id": 1000111,
+   "name": "BodyFatPercent",
+   "unit": "%",
+   "value_type": "DOUBLE",
+   "canonical_id": 5025
+  },
+  {
+   "id": 1000112,
+   "name": "DiastolicBPAlt",
+   "unit": "mmHg",
+   "value_type": "DOUBLE",
+   "canonical_id": 3300
+  },
+  {
+   "id": 1000113,
+   "name": "SystolicBPAlt",
+   "unit": "mmHg",
+   "value_type": "DOUBLE",
+   "canonical_id": 3301
+  },
+  {
+   "id": 1000114,
+   "name": "GlucoseMean",
+   "unit": "mg/dL",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000115,
+   "name": "GlucoseCV",
+   "unit": "percent",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000116,
+   "name": "GlucoseTimeInConfiguredRange",
+   "unit": "percent",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000117,
+   "name": "GlucoseCoverage",
+   "unit": "percent",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000118,
+   "name": "GlucoseRateOfChange",
+   "unit": "mg/dL/min",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000130,
+   "name": "PolarNightlyRechargeStatus",
+   "unit": "categorical",
+   "value_type": "STRING",
+   "canonical_id": null
+  },
+  {
+   "id": 1000131,
+   "name": "PolarSleepCharge",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000132,
+   "name": "PolarAnsStatus",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000133,
+   "name": "WHOOPSleepPerformance",
+   "unit": "percent",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000134,
+   "name": "SuuntoRecoveryBalance",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000135,
+   "name": "SuuntoStressState",
+   "unit": "categorical",
+   "value_type": "STRING",
+   "canonical_id": null
+  },
+  {
+   "id": 1000136,
+   "name": "UltrahumanMetabolicScore",
+   "unit": "score 0-100",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000137,
+   "name": "UltrahumanGlucoseVariability",
+   "unit": "score",
+   "value_type": "DOUBLE",
+   "canonical_id": null
+  },
+  {
+   "id": 1000138,
+   "name": "GlucoseTrendRate",
+   "unit": "categorical",
+   "value_type": "STRING",
+   "canonical_id": null
+  }
+ ]
+}

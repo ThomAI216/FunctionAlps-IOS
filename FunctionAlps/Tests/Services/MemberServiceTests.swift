@@ -89,7 +89,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     func wearableVendors() async throws -> [WearableVendorRow] { [] }
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart { VendorConnectStart(url: URL(string: "https://example.test")!, vendor: vendor) }
-    func vendorDisconnect(vendor: String) async throws {}
+    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { [] }
+    func vendorDisconnect(vendor: String, erase: Bool) async throws {}
     func vendorSyncNow() async throws {}
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}

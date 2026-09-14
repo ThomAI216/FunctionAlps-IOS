@@ -34855,13 +34855,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice."
+            "value": "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice — or choose to delete them as well."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nous supprimons l’identifiant d’accès et cessons de récupérer les données. Les mesures déjà dans votre dossier restent, selon les règles de conservation de la Déclaration de confidentialité."
+            "value": "Nous supprimons l'identifiant d'accès et cessons de récupérer les données. Les mesures déjà dans votre dossier restent, selon les règles de conservation de la Notice de confidentialité — ou choisissez de les supprimer aussi."
           }
         }
       }
@@ -34878,6 +34878,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dissocier ce compte ?"
+          }
+        }
+      }
+    },
+    "vendor.disconnect.erase": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect and delete synced data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déconnecter et supprimer les données synchronisées"
+          }
+        }
+      }
+    },
+    "vendor.err.alreadyLinked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This wearable account is already linked to another FunctionAlps account. Unlink it there first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce compte d'objet connecté est déjà lié à un autre compte FunctionAlps. Dissociez-le d'abord là-bas."
           }
         }
       }
@@ -34926,6 +34958,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "La connexion n’a pas abouti. Réessayez dans un instant."
+          }
+        }
+      }
+    },
+    "vendor.err.paused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This connection is paused by the practice for the moment. Please try again later."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette connexion est mise en pause par le cabinet pour le moment. Réessayez plus tard."
           }
         }
       }
@@ -35090,6 +35138,22 @@
         }
       }
     },
+    "vendor.reconnect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnect"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecter"
+          }
+        }
+      }
+    },
     "vendor.soon": {
       "localizations": {
         "en": {
@@ -35102,6 +35166,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bientôt disponible"
+          }
+        }
+      }
+    },
+    "vendor.status.degraded": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · the last sync had trouble, retrying"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté · la dernière synchronisation a eu un souci, nouvel essai"
+          }
+        }
+      }
+    },
+    "vendor.status.disconnected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déconnecté"
+          }
+        }
+      }
+    },
+    "vendor.status.lastSync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · synced %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté · synchronisé %@"
+          }
+        }
+      }
+    },
+    "vendor.status.reconnect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs reconnecting — the access expired or was revoked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnexion nécessaire — l'accès a expiré ou a été révoqué"
+          }
+        }
+      }
+    },
+    "vendor.status.syncing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · syncing…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté · synchronisation…"
           }
         }
       }

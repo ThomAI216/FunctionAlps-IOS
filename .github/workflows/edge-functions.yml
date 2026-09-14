@@ -1,0 +1,42 @@
+# Type-checks and unit-tests the Supabase Edge Functions in this repo (Deno). Linux minutes only.
+# `deno check` resolves the npm:/jsr: imports exactly as the Supabase runtime does; `deno test` runs the
+# wearable platform tests (crypto, retry taxonomy, receipts, catalogue golden, persist golden trace).
+name: Edge Functions
+
+on:
+  push:
+    branches: ["main", "claude/**", "feat/**"]
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/edge-functions.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch:
+
+concurrency:
+  group: edge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-and-test:
+    name: deno check + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check every function
+        run: |
+          set -euo pipefail
+          for fn in wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile wearable-ingest push-send member-scores; do
+            [ -f "$fn/index.ts" ] || { echo "::warning::$fn/index.ts missing — skipped"; continue; }
+            echo "::group::check $fn"; deno check "$fn/index.ts"; echo "::endgroup::"
+          done
+      - name: Unit tests
+        run: deno test --allow-env --allow-read _shared/wearables/tests/

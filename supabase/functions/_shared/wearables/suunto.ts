@@ -64,7 +64,7 @@ function mapActivity(samples: Sample[]): EpochRow[] {
 export const suunto: VendorAdapter = {
   key: "suunto",
   name: "Suunto",
-  usesPKCE: false,
+  pkce: "not_documented",
   scopes: [],   // products, not scopes, gate the data (unverified)
 
   authorizeURL({ clientId, redirectUri, state }) {

@@ -41,7 +41,7 @@ const isoMinutes = (d: unknown): number | null => {
 export const polar: VendorAdapter = {
   key: "polar",
   name: "Polar",
-  usesPKCE: false,
+  pkce: "not_documented",
   scopes: ["accesslink.read_all"],
 
   authorizeURL({ clientId, redirectUri, state }) {
@@ -63,12 +63,12 @@ export const polar: VendorAdapter = {
     return { accessToken: String(t.access_token), refreshToken: (t.refresh_token as string) ?? refreshToken, expiresAt: exp ? Math.floor(Date.now() / 1000) + exp : undefined }
   },
 
-  async revoke(tokens) {
-    if (!tokens.vendorUserId) return
-    await fetch(`${API}/v3/users/${tokens.vendorUserId}`, { method: "DELETE", headers: { Authorization: `Bearer ${tokens.accessToken}` } })
+  async revoke(tokens, ctx) {
+    if (!ctx.vendorUserId) return
+    await fetch(`${API}/v3/users/${ctx.vendorUserId}`, { method: "DELETE", headers: { Authorization: `Bearer ${tokens.accessToken}` } })
   },
 
-  async afterConnect(tokens) {
+  async afterConnect(tokens, ctx) {
     // Registration is mandatory before any data flows; 409 = already registered. member-id = an unguessable alias.
     const memberId = randomToken(18)
     const r = await fetch(`${API}/v3/users`, { method: "POST", headers: { Authorization: `Bearer ${tokens.accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ "member-id": memberId }) })
@@ -77,7 +77,7 @@ export const polar: VendorAdapter = {
     if (r.status !== 409) {
       try { const u = await r.json(); meta.polar_user_id = u["polar-user-id"] ?? null; meta.registration_date = u["registration-date"] ?? null } catch { /* fine */ }
     }
-    return { vendorUserId: tokens.vendorUserId || (meta.polar_user_id ? String(meta.polar_user_id) : undefined), meta }
+    return { vendorUserId: ctx.vendorUserId || (meta.polar_user_id ? String(meta.polar_user_id) : undefined), meta }
   },
 
   async parseWebhook(req, rawBody): Promise<WebhookEvent[]> {

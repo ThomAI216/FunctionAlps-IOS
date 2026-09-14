@@ -15,6 +15,7 @@ struct WearablesView: View {
     @State private var confirmDisconnect = false
     // Direct vendors
     @State private var availableVendors: Set<String> = []
+    @State private var accounts: [WearableVendorAccountRow] = []
     @State private var vendorDisclosed: Bool?
     @State private var busyVendor: String?
     @State private var vendorMessage: String?
@@ -65,10 +66,11 @@ struct WearablesView: View {
                     ForEach(WearableVendor.all) { vendor in
                         VendorCard(
                             vendor: vendor,
-                            connection: connections.first { $0.dataSourceId == vendor.sourceId },
+                            account: accounts.first { $0.vendor == vendor.key },
                             available: availableVendors.contains(vendor.key) && vendorDisclosed == true,
                             busy: busyVendor == vendor.key,
                             onConnect: { Task { await connect(vendor) } },
+                            onSync: { Task { await syncVendors() } },
                             onDisconnect: { confirmVendorDisconnect = vendor }
                         )
                         .padding(.bottom, 10)
@@ -91,11 +93,14 @@ struct WearablesView: View {
         }
         .confirmationDialog(String(localized: "vendor.disconnect.confirm", defaultValue: "Unlink this account?"), isPresented: Binding(get: { confirmVendorDisconnect != nil }, set: { if !$0 { confirmVendorDisconnect = nil } }), titleVisibility: .visible) {
             Button(String(localized: "wearables.disconnect", defaultValue: "Disconnect"), role: .destructive) {
-                if let v = confirmVendorDisconnect { Task { await disconnect(v) } }
+                if let v = confirmVendorDisconnect { Task { await disconnect(v, erase: false) } }
+            }
+            Button(String(localized: "vendor.disconnect.erase", defaultValue: "Disconnect and delete synced data"), role: .destructive) {
+                if let v = confirmVendorDisconnect { Task { await disconnect(v, erase: true) } }
             }
             Button(String(localized: "common.cancel", defaultValue: "Cancel"), role: .cancel) {}
         } message: {
-            Text(String(localized: "vendor.disconnect.body", defaultValue: "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice."))
+            Text(String(localized: "vendor.disconnect.body", defaultValue: "We delete the access credential and stop pulling. Readings already in your record stay, under the retention rules of the Privacy Notice — or choose to delete them as well."))
         }
     }
 
@@ -120,9 +125,17 @@ struct WearablesView: View {
         busyVendor = nil
     }
 
-    private func disconnect(_ vendor: WearableVendor) async {
+    private func syncVendors() async {
+        guard busyVendor == nil else { return }
+        busyVendor = "*"
+        await service.syncVendorsNow()
+        await load()
+        busyVendor = nil
+    }
+
+    private func disconnect(_ vendor: WearableVendor, erase: Bool) async {
         busyVendor = vendor.key
-        do { try await service.disconnectVendor(vendor.key); await load() }
+        do { try await service.disconnectVendor(vendor.key, erase: erase); await load() }
         catch let error as AppError { vendorMessage = error.userMessage }
         catch { vendorMessage = VendorCallback.message(for: "unknown") }
         busyVendor = nil
@@ -275,9 +288,11 @@ struct WearablesView: View {
         guard let member else { return }
         async let recent = service.recentDays(patientId: member.patientId)
         async let links = service.connections(patientId: member.patientId)
+        async let accs = service.vendorAccounts(patientId: member.patientId)
         async let notice = dependencies.account.legalDocument(key: "privacy_policy")
         days = await recent
         connections = await links
+        accounts = await accs
         let version = (try? await notice)?.version
         disclosed = service.isConnected || WearableDisclosure.isDisclosed(noticeVersion: version)
         vendorDisclosed = WearableDisclosure.isVendorDisclosed(noticeVersion: version)
@@ -285,16 +300,19 @@ struct WearablesView: View {
     }
 }
 
-/// One direct vendor: mark, name, status line, what it adds, Connect / Disconnect.
+/// One direct vendor: mark, name, status line (the nine server states collapsed), what it adds,
+/// Connect / Reconnect / Sync now / Disconnect.
 private struct VendorCard: View {
     let vendor: WearableVendor
-    let connection: WearableConnectionRow?
+    let account: WearableVendorAccountRow?
     let available: Bool
     let busy: Bool
     let onConnect: () -> Void
+    let onSync: () -> Void
     let onDisconnect: () -> Void
 
-    private var isConnected: Bool { connection?.status == "connected" }
+    private var presentation: WearableVendorAccountRow.Presentation { account?.presentation ?? .off }
+    private var isLive: Bool { account?.isLive == true }
 
     var body: some View {
         FACard {
@@ -307,10 +325,27 @@ private struct VendorCard: View {
                     .frame(width: 44, height: 44)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(vendor.name).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                        Text(statusLine).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(isConnected ? FAColor.forestSoft : ProfilePalette.muted)
+                        Text(statusLine).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(statusColor)
                     }
                     Spacer(minLength: 0)
-                    if isConnected {
+                    if presentation == .off, available {
+                        pill(String(localized: "vendor.connect", defaultValue: "Connect"), action: onConnect)
+                    } else if presentation == .reconnect {
+                        pill(String(localized: "vendor.reconnect", defaultValue: "Reconnect"), action: onConnect)
+                    }
+                }
+                if isLive || presentation == .reconnect {
+                    HStack(spacing: 8) {
+                        if isLive {
+                            Button(action: onSync) {
+                                HStack(spacing: 6) {
+                                    if busy { ProgressView().tint(FAColor.charcoal).scaleEffect(0.7) } else { Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 11, weight: .bold)) }
+                                    Text(String(localized: "wearables.syncNow", defaultValue: "Sync now")).font(FATypography.sans(12, .bold, relativeTo: .caption))
+                                }
+                                .foregroundStyle(FAColor.charcoal).padding(.horizontal, 12).padding(.vertical, 8).background(FAColor.forestSoft, in: Capsule())
+                            }
+                            .buttonStyle(.plain).disabled(busy)
+                        }
                         Button(action: onDisconnect) {
                             Text(String(localized: "wearables.disconnect", defaultValue: "Disconnect"))
                                 .font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(ProfilePalette.red)
@@ -318,29 +353,56 @@ private struct VendorCard: View {
                                 .overlay { Capsule().strokeBorder(ProfilePalette.red.opacity(0.35), lineWidth: 1) }
                         }
                         .buttonStyle(.plain).disabled(busy)
-                    } else if available {
-                        Button(action: onConnect) {
-                            HStack(spacing: 6) {
-                                if busy { ProgressView().tint(FAColor.charcoal).scaleEffect(0.7) }
-                                Text(String(localized: "vendor.connect", defaultValue: "Connect")).font(FATypography.sans(12, .bold, relativeTo: .caption))
-                            }
-                            .foregroundStyle(FAColor.charcoal).padding(.horizontal, 12).padding(.vertical, 8).background(FAColor.forestSoft, in: Capsule())
-                        }
-                        .buttonStyle(.plain).disabled(busy)
                     }
+                    .padding(.top, 12)
                 }
                 Text(String(localized: "vendor.adds", defaultValue: "Adds: \(vendor.adds)")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(4).padding(.top, 10)
                 Text(String(localized: "vendor.viaHealth", defaultValue: "Already via Apple Health: \(vendor.viaAppleHealth)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 3)
             }
         }
-        .overlay { RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous).strokeBorder(Color(hex: 0x4A8A5C, opacity: isConnected ? 0.45 : 0), lineWidth: 1) }
+        .overlay { RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous).strokeBorder(Color(hex: 0x4A8A5C, opacity: isLive ? 0.45 : 0), lineWidth: 1) }
+    }
+
+    private func pill(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if busy { ProgressView().tint(FAColor.charcoal).scaleEffect(0.7) }
+                Text(title).font(FATypography.sans(12, .bold, relativeTo: .caption))
+            }
+            .foregroundStyle(FAColor.charcoal).padding(.horizontal, 12).padding(.vertical, 8).background(FAColor.forestSoft, in: Capsule())
+        }
+        .buttonStyle(.plain).disabled(busy)
+    }
+
+    private var statusColor: Color {
+        switch presentation {
+        case .live, .syncing: FAColor.forestSoft
+        case .degraded, .reconnect: ProfilePalette.red
+        case .off: ProfilePalette.muted
+        }
     }
 
     private var statusLine: String {
-        if isConnected {
-            if let at = connection?.connectedAt { return String(localized: "vendor.connectedSince", defaultValue: "Connected · since \(at.formatted(date: .abbreviated, time: .omitted))") }
+        switch presentation {
+        case .syncing:
+            return String(localized: "vendor.status.syncing", defaultValue: "Connected · syncing…")
+        case .degraded:
+            return String(localized: "vendor.status.degraded", defaultValue: "Connected · the last sync had trouble, retrying")
+        case .reconnect:
+            return String(localized: "vendor.status.reconnect", defaultValue: "Needs reconnecting — the access expired or was revoked")
+        case .live:
+            if let at = account?.lastSuccessfulSyncAt {
+                return String(localized: "vendor.status.lastSync", defaultValue: "Connected · synced \(at.formatted(.relative(presentation: .named)))")
+            }
+            if let at = account?.connectedAt {
+                return String(localized: "vendor.connectedSince", defaultValue: "Connected · since \(at.formatted(date: .abbreviated, time: .omitted))")
+            }
             return String(localized: "wearables.connected", defaultValue: "Connected")
+        case .off:
+            if account?.status == "disconnected" {
+                return String(localized: "vendor.status.disconnected", defaultValue: "Disconnected")
+            }
+            return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "Coming soon")
         }
-        return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "Coming soon")
     }
 }

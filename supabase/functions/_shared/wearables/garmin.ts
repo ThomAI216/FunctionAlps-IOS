@@ -93,7 +93,7 @@ export function mapItem(type: string, it: Record<string, unknown>): { daily: Dai
 export const garmin: VendorAdapter = {
   key: "garmin",
   name: "Garmin",
-  usesPKCE: true,
+  pkce: "required",
   scopes: [],   // fixed by Garmin; data access is governed by user permissions (HEALTH_EXPORT, ACTIVITY_EXPORT, MCT_EXPORT)
 
   authorizeURL({ clientId, redirectUri, state, codeChallenge }) {
