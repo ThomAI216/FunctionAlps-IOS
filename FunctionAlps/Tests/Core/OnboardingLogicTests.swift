@@ -72,6 +72,13 @@ struct OnboardingLogicTests {
         #expect(OnboardingLogic.checkBirthDate(day: "1", month: "1", year: "2015", now: now) == .underAge)
     }
 
+    @Test func todayIsNeverAnAdultDate() {
+        // The gate's calendar opens on today and Continue is gated by this verdict alone, so a member
+        // who never moves it cannot submit a date they did not choose.
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: now)
+        #expect(OnboardingLogic.checkBirthDate(day: String(parts.day ?? 0), month: String(parts.month ?? 0), year: String(parts.year ?? 0), now: now) == .underAge)
+    }
+
     @Test func rollOverAndNonsenseDatesAreInvalid() {
         #expect(OnboardingLogic.checkBirthDate(day: "31", month: "2", year: "2000", now: now) == .invalid)   // 31/02 must not become 2 March
         #expect(OnboardingLogic.checkBirthDate(day: "1", month: "13", year: "2000", now: now) == .invalid)

@@ -6210,22 +6210,6 @@
         }
       }
     },
-    "gate.age.day": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Day"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jour"
-          }
-        }
-      }
-    },
     "gate.age.error": {
       "localizations": {
         "en": {
@@ -6254,6 +6238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre date de naissance"
+          }
+        }
+      }
+    },
+    "gate.age.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the month and year at the top of the calendar to jump straight to your birth year."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le mois et l’année en haut du calendrier pour aller directement à votre année de naissance."
           }
         }
       }
@@ -6290,18 +6290,18 @@
         }
       }
     },
-    "gate.age.month": {
+    "gate.age.selected": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Month"
+            "value": "Selected"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mois"
+            "value": "Date choisie"
           }
         }
       }
@@ -6350,22 +6350,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Utilisée uniquement pour vérifier votre âge et calibrer les estimations. Elle n’est jamais montrée à quiconque d’autre."
-          }
-        }
-      }
-    },
-    "gate.age.year": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Year"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Année"
           }
         }
       }

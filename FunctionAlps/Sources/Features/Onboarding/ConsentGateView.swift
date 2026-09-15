@@ -222,19 +222,38 @@ struct ConsentGateView: View {
 /// The age step (the Expo `AgeGate`): shown once, before anything can be agreed to. An under-18 date
 /// never leaves the device — `OnboardingLogic.checkBirthDate` decides locally. No skip, no dismiss:
 /// the only exits are a confirmed adult date, or signing out.
+///
+/// One calendar, no typing. The three DD/MM/YYYY boxes this replaced were unusable: in an `HStack`
+/// the year box carried `maxWidth: .infinity` AND `layoutPriority(1)`, so it took the whole row and
+/// left day and month at about zero width — untappable, and the gate has no way past it.
 struct AgeGateView: View {
     let onConfirmed: () -> Void
     @Environment(AppDependencies.self) private var dependencies
-    @State private var day = ""
-    @State private var month = ""
-    @State private var year = ""
+
+    /// Starts on today, which is precisely the one date the 18+ rule refuses: nothing is pre-filled
+    /// in the sense that matters — no date the member did not choose can reach the clinical record.
+    @State private var selection = Calendar.current.startOfDay(for: Date())
+    /// The verdict is computed from the first frame; it is only SHOWN once the member has moved the
+    /// calendar, so arriving on the screen never reads as an accusation of being under age.
+    @State private var picked = false
     @State private var working = false
     @State private var refused = false
     @State private var error: String?
-    @FocusState private var focus: String?
 
-    private var complete: Bool { !day.isEmpty && !month.isEmpty && !year.isEmpty }
-    private var verdict: OnboardingLogic.AgeCheck { OnboardingLogic.checkBirthDate(day: day, month: month, year: year) }
+    /// 120 years back … today. Above 18 is deliberately NOT excluded: a minor must be able to land on
+    /// their real date and see the refusal, rather than be quietly nudged into an adult one.
+    private var bounds: ClosedRange<Date> {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let oldest = calendar.date(byAdding: .year, value: -OnboardingLogic.maximumAge, to: today) ?? today
+        return oldest...today
+    }
+
+    private var verdict: OnboardingLogic.AgeCheck {
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: selection)
+        return OnboardingLogic.checkBirthDate(day: String(parts.day ?? 0), month: String(parts.month ?? 0), year: String(parts.year ?? 0))
+    }
+
     private var canContinue: Bool {
         if case .ok = verdict { return !working }
         return false
@@ -265,22 +284,21 @@ struct AgeGateView: View {
                     .frame(width: 54, height: 54).padding(.bottom, 18)
                     Text(String(localized: "gate.age.heading", defaultValue: "Your date of birth")).font(FATypography.display(27, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink).padding(.bottom, 8)
                     Text(String(localized: "gate.age.intro", defaultValue: "FunctionAlps is for adults. We ask once, to confirm you are 18 or older and so the app's estimates fit your age."))
-                        .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(ProfilePalette.muted).lineSpacing(6).padding(.bottom, 24)
-                    HStack(spacing: 10) {
-                        dateField(String(localized: "gate.age.day", defaultValue: "Day"), $day, id: "day", max: 2, placeholder: "DD").frame(maxWidth: .infinity)
-                        dateField(String(localized: "gate.age.month", defaultValue: "Month"), $month, id: "month", max: 2, placeholder: "MM").frame(maxWidth: .infinity)
-                        dateField(String(localized: "gate.age.year", defaultValue: "Year"), $year, id: "year", max: 4, placeholder: "YYYY").frame(maxWidth: .infinity).layoutPriority(1)
-                    }
-                    Text(String(localized: "gate.age.why", defaultValue: "Used only to confirm your age and to size the app's estimates. It is never shown to anyone else."))
+                        .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(ProfilePalette.muted).lineSpacing(6).padding(.bottom, 16)
+
+                    calendarCard
+
+                    Text(String(localized: "gate.age.hint", defaultValue: "Tap the month and year at the top of the calendar to jump straight to your birth year."))
                         .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 12)
-                    // Recomputed as they type, but only SHOWN once the three fields are filled.
-                    if complete, verdict == .invalid { fieldError(String(localized: "gate.age.invalid", defaultValue: "That date doesn't look right. Please check it.")) }
-                    if complete, verdict == .underAge { fieldError(String(localized: "gate.age.underAge", defaultValue: "FunctionAlps is only for people aged 18 and over.")) }
+                    Text(String(localized: "gate.age.why", defaultValue: "Used only to confirm your age and to size the app's estimates. It is never shown to anyone else."))
+                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 6)
+                    // Recomputed as the calendar moves, but only SHOWN once the member has moved it.
+                    if picked, verdict == .invalid { fieldError(String(localized: "gate.age.invalid", defaultValue: "That date doesn't look right. Please check it.")) }
+                    if picked, verdict == .underAge { fieldError(String(localized: "gate.age.underAge", defaultValue: "FunctionAlps is only for people aged 18 and over.")) }
                     if let error { fieldError(error) }
                 }
                 .padding(.horizontal, 22).padding(.top, 20).padding(.bottom, 24)
             }
-            .scrollDismissesKeyboard(.interactively)
             VStack {
                 ForestPillButton(title: String(localized: "action.continue", defaultValue: "Continue"), enabled: canContinue, busy: working) { Task { await confirm() } }
             }
@@ -290,22 +308,35 @@ struct AgeGateView: View {
         .faWall()
     }
 
-    private func dateField(_ label: String, _ text: Binding<String>, id: String, max: Int, placeholder: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label).font(FATypography.sans(11, .semibold, relativeTo: .caption)).tracking(0.6).foregroundStyle(ProfilePalette.muted)
-            TextField(placeholder, text: text)
-                .keyboardType(.numberPad)
-                .focused($focus, equals: id)
-                .onChange(of: text.wrappedValue) { _, v in
-                    let digits = String(v.filter(\.isNumber).prefix(max))
-                    if digits != v { text.wrappedValue = digits }
-                    if digits.count == max { focus = id == "day" ? "month" : (id == "month" ? "year" : nil) }
-                }
-                .font(FATypography.sans(17, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                .padding(.horizontal, 12).padding(.vertical, 13)
-                .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(focus == id ? FAColor.forestSoft : ProfilePalette.hairline, lineWidth: 1.5) }
+    private var calendarCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            DatePicker(
+                String(localized: "gate.age.heading", defaultValue: "Your date of birth"),
+                selection: $selection,
+                in: bounds,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .labelsHidden()
+            .tint(FAColor.forestSoft)
+            .onChange(of: selection) { _, _ in
+                picked = true
+                error = nil
+            }
+
+            // The chosen date in words, so the member can check it without reading the grid — and so
+            // VoiceOver announces the answer rather than the cell that produced it.
+            HStack(spacing: 6) {
+                Text(String(localized: "gate.age.selected", defaultValue: "Selected"))
+                    .font(FATypography.sans(11, .semibold, relativeTo: .caption)).tracking(0.6).foregroundStyle(ProfilePalette.muted)
+                Text(picked ? selection.formatted(.dateTime.day().month(.wide).year()) : "—")
+                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(picked ? FAColor.ink : ProfilePalette.muted)
+            }
+            .accessibilityElement(children: .combine)
         }
+        .padding(.horizontal, 12).padding(.vertical, 10)
+        .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(ProfilePalette.hairline, lineWidth: 1.5) }
     }
 
     private func fieldError(_ text: String) -> some View {
