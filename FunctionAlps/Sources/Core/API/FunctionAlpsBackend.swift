@@ -85,6 +85,10 @@ protocol FunctionAlpsBackend: Sendable {
     func stampOnboardingComplete(patientId: String) async throws -> Date
     /// RPC `confirm_member_adult(p_date_of_birth)` — true when 18+ (and the row is stamped); under-age is refused locally first.
     func confirmAdult(dateOfBirth: String) async throws -> Bool
+    /// RPC `confirm_member_adult_from_record()` — answers 18+ from the CLINICAL record's date of birth,
+    /// so a patient the dashboard already knows is never asked to retype it.
+    /// true = confirmed and stamped · false = under age per the record · nil = no usable date on file.
+    func confirmAdultFromRecord() async throws -> Bool?
 
     // MARK: Meal corrections (resolve-foods · nb_meal_logs update · nb_patient_food_aliases)
 

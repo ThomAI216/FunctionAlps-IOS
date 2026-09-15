@@ -109,12 +109,12 @@ struct MemberGateView: View {
             bundle = b
             let requiredOpen = b.consents.contains { $0.required && !$0.accepted }
             if requiredOpen {
-                stage = .consent(needsAge: m.profile?.adultConfirmedAt == nil)
+                stage = .consent(needsAge: await needsAgeStep(m))
                 return
             }
         } catch {
             bundle = nil
-            stage = .consent(needsAge: m.profile?.adultConfirmedAt == nil)
+            stage = .consent(needsAge: await needsAgeStep(m))
             return
         }
 
@@ -123,6 +123,26 @@ struct MemberGateView: View {
             return
         }
         stage = .ready
+    }
+
+    /// Whether the member still has to be ASKED their date of birth.
+    ///
+    /// Only when nothing already answers it. A patient created in the clinical dashboard carries a date
+    /// of birth on their record, so asking them to type it again is asking a question we can answer —
+    /// `confirm_member_adult_from_record()` reads that date, stamps the confirmation against it and says
+    /// so. The screen is then skipped entirely.
+    ///
+    /// Anything other than a clear "adult" keeps the screen: `false` is an under-age record, and the
+    /// member must SEE that refusal rather than have it swallowed by a silent skip; `nil` is no usable
+    /// date on file; a throw is a check that did not run, which is never a check that passed.
+    private func needsAgeStep(_ m: Member) async -> Bool {
+        if m.profile?.adultConfirmedAt != nil { return false }
+        do {
+            return try await dependencies.account.confirmAdultFromRecord() != true
+        } catch {
+            Log.auth.error("gate: age-from-record failed: \(String(describing: error), privacy: .public)")
+            return true
+        }
     }
 }
 

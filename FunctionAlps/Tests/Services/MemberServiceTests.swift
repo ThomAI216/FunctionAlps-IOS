@@ -47,6 +47,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     }
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
     func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
+    var adultFromRecord: Bool? = nil
+    func confirmAdultFromRecord() async throws -> Bool? { adultFromRecord }
     func intakeBaseline(patientId: String) async throws -> IntakeBaselineRead? { nil }
     func resolveFoods(_ requests: [MealEdit.PricingRequest]) async throws -> [MealEdit.ResolvedPricing]? { [] }
     func updateMealAnalysis(mealId: String, draft: MealDraft) async throws {}

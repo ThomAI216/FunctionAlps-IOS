@@ -98,6 +98,13 @@ struct AccountService: Sendable {
         try await backend.confirmAdult(dateOfBirth: dateOfBirth)
     }
 
+    /// The same check, answered from the clinical record instead of from the member
+    /// (`confirm_member_adult_from_record`): true = adult, recorded; false = refused; nil = nothing on
+    /// file to answer with, so the question still has to be asked.
+    func confirmAdultFromRecord() async throws -> Bool? {
+        try await backend.confirmAdultFromRecord()
+    }
+
     struct ConsentsBundle: Sendable, Equatable {
         let consents: [ConsentItem]
         let notices: [LegalDocument]
