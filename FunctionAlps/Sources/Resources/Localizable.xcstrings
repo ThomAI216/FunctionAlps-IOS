@@ -6578,6 +6578,54 @@
         }
       }
     },
+    "gate.consent.updated.heading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We have updated our terms"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous avons mis à jour nos conditions"
+          }
+        }
+      }
+    },
+    "gate.consent.updated.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wording below has changed since you last agreed. The items marked as updated carry a new version — please read what is new and accept again to carry on. Nothing is ticked for you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le texte ci-dessous a changé depuis votre dernier accord. Les éléments marqués comme mis à jour portent une nouvelle version — merci de lire ce qui est nouveau et d’accepter à nouveau pour continuer. Rien n’est coché à votre place."
+          }
+        }
+      }
+    },
+    "gate.consent.updatedChip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updated"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mis à jour"
+          }
+        }
+      }
+    },
     "gate.failed.body": {
       "localizations": {
         "en": {

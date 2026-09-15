@@ -15,12 +15,16 @@ struct ConsentItem: Decodable, Sendable, Equatable, Identifiable {
     let reviewStatus: String
     let basisRaw: String?
     let accepted: Bool
+    /// The version the member last agreed to for this key, whatever it was (`member_pending_consents.
+    /// accepted_version`). Nil when they never have — that is what separates a first sitting from
+    /// "the wording changed under you". Optional so a build that meets the pre-migration RPC still decodes.
+    let acceptedVersion: String?
 
     var id: String { consentKey }
     var basis: Basis { basisRaw.flatMap(Basis.init(rawValue:)) ?? .unknown }
 
     private enum CodingKeys: String, CodingKey {
-        case consentKey, version, title, summary, bodyMd, required, displayOrder, reviewStatus, accepted
+        case consentKey, version, title, summary, bodyMd, required, displayOrder, reviewStatus, accepted, acceptedVersion
         case basisRaw = "basis"
     }
 }
@@ -65,6 +69,23 @@ enum ConsentLogic {
 
     static func hasUnapprovedDrafts(_ rows: [ConsentItem]) -> Bool {
         rows.contains { $0.reviewStatus != "approved" }
+    }
+
+    // MARK: Re-acceptance (the wording moved under a member who had already agreed)
+
+    /// This exact item changed: the member holds a grant, but for a different version. The row says so
+    /// and names the new version — an unticked box with no explanation reads like a bug, not a change.
+    static func isUpdate(_ c: ConsentItem) -> Bool {
+        guard let held = c.acceptedVersion, !held.isEmpty else { return false }
+        return held != c.version
+    }
+
+    /// The whole sitting is a RE-acceptance when the member has agreed to something on this screen
+    /// before — a version that moved, or a newly added item standing next to ones they already hold.
+    /// False for a first sitting, and false against the pre-migration RPC (every `acceptedVersion` nil),
+    /// which keeps the first-run wording as the safe default.
+    static func isReAcceptance(_ consents: [ConsentItem]) -> Bool {
+        consents.contains { $0.acceptedVersion != nil }
     }
 
     /// Every key on screen, `key@version` — ticks and notices alike (`presented_keys`).

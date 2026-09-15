@@ -19,6 +19,8 @@ struct ConsentGateView: View {
     @State private var saveError: String?
 
     private var groups: ConsentLogic.Groups { bundle.groups }
+    /// A member who has agreed here before is not "starting" — the screen says what changed instead.
+    private var isReAcceptance: Bool { ConsentLogic.isReAcceptance(bundle.consents) }
     private var untickedRequired: Int { groups.core.filter { !(ticks[$0.consentKey] ?? false) }.count }
     private var allRequiredTicked: Bool { untickedRequired == 0 }
 
@@ -44,11 +46,16 @@ struct ConsentGateView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16, style: .continuous).fill(ProfilePalette.accentSoft)
-                        Image(systemName: "checkmark.shield").font(.system(size: 24, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
+                        Image(systemName: isReAcceptance ? "arrow.triangle.2.circlepath" : "checkmark.shield").font(.system(size: 24, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
                     }
                     .frame(width: 54, height: 54).padding(.bottom, 18)
-                    Text(String(localized: "gate.consent.heading", defaultValue: "Before you start")).font(FATypography.display(27, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink).padding(.bottom, 8)
-                    Text(String(localized: "gate.consent.intro", defaultValue: "FunctionAlps handles your health data, so two things need your agreement — and two more are here for you to read. Tap any item to open it in full. Nothing is ticked for you."))
+                    Text(isReAcceptance
+                        ? String(localized: "gate.consent.updated.heading", defaultValue: "We have updated our terms")
+                        : String(localized: "gate.consent.heading", defaultValue: "Before you start"))
+                        .font(FATypography.display(27, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink).padding(.bottom, 8)
+                    Text(isReAcceptance
+                        ? String(localized: "gate.consent.updated.intro", defaultValue: "The wording below has changed since you last agreed. The items marked as updated carry a new version — please read what is new and accept again to carry on. Nothing is ticked for you.")
+                        : String(localized: "gate.consent.intro", defaultValue: "FunctionAlps handles your health data, so two things need your agreement — and two more are here for you to read. Tap any item to open it in full. Nothing is ticked for you."))
                         .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(ProfilePalette.muted).lineSpacing(6).padding(.bottom, 20)
 
                     if bundle.preview {
@@ -136,7 +143,10 @@ struct ConsentGateView: View {
                 .accessibilityAddTraits(checked ? [.isSelected] : [])
                 Button { ticks[row.consentKey] = !checked } label: {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(row.title).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                        HStack(spacing: 7) {
+                            Text(row.title).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                            if ConsentLogic.isUpdate(row) { updatedChip(row.version) }
+                        }
                         Text(row.summary).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
                     }
                     .multilineTextAlignment(.leading).frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
@@ -160,6 +170,16 @@ struct ConsentGateView: View {
         .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(checked ? FAColor.forestSoft : ProfilePalette.hairline, lineWidth: 1) }
         .padding(.bottom, 8)
+    }
+
+    /// Says in WORDS which items moved, and to which version — never colour alone, and never a bare
+    /// unticked box that a returning member would read as the app having lost their answer.
+    private func updatedChip(_ version: String) -> some View {
+        (Text(String(localized: "gate.consent.updatedChip", defaultValue: "Updated")) + Text(" · " + version))
+            .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).tracking(0.4).foregroundStyle(FAColor.forestSoft)
+            .padding(.horizontal, 7).padding(.vertical, 3)
+            .background(ProfilePalette.accentSoft, in: Capsule())
+            .fixedSize()
     }
 
     /// A notice is SHOWN, never ticked — still evidenced through `presented_keys`.
