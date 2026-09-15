@@ -68,3 +68,10 @@ $function$;
 
 grant execute on function public.member_pending_consents(text, boolean) to authenticated;
 grant execute on function public.member_pending_consents(text, boolean) to service_role;
+
+-- A fresh CREATE picks up EXECUTE for PUBLIC (Postgres default) and for anon (Supabase's default
+-- privileges on the public schema); the function this replaces had NEITHER. Revoke both, or the
+-- migration quietly widens a SECURITY DEFINER function to unauthenticated callers.
+-- Verified after applying: proacl is back to {postgres,authenticated,service_role}, as before.
+revoke execute on function public.member_pending_consents(text, boolean) from public;
+revoke execute on function public.member_pending_consents(text, boolean) from anon;
