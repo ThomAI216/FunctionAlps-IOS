@@ -113,13 +113,30 @@ struct MemberServiceTests {
         return (manager, store)
     }
 
-    @Test func usesPatientIdFromSessionWithoutRPC() async throws {
-        let (manager, _) = sessions(patientId: "p-from-jwt")
+    /// The server owns the answer. `current_member_patient_id()` reads `patients.auth_user_id =
+    /// auth.uid()` — the same fact RLS uses — so when the JWT's cached id disagrees, the JWT is wrong.
+    /// It really can be: `patient-register` stamps `user_metadata.patient_id` on its existing-identity
+    /// path, where the row belongs to ANOTHER auth user (two accounts for one mailbox, e.g. a Gmail dot
+    /// alias signing in with Google after email/password). Trusting it gives a session that reads nothing.
+    @Test func serverOwnershipWinsOverTheCachedJWTClaim() async throws {
+        let (manager, store) = sessions(patientId: "p-belongs-to-someone-else")
         let backend = StubBackend()
+        backend.patientId = "p-actually-owned"
         let member = try await MemberService(sessions: manager, backend: backend).currentMember()
-        #expect(member.patientId == "p-from-jwt")
+        #expect(member.patientId == "p-actually-owned")
         #expect(member.firstName == "Alex")
-        #expect(backend.patientIdCalls == 0)
+        #expect(backend.patientIdCalls == 1)
+        // The stale cache is corrected, so the next launch starts from the right id.
+        #expect(try store.load()?.patientId == "p-actually-owned")
+    }
+
+    /// And a claim the server declines to confirm is not a fallback — it is the thing not to trust.
+    @Test func anUnconfirmedJWTClaimIsNotUsed() async throws {
+        let (manager, _) = sessions(patientId: "p-belongs-to-someone-else")
+        let backend = StubBackend()           // patientId nil: nobody owns this auth user
+        let member = try await MemberService(sessions: manager, backend: backend).currentMember()
+        #expect(member.patientId == "registered")
+        #expect(member.patientId != "p-belongs-to-someone-else")
     }
 
     @Test func resolvesViaRPCAndRemembers() async throws {
