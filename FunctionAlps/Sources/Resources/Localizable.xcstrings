@@ -4215,13 +4215,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contact your FunctionAlps practitioner or email contact@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
+            "value": "Contact your FunctionAlps practitioner or email info@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contactez votre praticienne FunctionAlps ou écrivez à contact@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
+            "value": "Contactez votre praticienne FunctionAlps ou écrivez à info@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
           }
         }
       }
