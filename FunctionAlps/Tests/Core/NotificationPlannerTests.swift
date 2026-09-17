@@ -24,7 +24,7 @@ struct NotificationPlannerTests {
 
     private func ids(_ plan: [NotificationPlanner.Planned]) -> [String] { plan.map(\.id) }
 
-    @Test("The three check-ins are planned every day for a week; a done moment drops today's only")
+    @Test("Two check-ins a day for a week; a done moment drops today's only; midday is never planned")
     func checkins() {
         var state = NotificationPlanner.State(now: now)
         state.momentsDone = [.morning]
@@ -33,9 +33,13 @@ struct NotificationPlannerTests {
         #expect(morning.count == 6)                                   // 7 days minus today
         #expect(!ids(plan).contains("checkin.morning.2026-09-02"))
         #expect(ids(plan).contains("checkin.morning.2026-09-03"))
-        #expect(plan.filter { $0.kind == .middayCheckin }.count == 7)
-        #expect(plan.first { $0.id == "checkin.midday.2026-09-02" }?.fireAt == date("2026-09-02 14:30"))
+        #expect(plan.filter { $0.kind == .eveningCheckin }.count == 7)
+        #expect(plan.first { $0.id == "checkin.evening.2026-09-02" }?.fireAt == date("2026-09-02 20:45"))
         #expect(plan.first { $0.id == "checkin.evening.2026-09-02" }?.route == "functionalps://checkin/evening")
+        // The retired moment: not planned even for a member whose stored preference still has it on.
+        var revived = NotificationPrefs.default
+        revived.middayEnabled = true
+        #expect(NotificationPlanner.plan(prefs: revived, state: state, calendar: calendar).allSatisfy { $0.kind != .middayCheckin })
     }
 
     @Test("Past times today are never scheduled")
@@ -43,7 +47,7 @@ struct NotificationPlannerTests {
         let state = NotificationPlanner.State(now: date("2026-09-02 15:00"))
         let plan = NotificationPlanner.plan(prefs: .default, state: state, calendar: calendar)
         #expect(!ids(plan).contains("checkin.morning.2026-09-02"))
-        #expect(!ids(plan).contains("checkin.midday.2026-09-02"))
+        #expect(ids(plan).contains("checkin.evening.2026-09-02"))    // 20:45 is still ahead at 15:00
         #expect(!ids(plan).contains("meal.lunch.2026-09-02"))
         #expect(ids(plan).contains("meal.dinner.2026-09-02"))
     }
@@ -126,10 +130,33 @@ struct NotificationPlannerTests {
         #expect(AppRouter.mealId(from: URL(string: "functionalps://checkin/morning")!) == nil)
     }
 
-    @Test("Reaction flags follow the Food-tab vocabulary")
-    func flags() {
-        #expect(MealReactionSheet.flags(overall: 2, bloating: 6, fullness: 0, gas: 9) == ["overall_rough", "bloating", "gas"])
-        #expect(MealReactionSheet.flags(overall: 5, bloating: 3, fullness: 6, gas: 0) == ["overall_off", "heavy"])
-        #expect(MealReactionSheet.flags(overall: 9, bloating: 0, fullness: 0, gas: 0).isEmpty)
+    @Test("A meal's three reads land on the columns the engines already read")
+    func mealFeedback() {
+        #expect(!MealFeedback().hasAnswer)
+
+        // A rough one: digestion is the headline (overall), the pills set the symptom columns.
+        var rough = MealFeedback(energy: .rough, focus: .off, digestion: .rough)
+        rough.digestionPills = ["bloating", "gas", "overfull", "reflux"]
+        rough.energyPills = ["energy_crash"]
+        rough.focusPills = ["foggy"]
+        #expect(rough.overall == 1)
+        #expect(rough.bloating == 6 && rough.gasBurden == 6 && rough.fullness == 6 && rough.burning == 6)
+        #expect(rough.fatigue == 6)
+        #expect(rough.flags == ["overall_rough", "bloating", "gas", "heavy", "reflux", "energy_crash", "foggy"])
+        #expect(rough.responses == ["digestion": 1, "overall": 1, "energy": 1, "focus": 3])
+
+        // Middling digestion reads as "off"; a fine one carries no flag at all.
+        #expect(MealFeedback(digestion: .okay).flags == ["overall_off"])
+        #expect(MealFeedback(digestion: .good).flags.isEmpty)
+        #expect(MealFeedback(digestion: .great).bloating == 0)
+
+        // Only the bottom two steps ask what exactly went wrong.
+        #expect(MealFeedback.Read.rough.isPoor && MealFeedback.Read.off.isPoor)
+        #expect(!MealFeedback.Read.okay.isPoor && !MealFeedback.Read.good.isPoor && !MealFeedback.Read.great.isPoor)
+
+        // A pill on its own is still an answer worth saving.
+        var pillOnly = MealFeedback()
+        pillOnly.digestionPills = ["nausea"]
+        #expect(pillOnly.hasAnswer && pillOnly.overall == nil && pillOnly.flags == ["nausea"])
     }
 }

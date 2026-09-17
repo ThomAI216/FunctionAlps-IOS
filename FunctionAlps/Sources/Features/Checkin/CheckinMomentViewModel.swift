@@ -10,8 +10,10 @@ final class CheckinMomentViewModel {
     var isSaving = false
     var saveError: String?
     var isEditing = false
-    /// The morning's opt-in tier. A saved moment carrying "more" answers opens expanded.
-    var showMore = false
+
+    /// The evening moment owns the day's digestion — the gut check-in is part of the reflection, not a
+    /// second errand on Home. Nil for every other slot; the standalone gut screen still uses its own.
+    let gut: GutCheckinViewModel?
 
     /// Last night as Apple Health recorded it, when it prefilled the sleep inputs (morning, first save only).
     private(set) var sleepFromHealth: SleepNight?
@@ -21,12 +23,13 @@ final class CheckinMomentViewModel {
     private let auth: AuthService
     private let wearables: WearableService?
 
-    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService, wearables: WearableService? = nil) {
+    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService, gut: GutService? = nil, wearables: WearableService? = nil) {
         self.slot = slot
         self.checkins = checkins
         self.members = members
         self.auth = auth
         self.wearables = wearables
+        self.gut = (slot == .evening) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth) } : nil
     }
 
     /// The sleep inputs from Apple Health: bed → wake as the clock, the window as the duration, the Watch's
@@ -51,24 +54,30 @@ final class CheckinMomentViewModel {
 
     /// Re-opening a saved moment EDITS it (same row, upsert on the slot).
     func prefill() async {
+        let gutPrefill = Task { await self.prefillGut() }   // the evening's digestion loads alongside the moment
         do {
             let member = try await members.currentMember()
             let moments = try await checkins.todayMoments(patientId: member.patientId)
-            guard let existing = CheckinEngine.moment(for: slot, in: moments) else {
+            if let existing = CheckinEngine.moment(for: slot, in: moments) {
+                answers = CheckinEngine.answersFromMoment(existing)
+                catalogPills = CheckinEngine.catalogPills(from: existing)
+                isEditing = true
+            } else if slot == .morning, let wearables, let night = await wearables.lastNight() {
                 // A first morning save: last night from Apple Health, when the phone is connected.
-                if slot == .morning, let wearables, let night = await wearables.lastNight() { applyHealthNight(night) }
-                return
+                applyHealthNight(night)
             }
-            answers = CheckinEngine.answersFromMoment(existing)
-            catalogPills = CheckinEngine.catalogPills(from: existing)
-            isEditing = true
-            if CheckinEngine.hasMoreTierAnswers(existing) { showMore = true }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.prefill")
             if case .unauthorized = error { await auth.handleUnauthorized() }
         } catch {
             Log.data.error("checkin.prefill: \(String(describing: error), privacy: .public)")
         }
+        await gutPrefill.value
+    }
+
+    private func prefillGut() async {
+        guard let gut else { return }
+        await gut.prefill()
     }
 
     func toggleCatalog(_ group: PillGroup, _ key: String) {
@@ -82,30 +91,51 @@ final class CheckinMomentViewModel {
     }
 
     /// True when saved (or there was nothing to save). False leaves the answers in place with an error.
+    /// The evening saves twice — the moment, then the day's digestion. The moment write is an upsert on
+    /// the slot, so a retry after a failed gut write costs nothing and duplicates nothing.
     func save() async -> Bool {
         saveError = nil
         isSaving = true
         defer { isSaving = false }
         do {
             let member = try await members.currentMember()
-            _ = try await checkins.save(slot: slot, answers: answers, catalogPills: catalogPills, patientId: member.patientId)
-            return true
+            _ = try await checkins.save(slot: slot, answers: answers, catalogPills: catalogPills, note: note, patientId: member.patientId)
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.save")
             if case .unauthorized = error { await auth.handleUnauthorized(); return false }
             saveError = error.userMessage
+            return false
         } catch {
             saveError = String(describing: error)
+            return false
         }
-        return false
+        if let gut, !(await gut.save()) {
+            saveError = gut.saveError
+            return false
+        }
+        return true
     }
 
-    // MARK: Voice + sections (moment-sections.ts)
+    /// The evening's one note: it rides with the moment AND with the digestion detail, so the practitioner
+    /// reads the member's words wherever they look.
+    private var note: String? {
+        guard let text = gut?.notes.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text
+    }
 
-    enum Section: Hashable { case sleep, intent, markers, context }
+    // MARK: Sections (moment-sections.ts)
 
-    var coreSections: [Section] { slot == .morning ? [.sleep, .intent] : [.markers, .context] }
-    var moreSections: [Section] { slot == .morning ? [.markers, .context] : [] }
+    enum Section: Hashable { case sleep, intent, priority, markers, digestion, context }
+
+    /// Morning = the night behind you and the day ahead. Evening = the day you lived, digestion included.
+    /// Midday is never offered any more; a legacy row opened from a deep link still renders what it holds.
+    var sections: [Section] {
+        switch slot {
+        case .morning: [.sleep, .intent, .priority]
+        case .midday: [.markers, .context]
+        case .evening: [.markers, .digestion, .context]
+        }
+    }
 
     var greeting: String {
         switch slot {
@@ -118,15 +148,15 @@ final class CheckinMomentViewModel {
     var intro: String {
         if isEditing { return String(localized: "checkin.editing", defaultValue: "You already checked in for this moment · tweak anything and save again.") }
         switch slot {
-        case .morning: return String(localized: "checkin.morning.intro", defaultValue: "A few quick reads to open the day. Answer what you feel like · anything you skip is fine.")
+        case .morning: return String(localized: "checkin.morning.intro", defaultValue: "Last night, and what today is for. Answer what you feel like · anything you skip is fine.")
         case .midday: return String(localized: "checkin.midday.intro", defaultValue: "A short pause in the middle of the day. Only what you feel like sharing.")
-        case .evening: return String(localized: "checkin.evening.intro", defaultValue: "A moment to close the day. Nothing here is required.")
+        case .evening: return String(localized: "checkin.evening.intro", defaultValue: "A moment to look back on the day. Nothing here is required.")
         }
     }
 
     var markersTitle: String {
-        slot == .morning
-            ? String(localized: "checkin.markers.morning", defaultValue: "How are you feeling?")
+        slot == .evening
+            ? String(localized: "checkin.markers.evening", defaultValue: "How was your day?")
             : String(localized: "checkin.markers.later", defaultValue: "How are you feeling right now?")
     }
 }

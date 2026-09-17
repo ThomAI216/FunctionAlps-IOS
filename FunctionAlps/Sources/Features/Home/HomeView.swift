@@ -104,7 +104,8 @@ struct HomeView: View {
                         RedFlagSignpostCard()
                     }
 
-                    NavigationLink(value: Route.gutCheckin) {
+                    // Digestion is answered inside the evening reflection now — this card is the way in.
+                    NavigationLink(value: Route.checkin(.evening)) {
                         GutCheckinCard(done: content.today.checkin?.isGutDone ?? false, score: content.today.checkin?.gutOverall)
                     }
                     .buttonStyle(.plain)

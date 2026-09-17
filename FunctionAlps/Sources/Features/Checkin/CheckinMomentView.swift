@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// ONE screen for every check-in moment — morning / midday / evening.
-/// Morning is short by default (last night + how you're walking into the day); the functional
-/// markers and fuelled/drained sit behind one warm expander. Later moments show everything.
+/// ONE screen per check-in moment. TWO are asked for: the MORNING (last night, and what today is for)
+/// and the EVENING (the day you lived — energy, focus, mood, calm, and the whole digestion read).
+/// Nothing is hidden behind an expander: what a moment asks, it asks on one page.
 struct CheckinMomentView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
@@ -27,7 +27,8 @@ struct CheckinMomentView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .task {
             if model == nil {
-                let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth, wearables: dependencies.wearables)
+                let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth,
+                                               gut: dependencies.gut, wearables: dependencies.wearables)
                 model = m
                 await m.prefill()
             }
@@ -39,8 +40,13 @@ private struct CheckinMomentScreen: View {
     @Bindable var model: CheckinMomentViewModel
     let onSaved: () -> Void
 
-    /// The catalog owns fuelled/drained on this screen — the ENERGY spec's twins are hidden.
-    private let catalogOwned: Set<String> = ["fuelled", "drained", "day_intent"]
+    /// The catalog owns these on this screen — the ENERGY spec's same-named twins are hidden so
+    /// nobody is asked the same question twice.
+    private let catalogOwned: Set<String> = ["fuelled", "drained", "day_intent", "day_priority"]
+
+    /// The evening cannot save before its digestion has loaded, or a blank answer set would sit on
+    /// top of what was already written today.
+    private var canSave: Bool { model.gut.map(\.loaded) ?? true }
 
     var body: some View {
         ScrollView {
@@ -51,30 +57,7 @@ private struct CheckinMomentScreen: View {
                 }
                 .padding(.top, FASpacing.sm)
 
-                ForEach(model.coreSections, id: \.self) { s in section(s) }
-
-                if !model.moreSections.isEmpty {
-                    if model.showMore {
-                        ForEach(model.moreSections, id: \.self) { s in section(s) }
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    } else {
-                        Button { withAnimation(.easeOut(duration: 0.26)) { model.showMore = true } } label: {
-                            FACard {
-                                HStack(spacing: FASpacing.md) {
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(String(localized: "checkin.more.title", defaultValue: "Tell us a bit more"))
-                                            .font(FATypography.headline).foregroundStyle(FAColor.ink)
-                                        Text(String(localized: "checkin.more.sub", defaultValue: "Energy, mood and calm · about a minute."))
-                                            .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.down").foregroundStyle(FAColor.inkSecondary)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+                ForEach(model.sections, id: \.self) { s in section(s) }
 
                 if let error = model.saveError {
                     FACard {
@@ -90,7 +73,8 @@ private struct CheckinMomentScreen: View {
                     }
                 }
 
-                FAButton(title: model.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "action.save", defaultValue: "Save"), isLoading: model.isSaving) {
+                FAButton(title: model.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "action.save", defaultValue: "Save"),
+                         isLoading: model.isSaving, isEnabled: canSave) {
                     Task { if await model.save() { onSaved() } }
                 }
             }
@@ -115,11 +99,19 @@ private struct CheckinMomentScreen: View {
             }
         case .intent:
             catalogCard([CatalogSection(group: .dayIntent, title: String(localized: "checkin.intent", defaultValue: "How are you walking into the day?"), accent: Color(hex: 0x6366F1))])
+        case .priority:
+            sectionLabel(String(localized: "checkin.today", defaultValue: "Today"))
+            catalogCard([CatalogSection(group: .dayPriority, title: String(localized: "checkin.priority", defaultValue: "What is today for?"), accent: FAColor.forestSoft)])
         case .markers:
             sectionLabel(model.markersTitle)
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
             DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
+        case .digestion:
+            if let gut = model.gut {
+                sectionLabel(String(localized: "checkin.digestion", defaultValue: "Your digestion today"))
+                DigestionSections(model: gut)
+            }
         case .context:
             catalogCard([
                 CatalogSection(group: .fuelled, title: String(localized: "pills.fuelled", defaultValue: "What fuelled you?"), accent: FAColor.forestSoft),
@@ -162,5 +154,49 @@ private struct CheckinMomentScreen: View {
 
     private func dimBinding(_ key: DimKey) -> Binding<DimAnswers> {
         Binding(get: { model.answers[key] ?? .empty }, set: { model.answers[key] = $0 })
+    }
+}
+
+/// The gut check-in, inside the evening reflection: comfort, stool and food reactions, the red flags,
+/// and the one note that travels with both the moment and the day's digestion detail.
+private struct DigestionSections: View {
+    @Bindable var model: GutCheckinViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: FASpacing.md) {
+            ForEach(GutSchema.dimensions) { spec in
+                GutDimensionCard(spec: spec, answers: binding(spec.key), ratedMeals: spec.key == .reactions ? model.ratedMeals : [])
+            }
+            GutRedFlagsCard(flags: $model.redFlags)
+            noteBlock
+        }
+    }
+
+    private func binding(_ key: GutDimKey) -> Binding<GutAnswers> {
+        Binding(get: { model.answers[key] ?? .empty }, set: { model.answers[key] = $0 })
+    }
+
+    @ViewBuilder
+    private var noteBlock: some View {
+        Button { withAnimation(.easeInOut(duration: 0.2)) { model.notesOpen.toggle() } } label: {
+            HStack {
+                Text(model.notesOpen ? String(localized: "gut.notes.hide", defaultValue: "Hide note") : String(localized: "checkin.note.add", defaultValue: "Add a note about your day (optional)"))
+                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.inkSecondary)
+                Spacer()
+                Text(model.notesOpen ? "−" : "+").font(.system(size: 18, weight: .medium)).foregroundStyle(FAColor.inkSecondary)
+            }
+            .padding(.vertical, 13).padding(.horizontal, 18)
+            .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        if model.notesOpen {
+            TextField(String(localized: "checkin.note.placeholder", defaultValue: "Anything worth remembering about today — meals, symptoms, stress, timing."), text: $model.notes, axis: .vertical)
+                .lineLimit(4...8)
+                .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                .padding(14)
+                .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
+        }
     }
 }

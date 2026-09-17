@@ -120,9 +120,10 @@ struct GutIntelligenceView: View {
                     }
                 } else {
                     Text("···").font(FATypography.sans(28, relativeTo: .title)).foregroundStyle(FAColor.inkMuted).tracking(8)
-                    Text(String(localized: "gut.today.empty", defaultValue: "Do your gut check-in to start tracking your digestion here.")).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).lineSpacing(4)
+                    Text(String(localized: "gut.today.empty", defaultValue: "Answer your evening check-in to start tracking your digestion here.")).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).lineSpacing(4)
                 }
-                NavigationLink(value: Route.gutCheckin) {
+                // One place to answer digestion: the evening reflection.
+                NavigationLink(value: Route.checkin(.evening)) {
                     Text(done ? String(localized: "gut.today.edit", defaultValue: "Edit today's check-in") : String(localized: "gut.today.assess", defaultValue: "Assess today's digestion"))
                         .font(FATypography.sans(13.5, .bold, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal)
                         .frame(maxWidth: .infinity).padding(.vertical, 14)

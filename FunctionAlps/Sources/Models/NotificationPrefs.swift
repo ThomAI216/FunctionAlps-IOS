@@ -5,10 +5,12 @@ import Foundation
 struct NotificationPrefs: Sendable, Equatable {
     var morningEnabled = true
     var morningTime = "08:00"
-    var middayEnabled = true
+    /// Retired: the midday moment is no longer asked for. The columns stay (the web app shares the row)
+    /// and a member who had it on keeps their stored value — the phone simply never schedules it.
+    var middayEnabled = false
     var middayTime = "14:30"
     var eveningEnabled = true          // daily_checkin_reminder_enabled
-    var eveningTime = "19:00"          // daily_checkin_time
+    var eveningTime = "20:45"          // daily_checkin_time — late enough to look back on the whole day
     var mealRemindersEnabled = true
     var postMealFollowupEnabled = true
     var weeklySummaryEnabled = true

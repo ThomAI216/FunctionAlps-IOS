@@ -203,10 +203,18 @@ protocol FunctionAlpsBackend: Sendable {
 struct MealReactionWrite: Encodable, Sendable, Equatable {
     let patientId: String
     let mealLogId: String
+    /// The headline: how the meal SAT (the digestion read). Everything downstream reads this column.
     let overall: Double?
     let bloating: Int
     let fullness: Int
     let gasBurden: Int
+    /// Reflux, from the digestion pills.
+    var burning: Int? = nil
+    /// Crashed or sleepy, from the energy pills.
+    var fatigue: Int? = nil
+    /// The two reads that have their own column; focus has none and rides in `responses`.
+    var digestion: Int? = nil
+    var energy: Int? = nil
     let responses: [String: Double]?
     let reactionFlags: [String]?
     /// ISO 8601 (the encoder has no date strategy — `ISO8601.string`).

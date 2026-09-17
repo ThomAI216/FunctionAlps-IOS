@@ -1,18 +1,22 @@
 import Foundation
 
 /// The moment of day a check-in belongs to (`patient_checkin_moments.slot`).
-/// Same vocabulary and hour boundaries as the Expo app's `lib/plan/slots.ts`.
+/// Two moments are asked for: MORNING (the night behind you and the day ahead) and EVENING (the day
+/// you just lived). `midday` is kept because the column vocabulary and older rows still carry it —
+/// it is never scheduled and never offered, only read back and editable.
 enum MomentSlot: String, Sendable, Hashable, CaseIterable {
     case morning, midday, evening
 
+    /// Day order, midday included — a legacy row must still sort between the two.
     static let order: [MomentSlot] = [.morning, .midday, .evening]
+    /// The moments the app asks for: one on waking, one before bed.
+    static let scheduled: [MomentSlot] = [.morning, .evening]
     var rank: Int { Self.order.firstIndex(of: self) ?? 0 }
 
-    /// `<11` morning, `11–16` midday, `>=17` evening (patient-local hour).
+    /// Which moment "now" belongs to: the day is the morning's until the evening reflection is due.
+    /// `<17` morning, `>=17` evening (patient-local hour).
     static func current(hour: Int) -> MomentSlot {
-        if hour < 11 { return .morning }
-        if hour < 17 { return .midday }
-        return .evening
+        hour < 17 ? .morning : .evening
     }
 
     var glyph: String {
@@ -43,6 +47,15 @@ struct SleepSpecials: Sendable, Equatable {
     var durationMin: Int? = nil
     var latency: String? = nil       // lt_15 | 15_30 | 30_60 | gt_60
     var wakeCount: String? = nil     // 0 | 1_2 | 3plus
+
+    /// A postgres `time` as PostgREST sends it (`'22:15:00'`, sometimes `'22:15'`) → `HH:mm`; junk → nil.
+    static func clock(_ raw: String?) -> String? {
+        guard let raw else { return nil }
+        let head = String(raw.prefix(5))
+        let parts = head.split(separator: ":")
+        guard parts.count == 2, let h = Int(parts[0]), let m = Int(parts[1]), (0...23).contains(h), (0...59).contains(m) else { return nil }
+        return String(format: "%02d:%02d", h, m)
+    }
 }
 
 /// One dimension's editable answers (mirrors the Expo `DimAnswers`): sliders 0–100,
@@ -80,11 +93,15 @@ struct CheckinMoment: Sendable, Equatable {
     var sleepDurationMin: Int? = nil
     var sleepLatencyBand: String? = nil
     var sleepWakeCount: String? = nil
+    /// The night's wall clock, `HH:mm` — what duration is the length of. Kept, not just measured.
+    var sleepBedTime: String? = nil
+    var sleepWakeTime: String? = nil
     var pills: [String: [String]] = [:]
     var note: String? = nil
 
     var hasSleep: Bool {
         sleepOverall != nil || sleepRefreshed != nil || sleepDurationMin != nil || sleepLatencyBand != nil || sleepWakeCount != nil
+            || sleepBedTime != nil || sleepWakeTime != nil
     }
 }
 
@@ -100,10 +117,13 @@ struct DaySummary: Sendable, Equatable {
     var sleepDurationMin: Int? = nil
     var sleepLatencyBand: String? = nil
     var sleepWakeCount: String? = nil
+    var sleepBedTime: String? = nil
+    var sleepWakeTime: String? = nil
     var momentCount = 0
 
     var hasSleep: Bool {
         sleepOverall != nil || sleepRefreshed != nil || sleepDurationMin != nil || sleepLatencyBand != nil || sleepWakeCount != nil
+            || sleepBedTime != nil || sleepWakeTime != nil
     }
 }
 
@@ -125,6 +145,8 @@ struct DailyCheckinCarry: Sendable, Equatable {
     var sleepDurationMin: Int? = nil
     var sleepLatencyBand: String? = nil
     var sleepWakeCount: String? = nil
+    var sleepBedTime: String? = nil
+    var sleepWakeTime: String? = nil
     var energy: Int? = nil
     var mood: Int? = nil
     var sleep: Int? = nil
@@ -140,6 +162,8 @@ struct DaySummaryPatch: Sendable, Equatable {
         var sleepDurationMin: Int? = nil
         var sleepLatencyBand: String? = nil
         var sleepWakeCount: String? = nil
+        var sleepBedTime: String? = nil
+        var sleepWakeTime: String? = nil
         var legacySleep: Int? = nil
     }
 

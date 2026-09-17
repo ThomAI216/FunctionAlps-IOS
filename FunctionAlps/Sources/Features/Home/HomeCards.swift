@@ -325,10 +325,10 @@ struct GutCheckinCard: View {
                 }
                 .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.gut.title", defaultValue: "Gut check-in"))
+                    Text(String(localized: "home.gut.title", defaultValue: "Today's digestion"))
                         .font(FATypography.sans(15, .semibold, relativeTo: .headline))
                         .foregroundStyle(FAColor.ink)
-                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Done today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Three quick reads · comfort, stool, food reactions"))
+                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Answered today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Part of your evening check-in"))
                         .font(FATypography.sans(13, relativeTo: .callout))
                         .foregroundStyle(done ? FAColor.accent : FAColor.inkSecondary)
                         .lineLimit(1).minimumScaleFactor(0.85)

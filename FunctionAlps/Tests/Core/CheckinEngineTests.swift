@@ -57,12 +57,13 @@ struct CheckinEngineTests {
         #expect(FunctionalSchema.bandLevel(60) == .mid)
         #expect(FunctionalSchema.bandLevel(61) == .high)
         #expect(FunctionalSchema.bandLevel(nil) == nil)
+        // Two moments: the day belongs to the morning until the evening reflection is due.
         #expect(MomentSlot.current(hour: 0) == .morning)
         #expect(MomentSlot.current(hour: 10) == .morning)
-        #expect(MomentSlot.current(hour: 11) == .midday)
-        #expect(MomentSlot.current(hour: 16) == .midday)
+        #expect(MomentSlot.current(hour: 16) == .morning)
         #expect(MomentSlot.current(hour: 17) == .evening)
         #expect(MomentSlot.current(hour: 23) == .evening)
+        #expect(MomentSlot.scheduled == [.morning, .evening])
     }
 
     @Test func precisionPillsFollowTheBands() {
@@ -71,9 +72,11 @@ struct CheckinEngineTests {
         let keys = CheckinEngine.selectPills(FunctionalSchema.energy, a).map(\.key)
         #expect(keys.contains("drained"))
         #expect(keys.contains("fuelled"))
-        #expect(!keys.contains("best_moment"))
-        a.sliders["stability"] = 50
-        #expect(CheckinEngine.selectPills(FunctionalSchema.energy, a).map(\.key).contains("best_moment"))
+        #expect(keys.contains("worst_dip"))          // a low read asks when the dip was
+        a.sliders["body"] = 80
+        #expect(!CheckinEngine.selectPills(FunctionalSchema.energy, a).map(\.key).contains("worst_dip"))
+        // Energy asks two things now; stability is no longer one of them.
+        #expect(FunctionalSchema.energy.sliders.map(\.key) == ["body", "mind"])
         var s = DimAnswers.empty
         s.specials.latency = "gt_60"
         #expect(CheckinEngine.selectPills(FunctionalSchema.sleep, s).map(\.key) == ["kept_up"])
@@ -82,7 +85,7 @@ struct CheckinEngineTests {
     @Test func momentFromAnswersKeepsCalmnessAndMergesCatalogPills() {
         var answers = FunctionalAnswers.blank
         answers[.energy]?.sliders = ["body": 60, "mind": 80]
-        answers[.energy]?.pills = ["fuelled": ["movement"], "best_moment": ["morning"]]
+        answers[.energy]?.pills = ["fuelled": ["movement"], "worst_dip": ["afternoon"]]
         answers[.stress]?.sliders = ["calm": 58]
         answers[.sleep]?.sliders = ["refreshed": 40]
         answers[.sleep]?.specials = SleepSpecials(bedTime: "22:00", wakeTime: "06:00", durationMin: 480, latency: "lt_15", wakeCount: "0")
@@ -92,8 +95,9 @@ struct CheckinEngineTests {
         #expect(m.moodScore == nil)
         #expect(m.sleepRefreshed == 40)
         #expect(m.sleepDurationMin == 480)
+        #expect(m.sleepBedTime == "22:00" && m.sleepWakeTime == "06:00")
         #expect(m.sleepOverall == 79) // 40*.35 + 100*.3 + 100*.2 + 100*.15 = 79
-        #expect(m.pills == ["best_moment": ["morning"], "day_intent": ["intent_calm"]]) // energy's own "fuelled" is catalog-owned
+        #expect(m.pills == ["worst_dip": ["afternoon"], "day_intent": ["intent_calm"]]) // energy's own "fuelled" is catalog-owned
         #expect(m.note == nil)
     }
 
@@ -111,6 +115,7 @@ struct CheckinEngineTests {
     @Test func answersRoundTripThroughAMoment() {
         let saved = CheckinMoment(slot: .morning, submittedAt: t0, energyBody: 60, energyMind: 80, energyStability: 50, energyOverall: 70, moodScore: 65, stressScore: 58,
                                   sleepOverall: 79, sleepRefreshed: 40, sleepDurationMin: 480, sleepLatencyBand: "lt_15", sleepWakeCount: "0",
+                                  sleepBedTime: "23:10", sleepWakeTime: "07:10",
                                   pills: ["kept_up": ["noise"], "day_intent": ["intent_calm"], "fuelled": ["music"]], note: nil)
         let answers = CheckinEngine.answersFromMoment(saved)
         #expect(answers[.energy]?.sliders == ["body": 60, "mind": 80, "stability": 50])
@@ -118,10 +123,12 @@ struct CheckinEngineTests {
         #expect(answers[.stress]?.sliders == ["calm": 58])
         #expect(answers[.sleep]?.sliders == ["refreshed": 40])
         #expect(answers[.sleep]?.specials.latency == "lt_15")
+        // An old moment keeps its stability value through an edit even though nothing asks for it now.
+        #expect(answers[.energy]?.sliders["stability"] == 50)
+        #expect(answers[.sleep]?.specials.bedTime == "23:10" && answers[.sleep]?.specials.wakeTime == "07:10")
         #expect(answers[.sleep]?.pills == ["kept_up": ["noise"]])
         #expect(answers[.energy]?.pills.isEmpty == true) // catalog groups stay out of the dimensions
         #expect(CheckinEngine.catalogPills(from: saved) == ["day_intent": ["intent_calm"], "fuelled": ["music"]])
-        #expect(CheckinEngine.hasMoreTierAnswers(saved))
         let rebuilt = CheckinEngine.momentFromAnswers(slot: .morning, answers: answers, catalogPills: CheckinEngine.catalogPills(from: saved), note: nil, submittedAt: t0)
         #expect(rebuilt == saved)
     }

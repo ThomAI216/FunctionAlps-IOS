@@ -2322,6 +2322,134 @@
         }
       }
     },
+    "cat.prio_deep_work": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deep work"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travail en profondeur"
+          }
+        }
+      }
+    },
+    "cat.prio_early_night": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An early night"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se coucher tôt"
+          }
+        }
+      }
+    },
+    "cat.prio_eat_well": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eat well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien manger"
+          }
+        }
+      }
+    },
+    "cat.prio_move": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move gently"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouger en douceur"
+          }
+        }
+      }
+    },
+    "cat.prio_outside": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get outside"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortir dehors"
+          }
+        }
+      }
+    },
+    "cat.prio_people": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time with people"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du temps avec les autres"
+          }
+        }
+      }
+    },
+    "cat.prio_rest": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rest and recover"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repos et récupération"
+          }
+        }
+      }
+    },
+    "cat.prio_train": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Train hard"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance intense"
+          }
+        }
+      }
+    },
     "cat.proper_meal": {
       "localizations": {
         "en": {
@@ -2594,6 +2722,22 @@
         }
       }
     },
+    "checkin.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your digestion today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre digestion aujourd'hui"
+          }
+        }
+      }
+    },
     "checkin.editing": {
       "localizations": {
         "en": {
@@ -2631,13 +2775,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A moment to close the day. Nothing here is required."
+            "value": "A moment to look back on the day. Nothing here is required."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un moment pour clore la journée. Rien n'est obligatoire."
+            "value": "Un moment pour revenir sur votre journée. Rien n'est obligatoire."
           }
         }
       }
@@ -2674,6 +2818,22 @@
         }
       }
     },
+    "checkin.markers.evening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How was your day?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment s'est passée votre journée ?"
+          }
+        }
+      }
+    },
     "checkin.markers.later": {
       "localizations": {
         "en": {
@@ -2686,22 +2846,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Comment vous sentez-vous maintenant ?"
-          }
-        }
-      }
-    },
-    "checkin.markers.morning": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How are you feeling?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comment vous sentez-vous ?"
           }
         }
       }
@@ -2738,38 +2882,6 @@
         }
       }
     },
-    "checkin.more.sub": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Energy, mood and calm · about a minute."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Énergie, humeur et calme · environ une minute."
-          }
-        }
-      }
-    },
-    "checkin.more.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tell us a bit more"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dites-nous en un peu plus"
-          }
-        }
-      }
-    },
     "checkin.morning.greeting": {
       "localizations": {
         "en": {
@@ -2791,13 +2903,61 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A few quick reads to open the day. Answer what you feel like · anything you skip is fine."
+            "value": "Last night, and what today is for. Answer what you feel like · anything you skip is fine."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quelques repères rapides pour ouvrir la journée. Répondez à ce que vous voulez · ce que vous sautez n'a aucune importance."
+            "value": "La nuit passée, et à quoi sert cette journée. Répondez à ce que vous voulez · vous pouvez tout passer."
+          }
+        }
+      }
+    },
+    "checkin.note.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a note about your day (optional)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter une note sur votre journée (facultatif)"
+          }
+        }
+      }
+    },
+    "checkin.note.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything worth remembering about today — meals, symptoms, stress, timing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ce qui mérite d'être retenu aujourd'hui — repas, symptômes, stress, horaires."
+          }
+        }
+      }
+    },
+    "checkin.priority": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is today for?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quoi sert cette journée ?"
           }
         }
       }
@@ -2846,6 +3006,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Depuis Apple Health · au lit %1$@ → %2$@ · corrigez ce qui ne va pas"
+          }
+        }
+      }
+    },
+    "checkin.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui"
           }
         }
       }
@@ -4002,18 +4178,18 @@
         }
       }
     },
-    "dim.energy": {
+    "dim.energyFocus": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Energy"
+            "value": "Energy & focus"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Énergie"
+            "value": "Énergie et concentration"
           }
         }
       }
@@ -8663,13 +8839,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Do your gut check-in to start tracking your digestion here."
+            "value": "Answer your evening check-in to start tracking your digestion here."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Faites votre bilan digestif pour commencer à suivre votre digestion ici."
+            "value": "Répondez à votre bilan du soir pour suivre votre digestion ici."
           }
         }
       }
@@ -11879,13 +12055,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "✓ Done today · tap to adjust"
+            "value": "✓ Answered today · tap to adjust"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "✓ Fait aujourd'hui · touchez pour ajuster"
+            "value": "✓ Renseignée aujourd'hui · appuyez pour ajuster"
           }
         }
       }
@@ -11895,13 +12071,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Three quick reads · comfort, stool, food reactions"
+            "value": "Part of your evening check-in"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trois lectures rapides · confort, selles, réactions"
+            "value": "Comprise dans votre bilan du soir"
           }
         }
       }
@@ -11927,13 +12103,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gut check-in"
+            "value": "Today's digestion"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilan digestif"
+            "value": "Votre digestion aujourd'hui"
           }
         }
       }
@@ -16887,13 +17063,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Two minutes before bed sharpens tomorrow's picture."
+            "value": "Energy, focus, mood and digestion — how did the day actually go?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deux minutes avant de dormir affinent l'image de demain."
+            "value": "Énergie, concentration, humeur et digestion — comment s'est passée la journée ?"
           }
         }
       }
@@ -16903,13 +17079,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your evening check-in ð"
+            "value": "Look back on your day 🌙"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre bilan du soir 🌙"
+            "value": "Revenez sur votre journée 🌙"
           }
         }
       }
@@ -16962,50 +17138,18 @@
         }
       }
     },
-    "notif.midday.body": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Energy, focus, digestion — how is the afternoon starting?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Énergie, concentration, digestion — comment démarre l'après-midi ?"
-          }
-        }
-      }
-    },
-    "notif.midday.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Midday check-in"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Point de midi"
-          }
-        }
-      }
-    },
     "notif.morning.body": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "How did you sleep? Two taps set today's baseline."
+            "value": "How did you sleep, and what does today need? Under a minute."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comment avez-vous dormi ? Deux touches fixent la base de la journée."
+            "value": "Comment avez-vous dormi, et de quoi cette journée a-t-elle besoin ? Moins d'une minute."
           }
         }
       }
@@ -17015,7 +17159,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Good morning âï¸"
+            "value": "Good morning ☀️"
           }
         },
         "fr": {
@@ -17122,6 +17266,22 @@
         }
       }
     },
+    "notif.row.evening.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A look back on the day — energy, focus, mood, digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un regard sur la journée — énergie, concentration, humeur, digestion"
+          }
+        }
+      }
+    },
     "notif.row.followup": {
       "localizations": {
         "en": {
@@ -17202,22 +17362,6 @@
         }
       }
     },
-    "notif.row.midday": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Midday check-in"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Point de midi"
-          }
-        }
-      }
-    },
     "notif.row.morning": {
       "localizations": {
         "en": {
@@ -17230,6 +17374,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bilan du matin"
+          }
+        }
+      }
+    },
+    "notif.row.morning.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last night and the day ahead"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La nuit passée et la journée à venir"
           }
         }
       }
@@ -24866,22 +25026,6 @@
         }
       }
     },
-    "pills.best_moment": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Best moment"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Meilleur moment"
-          }
-        }
-      }
-    },
     "pills.body_signs": {
       "localizations": {
         "en": {
@@ -25079,13 +25223,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Worst dip"
+            "value": "When was the dip?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pire creux"
+            "value": "À quel moment le creux ?"
           }
         }
       }
@@ -26754,66 +26898,322 @@
         }
       }
     },
-    "reaction.bloating": {
+    "reaction.d.good": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloating"
+            "value": "Good"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ballonnements"
+            "value": "Bien"
           }
         }
       }
     },
-    "reaction.fullness": {
+    "reaction.d.off": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Heaviness / fullness"
+            "value": "Off"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lourdeur / satiété"
+            "value": "Moyen"
           }
         }
       }
     },
-    "reaction.gas": {
+    "reaction.d.okay": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gas"
+            "value": "Okay"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gaz"
+            "value": "Correct"
           }
         }
       }
     },
-    "reaction.gut": {
+    "reaction.d.rough": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your gut"
+            "value": "Rough"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre ventre"
+            "value": "Difficile"
+          }
+        }
+      }
+    },
+    "reaction.d.satWell": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sat well"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bien passé"
+          }
+        }
+      }
+    },
+    "reaction.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your digestion"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre digestion"
+          }
+        }
+      }
+    },
+    "reaction.digestion.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What felt off?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu'est-ce qui n'allait pas ?"
+          }
+        }
+      }
+    },
+    "reaction.e.crash": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crashed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coup de barre"
+          }
+        }
+      }
+    },
+    "reaction.e.hungry": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hungry again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faim à nouveau"
+          }
+        }
+      }
+    },
+    "reaction.e.shaky": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shaky"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tremblant"
+          }
+        }
+      }
+    },
+    "reaction.e.sleepy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleepy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Somnolent"
+          }
+        }
+      }
+    },
+    "reaction.e.wired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wired"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur les nerfs"
+          }
+        }
+      }
+    },
+    "reaction.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre énergie"
+          }
+        }
+      }
+    },
+    "reaction.energy.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What did it feel like?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça ressemblait à quoi ?"
+          }
+        }
+      }
+    },
+    "reaction.f.dull": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dull"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terne"
+          }
+        }
+      }
+    },
+    "reaction.f.foggy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foggy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brumeux"
+          }
+        }
+      }
+    },
+    "reaction.f.restless": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't settle"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de m'y mettre"
+          }
+        }
+      }
+    },
+    "reaction.f.scattered": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scattered"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dispersé"
+          }
+        }
+      }
+    },
+    "reaction.focus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your focus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre concentration"
+          }
+        }
+      }
+    },
+    "reaction.focus.what": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What did it feel like?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça ressemblait à quoi ?"
           }
         }
       }
@@ -26823,93 +27223,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ten seconds now teaches which meals sit well with you. Skip anything you don't know."
+            "value": "Three taps, two hours later — that is what teaches which meals sit well with you. Skip anything you don't know."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dix secondes maintenant apprennent quels repas vous conviennent. Passez ce que vous ne savez pas."
-          }
-        }
-      }
-    },
-    "reaction.level.mild": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mild"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Léger"
-          }
-        }
-      }
-    },
-    "reaction.level.moderate": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moderate"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modéré"
-          }
-        }
-      }
-    },
-    "reaction.level.none": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "None"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun"
-          }
-        }
-      }
-    },
-    "reaction.level.strong": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strong"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fort"
-          }
-        }
-      }
-    },
-    "reaction.overall": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Overall, 2–3 hours later"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Globalement, 2–3 heures après"
+            "value": "Trois appuis, deux heures après — c'est ce qui apprend quels repas vous conviennent. Passez ce que vous ne savez pas."
           }
         }
       }
@@ -26926,38 +27246,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enregistrer"
-          }
-        }
-      }
-    },
-    "reaction.scale.high": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sat well"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bien passé"
-          }
-        }
-      }
-    },
-    "reaction.scale.low": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rough"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Difficile"
           }
         }
       }
@@ -31458,22 +31746,6 @@
         }
       }
     },
-    "slider.body": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Body"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Corps"
-          }
-        }
-      }
-    },
     "slider.body.high": {
       "localizations": {
         "en": {
@@ -31554,18 +31826,34 @@
         }
       }
     },
-    "slider.mind": {
+    "slider.energy": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mind"
+            "value": "Energy"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esprit"
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "slider.focus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentration"
           }
         }
       }
@@ -31694,54 +31982,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Épuisé"
-          }
-        }
-      }
-    },
-    "slider.stability": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stability"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stabilité"
-          }
-        }
-      }
-    },
-    "slider.stability.high": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Steady"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stable"
-          }
-        }
-      }
-    },
-    "slider.stability.low": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Swingy"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En dents de scie"
           }
         }
       }
@@ -35810,22 +36050,6 @@
         }
       }
     },
-    "w.stable": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stable"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stable"
-          }
-        }
-      }
-    },
     "w.steady": {
       "localizations": {
         "en": {
@@ -35842,22 +36066,6 @@
         }
       }
     },
-    "w.swingy": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Swingy"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En dents de scie"
-          }
-        }
-      }
-    },
     "w.tense": {
       "localizations": {
         "en": {
@@ -35870,22 +36078,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tendu"
-          }
-        }
-      }
-    },
-    "w.uneven": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uneven"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Irrégulier"
           }
         }
       }

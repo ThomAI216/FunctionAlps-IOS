@@ -131,8 +131,9 @@ final class NotificationService {
         guard let patientId else { return }
         let backend = self.backend
         Task {
-            let write = MealReactionWrite(patientId: patientId, mealLogId: mealId, overall: 8, bloating: 0, fullness: 0, gasBurden: 0,
-                                          responses: ["overall": 8], reactionFlags: nil, reactionTime: ISO8601.string(Date()))
+            let write = MealReactionWrite(patientId: patientId, mealLogId: mealId, overall: 7, bloating: 0, fullness: 0, gasBurden: 0,
+                                          burning: 0, fatigue: 0, digestion: 7, energy: nil,
+                                          responses: ["overall": 7, "digestion": 7], reactionFlags: nil, reactionTime: ISO8601.string(Date()))
             do { try await backend.saveMealReaction(write) } catch { Log.data.error("quickFine: \(String(describing: error), privacy: .public)") }
         }
     }

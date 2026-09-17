@@ -25,7 +25,7 @@ struct CheckinBackendTests {
     @Test func decodesMomentsAndDropsUnknownSlots() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: """
-        [{"slot":"morning","submitted_at":"2026-09-02T06:10:00+00:00","energy_body":60,"energy_mind":80,"energy_stability":null,"energy_overall":70,"mood_score":null,"stress_score":58,"sleep_overall":79,"sleep_refreshed":40,"sleep_duration_min":480,"sleep_latency_band":"lt_15","sleep_wake_count":"0","pills":{"day_intent":["intent_calm"]},"note":null},
+        [{"slot":"morning","submitted_at":"2026-09-02T06:10:00+00:00","energy_body":60,"energy_mind":80,"energy_stability":null,"energy_overall":70,"mood_score":null,"stress_score":58,"sleep_overall":79,"sleep_refreshed":40,"sleep_duration_min":480,"sleep_latency_band":"lt_15","sleep_wake_count":"0","sleep_bed_time":"23:10:00","sleep_wake_time":"07:10:00","pills":{"day_intent":["intent_calm"]},"note":null},
          {"slot":"brunch","submitted_at":"2026-09-02T09:00:00+00:00","pills":{}}]
         """)
         let moments = try await make(transport).checkinMoments(patientId: "p1", day: "2026-09-02")
@@ -33,6 +33,8 @@ struct CheckinBackendTests {
         #expect(moments[0].slot == .morning)
         #expect(moments[0].stressScore == 58)
         #expect(moments[0].pills == ["day_intent": ["intent_calm"]])
+        // a postgres `time` comes back with seconds; the app keeps the clock, not the seconds
+        #expect(moments[0].sleepBedTime == "23:10" && moments[0].sleepWakeTime == "07:10")
         let query = try #require(transport.requests.first?.url.query)
         #expect(query.contains("checkin_date=eq.2026-09-02"))
         #expect(query.contains("order=submitted_at.asc"))
@@ -58,7 +60,8 @@ struct CheckinBackendTests {
         #expect(body["energy_mind"] is NSNull)
         #expect(body["note"] is NSNull)
         #expect((body["pills"] as? [String: [String]]) == ["drained": ["travel"]])
-        #expect(body.count == 17)
+        #expect(body["sleep_bed_time"] is NSNull)
+        #expect(body.count == 19)
     }
 
     @Test func summaryUpsertOmitsSleepUnlessTheDayHasIt() async throws {

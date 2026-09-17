@@ -84,6 +84,8 @@ final class AppRouter {
         case "checkin":
             tab = .home; homePath = []
             if let raw = parts.dropFirst().first, let slot = MomentSlot(rawValue: raw) { homePath.append(.checkin(slot)) }
+            // `checkin/gut` still opens the standalone digestion screen (older pushes link to it);
+            // in the app, digestion is answered inside the evening moment.
             else if parts.dropFirst().first == "gut" { homePath.append(.gutCheckin) }
         case "meal":
             tab = .food; foodPath = []

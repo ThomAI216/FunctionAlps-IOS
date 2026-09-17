@@ -83,10 +83,14 @@ struct MealService: Sendable {
         return (try? await backend.mealReactions(patientId: patientId, since: since)) ?? [:]
     }
 
-    /// The member rated the meal (the reaction sheet, or "Felt fine" from the notification). Symptoms 0–10.
-    func saveReaction(mealId: String, patientId: String, overall: Double?, bloating: Int = 0, fullness: Int = 0, gas: Int = 0, flags: [String] = [], responses: [String: Double]? = nil) async throws {
+    /// The member rated the meal (the reaction sheet, or "Felt fine" from the notification). Every read
+    /// and every symptom is 0–10; `MealFeedback` owns how the sheet's five steps map onto them.
+    func saveReaction(mealId: String, patientId: String, overall: Double?, bloating: Int = 0, fullness: Int = 0, gas: Int = 0,
+                      burning: Int = 0, fatigue: Int = 0, digestion: Int? = nil, energy: Int? = nil,
+                      flags: [String] = [], responses: [String: Double]? = nil) async throws {
         try await backend.saveMealReaction(MealReactionWrite(
             patientId: patientId, mealLogId: mealId, overall: overall, bloating: bloating, fullness: fullness, gasBurden: gas,
+            burning: burning, fatigue: fatigue, digestion: digestion, energy: energy,
             responses: responses, reactionFlags: flags.isEmpty ? nil : flags, reactionTime: ISO8601.string(now())
         ))
     }

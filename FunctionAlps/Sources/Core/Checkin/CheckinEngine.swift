@@ -110,6 +110,8 @@ enum CheckinEngine {
             sleepDurationMin: sleep.specials.durationMin,
             sleepLatencyBand: sleep.specials.latency,
             sleepWakeCount: sleep.specials.wakeCount,
+            sleepBedTime: sleep.specials.bedTime,
+            sleepWakeTime: sleep.specials.wakeTime,
             pills: pills,
             note: (trimmedNote?.isEmpty == false) ? trimmedNote : nil
         )
@@ -119,7 +121,7 @@ enum CheckinEngine {
     static func momentHasContent(_ m: CheckinMoment) -> Bool {
         let markers: [Int?] = [m.energyBody, m.energyMind, m.energyStability, m.energyOverall, m.moodScore, m.stressScore, m.sleepOverall, m.sleepRefreshed, m.sleepDurationMin]
         if markers.contains(where: { $0 != nil }) { return true }
-        if m.sleepLatencyBand != nil || m.sleepWakeCount != nil { return true }
+        if m.sleepLatencyBand != nil || m.sleepWakeCount != nil || m.sleepBedTime != nil || m.sleepWakeTime != nil { return true }
         if m.note != nil { return true }
         return m.pills.values.contains { !$0.isEmpty }
     }
@@ -149,7 +151,8 @@ enum CheckinEngine {
         answers[.stress] = stress
         var sleep = DimAnswers.empty
         if let v = moment.sleepRefreshed { sleep.sliders["refreshed"] = Double(v) }
-        sleep.specials = SleepSpecials(durationMin: moment.sleepDurationMin, latency: moment.sleepLatencyBand, wakeCount: moment.sleepWakeCount)
+        sleep.specials = SleepSpecials(bedTime: moment.sleepBedTime, wakeTime: moment.sleepWakeTime, durationMin: moment.sleepDurationMin,
+                                       latency: moment.sleepLatencyBand, wakeCount: moment.sleepWakeCount)
         answers[.sleep] = sleep
         for (group, keys) in moment.pills where !keys.isEmpty {
             guard let dim = dimension(forGroup: group) else { continue }
@@ -164,14 +167,6 @@ enum CheckinEngine {
             if let keys = moment?.pills[group.rawValue], !keys.isEmpty { out[group.rawValue] = keys }
         }
         return out
-    }
-
-    /// Did a saved morning moment answer anything from the opt-in "more" tier?
-    static func hasMoreTierAnswers(_ moment: CheckinMoment?) -> Bool {
-        guard let moment else { return false }
-        let markers: [Int?] = [moment.energyBody, moment.energyMind, moment.energyStability, moment.energyOverall, moment.moodScore, moment.stressScore]
-        if markers.contains(where: { $0 != nil }) { return true }
-        return ["fuelled", "drained"].contains { !(moment.pills[$0] ?? []).isEmpty }
     }
 
     // MARK: Day roll-up
@@ -220,6 +215,8 @@ enum CheckinEngine {
             sleepDurationMin: sleepSource?.sleepDurationMin,
             sleepLatencyBand: sleepSource?.sleepLatencyBand,
             sleepWakeCount: sleepSource?.sleepWakeCount,
+            sleepBedTime: sleepSource?.sleepBedTime,
+            sleepWakeTime: sleepSource?.sleepWakeTime,
             momentCount: ordered.count
         )
     }
@@ -254,6 +251,8 @@ enum CheckinEngine {
                 sleepDurationMin: s.sleepDurationMin ?? prev.sleepDurationMin,
                 sleepLatencyBand: s.sleepLatencyBand ?? prev.sleepLatencyBand,
                 sleepWakeCount: s.sleepWakeCount ?? prev.sleepWakeCount,
+                sleepBedTime: s.sleepBedTime ?? prev.sleepBedTime,
+                sleepWakeTime: s.sleepWakeTime ?? prev.sleepWakeTime,
                 legacySleep: toLegacy(s.sleepOverall) ?? prev.sleep
             )
         }
@@ -308,6 +307,8 @@ enum CheckinEngine {
             if let v = s.durationMin { sleep["duration_min"] = .int(v) }
             if let v = s.latency { sleep["latency"] = .string(v) }
             if let v = s.wakeCount { sleep["wake_count"] = .string(v) }
+            if let v = s.bedTime { sleep["bed_time"] = .string(v) }
+            if let v = s.wakeTime { sleep["wake_time"] = .string(v) }
         }
         if !sleep.isEmpty { out["sleep"] = .object(sleep) }
         if let v = slider(.mood, "mood") { out["mood"] = .object(["mood": v]) }

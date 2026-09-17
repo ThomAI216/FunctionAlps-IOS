@@ -21,9 +21,8 @@ struct NotificationsSettingsView: View {
                     SettingsSectionLabel(title: String(localized: "notif.section.checkins", defaultValue: "Check-ins"))
                     FACard {
                         VStack(spacing: 12) {
-                            timedRow(String(localized: "notif.row.morning", defaultValue: "Morning check-in"), on: $prefs.morningEnabled, time: $prefs.morningTime)
-                            timedRow(String(localized: "notif.row.midday", defaultValue: "Midday check-in"), on: $prefs.middayEnabled, time: $prefs.middayTime)
-                            timedRow(String(localized: "notif.row.evening", defaultValue: "Evening check-in"), on: $prefs.eveningEnabled, time: $prefs.eveningTime)
+                            timedRow(String(localized: "notif.row.morning", defaultValue: "Morning check-in"), sub: String(localized: "notif.row.morning.sub", defaultValue: "Last night and the day ahead"), on: $prefs.morningEnabled, time: $prefs.morningTime)
+                            timedRow(String(localized: "notif.row.evening", defaultValue: "Evening check-in"), sub: String(localized: "notif.row.evening.sub", defaultValue: "A look back on the day — energy, focus, mood, digestion"), on: $prefs.eveningEnabled, time: $prefs.eveningTime)
                         }
                     }
 
@@ -142,9 +141,9 @@ struct NotificationsSettingsView: View {
         .tint(FAColor.brand)
     }
 
-    private func timedRow(_ label: String, on: Binding<Bool>, time: Binding<String>) -> some View {
+    private func timedRow(_ label: String, sub: String? = nil, on: Binding<Bool>, time: Binding<String>) -> some View {
         VStack(spacing: 8) {
-            toggleRow(label, sub: nil, on: on)
+            toggleRow(label, sub: sub, on: on)
             if on.wrappedValue {
                 HStack {
                     Text(String(localized: "notif.at", defaultValue: "At")).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)

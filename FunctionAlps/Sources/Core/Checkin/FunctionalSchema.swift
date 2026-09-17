@@ -68,17 +68,18 @@ enum FunctionalSchema {
         opt("night", String(localized: "pill.night", defaultValue: "Night")),
     ]
 
+    /// Two reads: the body's energy and the mind's focus. `stability` is retired — the evening looks
+    /// back on the whole day, where "how steady was it?" asked nothing the two reads don't already say.
+    /// The column stays on the row, so older days keep their value and `energyOverall` keeps its shape.
     static let energy = DimensionSpec(
         key: .energy,
-        title: String(localized: "dim.energy", defaultValue: "Energy"),
+        title: String(localized: "dim.energyFocus", defaultValue: "Energy & focus"),
         accentHex: 0xD97706,
         sliders: [
-            SliderSpec(key: "body", label: String(localized: "slider.body", defaultValue: "Body"), lowLabel: String(localized: "slider.body.low", defaultValue: "Drained"), highLabel: String(localized: "slider.body.high", defaultValue: "Buzzing"),
+            SliderSpec(key: "body", label: String(localized: "slider.energy", defaultValue: "Energy"), lowLabel: String(localized: "slider.body.low", defaultValue: "Drained"), highLabel: String(localized: "slider.body.high", defaultValue: "Buzzing"),
                        words: [String(localized: "w.drained", defaultValue: "Drained"), String(localized: "w.low", defaultValue: "Low"), String(localized: "w.steady", defaultValue: "Steady"), String(localized: "w.good", defaultValue: "Good"), String(localized: "w.buzzing", defaultValue: "Buzzing")]),
-            SliderSpec(key: "mind", label: String(localized: "slider.mind", defaultValue: "Mind"), lowLabel: String(localized: "slider.mind.low", defaultValue: "Foggy"), highLabel: String(localized: "slider.mind.high", defaultValue: "Sharp"),
+            SliderSpec(key: "mind", label: String(localized: "slider.focus", defaultValue: "Focus"), lowLabel: String(localized: "slider.mind.low", defaultValue: "Foggy"), highLabel: String(localized: "slider.mind.high", defaultValue: "Sharp"),
                        words: [String(localized: "w.foggy", defaultValue: "Foggy"), String(localized: "w.hazy", defaultValue: "Hazy"), String(localized: "w.okay", defaultValue: "Okay"), String(localized: "w.clear", defaultValue: "Clear"), String(localized: "w.sharp", defaultValue: "Sharp")]),
-            SliderSpec(key: "stability", label: String(localized: "slider.stability", defaultValue: "Stability"), lowLabel: String(localized: "slider.stability.low", defaultValue: "Swingy"), highLabel: String(localized: "slider.stability.high", defaultValue: "Steady"),
-                       words: [String(localized: "w.swingy", defaultValue: "Swingy"), String(localized: "w.uneven", defaultValue: "Uneven"), String(localized: "w.okay", defaultValue: "Okay"), String(localized: "w.stable", defaultValue: "Stable"), String(localized: "w.steady", defaultValue: "Steady")]),
         ],
         hasSleepInputs: false,
         pills: [
@@ -88,10 +89,8 @@ enum FunctionalSchema {
             module("fuelled", String(localized: "pills.fuelled", defaultValue: "What fuelled you?"), after: "mind",
                    when: { a in has(a, "body") && has(a, "mind") && (lvl(a, "body") == .high || lvl(a, "mind") == .high) },
                    [opt("good_sleep", String(localized: "pill.good_sleep", defaultValue: "Good sleep")), opt("protein_breakfast", String(localized: "pill.protein_breakfast", defaultValue: "Protein breakfast")), opt("movement", String(localized: "pill.movement", defaultValue: "Movement")), opt("sunlight", String(localized: "pill.sunlight", defaultValue: "Sunlight")), opt("hydration", String(localized: "pill.hydration", defaultValue: "Hydration")), opt("rest_day", String(localized: "pill.rest_day", defaultValue: "Rest day"))]),
-            module("best_moment", String(localized: "pills.best_moment", defaultValue: "Best moment"), after: "stability",
-                   when: { a in lvl(a, "stability") != nil && lvl(a, "stability") != .high }, timesOfDay),
-            module("worst_dip", String(localized: "pills.worst_dip", defaultValue: "Worst dip"), after: "stability",
-                   when: { a in lvl(a, "stability") != nil && lvl(a, "stability") != .high }, timesOfDay),
+            module("worst_dip", String(localized: "pills.worst_dip", defaultValue: "When was the dip?"), after: "mind",
+                   when: { a in lvl(a, "body") == .low || lvl(a, "mind") == .low }, timesOfDay),
         ]
     )
 
@@ -191,7 +190,7 @@ enum FunctionalSchema {
 
 // MARK: - The context pill catalog (moment screen)
 
-enum PillGroup: String, Sendable, CaseIterable { case dayIntent = "day_intent", fuelled, drained }
+enum PillGroup: String, Sendable, CaseIterable { case dayIntent = "day_intent", dayPriority = "day_priority", fuelled, drained }
 
 enum Pillar: String, Sendable, CaseIterable {
     case nutrition, exercise, mind, emotion, recovery, sleep
@@ -236,6 +235,18 @@ enum PillCatalog {
         pill("intent_heavy", String(localized: "cat.intent_heavy", defaultValue: "Carrying something heavy"), .dayIntent, .emotion, morningOnly: true),
         pill("intent_foggy", String(localized: "cat.intent_foggy", defaultValue: "Foggy"), .dayIntent, .mind, morningOnly: true),
         pill("intent_low", String(localized: "cat.intent_low", defaultValue: "Low"), .dayIntent, .emotion, morningOnly: true),
+
+        // What today is FOR. Stored-not-scored like every other pill, but keyed so the coming food and
+        // habit proposals can read the day's intention — and, once wearables are in, weigh it against
+        // the morning's readiness rather than against nothing.
+        pill("prio_train", String(localized: "cat.prio_train", defaultValue: "Train hard"), .dayPriority, .exercise, morningOnly: true),
+        pill("prio_move", String(localized: "cat.prio_move", defaultValue: "Move gently"), .dayPriority, .exercise, morningOnly: true),
+        pill("prio_eat_well", String(localized: "cat.prio_eat_well", defaultValue: "Eat well"), .dayPriority, .nutrition, morningOnly: true),
+        pill("prio_deep_work", String(localized: "cat.prio_deep_work", defaultValue: "Deep work"), .dayPriority, .mind, morningOnly: true),
+        pill("prio_rest", String(localized: "cat.prio_rest", defaultValue: "Rest and recover"), .dayPriority, .recovery, morningOnly: true),
+        pill("prio_people", String(localized: "cat.prio_people", defaultValue: "Time with people"), .dayPriority, .emotion, morningOnly: true),
+        pill("prio_outside", String(localized: "cat.prio_outside", defaultValue: "Get outside"), .dayPriority, .recovery, morningOnly: true),
+        pill("prio_early_night", String(localized: "cat.prio_early_night", defaultValue: "An early night"), .dayPriority, .sleep, morningOnly: true),
 
         pill("good_sleep", String(localized: "cat.good_sleep", defaultValue: "A good night"), .fuelled, .sleep, morningOnly: true),
         pill("protein_breakfast", String(localized: "cat.protein_breakfast", defaultValue: "Protein at breakfast"), .fuelled, .nutrition, morningOnly: true),

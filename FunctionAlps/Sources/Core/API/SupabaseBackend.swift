@@ -500,7 +500,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Check-in moments (patient_checkin_moments → patient_daily_checkins → nb_checkin_events)
 
-    private static let momentColumns = "slot,submitted_at,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,pills,note"
+    private static let momentColumns = "slot,submitted_at,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,sleep_bed_time,sleep_wake_time,pills,note"
 
     private struct MomentRow: Decodable, Sendable {
         let slot: String
@@ -516,12 +516,15 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let sleepDurationMin: Int?
         let sleepLatencyBand: String?
         let sleepWakeCount: String?
+        let sleepBedTime: String?
+        let sleepWakeTime: String?
         let pills: [String: [String]]?
         let note: String?
 
         private enum CodingKeys: String, CodingKey {
             case slot, submittedAt, energyBody, energyMind, energyStability, energyOverall, moodScore, stressScore
-            case sleepOverall, sleepRefreshed, sleepDurationMin, sleepLatencyBand, sleepWakeCount, pills, note
+            case sleepOverall, sleepRefreshed, sleepDurationMin, sleepLatencyBand, sleepWakeCount
+            case sleepBedTime, sleepWakeTime, pills, note
         }
 
         init(from decoder: any Decoder) throws {
@@ -539,6 +542,9 @@ struct SupabaseBackend: FunctionAlpsBackend {
             sleepDurationMin = try c.decodeIfPresent(Int.self, forKey: .sleepDurationMin)
             sleepLatencyBand = try c.decodeIfPresent(String.self, forKey: .sleepLatencyBand)
             sleepWakeCount = try c.decodeIfPresent(String.self, forKey: .sleepWakeCount)
+            // a postgres `time` arrives as "22:15:00" on a select and as "22:15" from the RPC reply.
+            sleepBedTime = SleepSpecials.clock(try c.decodeIfPresent(String.self, forKey: .sleepBedTime))
+            sleepWakeTime = SleepSpecials.clock(try c.decodeIfPresent(String.self, forKey: .sleepWakeTime))
             // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost moment.
             pills = try? c.decodeIfPresent([String: [String]].self, forKey: .pills)
             note = try c.decodeIfPresent(String.self, forKey: .note)
@@ -553,6 +559,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 moodScore: moodScore, stressScore: stressScore,
                 sleepOverall: sleepOverall, sleepRefreshed: sleepRefreshed, sleepDurationMin: sleepDurationMin,
                 sleepLatencyBand: sleepLatencyBand, sleepWakeCount: sleepWakeCount,
+                sleepBedTime: sleepBedTime, sleepWakeTime: sleepWakeTime,
                 pills: pills ?? [:], note: note
             )
         }
@@ -636,6 +643,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             "sleep_duration_min": .int(m.sleepDurationMin),
             "sleep_latency_band": .string(m.sleepLatencyBand),
             "sleep_wake_count": .string(m.sleepWakeCount),
+            "sleep_bed_time": .string(m.sleepBedTime),
+            "sleep_wake_time": .string(m.sleepWakeTime),
             "pills": .pills(m.pills), // NOT NULL (default '{}') — always an object
             "note": .string(m.note),
         ]
@@ -658,13 +667,15 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let sleepDurationMin: Int?
         let sleepLatencyBand: String?
         let sleepWakeCount: String?
+        let sleepBedTime: String?
+        let sleepWakeTime: String?
         let energy: Int?
         let mood: Int?
         let sleep: Int?
         let stress: Int?
     }
 
-    private static let carryColumns = "recovery,soreness,recent_load,recent_mental_load,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,energy,mood,sleep,stress"
+    private static let carryColumns = "recovery,soreness,recent_load,recent_mental_load,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,sleep_bed_time,sleep_wake_time,energy,mood,sleep,stress"
 
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? {
         let row: CarryRow? = try await rest.selectOne("patient_daily_checkins", query: [
@@ -677,6 +688,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
             moodScore: r.moodScore, stressScore: r.stressScore,
             sleepOverall: r.sleepOverall, sleepRefreshed: r.sleepRefreshed, sleepDurationMin: r.sleepDurationMin,
             sleepLatencyBand: r.sleepLatencyBand, sleepWakeCount: r.sleepWakeCount,
+            sleepBedTime: SleepSpecials.clock(r.sleepBedTime), sleepWakeTime: SleepSpecials.clock(r.sleepWakeTime),
             energy: r.energy, mood: r.mood, sleep: r.sleep, stress: r.stress
         )
     }
@@ -709,6 +721,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             row["sleep_duration_min"] = .int(s.sleepDurationMin)
             row["sleep_latency_band"] = .string(s.sleepLatencyBand)
             row["sleep_wake_count"] = .string(s.sleepWakeCount)
+            row["sleep_bed_time"] = .string(s.sleepBedTime)
+            row["sleep_wake_time"] = .string(s.sleepWakeTime)
             row["sleep"] = .int(s.legacySleep)
         }
         try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)

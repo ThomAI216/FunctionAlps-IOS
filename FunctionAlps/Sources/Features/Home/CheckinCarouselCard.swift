@@ -116,7 +116,7 @@ private struct CheckinPhotoCard: View {
                         pane(symbol: "fork.knife", value: "\(today.meals.count)", label: today.meals.count == 1
                             ? String(localized: "home.pane.mealOne", defaultValue: "meal logged")
                             : String(localized: "home.pane.meals", defaultValue: "meals logged"))
-                        pane(symbol: "checkmark.circle", value: "\(momentsDone)/\(MomentSlot.order.count)", label: String(localized: "home.pane.checkins.short", defaultValue: "check-ins"))
+                        pane(symbol: "checkmark.circle", value: "\(momentsDone)/\(MomentSlot.scheduled.count)", label: String(localized: "home.pane.checkins.short", defaultValue: "check-ins"))
                     }
                 }
                 .padding(10)
@@ -156,7 +156,7 @@ private struct CheckinPhotoCard: View {
         .accessibilityLabel("\(title). \(status)")
     }
 
-    private var momentsDone: Int { MomentSlot.order.filter { CheckinEngine.slotIsDone(today.moments, $0) }.count }
+    private var momentsDone: Int { MomentSlot.scheduled.filter { CheckinEngine.slotIsDone(today.moments, $0) }.count }
 
     private var sleepValue: String {
         guard let sleepHours else { return "—" }
