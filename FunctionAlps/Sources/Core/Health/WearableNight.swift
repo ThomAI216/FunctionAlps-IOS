@@ -44,7 +44,7 @@ extension WearableNight {
         self.init(
             day: night.day, sourceId: WearableSource.appleHealth,
             bedTime: HealthFormat.clock(night.start), wakeTime: HealthFormat.clock(night.end),
-            durationMin: SleepInputsView.windowMinutes(bed: HealthFormat.clock(night.start), wake: HealthFormat.clock(night.end)),
+            durationMin: SleepSpecials.windowMinutes(bed: HealthFormat.clock(night.start), wake: HealthFormat.clock(night.end)),
             latency: WearableNightAssembler.latencyBand(seconds: night.latencySeconds),
             wakeCount: WearableNightAssembler.wakeCountBand(Double(night.interruptions))
         )
@@ -102,7 +102,7 @@ enum WearableNightAssembler {
             let guessed = (bedTime != nil && bed?.timezoneOffset == nil) || (wakeTime != nil && wake?.timezoneOffset == nil)
             // In bed, from the two clocks when they are there (what the member would read), else what
             // the source called time-in-bed, else the asleep duration.
-            let window = (bedTime != nil && wakeTime != nil) ? SleepInputsView.windowMinutes(bed: bedTime!, wake: wakeTime!) : nil
+            let window = (bedTime != nil && wakeTime != nil) ? SleepSpecials.windowMinutes(bed: bedTime!, wake: wakeTime!) : nil
             let reported = (value(inBed)?.value ?? value(duration)?.value).map { Int(($0 / 60).rounded()) }
             return WearableNight(
                 day: day, sourceId: sourceId,

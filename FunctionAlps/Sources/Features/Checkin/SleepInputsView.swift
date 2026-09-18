@@ -57,19 +57,7 @@ struct SleepInputsView: View {
     private func set(bed: String, wake: String) {
         specials.bedTime = bed
         specials.wakeTime = wake
-        specials.durationMin = Self.windowMinutes(bed: bed, wake: wake)
-    }
-
-    static func minutes(_ hhmm: String) -> Int? {
-        let parts = hhmm.split(separator: ":").compactMap { Int($0) }
-        guard parts.count == 2 else { return nil }
-        return ((parts[0] * 60 + parts[1]) % 1440 + 1440) % 1440
-    }
-
-    /// Length of the night, wrapping past midnight (bed 22:00 → wake 06:30 = 510).
-    static func windowMinutes(bed: String, wake: String) -> Int? {
-        guard let b = minutes(bed), let w = minutes(wake) else { return nil }
-        return (w - b + 1440) % 1440
+        specials.durationMin = SleepSpecials.windowMinutes(bed: bed, wake: wake)
     }
 
     static func string(from date: Date) -> String {
@@ -78,7 +66,7 @@ struct SleepInputsView: View {
     }
 
     static func date(from hhmm: String) -> Date {
-        let m = minutes(hhmm) ?? 0
+        let m = SleepSpecials.minutes(hhmm) ?? 0
         return Calendar.current.date(bySettingHour: m / 60, minute: m % 60, second: 0, of: Date()) ?? Date()
     }
 }

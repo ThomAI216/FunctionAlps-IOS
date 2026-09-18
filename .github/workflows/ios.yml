@@ -110,7 +110,15 @@ jobs:
             -resultBundlePath build/Tests.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             -skipMacroValidation \
-            | tee build/xcodebuild-test.log | grep -E "error:|Test Suite|Test Case.*(passed|failed)|✔|✘|TEST" || true
+            | tee build/xcodebuild-test.log | grep -E "error:|Test Suite|Test Case.*(passed|failed)|✔|✘|◇|Expectation failed|recorded an issue|Fatal error|Crashed|signal|TEST" || true
+          # A crashed test process prints no ✘ at all, so the filtered run above can be silent about
+          # WHY it failed. Replay the unfiltered tail BEFORE the assertion — the step runs under
+          # `bash -e`, so anything after a failing grep never executes.
+          if ! grep -q "TEST SUCCEEDED" build/xcodebuild-test.log; then
+            echo "::group::Unfiltered tail of xcodebuild-test.log"
+            tail -n 400 build/xcodebuild-test.log
+            echo "::endgroup::"
+          fi
           grep -qE "TEST SUCCEEDED|\*\* TEST SUCCEEDED \*\*" build/xcodebuild-test.log
 
       - name: Upload logs

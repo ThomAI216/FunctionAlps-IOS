@@ -48,6 +48,19 @@ struct SleepSpecials: Sendable, Equatable {
     var latency: String? = nil       // lt_15 | 15_30 | 30_60 | gt_60
     var wakeCount: String? = nil     // 0 | 1_2 | 3plus
 
+    /// Minutes past midnight for `HH:mm`, wrapping into the day; junk → nil.
+    static func minutes(_ hhmm: String) -> Int? {
+        let parts = hhmm.split(separator: ":").compactMap { Int($0) }
+        guard parts.count == 2 else { return nil }
+        return ((parts[0] * 60 + parts[1]) % 1440 + 1440) % 1440
+    }
+
+    /// Length of the night, wrapping past midnight (bed 22:00 → wake 06:30 = 510).
+    static func windowMinutes(bed: String, wake: String) -> Int? {
+        guard let b = minutes(bed), let w = minutes(wake) else { return nil }
+        return (w - b + 1440) % 1440
+    }
+
     /// A postgres `time` as PostgREST sends it (`'22:15:00'`, sometimes `'22:15'`) → `HH:mm`; junk → nil.
     static func clock(_ raw: String?) -> String? {
         guard let raw else { return nil }

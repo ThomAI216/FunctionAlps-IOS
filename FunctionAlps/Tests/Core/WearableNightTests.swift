@@ -30,6 +30,16 @@ struct WearableNightTests {
         #expect(WearableNightAssembler.clock(epochSeconds: 0, offsetMinutes: 120) == nil)
     }
 
+    @Test("The night's length wraps past midnight, and lives off the SwiftUI view")
+    func windowWrapsMidnight() {
+        #expect(SleepSpecials.windowMinutes(bed: "22:00", wake: "06:30") == 510)
+        #expect(SleepSpecials.windowMinutes(bed: "23:10", wake: "06:40") == 450)
+        #expect(SleepSpecials.windowMinutes(bed: "01:00", wake: "09:00") == 480)   // no wrap at all
+        #expect(SleepSpecials.windowMinutes(bed: "22:00", wake: "22:00") == 0)
+        #expect(SleepSpecials.windowMinutes(bed: "nonsense", wake: "06:30") == nil)
+        #expect(SleepSpecials.minutes("24:00") == 0)
+    }
+
     @Test("Seconds and counts land in the bands the member would have tapped")
     func bands() {
         #expect(WearableNightAssembler.latencyBand(seconds: 0) == "lt_15")
