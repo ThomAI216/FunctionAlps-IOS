@@ -27,10 +27,24 @@ struct AccessTests {
         #expect(AccessCountdown.describe(access) == nil)
     }
 
-    @Test func betaNeverClosesTheDoorEither() {
-        let access = AppAccess.resolve([row("beta", expiresInDays: -1)], now: now)
+    @Test func betaNeverCountsDownEither() {
+        // A LIVE beta: an expired one never reaches the beta branch at all (see below).
+        let access = AppAccess.resolve([row("beta", expiresInDays: 5)], now: now)
         #expect(access.allowed)
+        #expect(access.daysLeft == nil)
         #expect(AccessCountdown.describe(access) == nil)
+    }
+
+    /// Worth knowing before anyone reinstates the windows: `beta` never actually closed the door.
+    /// `isLive` drops a row whose `expires_at` has passed, so an expired beta never reaches the beta
+    /// branch — it leaves no live row, and no live row means `allowedUnknown`. Only `discovery`, whose
+    /// 3-day window is computed app-side from `starts_at` and is invisible to `isLive`, ever locked
+    /// anyone out. That is why the reports were all about three days.
+    @Test func anExpiredBetaFallsToFailOpenNotToAClosedDoor() {
+        for open in [true, false] {
+            let access = AppAccess.resolve([row("beta", expiresInDays: -1)], now: now, windowsOpen: open)
+            #expect(access == .allowedUnknown)
+        }
     }
 
     @Test func theTierIsStillReportedHonestly() {
@@ -65,7 +79,9 @@ struct AccessTests {
         #expect(live.daysLeft == 2)
         #expect(AccessCountdown.describe(live)?.tier == .discovery)
 
-        let expiredBeta = AppAccess.resolve([row("beta", expiresInDays: -1)], now: now, windowsOpen: false)
-        #expect(!expiredBeta.allowed)
+        let liveBeta = AppAccess.resolve([row("beta", expiresInDays: 5)], now: now, windowsOpen: false)
+        #expect(liveBeta.allowed)
+        #expect(liveBeta.daysLeft == 5)
+        #expect(AccessCountdown.describe(liveBeta)?.tier == .beta)
     }
 }
