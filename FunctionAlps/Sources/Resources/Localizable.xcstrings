@@ -2994,18 +2994,50 @@
         }
       }
     },
-    "checkin.sleep.fromHealth": {
+    "checkin.sleep.fromWearable": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "From Apple Health · in bed %1$@ → %2$@ · adjust anything that's off"
+            "value": "From %1$@ · in bed %2$@ → %3$@ · adjust anything that's off"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Depuis Apple Health · au lit %1$@ → %2$@ · corrigez ce qui ne va pas"
+            "value": "D'après %1$@ · au lit %2$@ → %3$@ · corrigez ce qui ne va pas"
+          }
+        }
+      }
+    },
+    "checkin.sleep.fromWearable.guessed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %1$@ · in bed %2$@ → %3$@, read in this timezone · check them"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après %1$@ · au lit %2$@ → %3$@, lus dans ce fuseau horaire · vérifiez-les"
+          }
+        }
+      }
+    },
+    "checkin.sleep.fromWearable.noClock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %1$@ · it didn't record when you went to bed · set the times yourself"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après %1$@ · l'heure du coucher n'a pas été enregistrée · indiquez-la vous-même"
           }
         }
       }
@@ -32286,6 +32318,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Collation %lld"
+          }
+        }
+      }
+    },
+    "source.appleHealth": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Santé"
+          }
+        }
+      }
+    },
+    "source.wearable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your wearable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "votre appareil"
           }
         }
       }

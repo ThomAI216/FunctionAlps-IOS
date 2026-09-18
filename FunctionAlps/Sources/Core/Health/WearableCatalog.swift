@@ -43,6 +43,11 @@ struct WearableMetric: Sendable, Equatable, Hashable {
     static let sleepAwake = WearableMetric(typeId: 2306, name: "ThryveMainSleepAwakeDuration", valueType: "LONG")
     static let sleepLatency = WearableMetric(typeId: 2307, name: "ThryveMainSleepLatency", valueType: "LONG")
     static let sleepInterruptions = WearableMetric(typeId: 2402, name: "ThryveMainSleepInterruptions", valueType: "LONG")
+    /// The night's CLOCK, as every vendor adapter files it: the instant in epoch SECONDS, with the
+    /// row's `timezone_offset` saying which wall clock that was. Without these two, a night read back
+    /// from the server is a length with no "when" — and the morning check-in cannot prefill the times.
+    static let sleepStart = WearableMetric(typeId: 2400, name: "ThryveMainSleepStartTime", valueType: "DATE")
+    static let sleepEnd = WearableMetric(typeId: 2401, name: "ThryveMainSleepEndTime", valueType: "DATE")
     static let sleepEfficiency = WearableMetric(typeId: 2200, name: "SleepEfficiency", valueType: "LONG")
     // Heart (raw layer)
     static let heartRate = WearableMetric(typeId: 3000, name: "HeartRate", valueType: "LONG")
@@ -86,7 +91,8 @@ struct WearableDailyRow: Encodable, Sendable, Equatable {
         self.dataTypeName = metric.name
         self.dataTypeId = metric.typeId
         self.dataSourceId = WearableSource.appleHealth
-        self.value = metric.valueType == "LONG" ? value.rounded() : (value * 100).rounded() / 100
+        // DOUBLE keeps two decimals; LONG and DATE (an epoch in whole seconds, as `dailyDate` writes it) round.
+        self.value = metric.valueType == "DOUBLE" ? (value * 100).rounded() / 100 : value.rounded()
         self.valueText = nil
         self.valueType = metric.valueType
         self.timezoneOffset = timezoneOffset
@@ -300,6 +306,8 @@ enum SleepAssembler {
             row(.sleepAwake, night.awakeSeconds),
             row(.sleepLatency, night.latencySeconds),
             row(.sleepInterruptions, Double(night.interruptions)),
+            row(.sleepStart, night.start.timeIntervalSince1970),
+            row(.sleepEnd, night.end.timeIntervalSince1970),
         ]
         if night.remSeconds > 0 { out.append(row(.sleepREM, night.remSeconds)) }
         if night.deepSeconds > 0 { out.append(row(.sleepDeep, night.deepSeconds)) }

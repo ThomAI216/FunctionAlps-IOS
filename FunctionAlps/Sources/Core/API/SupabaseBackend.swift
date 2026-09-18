@@ -1450,6 +1450,17 @@ struct SupabaseBackend: FunctionAlpsBackend {
         ])
     }
 
+    /// `value` is the epoch instant and `timezone_offset` the minutes it was recorded at — `value_text`
+    /// is deliberately NOT read: the shared writer overwrites it with a UTC ISO string, so it cannot
+    /// give back the wall clock the member saw (`_shared/wearables/core.ts`, `dailyDate`).
+    func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] {
+        try await rest.select("wearable_daily", query: [
+            PG.select("day,data_type_id,data_source_id,value,timezone_offset"), PG.eq("patient_id", patientId),
+            PG.inList("data_type_id", WearableNightAssembler.typeIds.map(String.init)), PG.gte("day", since),
+            PG.order("day", descending: true),
+        ])
+    }
+
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] {
         try await rest.select("wearable_connections", query: [
             PG.select("data_source_id,data_source_name,status,connected_at"), PG.eq("patient_id", patientId),

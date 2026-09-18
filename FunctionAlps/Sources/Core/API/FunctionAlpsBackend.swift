@@ -187,6 +187,10 @@ protocol FunctionAlpsBackend: Sendable {
     func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult
     /// The member's own `wearable_daily_labeled` rows from `since` (YYYY-MM-DD), any source.
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow]
+
+    /// The sleep rows of the last couple of days, whatever wrote them — the morning check-in's prefill
+    /// for a member whose wearable syncs server-side rather than through Apple Health on this phone.
+    func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow]
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)

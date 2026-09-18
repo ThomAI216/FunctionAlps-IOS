@@ -90,9 +90,11 @@ private struct CheckinMomentScreen: View {
         case .sleep:
             sectionLabel(String(localized: "checkin.lastNight", defaultValue: "Last night"))
             DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep))
-            if let note = model.sleepFromHealthNote {
+            if let note = model.sleepFromWearableNote, let source = model.sleepFromWearable {
                 HStack(spacing: 6) {
-                    Image(systemName: "heart.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255))
+                    Image(systemName: WearableVendor.sourceSymbol(source.sourceId))
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(WearableVendor.sourceTint(source.sourceId))
                     Text(note).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.horizontal, 6)

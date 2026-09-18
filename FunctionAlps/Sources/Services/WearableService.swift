@@ -139,6 +139,20 @@ final class WearableService {
         await lastNight(now: now).map { $0.asleepSeconds / 3600 }
     }
 
+    /// Last night from WHATEVER recorded it, for the morning check-in's prefill:
+    ///   1. Apple Health on THIS phone — no round trip, and the clock straight from the samples;
+    ///   2. otherwise the sleep rows a connected wearable wrote server-side (Oura, WHOOP, Polar,
+    ///      Withings, Suunto, Fitbit — every adapter files the night's start and end, ids 2400/2401),
+    ///      accepted only for TODAY: a ring that hasn't synced yet must not prefill yesterday's night.
+    /// Nil when neither has one — and then the member sets the clock themselves, which is the point:
+    /// the prefill is a courtesy, never a precondition.
+    func lastNightAnySource(patientId: String, now: Date = Date()) async -> WearableNight? {
+        if let local = await lastNight(now: now) { return WearableNight(local: local) }
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        guard let rows = try? await backend.wearableSleepRows(patientId: patientId, since: ISO8601.dayString(yesterday, calendar: calendar)) else { return nil }
+        return WearableNightAssembler.night(from: rows, on: ISO8601.dayString(now, calendar: calendar), fallback: calendar.timeZone)
+    }
+
     // MARK: The member's own Apple Health view (Home card + the Apple Health page)
 
     /// Today next to the last seven days, read straight from HealthKit — fresh, and there before the first

@@ -15,8 +15,8 @@ final class CheckinMomentViewModel {
     /// second errand on Home. Nil for every other slot; the standalone gut screen still uses its own.
     let gut: GutCheckinViewModel?
 
-    /// Last night as Apple Health recorded it, when it prefilled the sleep inputs (morning, first save only).
-    private(set) var sleepFromHealth: SleepNight?
+    /// Last night as a wearable recorded it, when it prefilled the sleep inputs (morning, first save only).
+    private(set) var sleepFromWearable: WearableNight?
 
     private let checkins: CheckinService
     private let members: MemberService
@@ -32,24 +32,33 @@ final class CheckinMomentViewModel {
         self.gut = (slot == .evening) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth) } : nil
     }
 
-    /// The sleep inputs from Apple Health: bed → wake as the clock, the window as the duration, the Watch's
-    /// wake-ups and how long falling asleep took, mapped to the same bands the member would pick. All editable.
-    func applyHealthNight(_ night: SleepNight) {
+    /// The sleep inputs from whichever wearable recorded the night: bed → wake as the clock, the window
+    /// as the duration, the wake-ups and how long falling asleep took, in the same bands the member would
+    /// pick. Only fields the source actually carries are filled — the rest stay for the member. All editable.
+    func applyWearableNight(_ night: WearableNight) {
         var sleep = answers[.sleep] ?? .empty
-        let bed = HealthFormat.clock(night.start), wake = HealthFormat.clock(night.end)
-        sleep.specials.bedTime = bed
-        sleep.specials.wakeTime = wake
-        sleep.specials.durationMin = SleepInputsView.windowMinutes(bed: bed, wake: wake)
-        sleep.specials.wakeCount = night.interruptions == 0 ? "0" : (night.interruptions <= 2 ? "1_2" : "3plus")
-        let latencyMin = night.latencySeconds / 60
-        sleep.specials.latency = latencyMin < 15 ? "lt_15" : (latencyMin < 30 ? "15_30" : (latencyMin < 60 ? "30_60" : "gt_60"))
+        if let bed = night.bedTime { sleep.specials.bedTime = bed }
+        if let wake = night.wakeTime { sleep.specials.wakeTime = wake }
+        if let duration = night.durationMin { sleep.specials.durationMin = duration }
+        if let latency = night.latency { sleep.specials.latency = latency }
+        if let wakeCount = night.wakeCount { sleep.specials.wakeCount = wakeCount }
         answers[.sleep] = sleep
-        sleepFromHealth = night
+        sleepFromWearable = night
     }
 
-    var sleepFromHealthNote: String? {
-        guard let night = sleepFromHealth else { return nil }
-        return String(localized: "checkin.sleep.fromHealth", defaultValue: "From Apple Health · in bed \(HealthFormat.clock(night.start)) → \(HealthFormat.clock(night.end)) · adjust anything that's off")
+    /// Named, because "adjust anything that's off" only means something once you know who said it.
+    var sleepFromWearableNote: String? {
+        guard let night = sleepFromWearable else { return nil }
+        let source = WearableVendor.sourceName(night.sourceId)
+        guard let bed = night.bedTime, let wake = night.wakeTime else {
+            return String(localized: "checkin.sleep.fromWearable.noClock", defaultValue: "From \(source) · it didn't record when you went to bed · set the times yourself")
+        }
+        if night.clockIsGuessed {
+            // The row carried no timezone: these times are this phone's reading of the instant, which
+            // is only right if the night was spent in this timezone. Say so rather than look certain.
+            return String(localized: "checkin.sleep.fromWearable.guessed", defaultValue: "From \(source) · in bed \(bed) → \(wake), read in this timezone · check them")
+        }
+        return String(localized: "checkin.sleep.fromWearable", defaultValue: "From \(source) · in bed \(bed) → \(wake) · adjust anything that's off")
     }
 
     /// Re-opening a saved moment EDITS it (same row, upsert on the slot).
@@ -62,9 +71,10 @@ final class CheckinMomentViewModel {
                 answers = CheckinEngine.answersFromMoment(existing)
                 catalogPills = CheckinEngine.catalogPills(from: existing)
                 isEditing = true
-            } else if slot == .morning, let wearables, let night = await wearables.lastNight() {
-                // A first morning save: last night from Apple Health, when the phone is connected.
-                applyHealthNight(night)
+            } else if slot == .morning, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
+                // A first morning save: last night from Apple Health on this phone, else from a wearable
+                // that synced server-side. Neither → the member sets the clock themselves.
+                applyWearableNight(night)
             }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.prefill")

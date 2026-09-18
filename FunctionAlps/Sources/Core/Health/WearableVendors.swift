@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// The seven direct vendors (owner decision 2026-09-04: free, direct OAuth; no aggregator). The phone
 /// carries the copy; CM OS `wearable_vendors.status` says which are open to members today, so a vendor
@@ -61,6 +62,23 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
     }
 
     static func vendor(_ key: String) -> WearableVendor? { all.first { $0.key == key } }
+
+    /// `wearable_daily.data_source_id` → the name a member would recognise. The Apple Health sentinel
+    /// is not a vendor row, and an id from a source we don't carry copy for stays honest rather than wrong.
+    static func sourceName(_ sourceId: Int) -> String {
+        if sourceId == WearableSource.appleHealth { return String(localized: "source.appleHealth", defaultValue: "Apple Health") }
+        return all.first { $0.sourceId == sourceId }?.name ?? String(localized: "source.wearable", defaultValue: "your wearable")
+    }
+
+    static func sourceSymbol(_ sourceId: Int) -> String {
+        if sourceId == WearableSource.appleHealth { return "heart.fill" }
+        return all.first { $0.sourceId == sourceId }?.symbol ?? "sensor.tag.radiowaves.forward"
+    }
+
+    static func sourceTint(_ sourceId: Int) -> Color {
+        if sourceId == WearableSource.appleHealth { return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255) }
+        return all.first { $0.sourceId == sourceId }.map { Color(hex: $0.tintHex) } ?? FAColor.inkSecondary
+    }
 }
 
 /// `wearable_vendors` (R, authenticated): which vendors the practice has opened.
