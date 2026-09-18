@@ -123,6 +123,15 @@ enum WearableNightAssembler {
             if n.wakeCount != nil { score += 1 }
             return score
         }
-        return candidates.filter { !$0.isEmpty }.max { richness($0) < richness($1) || (richness($0) == richness($1) && $0.sourceId > $1.sourceId) }
+        return candidates.filter { !$0.isEmpty }.max { (richness($0), sourcePriority($0.sourceId)) < (richness($1), sourcePriority($1.sourceId)) }
+    }
+
+    /// Equal nights, different sources: the same order the scoring engine already uses for everything
+    /// sleep-shaped (`_shared/scoring/wearable-inputs.ts`, `defaultPriority`) — the ring or strap that
+    /// SAW the night, then Apple Health relaying it, then anything older. Never a new house rule.
+    static func sourcePriority(_ sourceId: Int) -> Int {
+        if WearableVendor.all.contains(where: { $0.sourceId == sourceId }) { return 30 }
+        if sourceId == WearableSource.appleHealth { return 20 }
+        return 10
     }
 }

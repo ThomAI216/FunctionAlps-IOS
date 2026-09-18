@@ -148,9 +148,11 @@ final class WearableService {
     /// the prefill is a courtesy, never a precondition.
     func lastNightAnySource(patientId: String, now: Date = Date()) async -> WearableNight? {
         if let local = await lastNight(now: now) { return WearableNight(local: local) }
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
-        guard let rows = try? await backend.wearableSleepRows(patientId: patientId, since: ISO8601.dayString(yesterday, calendar: calendar)) else { return nil }
-        return WearableNightAssembler.night(from: rows, on: ISO8601.dayString(now, calendar: calendar), fallback: calendar.timeZone)
+        // Today only, on both ends of the query: every adapter files a night under the local day it
+        // ENDED, so last night IS today's row — and yesterday's must never become this morning's answer.
+        let today = ISO8601.dayString(now, calendar: calendar)
+        guard let rows = try? await backend.wearableSleepRows(patientId: patientId, since: today) else { return nil }
+        return WearableNightAssembler.night(from: rows, on: today, fallback: calendar.timeZone)
     }
 
     // MARK: The member's own Apple Health view (Home card + the Apple Health page)

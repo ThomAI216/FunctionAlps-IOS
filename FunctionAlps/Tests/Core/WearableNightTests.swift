@@ -104,6 +104,18 @@ struct WearableNightTests {
         #expect(night.bedTime == "23:10")
     }
 
+    @Test("Equal nights: the ring that saw it beats the phone relaying it, as the scoring engine orders them")
+    func tiesFollowTheHousePriority() throws {
+        // The same three fields from both — nothing to choose between them but the source.
+        let rows = [2400, 2401, 2300].flatMap { id in
+            [row(id, id == 2400 ? bedInstant : (id == 2401 ? wakeInstant : 25_200), source: WearableSource.appleHealth),
+             row(id, id == 2400 ? bedInstant : (id == 2401 ? wakeInstant : 25_200), source: 1_000_042)]
+        }
+        #expect(WearableNightAssembler.night(from: rows, fallback: zurich)?.sourceId == 1_000_042)
+        #expect(WearableNightAssembler.sourcePriority(1_000_042) > WearableNightAssembler.sourcePriority(WearableSource.appleHealth))
+        #expect(WearableNightAssembler.sourcePriority(WearableSource.appleHealth) > WearableNightAssembler.sourcePriority(8))
+    }
+
     @Test("Only the day asked for; a ring that hasn't synced today prefills nothing")
     func staleNightIsNotOffered() {
         let yesterday = [row(2400, bedInstant, day: "2026-09-12"), row(2401, wakeInstant, day: "2026-09-12")]
