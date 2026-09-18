@@ -5,14 +5,13 @@ import SwiftUI
 ///   1. Nothing is pre-ticked — a pre-ticked mandatory box is not consent (`default_state` says so).
 ///   2. The full wording is on THIS screen, expandable in place.
 ///   3. A refusal of an optional item is RECORDED, so the ledger shows the member was asked and said no.
-///   4. Age comes first: being an adult is what makes the agreement capable of binding.
+///   4. The 18+ declaration rides ON these terms rather than on a screen of its own (owner's call,
+///      2026-09-18): accepting the Terms is the declaration. See the note above `AgeGateView`.
 struct ConsentGateView: View {
     let bundle: AccountService.ConsentsBundle
-    let needsAge: Bool
     let onAccepted: () -> Void
     @Environment(AppDependencies.self) private var dependencies
 
-    @State private var adultConfirmed = false
     @State private var ticks: [String: Bool] = [:]
     @State private var expanded: Set<String> = []
     @State private var working = false
@@ -25,13 +24,7 @@ struct ConsentGateView: View {
     private var allRequiredTicked: Bool { untickedRequired == 0 }
 
     var body: some View {
-        Group {
-            if needsAge, !adultConfirmed {
-                AgeGateView { adultConfirmed = true }
-            } else {
-                list
-            }
-        }
+        list
         .onAppear {
             // Required items start OFF, always; an optional one starts in the member's standing state.
             if ticks.isEmpty {
@@ -239,141 +232,18 @@ struct ConsentGateView: View {
     }
 }
 
-/// The age step (the Expo `AgeGate`): shown once, before anything can be agreed to. An under-18 date
-/// never leaves the device — `OnboardingLogic.checkBirthDate` decides locally. No skip, no dismiss:
-/// the only exits are a confirmed adult date, or signing out.
-///
-/// One calendar, no typing. The three DD/MM/YYYY boxes this replaced were unusable: in an `HStack`
-/// the year box carried `maxWidth: .infinity` AND `layoutPriority(1)`, so it took the whole row and
-/// left day and month at about zero width — untappable, and the gate has no way past it.
-struct AgeGateView: View {
-    let onConfirmed: () -> Void
-    @Environment(AppDependencies.self) private var dependencies
-
-    /// Starts on today, which is precisely the one date the 18+ rule refuses: nothing is pre-filled
-    /// in the sense that matters — no date the member did not choose can reach the clinical record.
-    @State private var selection = Calendar.current.startOfDay(for: Date())
-    /// The verdict is computed from the first frame; it is only SHOWN once the member has moved the
-    /// calendar, so arriving on the screen never reads as an accusation of being under age.
-    @State private var picked = false
-    @State private var working = false
-    @State private var refused = false
-    @State private var error: String?
-
-    /// 120 years back … today. Above 18 is deliberately NOT excluded: a minor must be able to land on
-    /// their real date and see the refusal, rather than be quietly nudged into an adult one.
-    private var bounds: ClosedRange<Date> {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let oldest = calendar.date(byAdding: .year, value: -OnboardingLogic.maximumAge, to: today) ?? today
-        return oldest...today
-    }
-
-    private var verdict: OnboardingLogic.AgeCheck {
-        let parts = Calendar.current.dateComponents([.year, .month, .day], from: selection)
-        return OnboardingLogic.checkBirthDate(day: String(parts.day ?? 0), month: String(parts.month ?? 0), year: String(parts.year ?? 0))
-    }
-
-    private var canContinue: Bool {
-        if case .ok = verdict { return !working }
-        return false
-    }
-
-    var body: some View {
-        if refused {
-            GateMessageView(
-                symbol: "exclamationmark.triangle",
-                title: String(localized: "gate.age.underAge", defaultValue: "FunctionAlps is only for people aged 18 and over."),
-                message: String(localized: "gate.age.underAgeDetail", defaultValue: "We haven't kept the date you entered. If an account was created for someone under 18, write to data@functionalps.ch and we will delete it."),
-                primary: String(localized: "profile.signOut", defaultValue: "Sign out"),
-                onPrimary: { Task { await dependencies.auth.signOut() } }
-            )
-        } else {
-            form
-        }
-    }
-
-    private var form: some View {
-        VStack(spacing: 0) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16, style: .continuous).fill(ProfilePalette.accentSoft)
-                        Image(systemName: "calendar").font(.system(size: 24, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
-                    }
-                    .frame(width: 54, height: 54).padding(.bottom, 18)
-                    Text(String(localized: "gate.age.heading", defaultValue: "Your date of birth")).font(FATypography.display(27, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink).padding(.bottom, 8)
-                    Text(String(localized: "gate.age.intro", defaultValue: "FunctionAlps is for adults. We ask once, to confirm you are 18 or older and so the app's estimates fit your age."))
-                        .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(ProfilePalette.muted).lineSpacing(6).padding(.bottom, 16)
-
-                    calendarCard
-
-                    Text(String(localized: "gate.age.hint", defaultValue: "Tap the month and year at the top of the calendar to jump straight to your birth year."))
-                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 12)
-                    Text(String(localized: "gate.age.why", defaultValue: "Used only to confirm your age and to size the app's estimates. It is never shown to anyone else."))
-                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 6)
-                    // Recomputed as the calendar moves, but only SHOWN once the member has moved it.
-                    if picked, verdict == .invalid { fieldError(String(localized: "gate.age.invalid", defaultValue: "That date doesn't look right. Please check it.")) }
-                    if picked, verdict == .underAge { fieldError(String(localized: "gate.age.underAge", defaultValue: "FunctionAlps is only for people aged 18 and over.")) }
-                    if let error { fieldError(error) }
-                }
-                .padding(.horizontal, 22).padding(.top, 20).padding(.bottom, 24)
-            }
-            VStack {
-                ForestPillButton(title: String(localized: "action.continue", defaultValue: "Continue"), enabled: canContinue, busy: working) { Task { await confirm() } }
-            }
-            .padding(.horizontal, 22).padding(.top, 10).padding(.bottom, 8)
-            .overlay(alignment: .top) { Rectangle().fill(ProfilePalette.hairline).frame(height: 1) }
-        }
-        .faWall()
-    }
-
-    private var calendarCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            DatePicker(
-                String(localized: "gate.age.heading", defaultValue: "Your date of birth"),
-                selection: $selection,
-                in: bounds,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.graphical)
-            .labelsHidden()
-            .tint(FAColor.forestSoft)
-            .onChange(of: selection) { _, _ in
-                picked = true
-                error = nil
-            }
-
-            // The chosen date in words, so the member can check it without reading the grid — and so
-            // VoiceOver announces the answer rather than the cell that produced it.
-            HStack(spacing: 6) {
-                Text(String(localized: "gate.age.selected", defaultValue: "Selected"))
-                    .font(FATypography.sans(11, .semibold, relativeTo: .caption)).tracking(0.6).foregroundStyle(ProfilePalette.muted)
-                Text(picked ? selection.formatted(.dateTime.day().month(.wide).year()) : "—")
-                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(picked ? FAColor.ink : ProfilePalette.muted)
-            }
-            .accessibilityElement(children: .combine)
-        }
-        .padding(.horizontal, 12).padding(.vertical, 10)
-        .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(ProfilePalette.hairline, lineWidth: 1.5) }
-    }
-
-    private func fieldError(_ text: String) -> some View {
-        Text(text).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.red).lineSpacing(4).padding(.top, 10)
-    }
-
-    /// The server decides (`confirm_member_adult`); false ⇒ refused and nothing else stored. Includes the
-    /// RPC being absent: fail closed — an age check we could not run is not an age check that passed.
-    private func confirm() async {
-        guard case .ok(let iso) = verdict, !working else { return }
-        error = nil
-        working = true
-        defer { working = false }
-        do {
-            if try await dependencies.account.confirmAdult(dateOfBirth: iso) { onConfirmed() } else { refused = true }
-        } catch {
-            self.error = String(localized: "gate.age.error", defaultValue: "We couldn't confirm your date of birth. Check your connection and try again.")
-        }
-    }
-}
+// The age step is GONE from the app (owner's call, 2026-09-18). `AgeGateView` is deleted, not
+// disabled: accepting the Terms is now the 18+ declaration, so a screen that asks the same question
+// again is a second door on the same wall — and it was the door that locked two members out this week.
+//
+// Nothing else was torn out, so reinstating it is small and deliberate:
+//   · `OnboardingLogic.checkBirthDate` (pure, tested) still holds the 18…120 rule;
+//   · `AccountService.confirmAdult` / `.confirmAdultFromRecord` and their RPCs are still wired;
+//   · the `gate.age.*` strings are still in the catalogue, in both languages;
+//   · `MemberGateView` no longer has a `needsAge` step to pass in.
+// It is NOT relocated into onboarding. The `age` field on the baseline screen is a different thing:
+// a number Harris-Benedict needs, not a date of birth and not a gate.
+//
+// ⚠ Worth knowing while this stands: the English Terms v8 do not state the 18+ requirement (the French
+// ones do, and both privacy notices do). The tick that records agreement is the Terms, so the English
+// wording should carry it the next time that document is versioned.
