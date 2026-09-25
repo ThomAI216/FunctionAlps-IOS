@@ -34,9 +34,9 @@ jobs:
       - name: Type-check every function
         run: |
           set -euo pipefail
-          for fn in wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile wearable-ingest push-send member-scores legal-page; do
+          for fn in wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile wearable-ingest push-send member-scores member-daily-focus legal-page; do
             [ -f "$fn/index.ts" ] || { echo "::warning::$fn/index.ts missing — skipped"; continue; }
             echo "::group::check $fn"; deno check "$fn/index.ts"; echo "::endgroup::"
           done
       - name: Unit tests
-        run: deno test --allow-env --allow-read _shared/wearables/tests/ _shared/scoring/tests/
+        run: deno test --allow-env --allow-read _shared/wearables/tests/ _shared/scoring/tests/ _shared/focus/tests/
