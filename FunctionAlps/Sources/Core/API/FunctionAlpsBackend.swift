@@ -79,8 +79,9 @@ protocol FunctionAlpsBackend: Sendable {
 
     // MARK: Sign-up + onboarding (patient-register · nb_patient_app_profiles · confirm_member_adult)
 
-    /// Edge fn `patient-register` — creates or links the patient row and stamps `user_metadata.patient_id`; returns the patient id.
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String
+    /// Edge fn `patient-register` — creates or links the patient row (and stamps `user_metadata.patient_id`) → `.patient(id:)`;
+    /// 409 `existing-identity` (the mailbox already owns a patient under another auth user) → `.existingIdentity(providers:)`.
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome
     /// `onboarding_completed_at` (only when still null — the first finish is the date) + `onboarding_source = 'app_baseline'`.
     func stampOnboardingComplete(patientId: String) async throws -> Date
     /// RPC `confirm_member_adult(p_date_of_birth)` — true when 18+ (and the row is stamped); under-age is refused locally first.

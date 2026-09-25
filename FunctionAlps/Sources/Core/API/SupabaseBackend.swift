@@ -1175,11 +1175,19 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Sign-up + onboarding
 
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String {
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome {
         struct Body: Encodable { let firstName: String; let lastName: String; let email: String }
         struct Reply: Decodable { let patientId: String }
-        let reply: Reply = try await functions.invoke("patient-register", body: Body(firstName: firstName, lastName: lastName, email: email), snakeCase: false)
-        return reply.patientId
+        struct Refusal: Decodable { let error: String?; let providers: [String]? }
+        let (status, data) = try await functions.invokeAccepting([409], "patient-register", body: Body(firstName: firstName, lastName: lastName, email: email), snakeCase: false)
+        if status == 409 {
+            // Only the refusal the app models is an answer; any other 409 stays an error.
+            guard let refusal = try? JSON.decode(Refusal.self, from: data), refusal.error == "existing-identity" else {
+                throw AppError.fromStatus(status, body: data)
+            }
+            return .existingIdentity(providers: refusal.providers ?? [])
+        }
+        return .patient(id: try JSON.decode(Reply.self, from: data).patientId)
     }
 
     func stampOnboardingComplete(patientId: String) async throws -> Date {

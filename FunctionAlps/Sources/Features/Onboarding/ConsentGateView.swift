@@ -224,10 +224,16 @@ struct ConsentGateView: View {
             try await dependencies.account.recordGate(decisions, in: bundle)
             onAccepted()
         } catch {
-            let text = String(describing: error).lowercased()
-            saveError = text.contains("not approved")
-                ? String(localized: "gate.consent.saveErrorDraft", defaultValue: "These terms are still in review and cannot be accepted yet. Please try again later.")
-                : String(localized: "gate.consent.saveError", defaultValue: "We couldn't save your choices. Check your connection and try again.")
+            switch ConsentLogic.saveFailure(error) {
+            case .draft:
+                saveError = String(localized: "gate.consent.saveErrorDraft", defaultValue: "These terms are still in review and cannot be accepted yet. Please try again later.")
+            case .connection:
+                saveError = String(localized: "gate.consent.saveError", defaultValue: "We couldn't save your choices. Check your connection and try again.")
+            case .notLinked:
+                saveError = String(localized: "gate.consent.saveErrorNotLinked", defaultValue: "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to data@functionalps.ch.")
+            case .other:
+                saveError = String(localized: "gate.consent.saveErrorOther", defaultValue: "We couldn't save your choices just now. Please try again in a moment, or write to data@functionalps.ch.")
+            }
         }
     }
 }

@@ -6994,6 +6994,38 @@
         }
       }
     },
+    "gate.consent.saveErrorNotLinked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to data@functionalps.ch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette connexion n’est pas liée à votre dossier membre, rien n’a donc pu être enregistré. Déconnectez-vous et reconnectez-vous comme lors de votre première inscription, ou écrivez à data@functionalps.ch."
+          }
+        }
+      }
+    },
+    "gate.consent.saveErrorOther": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't save your choices just now. Please try again in a moment, or write to data@functionalps.ch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n’avons pas pu enregistrer vos choix pour le moment. Réessayez dans un instant, ou écrivez à data@functionalps.ch."
+          }
+        }
+      }
+    },
     "gate.consent.updated.heading": {
       "localizations": {
         "en": {
@@ -7102,6 +7134,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nous n’avons pas trouvé votre adhésion"
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You registered before with %@. Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to data@functionalps.ch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous vous êtes déjà inscrit·e avec %@. Déconnectez-vous, puis reconnectez-vous de cette façon : tout ce que vous avez enregistré vous y attend. En cas de blocage, écrivez à data@functionalps.ch."
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.method.apple": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple"
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.method.email": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "an email address and password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "une adresse e-mail et un mot de passe"
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.method.google": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google"
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.method.or": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " or "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " ou "
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.method.unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "another sign-in method"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "une autre méthode de connexion"
+          }
+        }
+      }
+    },
+    "gate.registeredElsewhere.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This email already has an account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette adresse e-mail a déjà un compte"
           }
         }
       }

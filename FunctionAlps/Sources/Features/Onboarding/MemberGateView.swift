@@ -15,6 +15,7 @@ struct MemberGateView: View {
         case loading
         case failed
         case notRegistered
+        case registeredElsewhere(providers: [String])
         case accessClosed(AppAccess)
         case consent
         case onboarding
@@ -49,6 +50,18 @@ struct MemberGateView: View {
                     onPrimary: { Task { await resolve() } },
                     secondary: String(localized: "profile.signOut", defaultValue: "Sign out"),
                     onSecondary: { Task { await dependencies.auth.signOut() } }
+                )
+            case .registeredElsewhere(let providers):
+                // The same person, signed in through a door that owns nothing: the record lives behind
+                // the other one. Sign-out is the primary action because that is the way through.
+                GateMessageView(
+                    symbol: "person.crop.circle.badge.exclamationmark",
+                    title: String(localized: "gate.registeredElsewhere.title", defaultValue: "This email already has an account"),
+                    message: String(localized: "gate.registeredElsewhere.body", defaultValue: "You registered before with \(MemberService.signInMethodPhrase(providers: providers)). Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to data@functionalps.ch."),
+                    primary: String(localized: "profile.signOut", defaultValue: "Sign out"),
+                    onPrimary: { Task { await dependencies.auth.signOut() } },
+                    secondary: String(localized: "action.retry", defaultValue: "Try again"),
+                    onSecondary: { Task { await resolve() } }
                 )
             case .accessClosed(let access):
                 AccessClosedView(access: access) { Task { await resolve() } }
@@ -85,6 +98,9 @@ struct MemberGateView: View {
             m = try await dependencies.members.currentMember()
         } catch MemberService.MemberError.notRegistered {
             stage = .notRegistered
+            return
+        } catch MemberService.MemberError.registeredElsewhere(let providers) {
+            stage = .registeredElsewhere(providers: providers)
             return
         } catch let error as AppError where error == .unauthorized {
             await dependencies.auth.handleUnauthorized()

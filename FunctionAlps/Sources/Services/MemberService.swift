@@ -15,6 +15,11 @@ struct MemberService: Sendable {
     enum MemberError: Error, Equatable {
         /// The account exists but has no `patients` row yet (registered elsewhere, never opened the app).
         case notRegistered
+        /// The mailbox already owns a patient under ANOTHER auth user — the same person, signed in a
+        /// different way (a Gmail dot alias through Google after an email/password account, 2026-09-25).
+        /// A patient row has one owner, so this session can never read or write as that member; the app
+        /// says which door to use. `providers` is how the owning account signs in, empty when unknown.
+        case registeredElsewhere(providers: [String])
     }
 
     /// `patient-register` rejects empty names — the Expo fallback ladder.
@@ -47,17 +52,49 @@ struct MemberService: Sendable {
             // cached id here — an id the server just declined to confirm is the very thing not to trust.
             // Names: the sign-up metadata, else the display name, else "Member".
             let names = Self.names(for: session)
-            guard let email = session.email, let registered = try? await backend.registerPatient(firstName: names.first, lastName: names.last, email: email) else {
+            guard let email = session.email, let outcome = try? await backend.registerPatient(firstName: names.first, lastName: names.last, email: email) else {
                 throw MemberError.notRegistered
             }
-            await sessions.rememberPatientId(registered)
-            patientId = registered
+            switch outcome {
+            case .existingIdentity(let providers):
+                throw MemberError.registeredElsewhere(providers: providers)
+            case .patient(let id):
+                // Ownership is checked AGAIN after registration, against the same server fact as above.
+                // `patient-register` lives in four repos; an older copy answers the existing-identity
+                // case with the OTHER account's id and a 200, and taking that id at its word is how a
+                // member reached the consent gate and had every save refused (2026-09-25, HTTP 403
+                // "no member context"). An id the server does not confirm as this session's is not used.
+                guard try await backend.currentPatientId() == id else {
+                    throw MemberError.registeredElsewhere(providers: [])
+                }
+                await sessions.rememberPatientId(id)
+                patientId = id
+            }
         }
         let profile = try await backend.memberProfile(patientId: patientId)
         let name = session.displayName
             ?? session.email.map { String($0.split(separator: "@").first ?? "") }
             ?? String(localized: "member.fallbackName", defaultValue: "Client")
         return Member(userId: session.userId, patientId: patientId, email: session.email, displayName: name, profile: profile)
+    }
+
+    /// "an email address and password", "Google", "Apple" — joined with "or" — for the screen that
+    /// sends the member to the account that owns their record. Nothing recognisable ⇒ "another sign-in
+    /// method", never a raw provider slug.
+    static func signInMethodPhrase(providers: [String]) -> String {
+        var seen: Set<String> = []
+        let known: [String] = providers.compactMap { provider in
+            let key = provider.lowercased()
+            guard seen.insert(key).inserted else { return nil }
+            switch key {
+            case "email": return String(localized: "gate.registeredElsewhere.method.email", defaultValue: "an email address and password")
+            case "google": return String(localized: "gate.registeredElsewhere.method.google", defaultValue: "Google")
+            case "apple": return String(localized: "gate.registeredElsewhere.method.apple", defaultValue: "Apple")
+            default: return nil
+            }
+        }
+        guard !known.isEmpty else { return String(localized: "gate.registeredElsewhere.method.unknown", defaultValue: "another sign-in method") }
+        return known.joined(separator: String(localized: "gate.registeredElsewhere.method.or", defaultValue: " or "))
     }
 }
 
