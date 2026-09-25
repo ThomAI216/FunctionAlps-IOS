@@ -39,7 +39,10 @@ final class LabResultsService {
     /// Reads once per patient; `force` re-reads (pull to refresh). Concurrent callers share one load.
     func load(force: Bool = false) async {
         if let running = inflight { await running.value; if !force { return } }
-        let task = Task { [weak self] in await self?.fetch(force: force) }
+        let task = Task { [weak self] in
+            guard let self else { return }
+            await self.fetch(force: force)
+        }
         inflight = task
         await task.value
         inflight = nil
