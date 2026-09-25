@@ -75,6 +75,9 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
 
     func carePlan(patientId: String) async throws -> CarePlan? { nil }
+    var labRows: [LabResultRow] = []
+    private(set) var labResultsCalls = 0
+    func labResults() async throws -> [LabResultRow] { labResultsCalls += 1; return labRows }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}

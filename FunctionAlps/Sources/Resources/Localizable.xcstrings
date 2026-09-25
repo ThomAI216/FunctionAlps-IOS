@@ -13138,6 +13138,166 @@
         }
       }
     },
+    "labs.a11y.collapsed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapsed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replié"
+          }
+        }
+      }
+    },
+    "labs.a11y.expanded": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expanded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplié"
+          }
+        }
+      }
+    },
+    "labs.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your results appear here once your nutritionist has reviewed and approved them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos résultats apparaissent ici une fois que votre nutritionniste les a relus et validés."
+          }
+        }
+      }
+    },
+    "labs.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No released results yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de résultats"
+          }
+        }
+      }
+    },
+    "labs.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your results could not be loaded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger vos résultats"
+          }
+        }
+      }
+    },
+    "labs.list.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results are reviewed by your FunctionAlps nutritionist before they are shared with you."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos résultats sont relus par votre nutritionniste FunctionAlps avant de vous être partagés."
+          }
+        }
+      }
+    },
+    "labs.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading your results…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement de vos résultats…"
+          }
+        }
+      }
+    },
+    "labs.missing.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It may have been withdrawn by your nutritionist. Pull down to refresh, or go back to your results."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il a peut-être été retiré par votre nutritionniste. Tirez vers le bas pour actualiser, ou revenez à vos résultats."
+          }
+        }
+      }
+    },
+    "labs.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This result isn't available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce résultat n'est pas disponible"
+          }
+        }
+      }
+    },
+    "labs.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lab results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats d'analyses"
+          }
+        }
+      }
+    },
     "legal.notice": {
       "localizations": {
         "en": {
@@ -27198,6 +27358,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pas encore de base"
+          }
+        }
+      }
+    },
+    "profile.results": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos résultats"
+          }
+        }
+      }
+    },
+    "profile.results.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blood work and other tests, explained by your nutritionist once reviewed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prises de sang et autres analyses, expliquées par votre nutritionniste une fois relues"
+          }
+        }
+      }
+    },
+    "profile.results.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lab results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats d'analyses"
           }
         }
       }

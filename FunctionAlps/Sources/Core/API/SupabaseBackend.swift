@@ -1335,6 +1335,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return CarePlanLogic.assemble(plan: plan, items: items)
     }
 
+    // MARK: Lab results (get_member_lab_results)
+
+    /// SECURITY DEFINER function, `authenticated` may execute it, the patient comes from the JWT. Members
+    /// have no SELECT on `lab_result_releases` / `biomarker_*` at all — this call IS the member contract.
+    func labResults() async throws -> [LabResultRow] {
+        try await rest.rpc("get_member_lab_results", body: EmptyBody(), query: [PG.select(LabResultRow.columns.joined(separator: ","))])
+    }
+
     func entitlements(patientId: String) async throws -> [EntitlementRow] {
         try await rest.select("member_entitlements", query: [
             PG.select("access_type,status,starts_at,expires_at"), PG.eq("patient_id", patientId),

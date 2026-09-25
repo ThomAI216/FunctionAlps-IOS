@@ -23,6 +23,8 @@ final class AppDependencies {
     let protocols: ProtocolService
     /// Today's focus — shared, so the check-in screen's recomputation lands on the Home card.
     let focus: FocusService
+    /// Released lab results — shared, so the list, the result and the marker sheet read one load.
+    let labs: LabResultsService
     /// The clinician's habits for today, with the check-off.
     let habits: HabitsService
     /// The domain seam, for screens that read a single server-computed object (Trends).
@@ -43,7 +45,8 @@ final class AppDependencies {
 
         let auth = AuthService(sessions: sessions, state: state)
         self.auth = auth
-        self.members = MemberService(sessions: sessions, backend: backend)
+        let members = MemberService(sessions: sessions, backend: backend)
+        self.members = members
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend)
         self.checkins = CheckinService(backend: backend)
@@ -56,6 +59,7 @@ final class AppDependencies {
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
+        self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.habits = HabitsService(backend: backend, auth: auth)
         self.backend = backend
     }
