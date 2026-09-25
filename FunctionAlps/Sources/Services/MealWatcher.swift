@@ -42,7 +42,11 @@ final class MealWatcher {
         started = true
         let handle: @MainActor @Sendable (MealLog, Transport) -> Void = { [weak self] meal, transport in
             guard let self, !self.stopped else { return }
-            self.transport = transport
+            // The initial read is a starting point, not a transport: when the channel joins at once, the
+            // initial read and the post-join catch-up are in flight together and finish in the
+            // scheduler's order. A late initial snapshot must not report the watcher as having gone
+            // back to `.initial` (one run in three of MealWatcherTests on CI, 2026-09-25).
+            if transport != .initial || self.transport == .initial { self.transport = transport }
             onMeal(meal)
             if meal.status.isTerminal { self.stop() }
         }
