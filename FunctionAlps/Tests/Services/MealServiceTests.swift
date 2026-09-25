@@ -56,7 +56,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String { "registered" }
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome { .patient(id: "registered") }
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
     func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
     var adultFromRecord: Bool? = nil
@@ -87,6 +87,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
 
     func carePlan(patientId: String) async throws -> CarePlan? { nil }
+    func labResults() async throws -> [LabResultRow] { [] }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}

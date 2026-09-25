@@ -71,3 +71,27 @@ struct ConsentLogicTests {
         #expect(!ConsentLogic.isReAcceptance(legacy))   // falls back to the first-run wording
     }
 }
+
+@Suite("ConsentLogic — why a save failed")
+struct ConsentSaveFailureTests {
+    /// 403 is the server saying "no member behind this session". Telling the member to check their
+    /// connection sends them retrying a refusal — it did, four times, on 2026-09-25.
+    @Test func aRefusedSessionIsNotAConnectionProblem() {
+        #expect(ConsentLogic.saveFailure(AppError.forbidden) == .notLinked)
+    }
+
+    @Test func offlineIsWorthRetrying() {
+        #expect(ConsentLogic.saveFailure(AppError.offline) == .connection)
+        #expect(ConsentLogic.saveFailure(AppError.network(detail: "timed out")) == .connection)
+    }
+
+    @Test func aDraftIsNamedAsSuch() {
+        #expect(ConsentLogic.saveFailure(AppError.validation(message: "consent definition terms_of_use/v9 is not approved (draft)")) == .draft)
+    }
+
+    @Test func anythingElseIsNotBlamedOnTheConnection() {
+        #expect(ConsentLogic.saveFailure(AppError.server(status: 500)) == .other)
+        #expect(ConsentLogic.saveFailure(AppError.validation(message: "member is not confirmed as 18 or older")) == .other)
+        #expect(ConsentLogic.saveFailure(AppError.decoding(detail: "rpc")) == .other)
+    }
+}

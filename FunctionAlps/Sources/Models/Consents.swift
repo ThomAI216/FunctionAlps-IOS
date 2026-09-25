@@ -100,6 +100,33 @@ enum ConsentLogic {
     /// Bump when the acceptance SCREEN changes materially, not when wording changes.
     static let uiTemplateVersion = "ios-consent-manage-1"
 
+    // MARK: Why a save failed — the gate must not blame the connection for a refusal
+
+    enum SaveFailure: Sendable, Equatable {
+        /// The wording is still a draft; the server refuses to record it.
+        case draft
+        /// Nothing reached the server, or nothing came back: worth retrying as is.
+        case connection
+        /// HTTP 403 — the server has no member behind this session (`no member context`), so the write
+        /// is refused however often it is retried. Seen with a second auth account for one mailbox
+        /// (2026-09-25); the gate should not be reachable in that state any more, but the message stays
+        /// honest if it ever is.
+        case notLinked
+        case other
+    }
+
+    static func saveFailure(_ error: any Error) -> SaveFailure {
+        if let app = error as? AppError {
+            switch app {
+            case .offline, .network: return .connection
+            case .forbidden: return .notLinked
+            case .validation(let message) where message.lowercased().contains("not approved"): return .draft
+            default: return .other
+            }
+        }
+        return String(describing: error).lowercased().contains("not approved") ? .draft : .other
+    }
+
     /// The three notices, in the catalogue's display order.
     static let noticeKeys = ["privacy_policy", "ai_analysis", "legal_notice"]
 

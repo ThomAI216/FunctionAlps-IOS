@@ -4,8 +4,11 @@
 sandbox without Xcode. First compile happens on a Mac; see `docs/TOOLING.md` §6.
 
 This folder is the native SwiftUI replacement for the **FunctionAlps patient app**
-(currently Expo / React Native in the `FunctionAlps-APP` repo). Everything else in
-the FunctionAlps ecosystem (STUDIO, MEMBERS, WEBSITE, CLINICAL) stays web.
+(currently Expo / React Native in the `FunctionAlps-APP` repo). **Decision (owner,
+2026-09-25): every member-facing surface ships here — no more web app for members.**
+New member features are not built in `FunctionAlps-MEMBERS` (web) or the Expo app
+any more; those stay as UX references and legacy until switched off. The practice's
+own tools (CLINICAL, STUDIO) and the public WEBSITE stay web.
 
 > **History.** Built 2026-09-02 on a branch of `FunctionAlps-STUDIO`
 > (`claude/web-to-ios-native-6bwhlx`, commit 3755c5c) and moved here the same day
@@ -70,3 +73,17 @@ and evening ask the markers + context. Save = upsert `patient_checkin_moments` (
 re-read the day's moments → read the day row's carry columns → upsert the `patient_daily_checkins` summary (median
 markers, morning-owns-sleep, computed-null-never-wipes, legacy 1–5 columns) → insert `nb_checkin_events`. The
 scoring lives in `Core/Checkin/CheckinEngine.swift` and is unit-tested against the Expo numbers.
+
+## Lab results (labs workspace v2 · WP-7b — 2026-09-25)
+Profile → **Your results** → `LabResultsView` (released results, newest first) → `LabResultView` (headline, what we
+saw / what it means / what we do next, the phase card when the plan moved, the marker lines — flagged first, in-range
+folded — next steps) → `LabMarkerView` (the value as the lab printed it, why it matters, learn more, in your plan, the
+same marker in earlier results). One read: RPC **`get_member_lab_results()`** (CLINICAL migration 223, SECURITY
+DEFINER, patient from the JWT) — one row per marker line of the member's **approved** releases, from the frozen
+release content; drafts and revoked releases return nothing and members have no SELECT on any lab table. Every
+clinical word is the release's own text, in the release's own language (fr · en · it · de — the frame follows the
+release, not the phone); Swift computes no number, draws no range. `LabResultsService` holds the load for the three
+screens and is keyed by patient (another member on the same phone never sees the cache). Grouping rules live in
+`Models/LabResults.swift` (copy 3 of CLINICAL `groupMemberRows` — the extraction signal). Deep link
+`functionalps://results[/<releaseId>]`. Not yet: a push when a release is approved (needs `push-send` to learn the
+event), a "results" home card.

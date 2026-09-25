@@ -1175,11 +1175,19 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Sign-up + onboarding
 
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String {
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome {
         struct Body: Encodable { let firstName: String; let lastName: String; let email: String }
         struct Reply: Decodable { let patientId: String }
-        let reply: Reply = try await functions.invoke("patient-register", body: Body(firstName: firstName, lastName: lastName, email: email), snakeCase: false)
-        return reply.patientId
+        struct Refusal: Decodable { let error: String?; let providers: [String]? }
+        let (status, data) = try await functions.invokeAccepting([409], "patient-register", body: Body(firstName: firstName, lastName: lastName, email: email), snakeCase: false)
+        if status == 409 {
+            // Only the refusal the app models is an answer; any other 409 stays an error.
+            guard let refusal = try? JSON.decode(Refusal.self, from: data), refusal.error == "existing-identity" else {
+                throw AppError.fromStatus(status, body: data)
+            }
+            return .existingIdentity(providers: refusal.providers ?? [])
+        }
+        return .patient(id: try JSON.decode(Reply.self, from: data).patientId)
     }
 
     func stampOnboardingComplete(patientId: String) async throws -> Date {
@@ -1325,6 +1333,14 @@ struct SupabaseBackend: FunctionAlpsBackend {
             PG.order("sort_order"),
         ])
         return CarePlanLogic.assemble(plan: plan, items: items)
+    }
+
+    // MARK: Lab results (get_member_lab_results)
+
+    /// SECURITY DEFINER function, `authenticated` may execute it, the patient comes from the JWT. Members
+    /// have no SELECT on `lab_result_releases` / `biomarker_*` at all — this call IS the member contract.
+    func labResults() async throws -> [LabResultRow] {
+        try await rest.rpc("get_member_lab_results", body: EmptyBody(), query: [PG.select(LabResultRow.columns.joined(separator: ","))])
     }
 
     func entitlements(patientId: String) async throws -> [EntitlementRow] {

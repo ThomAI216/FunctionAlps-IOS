@@ -56,6 +56,12 @@ private struct ProfileScreen: View {
                     trendCard
                     ProfileSectionLabel(title: String(localized: "profile.carePlan", defaultValue: "Your care plan"), action: String(localized: "profile.carePlan.open", defaultValue: "View full plan ›")) { router.profilePath.append(.carePlan) }
                     carePlanPreview(member)
+                    ProfileSectionLabel(title: String(localized: "profile.results", defaultValue: "Your results"))
+                    ProfileIconRowCard(
+                        symbol: "testtube.2",
+                        title: String(localized: "profile.results.title", defaultValue: "Lab results"),
+                        subtitle: String(localized: "profile.results.sub", defaultValue: "Blood work and other tests, explained by your nutritionist once reviewed")
+                    ) { router.profilePath.append(.labResults) }
                     ProfileSectionLabel(title: String(localized: "profile.details", defaultValue: "Your baseline"))
                     ProfileIconRowCard(
                         symbol: "safari",
