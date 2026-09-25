@@ -148,10 +148,11 @@ struct PostgRESTClient: Sendable {
         return text
     }
 
-    /// `POST /rest/v1/rpc/{function}`.
-    func rpc<Body: Encodable & Sendable, Result: Decodable & Sendable>(_ function: String, body: Body) async throws -> Result {
+    /// `POST /rest/v1/rpc/{function}[?{query}]`. `query` is for a set-returning function: `select=`
+    /// pins the columns the caller decodes, so a renamed column fails here, loudly, not in a view.
+    func rpc<Body: Encodable & Sendable, Result: Decodable & Sendable>(_ function: String, body: Body, query: [URLQueryItem] = []) async throws -> Result {
         let response = try await requester.send { token in
-            try HTTPRequest.json(.post, url("rpc/\(function)"), headers: headers(token), body: body)
+            try HTTPRequest.json(.post, url("rpc/\(function)", query: query), headers: headers(token), body: body)
         }
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
         return try JSON.decode(Result.self, from: response.body)

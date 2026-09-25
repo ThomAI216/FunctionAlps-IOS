@@ -39,6 +39,10 @@ enum Route: Hashable {
     case scores
     case bodySignal(BodySignal)
     case gutSignal(GutSignal)
+    // Released lab results (labs workspace v2, WP-7b): the list, one release, one marker of it
+    case labResults
+    case labResult(String)
+    case labMarker(releaseId: String, markerId: String)
 }
 
 @MainActor
@@ -75,7 +79,7 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · messages · careplan · devices · settings · home
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · messages · careplan · results[/<id>] · devices · settings · home
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -96,6 +100,10 @@ final class AppRouter {
         case "trends": tab = .trends; trendsPath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "results":
+            // results · results/<releaseId> — the "your results are ready" push lands on the release itself.
+            tab = .profile; profilePath = [.labResults]
+            if let id = parts.dropFirst().first, !id.isEmpty { profilePath.append(.labResult(id)) }
         case "devices": tab = .profile; profilePath = [.settings, .wearables]
         case "settings": tab = .profile; profilePath = [.settings]
         case "notifications": tab = .profile; profilePath = [.settings, .notifications]
@@ -250,6 +258,9 @@ struct MainTabView: View {
         case .scores: ScoresHubView()
         case .bodySignal(let s): SignalDetailView(kind: .body(s))
         case .gutSignal(let s): SignalDetailView(kind: .gut(s))
+        case .labResults: LabResultsView()
+        case .labResult(let id): LabResultView(releaseId: id)
+        case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
         }
     }
 }

@@ -96,3 +96,5 @@ decoding fixtures from real rows, `MemberService`/`DashboardService` over
 | 2026-09-02 | Bundle id `com.functionalps.patient` (proposed) | ships as an update to the existing App Store record; owner to confirm before first upload |
 | 2026-09-02 | Password login only in v0.01 | the Expo app's Google OAuth needs a native redirect + ASWebAuthenticationSession; Phase A |
 | 2026-09-02 | Milestone 1 reads only the member's own rows under RLS + calls existing edge functions | zero backend change for the proof (PRD §22) |
+| 2026-09-25 | **Member-facing = iOS only.** No more web app for members: new member features ship in this repo, not in `FunctionAlps-MEMBERS` (web) or the Expo app (owner) | one client to keep true; the Expo app and MEMBERS become references/legacy; CLINICAL, STUDIO and WEBSITE stay web (the practice's tools and the funnel) |
+| 2026-09-25 | Lab results are read through ONE function, `get_member_lab_results()`, never through table selects | the approval edge lives in the database (a `security_invoker` view had widened member RLS on every table it joined — CLINICAL lesson); a named-column contract fails loudly when it drifts |

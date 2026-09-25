@@ -153,6 +153,12 @@ protocol FunctionAlpsBackend: Sendable {
     /// The targets page (nutrition-macros) — see `NutritionProfileWrite`.
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws
 
+    // MARK: Lab results (get_member_lab_results — CLINICAL migration 223)
+
+    /// One row per marker line of the member's APPROVED lab releases, from the frozen release content.
+    /// The patient is resolved from the JWT inside the function; nothing else about labs is readable.
+    func labResults() async throws -> [LabResultRow]
+
     // MARK: Messaging (patient_messages)
 
     /// `patients.clinic_id` for the signed-in account (own-row RLS) — every sent message carries it.
