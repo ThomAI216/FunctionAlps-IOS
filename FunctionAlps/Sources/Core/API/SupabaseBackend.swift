@@ -742,6 +742,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.insertRows("nb_checkin_events", body: rows)
     }
 
+    // MARK: Today's focus (edge function member-daily-focus · habit_offers)
+
+    private struct FocusBody: Encodable, Sendable { let recompute: Bool }
+
+    func dailyFocus(recompute: Bool) async throws -> TodayFocus {
+        try await functions.invoke("member-daily-focus", body: FocusBody(recompute: recompute), snakeCase: false)
+    }
+
+    /// Done implies yes: completing an offer also accepts it. Undoing it leaves the acceptance alone.
+    private struct FocusCompletion: Encodable, Sendable { let completed: Bool; let accepted: Bool? }
+
+    func setFocusOfferCompleted(id: String, completed: Bool) async throws {
+        try await rest.update("habit_offers", query: [PG.eq("id", id)],
+                              body: FocusCompletion(completed: completed, accepted: completed ? true : nil))
+    }
+
     // MARK: Scores (edge function member-scores)
 
     private struct ScoresBody: Encodable, Sendable { let tzOffsetMinutes: Int }

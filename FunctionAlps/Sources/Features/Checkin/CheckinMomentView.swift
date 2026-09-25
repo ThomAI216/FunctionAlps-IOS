@@ -17,6 +17,10 @@ struct CheckinMomentView: View {
                     let notifications = dependencies.notifications
                     notifications.momentDone(slot, day: dependencies.checkins.today)
                     Task { await notifications.askIfNeeded() }
+                    if slot == .morning {
+                        let focus = dependencies.focus
+                        Task { await focus.load(recompute: true) }
+                    }
                     dismiss()
                 }
             }

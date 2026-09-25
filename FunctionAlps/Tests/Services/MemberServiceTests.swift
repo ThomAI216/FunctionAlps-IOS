@@ -89,6 +89,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count, connection: nil) }
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
     func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] { [] }
+    func dailyFocus(recompute: Bool) async throws -> TodayFocus { TodayFocus(day: "2026-09-25", needsCheckin: true, offers: []) }
+    func setFocusOfferCompleted(id: String, completed: Bool) async throws {}
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     func wearableVendors() async throws -> [WearableVendorRow] { [] }
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart { VendorConnectStart(url: URL(string: "https://example.test")!, vendor: vendor) }

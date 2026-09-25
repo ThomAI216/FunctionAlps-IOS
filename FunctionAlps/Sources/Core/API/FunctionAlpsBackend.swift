@@ -195,6 +195,13 @@ protocol FunctionAlpsBackend: Sendable {
     /// The sleep rows of the last couple of days, whatever wrote them — the morning check-in's prefill
     /// for a member whose wearable syncs server-side rather than through Apple Health on this phone.
     func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow]
+
+    /// Today's focus (`member-daily-focus`). The day is computed once and then read back; `recompute`
+    /// (sent after the morning check-in is saved or edited) recomputes it and retires what changed.
+    func dailyFocus(recompute: Bool) async throws -> TodayFocus
+
+    /// The member marked an offer done, or undid it. Today's rows only (the `habit_offers` update policy).
+    func setFocusOfferCompleted(id: String, completed: Bool) async throws
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)

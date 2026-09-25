@@ -21,6 +21,8 @@ final class AppDependencies {
     let notifications: NotificationService
     let gut: GutService
     let protocols: ProtocolService
+    /// Today's focus — shared, so the check-in screen's recomputation lands on the Home card.
+    let focus: FocusService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -37,7 +39,8 @@ final class AppDependencies {
         let storage = StorageClient(environment: environment, requester: requester)
         let backend = SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions))
 
-        self.auth = AuthService(sessions: sessions, state: state)
+        let auth = AuthService(sessions: sessions, state: state)
+        self.auth = auth
         self.members = MemberService(sessions: sessions, backend: backend)
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend)
@@ -50,6 +53,7 @@ final class AppDependencies {
         self.notifications = NotificationService(backend: backend)
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
+        self.focus = FocusService(backend: backend, auth: auth)
         self.backend = backend
     }
 

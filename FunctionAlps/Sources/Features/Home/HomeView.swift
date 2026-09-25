@@ -32,7 +32,8 @@ struct HomeView: View {
         .onChange(of: model?.state.value?.today) { _, today in
             // Every fresh Today re-plans the phone's reminders (done moments dropped, logged meals dropped).
             guard let today, let patientId = model?.state.value?.member.patientId else { return }
-            let notifications = dependencies.notifications, wearables = dependencies.wearables
+            let notifications = dependencies.notifications, wearables = dependencies.wearables, focus = dependencies.focus
+            Task { await focus.load() }   // read back — the day is computed once and holds still
             Task {
                 await notifications.loadPrefs(patientId: patientId)
                 await notifications.refreshAuthorization()
@@ -85,6 +86,8 @@ struct HomeView: View {
                         .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
+
+                    TodayFocusCard()
 
                     if HealthKitReader.isAvailable {
                         if dependencies.wearables.isConnected {

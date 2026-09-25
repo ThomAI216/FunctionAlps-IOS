@@ -5250,6 +5250,214 @@
         }
       }
     },
+    "focus.a11y.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait : %@"
+          }
+        }
+      }
+    },
+    "focus.a11y.markDone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as done: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme fait : %@"
+          }
+        }
+      }
+    },
+    "focus.also": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aussi aujourd'hui"
+          }
+        }
+      }
+    },
+    "focus.checkin.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A minute on last night and what today is for — your focus appears here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une minute sur la nuit et sur ce que doit être aujourd'hui — votre essentiel apparaît ici."
+          }
+        }
+      }
+    },
+    "focus.checkin.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in to get today's focus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites votre bilan pour l'essentiel du jour"
+          }
+        }
+      }
+    },
+    "focus.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait"
+          }
+        }
+      }
+    },
+    "focus.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing in your morning called for a change — carry on as you are."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien dans votre matinée n'appelait de changement — continuez ainsi."
+          }
+        }
+      }
+    },
+    "focus.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to add today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à ajouter aujourd'hui"
+          }
+        }
+      }
+    },
+    "focus.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load today's focus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger l'essentiel du jour"
+          }
+        }
+      }
+    },
+    "focus.for": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour : %@"
+          }
+        }
+      }
+    },
+    "focus.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding today's focus…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation de l'essentiel du jour…"
+          }
+        }
+      }
+    },
+    "focus.reason.readinessLow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your recovery is below your usual — an easier version today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre récupération est en dessous de l'habitude — une version plus douce aujourd'hui."
+          }
+        }
+      }
+    },
+    "focus.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's focus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'essentiel du jour"
+          }
+        }
+      }
+    },
     "food.clarify.about": {
       "localizations": {
         "en": {
