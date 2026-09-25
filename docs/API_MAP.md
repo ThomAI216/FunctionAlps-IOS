@@ -10,6 +10,7 @@ There is no Next.js API for the patient app. The FunctionAlps "API" the app talk
 | Functions | `POST {SUPABASE_URL}/rest/v1/rpc/{name}` | 12 client RPCs (identity, consent, library, messages) | same |
 | Server logic | `POST {SUPABASE_URL}/functions/v1/{name}` | 17 edge functions (meal analysis, transcription, registration, Q1, feedback, gates, deletion, score tips, reports, Thryve) | `apikey` + member bearer (functions verify the JWT themselves) |
 | Today's focus | `POST {SUPABASE_URL}/functions/v1/member-daily-focus` `{recompute?, locale?}` → `{day, needsCheckin, offers[]}` | this repo — `_shared/focus/engine.ts` decides (pure, deterministic, no LLM per `ai-policy.ts`), `_shared/focus/present.ts` returns the practice's texts in `locale` (`en` · `fr`; an offer is French only when all of it is, else English); runs under the member's session, RLS on every read/write | member bearer (verify_jwt ON) |
+| Habit gates | `POST {SUPABASE_URL}/functions/v1/evaluate-gates` `{today}` — fire-and-forget after a habit check-off | Expo repo — completion arithmetic only, clinician-pre-authorised releases only (the regulatory firewall); the nightly sweep does the same | member bearer (in-function auth) |
 | Files | `{SUPABASE_URL}/storage/v1/object/meal-images/…` (+ signed URLs) | meal photos | bearer |
 | Realtime | `wss://{SUPABASE_URL}/realtime/v1` | habits + meal-analysis updates | bearer |
 

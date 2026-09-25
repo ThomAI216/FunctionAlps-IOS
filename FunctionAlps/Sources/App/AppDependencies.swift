@@ -23,6 +23,8 @@ final class AppDependencies {
     let protocols: ProtocolService
     /// Today's focus — shared, so the check-in screen's recomputation lands on the Home card.
     let focus: FocusService
+    /// The clinician's habits for today, with the check-off.
+    let habits: HabitsService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -54,6 +56,7 @@ final class AppDependencies {
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
+        self.habits = HabitsService(backend: backend, auth: auth)
         self.backend = backend
     }
 

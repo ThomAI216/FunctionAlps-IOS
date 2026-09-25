@@ -742,6 +742,61 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.insertRows("nb_checkin_events", body: rows)
     }
 
+    // MARK: Habit Loop (care_plans · care_plan_phases · habits · habit_completions · edge function evaluate-gates)
+
+    func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan {
+        // The newest active plan is the one the headline and phases come from; habits are the member's own
+        // regardless of plan (a self-initiated habit has no plan behind it).
+        let headers: [HabitPlanHeader] = try await rest.select("care_plans", query: [
+            PG.select("id,title,start_date,objective_line"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
+            PG.order("start_date", descending: true), PG.limit(1),
+        ])
+        let header = headers.first
+        let habits: [HabitRow] = try await rest.select("habits", query: [
+            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at"),
+            PG.eq("patient_id", patientId), PG.neq("status", "cancelled"), PG.order("created_at"),
+        ])
+        let completions: [HabitCompletionRow] = try await rest.select("habit_completions", query: [
+            PG.select("id,habit_id,completion_date"), PG.eq("patient_id", patientId),
+            PG.gte("completion_date", since), PG.lte("completion_date", day),
+        ])
+        // Patient-renderable columns only: `gate_criteria` is clinician prose and is never selected.
+        var phases: [HabitPlanPhase] = []
+        if let header {
+            phases = try await rest.select("care_plan_phases", query: [
+                PG.select("phase_key,week_start,week_end,title,summary"), PG.eq("care_plan_id", header.id), PG.order("week_start"),
+            ])
+        }
+        return HabitPlan(day: day, header: header, phases: phases, habits: habits, completions: completions)
+    }
+
+    private struct CompletionInsert: Encodable, Sendable {
+        let habitId: String
+        let patientId: String
+        let completedAt: String
+        let completionDate: String
+        /// The RLS insert policy requires it; the reports read it.
+        let loggedBy: String
+    }
+    private struct InsertedRow: Decodable, Sendable { let id: String }
+
+    func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String {
+        let row: InsertedRow = try await rest.insert("habit_completions", body: CompletionInsert(
+            habitId: habitId, patientId: patientId, completedAt: ISO8601.string(at), completionDate: day, loggedBy: "patient"
+        ))
+        return row.id
+    }
+
+    func deleteHabitCompletion(id: String) async throws {
+        try await rest.delete("habit_completions", query: [PG.eq("id", id)])
+    }
+
+    private struct GatesBody: Encodable, Sendable { let today: String }
+
+    func evaluateHabitGates(day: String) async throws {
+        _ = try await functions.invokeRaw("evaluate-gates", body: GatesBody(today: day), snakeCase: false)
+    }
+
     // MARK: Today's focus (edge function member-daily-focus · habit_offers)
 
     private struct FocusBody: Encodable, Sendable { let recompute: Bool; let locale: String }
