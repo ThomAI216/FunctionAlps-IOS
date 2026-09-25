@@ -24,13 +24,15 @@ struct PlanTodayCard: View {
                              message: message) { Task { await habits.retry() } }
             }
         case .loaded(let plan):
+            // The day's band is the focus service's — one server read of the day, shared by the focus and the faces.
+            let readiness = dependencies.focus.focus?.readiness
             if !plan.activeHabits.isEmpty {
-                card(plan, actions: habits.actions, hour: habits.hour)
+                card(plan, actions: habits.actions(band: readiness?.bandValue), hour: habits.hour, readiness: readiness)
             }
         }
     }
 
-    private func card(_ plan: HabitPlan, actions: [HabitAction], hour: Int) -> some View {
+    private func card(_ plan: HabitPlan, actions: [HabitAction], hour: Int, readiness: FocusReadiness?) -> some View {
         let remaining = actions.filter { !$0.done }.count
         let headline = HabitEngine.headline(plan)
         // Active habits, none due today (a weekly one on its off day): a rest day is not "all done".
@@ -56,6 +58,14 @@ struct PlanTodayCard: View {
                             .background(FAColor.accent, in: Capsule())
                             .accessibilityLabel(String(localized: "plan.a11y.remaining", defaultValue: "\(remaining) to go"))
                     }
+                }
+                // The one sentence the card writes itself — the owner-approved case only (2026-09-25): a habit
+                // made gentler because readiness is below the member's OWN baseline. A high day shows the further
+                // face and says nothing; a gentler face on a self-reported low day says nothing either.
+                if readiness?.bandValue == .low, readiness?.vsBaseline == true, actions.contains(where: { $0.face == .easy }) {
+                    Text(String(localized: "focus.reason.readinessLow", defaultValue: "Your recovery is below your usual — an easier version today."))
+                        .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 if !actions.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {

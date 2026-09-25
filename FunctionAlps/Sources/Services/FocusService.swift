@@ -70,14 +70,14 @@ final class FocusService {
         var offers = current.offers
         offers[i].completed = completed
         if completed { offers[i].accepted = true }
-        phase = .loaded(TodayFocus(day: current.day, needsCheckin: current.needsCheckin, offers: offers))
+        phase = .loaded(TodayFocus(day: current.day, needsCheckin: current.needsCheckin, offers: offers, readiness: current.readiness))
         do {
             try await backend.setFocusOfferCompleted(id: offer.id, completed: completed)
         } catch {
             if case .loaded(let now) = phase, let j = now.offers.firstIndex(where: { $0.id == offer.id }) {
                 var back = now.offers
                 back[j] = offer
-                phase = .loaded(TodayFocus(day: now.day, needsCheckin: now.needsCheckin, offers: back))
+                phase = .loaded(TodayFocus(day: now.day, needsCheckin: now.needsCheckin, offers: back, readiness: now.readiness))
             }
             if let appError = error as? AppError {
                 Log.error(appError, in: Log.data, context: "focus.done")

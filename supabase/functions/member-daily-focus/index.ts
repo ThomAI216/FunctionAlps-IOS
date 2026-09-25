@@ -1,6 +1,6 @@
 // member-daily-focus — Today's focus for the signed-in member.
 //
-// POST { recompute?: boolean, locale?: "en" | "fr" }  →  { day, needsCheckin, offers: [...] }
+// POST { recompute?: boolean, locale?: "en" | "fr" }  →  { day, needsCheckin, offers: [...], readiness }
 //
 // Reads what the morning already holds (sleep score, day_intent, day_priority), today's readiness exactly as
 // Trends computes it (`recoveryScore` over the wearable row and the 42-day HRV baseline), the practice's state
@@ -14,6 +14,11 @@
 // offer is still a true record of what was put in front of them. Anything the member accepted or completed
 // survives every recomputation.
 //
+// THE DAY'S BAND HOLDS STILL TOO. The readiness band the engine decided on (low · mid · high) is stored in
+// `patient_day_state` with the offers and read back with them, so the habits' faces on the phone (gentler on a
+// low day, a step further on a high one) come from the same read of the day as the focus — never from a ring
+// that synced later.
+//
 // LANGUAGE. The day is stored in English and French side by side (the practice's `*_fr` texts, null = not
 // translated yet); `locale` only chooses which one this read returns — see `_shared/focus/present.ts`.
 //
@@ -25,7 +30,7 @@ import { createUserScopedClient } from "../_shared/supabase.ts"
 import { loadWearableInputs } from "../_shared/scoring/wearable-inputs.ts"
 import { recoveryScore } from "../member-scores/engine/health/recovery-score.ts"
 import { type BankHabit, decideFocus, type StateOffer, type StateResponse } from "../_shared/focus/engine.ts"
-import { contentLocale, OFFER_COLUMNS, type OfferRow, present } from "../_shared/focus/present.ts"
+import { contentLocale, dayReadiness, type DayStateRow, OFFER_COLUMNS, type OfferRow, present } from "../_shared/focus/present.ts"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -69,17 +74,23 @@ Deno.serve(async (req: Request) => {
     if (error) throw error
     return (data ?? []) as unknown as OfferRow[]
   }
+  const readDayState = async (): Promise<DayStateRow | null> => {
+    const { data, error } = await db.from("patient_day_state").select("readiness_band,readiness_vs_baseline,band_source")
+      .eq("patient_id", patientId).eq("day", today).maybeSingle()
+    if (error) throw error
+    return (data ?? null) as DayStateRow | null
+  }
 
   try {
     const rows = await readToday()
     const current = rows.filter((r) => !r.superseded)
-    if (!body.recompute && current.length > 0) return json({ day: today, needsCheckin: false, offers: present(rows, locale) })
+    if (!body.recompute && current.length > 0) return json({ day: today, needsCheckin: false, offers: present(rows, locale), readiness: dayReadiness(await readDayState()) })
 
     // No morning check-in, no focus — the engine never guesses a day it was told nothing about.
     const { data: morning, error: mErr } = await db.from("patient_checkin_moments").select("sleep_overall,pills")
       .eq("patient_id", patientId).eq("checkin_date", today).eq("slot", "morning").maybeSingle()
     if (mErr) throw mErr
-    if (!morning) return json({ day: today, needsCheckin: true, offers: present(rows, locale) })
+    if (!morning) return json({ day: today, needsCheckin: true, offers: present(rows, locale), readiness: null })
 
     // Readiness, exactly as Trends computes it (member-scores trends-derive `recoveryFor`, minus the felt form
     // the morning doesn't ask). A failed wearable read degrades to "unknown", never to a failed focus.
@@ -124,12 +135,23 @@ Deno.serve(async (req: Request) => {
       easyDescriptionFr: b.easy_description_fr, revTitleFr: b.rev_title_fr, revDescriptionFr: b.rev_description_fr,
     }))
 
+    const sleepOverall = num(morning.sleep_overall)
     const decided = decideFocus({
-      sleepOverall: num(morning.sleep_overall),
+      sleepOverall,
       intents: keys(morning.pills, "day_intent"),
       priorities: keys(morning.pills, "day_priority"),
       readiness, readinessVsBaseline, states, bank,
     })
+
+    // The day as the engine read it, stored so the habits' faces hold still with the focus. Best effort: a
+    // failed write never fails the focus — the phone then shows the habits as written.
+    const bandSource = decided.readinessBand == null ? null : readiness != null ? "wearable" : sleepOverall != null ? "self_report" : null
+    const dayState: DayStateRow = { readiness_band: decided.readinessBand, readiness_vs_baseline: readinessVsBaseline, band_source: bandSource }
+    const { error: dsErr } = await db.from("patient_day_state").upsert({
+      patient_id: patientId, day: today, ...dayState,
+      readiness: readiness == null ? null : Math.round(readiness), states: decided.states,
+    }, { onConflict: "patient_id,day" })
+    if (dsErr) console.warn("member-daily-focus: day state not stored", dsErr.message)
 
     // Retire what this computation no longer offers — unless the member already said yes to it.
     const wanted = new Set(decided.offers.map((o) => o.offerKey))
@@ -150,7 +172,7 @@ Deno.serve(async (req: Request) => {
       if (error) throw error
     }
 
-    return json({ day: today, needsCheckin: false, offers: present(await readToday(), locale) })
+    return json({ day: today, needsCheckin: false, offers: present(await readToday(), locale), readiness: dayReadiness(dayState) })
   } catch (e) {
     const message = e instanceof Error ? e.message : (e as { message?: string })?.message ?? String(e)
     console.error("member-daily-focus", message)
