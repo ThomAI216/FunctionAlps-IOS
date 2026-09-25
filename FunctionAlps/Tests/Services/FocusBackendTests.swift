@@ -29,7 +29,7 @@ struct FocusBackendTests {
       {"id":"o2","offerKey":"bank:sit","rank":2,"title":"Five sit-to-stands","description":null,"pillar":"exercise",
        "slot":"midday","variant":"easy","reason":"readiness_low","trigger":"prio_train","stateTitle":null,
        "accepted":true,"completed":true}
-    ]}
+    ],"readiness":{"band":"low","vsBaseline":true,"source":"wearable"}}
     """
 
     @Test func decodesTheDayAndAsksTheRightFunction() async throws {
@@ -49,6 +49,9 @@ struct FocusBackendTests {
         #expect(train.pillarValue == .exercise)
         #expect(train.priority?.key == "prio_train")   // the morning's own priority pill, with its localised label
         #expect(train.completed)
+        #expect(focus.readiness?.bandValue == .low)
+        #expect(focus.readiness?.vsBaseline == true)
+        #expect(focus.readiness?.source == "wearable")
 
         let request = try #require(transport.requests.first)
         #expect(request.method == .post)
@@ -63,6 +66,7 @@ struct FocusBackendTests {
         let focus = try await make(transport).dailyFocus(recompute: false, locale: "en")
         #expect(focus.needsCheckin)
         #expect(focus.focus == nil)
+        #expect(focus.readiness == nil)   // a reply from before the band shipped, or a morning not yet checked in
         #expect(try json(try #require(transport.requests.first))["recompute"] as? Bool == false)
     }
 

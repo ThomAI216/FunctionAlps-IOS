@@ -1,5 +1,5 @@
 import { assertEquals } from "jsr:@std/assert@1"
-import { contentLocale, type OfferRow, present, words } from "../present.ts"
+import { contentLocale, dayReadiness, type OfferRow, present, words } from "../present.ts"
 
 const row = (over: Partial<OfferRow> = {}): OfferRow => ({
   id: "o1", offer_key: "bank:sit", rank: 1,
@@ -52,4 +52,15 @@ Deno.test("the day reads back in rank order, live offers only, heading in the sa
   // A heading not yet translated reads in English, whatever the offer does.
   const untranslated = present([row({ state_responses: { title: "A two-minute reset", title_fr: null } })], "fr")[0]
   assertEquals(untranslated.stateTitle, "A two-minute reset")
+})
+
+Deno.test("the day's readiness reads back as a band, its backing and its source — or nothing", () => {
+  assertEquals(dayReadiness({ readiness_band: "low", readiness_vs_baseline: true, band_source: "wearable" }), { band: "low", vsBaseline: true, source: "wearable" })
+  assertEquals(dayReadiness({ readiness_band: "high", readiness_vs_baseline: false, band_source: "self_report" }), { band: "high", vsBaseline: false, source: "self_report" })
+  // A morning that gave no band, a day not yet computed, or a value the app does not know: nothing.
+  assertEquals(dayReadiness({ readiness_band: null, readiness_vs_baseline: false, band_source: null }), null)
+  assertEquals(dayReadiness(null), null)
+  assertEquals(dayReadiness(undefined), null)
+  assertEquals(dayReadiness({ readiness_band: "very_low", readiness_vs_baseline: true, band_source: "wearable" }), null)
+  assertEquals(dayReadiness({ readiness_band: "mid", readiness_vs_baseline: false, band_source: "oracle" })?.source, null)
 })

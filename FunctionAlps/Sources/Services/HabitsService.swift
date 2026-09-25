@@ -40,8 +40,9 @@ final class HabitsService {
     /// The patient-local hour — which moment of the day the card leads with.
     var hour: Int { calendar.component(.hour, from: now()) }
 
-    /// Today's habits in the order the card shows them (see `HabitEngine.todayActions`).
-    var actions: [HabitAction] { plan.map { HabitEngine.todayActions($0, hour: hour) } ?? [] }
+    /// Today's habits in the order the card shows them, each on the face the day's band calls for
+    /// (see `HabitEngine.todayActions`). The band is the focus service's — the server's one read of the day.
+    func actions(band: ReadinessBand?) -> [HabitAction] { plan.map { HabitEngine.todayActions($0, hour: hour, band: band) } ?? [] }
 
     func load(patientId: String, day: String) async {
         request = (patientId, day)
