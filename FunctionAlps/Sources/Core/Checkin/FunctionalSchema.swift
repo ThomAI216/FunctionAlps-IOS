@@ -152,10 +152,11 @@ enum FunctionalSchema {
         opt("walk", String(localized: "pill.walk", defaultValue: "Walk/nature")), opt("breathwork", String(localized: "pill.breathwork_meditation", defaultValue: "Breathwork/meditation")), opt("exercise", String(localized: "pill.exercise", defaultValue: "Exercise")), opt("social", String(localized: "pill.social", defaultValue: "Social")), opt("rest", String(localized: "pill.rest", defaultValue: "Rest/downtime")), opt("boundaries", String(localized: "pill.boundaries", defaultValue: "Boundaries")), opt("sleep", String(localized: "pill.good_sleep", defaultValue: "Good sleep")),
     ]
 
-    /// Stored as calmness: high = calm/good.
+    /// Stored as calmness: high = calm/good. Titled "Calm" (Thomas, 2026-09-25): under "Stress" the
+    /// card read "Stress 72" as high stress. The key stays `.stress` / `dim.stress` — the column is stress_score.
     static let stress = DimensionSpec(
         key: .stress,
-        title: String(localized: "dim.stress", defaultValue: "Stress"),
+        title: String(localized: "dim.stress", defaultValue: "Calm"),
         accentHex: 0xE11D48,
         sliders: [
             SliderSpec(key: "calm", label: String(localized: "slider.calm", defaultValue: "Calmness"), lowLabel: String(localized: "slider.calm.low", defaultValue: "Tense"), highLabel: String(localized: "slider.calm.high", defaultValue: "Calm"),

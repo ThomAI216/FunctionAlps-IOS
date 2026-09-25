@@ -4055,13 +4055,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stress"
+            "value": "Calm"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stress"
+            "value": "Calme"
           }
         }
       }
@@ -29934,6 +29934,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lire les tranches"
+          }
+        }
+      }
+    },
+    "signal.calm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calme"
           }
         }
       }

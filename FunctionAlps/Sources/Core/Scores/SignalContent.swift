@@ -16,7 +16,9 @@ enum BodySignal: String, CaseIterable, Sendable, Hashable, Identifiable {
         case .energy: String(localized: "signal.energy.title", defaultValue: "Energy")
         case .sleep: String(localized: "signal.sleep.title", defaultValue: "Sleep")
         case .mood: String(localized: "signal.mood.title", defaultValue: "Mood")
-        case .stress: String(localized: "signal.stress.title", defaultValue: "Stress")
+        // "Calm", not "Stress": the value is calmness, higher = calmer (Thomas, 2026-09-25). A new key, because
+        // signal.stress.title still heads the context items below, which really are about stress.
+        case .stress: String(localized: "signal.calm.title", defaultValue: "Calm")
         }
     }
     var subtitle: String {

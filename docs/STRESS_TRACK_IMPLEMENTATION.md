@@ -97,8 +97,8 @@ a figure.
 calmer). `CheckinEngine` says so twice (`// stress = calmness`,
 `// CALMNESS — never inverted`) and the RPC agrees. The pillar reads it as `calm`.
 This app never inverts it, never labels a calm number "stress", and never copies it
-into the sidecar. (§12 Q2 is about the check-in card that already shows it next to
-the word "Stress".)
+into the sidecar. (The check-in card that shows it is titled "Calm" since
+2026-09-25 — §12 Q2.)
 
 ### 2.3 Three layers stay three
 
@@ -930,11 +930,13 @@ No new type name collides with an existing declaration (checked).
    building it, open for review: (i) the chip shows to every member, and the work
    gate now governs only the switch-off question (§5); (ii) with the chip skipped,
    the switch-off question stays hidden, as every follow-up does behind its "yes".
-2. **The calm card already reads as a stress score.** `DimensionCardView` titles the
-   calm dimension "Stress" (`dim.stress`) and prints the 0–100 calmness beside it on
-   the ramp — so a member reads "Stress 72" as high stress. That contradicts "calm
-   is calm" and "no stress score". Relabel the card "Calm" (or hide its number),
-   at least while a Stress track runs? Pre-existing; the web mockup raised it too.
+2. ~~**The calm card already reads as a stress score.**~~ **Decided (Thomas,
+   2026-09-25): renamed "Calm" / "Calme", always, not only while a track runs.**
+   `dim.stress` (the check-in card, `FunctionalSchema.swift`) and the scores hub's
+   `BodySignal.stress` title (new key `signal.calm.title`, `SignalContent.swift`)
+   now read "Calm", matching MEMBERS web, which already labels the meaning, not the
+   column. `signal.stress.title` stays "Stress": it heads context items that really
+   are about stress. Keys and the stored column (`stress_score`) are unchanged.
 3. **The switch-off question for everyone, or only when work was named?** Since Q1's
    decision S7's chip is for everyone. What is still gated is the switch-off question
    on an obligation day: drafted as only when `WORK_TRIGGER` opened the work section
