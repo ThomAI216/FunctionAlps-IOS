@@ -1132,6 +1132,12 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let raw = try await rest.rpcScalar("confirm_member_adult", body: Body(pDateOfBirth: dateOfBirth))
         return raw?.trimmingCharacters(in: .whitespacesAndNewlines) == "true"
     }
+    func confirmAdultFromRecord() async throws -> Bool? {
+        // null is a real answer here ("nothing on file"), NOT a failure — it is what sends the member
+        // to the screen. Only a true/false comes back as a verdict.
+        guard let raw = try await rest.rpcScalar("confirm_member_adult_from_record", body: EmptyBody()) else { return nil }
+        return raw.trimmingCharacters(in: .whitespacesAndNewlines) == "true"
+    }
 
     /// The Expo `readIntakeBaseline`: only the four baseline answers, the submission date and the DOB leave the
     /// row — data minimisation at the boundary, because the ~81-key `answers` blob is Art. 9 health data that must

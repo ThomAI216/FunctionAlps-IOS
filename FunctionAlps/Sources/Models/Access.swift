@@ -8,7 +8,8 @@ struct EntitlementRow: Decodable, Sendable, Equatable {
     let expiresAt: Date?
 }
 
-/// The app access window (the Expo `lib/access/entitlement.ts`). FAIL-OPEN, deliberately:
+/// The app access window (the Expo `lib/access/entitlement.ts`). Both windows are currently OPEN —
+/// see `windowsAreOpen`. FAIL-OPEN, deliberately:
 /// every unknown resolves to "allowed" — access is revoked from the dashboard, not enforced
 /// by a phone with flaky connectivity.
 struct AppAccess: Sendable, Equatable {
@@ -20,6 +21,19 @@ struct AppAccess: Sendable, Equatable {
 
     static let allowedUnknown = AppAccess(allowed: true, tier: .unknown, windowEndsAt: nil, daysLeft: nil)
     static let discoveryDays = 3
+
+    /// OPEN ACCESS — owner's call, 2026-09-18: "fully open to anybody that has the link".
+    ///
+    /// `discovery` (3 days from `starts_at`) and `beta` (until `expires_at`) are the only two tiers that
+    /// ever closed the door or ran a countdown. And `patient-register` grants `discovery` to EVERY
+    /// self-signup, so every new member met a 3-day clock nobody meant to show them — that is the
+    /// "only available for 3 days" message people reported, not a beta-tester setting.
+    ///
+    /// Set this to false to put both windows back. Nothing else was removed: the tiers still resolve,
+    /// the entitlement rows are untouched, `AccessCountdown` and `AccessClosedView` are still here, and
+    /// they come back with it. Revocation is unaffected either way — a revoked row has never closed the
+    /// app, because `isLive` drops it and no live row means `allowedUnknown` (fail-open, by design).
+    static let windowsAreOpen = true
     private static let dayMs: Double = 86_400
 
     private static let rank: [String: Double] = ["full_access": 3, "paid": 2, "beta": 1, "discovery": 0.5, "trial": 0]
@@ -30,7 +44,9 @@ struct AppAccess: Sendable, Equatable {
         return exp > now
     }
 
-    static func resolve(_ rows: [EntitlementRow], now: Date = Date()) -> AppAccess {
+    /// `windowsOpen` defaults to the constant above; it is a parameter only so tests can prove BOTH
+    /// behaviours — that the windows are open today, and that the arithmetic still works when put back.
+    static func resolve(_ rows: [EntitlementRow], now: Date = Date(), windowsOpen: Bool = windowsAreOpen) -> AppAccess {
         let best = rows.filter { isLive($0, now: now) }
             .sorted { (rank[$0.accessType] ?? 0) > (rank[$1.accessType] ?? 0) }
             .first
@@ -39,10 +55,14 @@ struct AppAccess: Sendable, Equatable {
         case "paid", "full_access":
             return AppAccess(allowed: true, tier: Tier(rawValue: best.accessType) ?? .unknown, windowEndsAt: nil, daysLeft: nil)
         case "beta":
+            if windowsOpen { return AppAccess(allowed: true, tier: .beta, windowEndsAt: nil, daysLeft: nil) }
             guard let exp = best.expiresAt else { return AppAccess(allowed: true, tier: .beta, windowEndsAt: nil, daysLeft: nil) }
             let secs = exp.timeIntervalSince(now)
             return AppAccess(allowed: exp > now, tier: .beta, windowEndsAt: exp, daysLeft: max(0, Int(ceil(secs / dayMs))))
         case "discovery":
+            // No window ⇒ no `daysLeft` ⇒ `AccessCountdown.describe` returns nil, so the countdown
+            // strip disappears with the closed door rather than needing its own switch.
+            if windowsOpen { return AppAccess(allowed: true, tier: .discovery, windowEndsAt: nil, daysLeft: nil) }
             guard let start = best.startsAt else { return allowedUnknown }
             let end = start.addingTimeInterval(Double(discoveryDays) * dayMs)
             let secs = end.timeIntervalSince(now)

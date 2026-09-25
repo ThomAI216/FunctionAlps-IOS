@@ -2,7 +2,8 @@ import SwiftUI
 
 /// What stands between a signed-in session and the tabs — the Expo root `AuthGate`, in its order:
 /// resolve the member (the `patient-register` rung creates the row on a first sign-in) → the access
-/// window (fail-open) → the consent gate (18+ first, then every required tick) → onboarding until
+/// window (fail-open) → the consent gate (every required tick; the 18+ declaration rides on the Terms
+/// since 2026-09-18, there is no age screen) → onboarding until
 /// CM OS holds the stamp AND the five baseline inputs → `MainTabView`.
 ///
 /// Every decision is taken on a fresh read; nothing here trusts a device flag for what the server owns.
@@ -15,7 +16,7 @@ struct MemberGateView: View {
         case failed
         case notRegistered
         case accessClosed(AppAccess)
-        case consent(needsAge: Bool)
+        case consent
         case onboarding
         case ready
     }
@@ -51,9 +52,9 @@ struct MemberGateView: View {
                 )
             case .accessClosed(let access):
                 AccessClosedView(access: access) { Task { await resolve() } }
-            case .consent(let needsAge):
+            case .consent:
                 if let bundle {
-                    ConsentGateView(bundle: bundle, needsAge: needsAge) { Task { await resolve() } }
+                    ConsentGateView(bundle: bundle) { Task { await resolve() } }
                 } else {
                     LaunchView()
                 }
@@ -109,12 +110,12 @@ struct MemberGateView: View {
             bundle = b
             let requiredOpen = b.consents.contains { $0.required && !$0.accepted }
             if requiredOpen {
-                stage = .consent(needsAge: m.profile?.adultConfirmedAt == nil)
+                stage = .consent
                 return
             }
         } catch {
             bundle = nil
-            stage = .consent(needsAge: m.profile?.adultConfirmedAt == nil)
+            stage = .consent
             return
         }
 

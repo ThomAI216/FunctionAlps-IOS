@@ -111,4 +111,30 @@ struct SupabaseBackendTests {
         #expect(some == "22222222-2222-2222-2222-222222222222")
         #expect(transport.requests.first?.url.path.hasSuffix("/rest/v1/rpc/current_member_patient_id") == true)
     }
+
+    /// PostgREST renders a scalar as bare JSON, so the shape follows the function's RETURN type.
+    /// `confirm_member_adult` returns boolean: reading only the quoted form threw on every call, which
+    /// is why the age gate's Continue could only ever answer "we couldn't confirm your date of birth".
+    @Test func scalarRpcReadsBooleansNotJustQuotedText() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: "true")
+        #expect(try await make(transport).confirmAdult(dateOfBirth: "1990-04-12"))
+
+        transport.enqueue(status: 200, json: "false")
+        #expect(try await make(transport).confirmAdult(dateOfBirth: "2019-04-12") == false)
+    }
+
+    /// The record-backed check is three-state, and null is a real answer — "nothing on file, go ask" —
+    /// not an error and not a refusal.
+    @Test func adultFromRecordKeepsNullDistinctFromFalse() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: "true")
+        #expect(try await make(transport).confirmAdultFromRecord() == true)
+
+        transport.enqueue(status: 200, json: "false")
+        #expect(try await make(transport).confirmAdultFromRecord() == false)
+
+        transport.enqueue(status: 200, json: "null")
+        #expect(try await make(transport).confirmAdultFromRecord() == nil)
+    }
 }

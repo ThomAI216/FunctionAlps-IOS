@@ -122,16 +122,30 @@ struct PostgRESTClient: Sendable {
         return total
     }
 
-    /// `POST /rest/v1/rpc/{function}` returning a scalar text/uuid (or null).
+    /// `POST /rest/v1/rpc/{function}` returning a scalar (or null), rendered as text.
+    ///
+    /// PostgREST answers a scalar function with a bare JSON value, so the SHAPE follows the function's
+    /// return type: a uuid or text arrives quoted, a boolean as `true` / `false`, a number bare. Reading
+    /// only the quoted form made every boolean RPC throw — and `confirm_member_adult` returns boolean, so
+    /// the age gate's Continue button could not succeed: it always landed in the catch and told the member
+    /// "we couldn't confirm your date of birth", whatever they typed.
     func rpcScalar<Body: Encodable & Sendable>(_ function: String, body: Body) async throws -> String? {
         let response = try await requester.send { token in
             try HTTPRequest.json(.post, url("rpc/\(function)"), headers: headers(token), body: body)
         }
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
-        let object = try? JSONSerialization.jsonObject(with: response.body, options: [.fragmentsAllowed])
-        if object is NSNull || object == nil { return nil }
-        if let s = object as? String { return s }
-        throw AppError.decoding(detail: "rpc \(function): expected scalar")
+        let text = String(decoding: response.body, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.isEmpty || text == "null" { return nil }
+        // Quoted ⇒ a JSON string: decode it so escapes and unicode come back as themselves. Anything
+        // else (true / false / 42) is already its own text. Deliberately not JSONSerialization: casting
+        // its NSNumber back to Bool treats the number 1 as true, which is how this class of bug starts.
+        if text.hasPrefix("\"") {
+            guard let string = try? JSONDecoder().decode(String.self, from: response.body) else {
+                throw AppError.decoding(detail: "rpc \(function): expected scalar")
+            }
+            return string
+        }
+        return text
     }
 
     /// `POST /rest/v1/rpc/{function}`.

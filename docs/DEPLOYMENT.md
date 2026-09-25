@@ -277,6 +277,47 @@ the Supabase gateway serves HTML from the shared functions domain as `text/plain
 (anti-phishing), so a browser shows raw source there. Approving a new notice version changes the pages with no
 deploy (5-minute cache).
 
+### Shipping a new Privacy Notice / Terms version (2026-09-15)
+Nothing in the app is hard-coded to a version — the whole loop is data:
+
+1. Add the row (a migration in `supabase/migrations/`, cloned from the current one, which is then
+   stamped `superseded_at`). Both locales, `review_status='approved'`, a bumped `version`.
+2. `member_pending_consents` only ever reports the CURRENT row, and computes `accepted` with
+   `c.version = d.version`. So a member holding v7 comes back `accepted = false` the moment v8 lands.
+3. `MemberGateView.resolve()` re-reads the bundle on **every launch** and blocks while any
+   `required && !accepted` remains. No push, no flag, no app release needed.
+4. Since 2026-09-15 the RPC also returns `accepted_version` (the member's last standing grant for that
+   key, whatever its version). The gate uses it to tell a first sitting from a re-acceptance: a returning
+   member gets "We have updated our terms" plus an `Updated · v8` chip on each row that moved, instead of
+   "Before you start".
+
+⚠ **Only `doc_kind='consent'` rows reopen the gate** — today `terms_of_use` and `health_data_processing`.
+`privacy_policy`, `ai_analysis` and `legal_notice` are `doc_kind='notice'`: shown on the screen, never
+ticked, so bumping one of those ALONE asks nobody for anything. That is why v11/v8 shipped together —
+the Terms bump is what brings members back to the screen where the new notice is displayed.
+
+⚠ Re-creating `member_pending_consents` (the return type changed, so `create or replace` refuses and it
+must be dropped) silently re-grants EXECUTE to **PUBLIC** and to **anon** — Postgres' own default plus
+Supabase's default privileges on `public`. The original had neither. The migration revokes both; check
+`proacl` reads `{postgres,authenticated,service_role}` after any future change to it.
+
+### Where the in-app messages and feedback alerts land (2026-09-15)
+Both channels are complete on both sides; what decides the inbox is two edge-function secrets on CM OS
+(Project Settings → Edge Functions → Secrets), not code:
+
+| Channel | App entry | Edge function | Recipient | Secret |
+|---|---|---|---|---|
+| Product feedback | Profile → Your feedback | `member-feedback` | the team | `ADMIN_ALERT_EMAIL` (code default `thomas@functionalps.ch`) |
+| "Ask your nutritionist" | Profile → Messages | `message-notify` | the clinician | `CLINICIAN_ALERT_TO` (code default `support@functionalps.ch`) |
+
+The clinician alert is **content-free by design** (no body, no name — the link is the payload); the
+feedback mail does carry the member's words, their email and their tier. A patient message also gets a
+15-minute `pg_cron` sweep as a safety net, so a failed fire-and-forget invoke is retried; feedback mail
+is best-effort with no retry, but the row is already saved in `beta_feedback` either way.
+
+SMTP itself is live — `send-review-digest` returned `{"email":"sent"}` on 2026-09-15 03:35 through the
+same `_shared/email.ts` both of these use. `SMTP_PORT` must stay **465**.
+
 ## Notifications (added 2026-09-04)
 
 **Phone:** local reminders are planned on the device (`NotificationPlanner` → `LocalNotifications`), no server

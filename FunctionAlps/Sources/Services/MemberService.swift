@@ -31,13 +31,21 @@ struct MemberService: Sendable {
     func currentMember() async throws -> Member {
         guard let session = await sessions.restore() else { throw AppError.unauthorized }
         let patientId: String
-        if let known = session.patientId {
-            patientId = known
-        } else if let resolved = try await backend.currentPatientId() {
-            await sessions.rememberPatientId(resolved)
-            patientId = resolved
+        // Ownership is the SERVER's answer, never the JWT's. `current_member_patient_id()` is
+        // `select id from patients where auth_user_id = auth.uid()` — the same fact every RLS policy
+        // uses. `user_metadata.patient_id` is only a cache, and it CAN name a patient this session does
+        // not own: `patient-register` stamps it even on its "existing-identity" path, where the row was
+        // already linked to a DIFFERENT auth user. That happens with two accounts for one mailbox — a
+        // Gmail dot alias signing in with Google after an email/password account — and trusting the
+        // claim mints a session whose every own-row read is denied. The member is then shown empty
+        // screens and gates they already passed, with no error to explain it.
+        if let owned = try await backend.currentPatientId() {
+            await sessions.rememberPatientId(owned)   // no-ops when unchanged; corrects a stale cache
+            patientId = owned
         } else {
-            // Third rung: create (or link) the patient row. Names: the sign-up metadata, else the display name, else "Member".
+            // Nobody owns this auth user yet: create or link. Deliberately NOT falling back to the
+            // cached id here — an id the server just declined to confirm is the very thing not to trust.
+            // Names: the sign-up metadata, else the display name, else "Member".
             let names = Self.names(for: session)
             guard let email = session.email, let registered = try? await backend.registerPatient(firstName: names.first, lastName: names.last, email: email) else {
                 throw MemberError.notRegistered
