@@ -10,6 +10,9 @@ struct TodayFocus: Sendable, Equatable, Decodable {
     let needsCheckin: Bool
     /// Rank order: the first is the day's focus, the rest are "also today" (three at most).
     let offers: [FocusOffer]
+    /// The day as the engine read it — nil until the morning check-in, or when the morning gave no band.
+    /// Stored server-side once, so it holds still with the offers (`patient_day_state`).
+    var readiness: FocusReadiness?
 
     var focus: FocusOffer? { offers.first }
     var alsoToday: [FocusOffer] { Array(offers.dropFirst()) }
@@ -20,6 +23,21 @@ struct TodayFocus: Sendable, Equatable, Decodable {
     static func locale(_ localizations: [String] = Bundle.main.preferredLocalizations) -> String {
         localizations.first.map { $0.lowercased().hasPrefix("fr") ? "fr" : "en" } ?? "en"
     }
+}
+
+/// Low · mid · high — the check-in engine's own bands (<40, 40–60, >60), as `member-daily-focus` read the day.
+enum ReadinessBand: String, Sendable, Equatable {
+    case low, mid, high
+}
+
+/// The day's readiness as the server stored it: the band, whether a personal HRV baseline backs it (the only case
+/// the app says "below your usual"), and where it came from (a wearable, or the member's own read of the night).
+struct FocusReadiness: Sendable, Equatable, Decodable {
+    let band: String
+    let vsBaseline: Bool
+    let source: String?
+
+    var bandValue: ReadinessBand? { ReadinessBand(rawValue: band) }
 }
 
 struct FocusOffer: Sendable, Equatable, Decodable, Identifiable {

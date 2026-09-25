@@ -124,14 +124,14 @@ struct HabitsBackendTests {
 
         await service.load(patientId: "p-1", day: "2026-09-25")
         #expect(service.plan?.habits.count == 2)
-        #expect(service.actions.count == 2)
-        #expect(service.actions.allSatisfy { !$0.done })
+        #expect(service.actions(band: nil).count == 2)
+        #expect(service.actions(band: nil).allSatisfy { !$0.done })
 
         // The write fails: the row shown at once is taken back.
         transport.enqueue(status: 500, json: #"{"message":"boom"}"#)
-        let walk = try #require(service.actions.first { $0.id == "h-1" })
+        let walk = try #require(service.actions(band: nil).first { $0.id == "h-1" })
         await service.toggle(walk)
-        #expect(service.actions.first { $0.id == "h-1" }?.done == false)
+        #expect(service.actions(band: nil).first { $0.id == "h-1" }?.done == false)
         #expect(service.plan?.completions.isEmpty == true)
         if case .loaded = service.phase {} else { Issue.record("a failed check-off must not fail the day") }
 
@@ -139,12 +139,12 @@ struct HabitsBackendTests {
         transport.enqueue(status: 201, json: #"[{"id":"c-9"}]"#)
         transport.enqueue(status: 200, json: #"{"ok":true}"#)   // the gate poke, if it lands before the undo
         await service.toggle(walk)
-        let doneWalk = try #require(service.actions.first { $0.id == "h-1" })
+        let doneWalk = try #require(service.actions(band: nil).first { $0.id == "h-1" })
         #expect(doneWalk.done)
         #expect(doneWalk.completionId == "c-9")
         transport.enqueue(status: 204, json: "")
         await service.toggle(doneWalk)
-        #expect(service.actions.first { $0.id == "h-1" }?.done == false)
+        #expect(service.actions(band: nil).first { $0.id == "h-1" }?.done == false)
         let deletes = transport.requests.filter { $0.method == .delete }
         #expect(deletes.count == 1)
         #expect(deletes.first?.url.query?.contains("id=eq.c-9") == true)

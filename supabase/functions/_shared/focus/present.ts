@@ -59,3 +59,30 @@ export function present(rows: OfferRow[], locale: ContentLocale) {
       }
     })
 }
+
+// MARK: - The day's readiness (`patient_day_state`)
+
+/** `patient_day_state` as selected — the day as the engine read it, stored once after the morning check-in. */
+export interface DayStateRow {
+  readiness_band: string | null
+  readiness_vs_baseline: boolean
+  band_source: string | null
+}
+
+export interface DayReadiness {
+  /** The check-in engine's own bands: <40 low, 40–60 mid, >60 high. */
+  band: "low" | "mid" | "high"
+  /** True only when a personal HRV baseline backs the band — the condition for saying "below your usual". */
+  vsBaseline: boolean
+  /** Where the band came from: a wearable's recovery, or the member's own read of the night. */
+  source: "wearable" | "self_report" | null
+}
+
+/** What the app reads back — null when the day has no band (no morning yet, or a morning that gave none). */
+export function dayReadiness(row: DayStateRow | null | undefined): DayReadiness | null {
+  if (!row) return null
+  const band = row.readiness_band
+  if (band !== "low" && band !== "mid" && band !== "high") return null
+  const source = row.band_source === "wearable" || row.band_source === "self_report" ? row.band_source : null
+  return { band, vsBaseline: row.readiness_vs_baseline === true, source }
+}

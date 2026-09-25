@@ -104,8 +104,14 @@ struct HabitPlan: Sendable, Equatable {
     var activeHabits: [HabitRow] { habits.filter(\.isActive) }
 }
 
+/// Which version of a habit the day shows: as the clinician wrote it, its gentler version, or a step further.
+enum HabitFace: Sendable, Equatable {
+    case standard, easy, progression
+}
+
 /// One line of the Home card: a habit due today, as the member acts on it.
 struct HabitAction: Sendable, Equatable, Identifiable {
+    /// The HABIT's id, whatever face it shows: an easy-day check-off counts fully.
     let id: String
     let title: String
     let detail: String?
@@ -114,6 +120,7 @@ struct HabitAction: Sendable, Equatable, Identifiable {
     let completionId: String?
     /// Consecutive due days done, today included when done (≥ 2 is worth showing).
     let streak: Int
+    var face: HabitFace = .standard
 
     var done: Bool { completionId != nil }
 }
@@ -272,13 +279,26 @@ enum HabitEngine {
         return true
     }
 
+    // MARK: Faces
+
+    /// The face a habit shows today (the Expo `habitAction`): its gentler version on a low day, a step further on
+    /// a high day — when the clinician wrote them — and itself otherwise. The band is the server's read of the
+    /// day (`TodayFocus.readiness`), the same one the focus was decided on; nothing here reads a health signal.
+    /// The completion identity never changes: an easy-day check-off counts fully towards streaks and gates.
+    static func face(_ habit: HabitRow, band: ReadinessBand?) -> (title: String, detail: String?, face: HabitFace) {
+        if band == .low, let easy = habit.easyTitle { return (easy, habit.easyDescription ?? habit.description, .easy) }
+        if band == .high, let further = habit.revTitle { return (further, habit.revDescription ?? habit.description, .progression) }
+        return (habit.title, habit.description, .standard)
+    }
+
     // MARK: Today
 
     /// The habits to act on today, in the order the Expo Home card shows them: the CURRENT moment's first,
     /// then Anytime, then the moments still ahead, then the earlier moments' undone ones (catch-up), then the
     /// earlier moments' done ones — so completed work never disappears. Only active habits due today, with
-    /// sequencing applied. Stable: a row does not move when it is checked off.
-    static func todayActions(_ plan: HabitPlan, hour: Int) -> [HabitAction] {
+    /// sequencing applied, each on the face the day's band calls for. Stable: a row does not move when it is
+    /// checked off.
+    static func todayActions(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil) -> [HabitAction] {
         let now = HabitSlot.current(hour: hour)
         let done = doneIds(plan.completions, on: plan.day)
         let due = plan.activeHabits.filter { isDue($0.frequencyRule, on: plan.day, start: $0.createdDay) }
@@ -287,10 +307,12 @@ enum HabitEngine {
         var earlierUndone: [HabitAction] = [], earlierDone: [HabitAction] = []
 
         for habit in due where visibleToday(habit, in: plan.habits, doneIds: done) {
+            let shown = face(habit, band: band)
             let action = HabitAction(
-                id: habit.id, title: habit.title, detail: habit.description, slot: habit.slotValue,
+                id: habit.id, title: shown.title, detail: shown.detail, slot: habit.slotValue,
                 completionId: completionId(plan.completions, habit: habit.id, on: plan.day),
-                streak: currentStreak(habit, completions: plan.completions, today: plan.day)
+                streak: currentStreak(habit, completions: plan.completions, today: plan.day),
+                face: shown.face
             )
             guard let slot = action.slot else { anytime.append(action); continue }
             if slot == now { current.append(action) }

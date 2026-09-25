@@ -141,6 +141,28 @@ struct HabitEngineTests {
         #expect(HabitEngine.todayActions(later, hour: 12).map(\.id) == ["mid", "chained", "any", "eve", "m-undone", "m-done"])
     }
 
+    @Test func facesFollowTheDaysBandAndKeepTheIdentity() {
+        var sit = habit("sit", title: "Ten sit-to-stands", slot: "midday")
+        sit = HabitRow(id: sit.id, carePlanItemId: sit.carePlanItemId, title: sit.title, description: "From a chair.", frequencyRule: sit.frequencyRule,
+                       status: sit.status, source: sit.source, pillar: "exercise", slot: sit.slot, appearsAfterHabitId: nil,
+                       easyTitle: "Five sit-to-stands", easyDescription: "Half a round still counts.", revTitle: "Two rounds of ten", revDescription: nil, createdAt: sit.createdAt)
+        let plain = habit("veg", title: "Vegetables on half the plate")   // no gentler or further version written
+        let p = plan([sit, plain], completions: [done("sit", today)])
+
+        let low = HabitEngine.todayActions(p, hour: 12, band: .low)
+        #expect(low.map(\.title) == ["Five sit-to-stands", "Vegetables on half the plate"])
+        #expect(low[0].face == .easy && low[0].detail == "Half a round still counts.")
+        #expect(low[1].face == .standard)                                        // nothing gentler was written → as it is
+        #expect(low[0].id == "sit" && low[0].completionId == "c-sit-2026-09-25")  // the identity and today's check-off are the habit's
+
+        let high = HabitEngine.todayActions(p, hour: 12, band: .high)
+        #expect(high[0].title == "Two rounds of ten" && high[0].face == .progression)
+        #expect(high[0].detail == "From a chair.")                               // no further description → the habit's own
+
+        #expect(HabitEngine.todayActions(p, hour: 12, band: .mid)[0].face == .standard)
+        #expect(HabitEngine.todayActions(p, hour: 12)[0].title == "Ten sit-to-stands")   // no band yet: as written
+    }
+
     @Test func streaksRideOnTheActions() {
         let h = habit("a", created: "2026-09-20T07:00:00+00:00")
         let p = plan([h], completions: ["2026-09-23", "2026-09-24"].map { done("a", $0) })
