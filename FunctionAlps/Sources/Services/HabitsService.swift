@@ -108,7 +108,7 @@ final class HabitsService {
         }
     }
 
-    private func report(_ error: Error, context: String) {
+    private func report(_ error: Error, context: StaticString) {
         guard let appError = error as? AppError else { return }
         Log.error(appError, in: Log.data, context: context)
         if case .unauthorized = appError { Task { await auth.handleUnauthorized() } }
