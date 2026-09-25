@@ -152,6 +152,9 @@ struct LabFootnote: View {
 
 // MARK: - States (app language — no release exists to borrow words from)
 
+/// Main-actor like the views that use it: the retry closure is UI state and never crosses an isolation
+/// boundary (Swift 6 refused to send a non-Sendable closure out of a nonisolated helper).
+@MainActor
 enum LabStates {
     static var loading: some View {
         FALoadingState(message: String(localized: "labs.loading", defaultValue: "Loading your results…"))

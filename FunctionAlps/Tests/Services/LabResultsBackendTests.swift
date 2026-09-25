@@ -24,8 +24,9 @@ struct LabResultsBackendTests {
         let request = try #require(transport.requests.first)
         #expect(request.method == .post)
         #expect(request.url.path.hasSuffix("/rest/v1/rpc/get_member_lab_results"))
-        let query = try #require(request.url.query)
-        #expect(query.contains("select=" + LabResultRow.columns.joined(separator: ",")))
+        // Decoded query items, so the assertion holds whether or not the commas were percent-encoded on the wire.
+        let items = try #require(URLComponents(url: request.url, resolvingAgainstBaseURL: false)?.queryItems)
+        #expect(items.first { $0.name == "select" }?.value == LabResultRow.columns.joined(separator: ","))
         #expect(request.headers["Authorization"] == "Bearer access-1")
         #expect(request.headers["apikey"] == "sb_publishable_test")
     }
