@@ -26,6 +26,8 @@ final class NotificationService {
     private var pendingToken: Data?
     /// Today as Home last saw it — a re-plan from Settings must not forget what is already done.
     private var lastSnapshot: TodaySnapshot?
+    /// Meals logged on this phone since, from any screen: Home's snapshot may not have them yet.
+    private var mealsLoggedHere: [NotificationPlanner.LoggedMeal] = []
 
     private enum Key {
         static let askedOnce = "fa.notifications.askedOnce"
@@ -70,6 +72,7 @@ final class NotificationService {
             mealSchedule = nil
             scheduleBox.set(nil)
             lastSnapshot = nil
+            mealsLoggedHere = []
         }
         if fresh || force, let row = try? await backend.notificationPrefs(patientId: patientId) { prefs = row.prefs }
         if fresh || force || mealSchedule == nil { _ = try? await loadMealSchedule() }
@@ -165,6 +168,9 @@ final class NotificationService {
             }
             state.unratedRecentMeals = recent.filter { !rated.contains($0.id) }.map { (id: $0.id, loggedAt: $0.loggedAt) }
         }
+        let today = ISO8601.dayString(Date())
+        mealsLoggedHere.removeAll { ISO8601.dayString($0.at) != today }
+        state.mealsToday += mealsLoggedHere
         if let wearables { state.appleHealthConnected = wearables.isConnected; state.appleHealthLastSync = wearables.lastSyncAt }
         let plan = NotificationPlanner.finalized(NotificationPlanner.plan(prefs: prefs, schedule: mealSchedule, state: state), prefs: prefs)
         // Schedule not read yet (offline launch): leave the meal reminders already pending as they are.
@@ -182,6 +188,7 @@ final class NotificationService {
     func mealLogged(id: String, at: Date) async {
         let schedule = mealSchedule ?? .defaults
         let slot = schedule.slot(forMealAt: at, type: nil, calendar: .current)
+        mealsLoggedHere.append(NotificationPlanner.LoggedMeal(at: at, type: nil))
         local.cancel(id: "\(NotificationPlanner.Kind.meal(slot).rawValue).\(ISO8601.dayString(at))")
         guard prefs.postMealFollowupEnabled, authorization == .authorized || authorization == .provisional else { return }
         let state = NotificationPlanner.State(now: Date(), unratedRecentMeals: [(id: id, loggedAt: at)])
