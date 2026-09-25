@@ -33,6 +33,8 @@ enum Route: Hashable {
     case microNutrient(String)
     case macro(String)
     case notifications
+    /// Settings → Notifications → the member's meal-reminder schedule.
+    case mealTimes
     case gutCheckin
     case gutIntelligence
     // The scores hub (the Expo `(screens)/scores`) and its signal pages (`score/[key]`)
@@ -245,6 +247,7 @@ struct MainTabView: View {
         case .microNutrient(let key): MicroNutrientView(nutrientKey: key)
         case .macro(let key): MacroDetailView(macroKey: key)
         case .notifications: NotificationsSettingsView()
+        case .mealTimes: MealScheduleView()
         case .gutCheckin: GutCheckinView()
         case .gutIntelligence: GutIntelligenceView()
         case .scores: ScoresHubView()

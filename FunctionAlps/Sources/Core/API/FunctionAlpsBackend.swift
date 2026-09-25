@@ -130,6 +130,10 @@ protocol FunctionAlpsBackend: Sendable {
     func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws
     /// The APNs token + device facts, upserted on `patient_id` (the preferences columns are untouched).
     func savePushToken(_ write: PushTokenWrite) async throws
+    /// `member_meal_schedule` via `member_meal_schedule_seed()`: the member's 35 rows, created on the first read.
+    func mealSchedule() async throws -> [MealScheduleRow]
+    /// Upsert on (patient_id, slot, weekday) — only the rows that changed.
+    func saveMealSchedule(_ rows: [MealScheduleRow]) async throws
 
     // MARK: Favorites + re-log (Food tab)
 

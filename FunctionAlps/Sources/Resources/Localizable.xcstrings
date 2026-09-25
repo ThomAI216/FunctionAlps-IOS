@@ -16450,6 +16450,406 @@
         }
       }
     },
+    "mealtimes.card.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set your meal times, and reminders come when you actually eat — never for a meal you skip."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indiquez vos heures de repas : les rappels arrivent quand vous mangez vraiment — jamais pour un repas que vous sautez."
+          }
+        }
+      }
+    },
+    "mealtimes.card.cta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set my times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régler mes heures"
+          }
+        }
+      }
+    },
+    "mealtimes.card.later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus tard"
+          }
+        }
+      }
+    },
+    "mealtimes.card.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When do you usually eat?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quelle heure mangez-vous d'habitude ?"
+          }
+        }
+      }
+    },
+    "mealtimes.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meal times appear here once your FunctionAlps profile is linked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos heures de repas apparaissent ici dès que votre profil FunctionAlps est relié."
+          }
+        }
+      }
+    },
+    "mealtimes.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No meal times yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore d'heures de repas"
+          }
+        }
+      }
+    },
+    "mealtimes.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your meal times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger vos heures de repas"
+          }
+        }
+      }
+    },
+    "mealtimes.footer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders never come inside your quiet hours, and never say anything about what you ate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels n'arrivent jamais pendant vos heures calmes et ne disent jamais rien de ce que vous avez mangé."
+          }
+        }
+      }
+    },
+    "mealtimes.group.weekdays": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekdays"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En semaine"
+          }
+        }
+      }
+    },
+    "mealtimes.group.weekend": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekend"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week-end"
+          }
+        }
+      }
+    },
+    "mealtimes.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A reminder comes at each time you switch on — only while that meal isn't logged yet. Switch off any meal you don't usually have."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rappel arrive à chaque heure activée — seulement tant que ce repas n'est pas enregistré. Désactivez les repas que vous ne prenez pas d'habitude."
+          }
+        }
+      }
+    },
+    "mealtimes.off": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal reminders are switched off. Turn them on in Notifications to use these times."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels de repas sont désactivés. Activez-les dans Notifications pour utiliser ces heures."
+          }
+        }
+      }
+    },
+    "mealtimes.perDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set each day separately"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régler chaque jour séparément"
+          }
+        }
+      }
+    },
+    "mealtimes.perDay.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For a day that runs differently — a late Friday, a Sunday brunch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour un jour qui se passe autrement — un vendredi tardif, un brunch le dimanche."
+          }
+        }
+      }
+    },
+    "mealtimes.setup.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your reminders come at these times — only while that meal isn't logged yet. Switch off anything you don't usually have."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos rappels arrivent à ces heures — seulement tant que ce repas n'est pas enregistré. Désactivez ce que vous ne prenez pas d'habitude."
+          }
+        }
+      }
+    },
+    "mealtimes.setup.save": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save my times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer mes heures"
+          }
+        }
+      }
+    },
+    "mealtimes.setup.sunday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Sunday is different"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon dimanche est différent"
+          }
+        }
+      }
+    },
+    "mealtimes.slot.afternoonSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afternoon snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation de l'après-midi"
+          }
+        }
+      }
+    },
+    "mealtimes.slot.morningSnack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning snack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation du matin"
+          }
+        }
+      }
+    },
+    "mealtimes.source.intake": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your intake answers"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après vos réponses au questionnaire d'accueil"
+          }
+        }
+      }
+    },
+    "mealtimes.source.profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your nutrition profile"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après votre profil nutritionnel"
+          }
+        }
+      }
+    },
+    "mealtimes.source.questionnaire": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your questionnaire"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après votre questionnaire"
+          }
+        }
+      }
+    },
+    "mealtimes.time.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ reminder time"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heure du rappel : %@"
+          }
+        }
+      }
+    },
+    "mealtimes.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heures des repas"
+          }
+        }
+      }
+    },
+    "mealtimes.varies": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varies by day — set each day separately to see them"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varie selon le jour — réglez chaque jour séparément pour les voir"
+          }
+        }
+      }
+    },
     "member.fallbackName": {
       "localizations": {
         "en": {
@@ -17202,18 +17602,34 @@
         }
       }
     },
-    "notif.ask.body": {
+    "notif.afternoonSnack.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your check-ins, meals not logged, how a meal felt, and news from your practitioner."
+            "value": "An afternoon snack?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos bilans, les repas non enregistrés, le ressenti après un repas et les nouvelles de votre praticien·ne."
+            "value": "Une collation cet après-midi ?"
+          }
+        }
+      }
+    },
+    "notif.ask.body2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your check-ins, your meal times, how a meal felt, and news from your practitioner."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos bilans, vos heures de repas, le ressenti après un repas et les nouvelles de votre praticien·ne."
           }
         }
       }
@@ -17266,6 +17682,22 @@
         }
       }
     },
+    "notif.breakfast.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breakfast?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petit-déjeuner ?"
+          }
+        }
+      }
+    },
     "notif.denied.body": {
       "localizations": {
         "en": {
@@ -17310,38 +17742,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Les notifications sont désactivées pour FunctionAlps"
-          }
-        }
-      }
-    },
-    "notif.dinner.body": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photograph or describe it — 20 seconds."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photographiez-le ou décrivez-le — 20 secondes."
-          }
-        }
-      }
-    },
-    "notif.dinner.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dinner not logged"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dîner non enregistré"
           }
         }
       }
@@ -17394,34 +17794,50 @@
         }
       }
     },
-    "notif.lunch.body": {
+    "notif.meal.body": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A quick snap now keeps today's picture whole."
+            "value": "Snap your plate before you start."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un cliché maintenant garde la journée complète."
+            "value": "Photographiez votre assiette avant de commencer."
           }
         }
       }
     },
-    "notif.lunch.title": {
+    "notif.mealDinner.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No lunch photo yet?"
+            "value": "Dinner?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pas encore de photo du déjeuner ?"
+            "value": "Dîner ?"
+          }
+        }
+      }
+    },
+    "notif.mealLunch.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lunch?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjeuner ?"
           }
         }
       }
@@ -17454,6 +17870,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bonjour ☀️"
+          }
+        }
+      }
+    },
+    "notif.morningSnack.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A morning snack?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une collation ce matin ?"
           }
         }
       }
@@ -17602,34 +18034,66 @@
         }
       }
     },
-    "notif.row.mealReminders": {
+    "notif.row.mealTimes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Meal not logged"
+            "value": "Your meal times"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repas non enregistré"
+            "value": "Vos heures de repas"
           }
         }
       }
     },
-    "notif.row.mealReminders.sub": {
+    "notif.row.mealTimes.sub": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lunch at 13:30 and dinner at 20:15 — only when nothing was logged"
+            "value": "Which meals, and when — day by day if you like"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Déjeuner à 13h30 et dîner à 20h15 — seulement si rien n'a été enregistré"
+            "value": "Quels repas, et quand — jour par jour si vous le souhaitez"
+          }
+        }
+      }
+    },
+    "notif.row.meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meal reminders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappels de repas"
+          }
+        }
+      }
+    },
+    "notif.row.meals.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At your usual meal times — only while that meal isn't logged yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À vos heures de repas habituelles — seulement tant que ce repas n'est pas enregistré"
           }
         }
       }
@@ -17698,18 +18162,18 @@
         }
       }
     },
-    "notif.row.quiet.sub": {
+    "notif.row.quiet.sub2": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reminders wait until the window ends"
+            "value": "Reminders wait until the window ends — a meal reminder inside it is skipped"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les rappels attendent la fin de la plage"
+            "value": "Les rappels attendent la fin de la plage — un rappel de repas qui y tombe est sauté"
           }
         }
       }
@@ -17854,6 +18318,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notifications"
+          }
+        }
+      }
+    },
+    "notif.snack.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quick photo keeps the day whole."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une photo rapide, et la journée reste complète."
           }
         }
       }

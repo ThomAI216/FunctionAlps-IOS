@@ -33,12 +33,21 @@ struct MealService: Sendable {
     private let now: @Sendable () -> Date
     private let retryDelayNanoseconds: UInt64
     private let photoURLs = PhotoURLCache()
+    /// The member's meal schedule, once `NotificationService` has read it: a new meal is labelled by their times.
+    private let schedule: MealScheduleBox
 
-    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, retryDelayNanoseconds: UInt64 = 600_000_000) {
+    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, retryDelayNanoseconds: UInt64 = 600_000_000, schedule: MealScheduleBox = MealScheduleBox()) {
         self.backend = backend
         self.calendar = calendar
         self.now = now
         self.retryDelayNanoseconds = retryDelayNanoseconds
+        self.schedule = schedule
+    }
+
+    /// What a meal logged at `date` is most likely called: by the member's own meal times once known,
+    /// else the fixed clock (which the default schedule reproduces exactly).
+    func defaultMealType(at date: Date) -> MealLog.MealType {
+        schedule.value?.mealType(at: date, calendar: calendar) ?? Self.mealType(at: date, calendar: calendar)
     }
 
     /// "Say or type your meal, watch the ingredients appear": the words → the structured list.
@@ -131,7 +140,7 @@ struct MealService: Sendable {
         let words = input.trimmedDescription
         let mealId = try await backend.createPendingMeal(PendingMealInput(
             patientId: patientId,
-            mealType: input.mealType ?? Self.mealType(at: now(), calendar: calendar),
+            mealType: input.mealType ?? defaultMealType(at: now()),
             source: input.source,
             description: words,
             loggedAt: now()
@@ -278,7 +287,7 @@ struct MealService: Sendable {
 
     // MARK: Rules (pure)
 
-    /// Same slots as the Expo app's `currentMealType()`.
+    /// Same slots as the Expo app's `currentMealType()` — the fallback before the member's schedule is known.
     static func mealType(at date: Date, calendar: Calendar) -> MealLog.MealType {
         let hour = calendar.component(.hour, from: date)
         switch hour {

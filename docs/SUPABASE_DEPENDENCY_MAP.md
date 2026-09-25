@@ -17,6 +17,7 @@ Legend for "belongs in": **Frontend** = client concern, **Backend** = server log
 | Library | `library_tracks`, `library_track_lessons`, `member_library_access`, `member_lesson_progress`, `patient_track_priority` | via RPCs (below) | — |
 | Access / consent | `member_entitlements` (R), `nb_app_consents` (legacy R), `consent_definitions`/`consent_audit` (via RPCs) | **Backend** — entitlement window is currently an app-side rule (3-day discovery) | — |
 | Messaging | `patient_messages` (explicit column list — never `*`, AI-draft columns live in the same table), `patient_notifications` (dark), `patient_notification_preferences` | Frontend read; mark-read via RPC | unread count |
+| Meal rhythm | `member_meal_schedule` (R/W own rows: one per meal slot per ISO weekday; staff read; no delete) via RPC `member_meal_schedule_seed()` (SECURITY INVOKER, creates the 35 rows on first read from the intake's skip-breakfast answer, `snacks_per_day`, else defaults) — migration `20260925_member_meal_schedule.sql` | Frontend read/write under RLS; learning moves server-side in slice 3 (`docs/MEAL_RHYTHM_SPEC.md`) | — |
 | Identity | `patients` (`id, clinic_id` by `auth_user_id`), `patient_intake_questionnaire`, `patient_resource_assignments` | — | — |
 | Wearables | `wearable_daily_labeled` (view), `wearable_connections` | Backend | — |
 | Legacy 057 plane | `profiles`, `meals`, `checkins`, `gut_checkins`, `consents`, `reports`, `assessment_responses`, `user_patterns` — read-only since mig 061, **not used** | — | never |

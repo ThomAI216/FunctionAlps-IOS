@@ -80,6 +80,8 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? { nil }
     func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws {}
     func savePushToken(_ write: PushTokenWrite) async throws {}
+    func mealSchedule() async throws -> [MealScheduleRow] { [] }
+    func saveMealSchedule(_ rows: [MealScheduleRow]) async throws {}
     func favorites(patientId: String) async throws -> [FavoriteMeal] { [] }
     func addFavorite(_ meal: MealLog, patientId: String) async throws -> FavoriteMeal { throw AppError.notFound }
     func removeFavorite(id: String) async throws {}

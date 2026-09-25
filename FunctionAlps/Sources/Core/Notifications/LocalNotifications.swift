@@ -36,29 +36,36 @@ final class LocalNotifications {
         (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
     }
 
-    /// Replaces our pending requests with the plan (adds new ids, removes the ones no longer planned).
-    func apply(_ plan: [NotificationPlanner.Planned]) async {
-        let pending = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(Self.prefix) }
-        let wanted = Set(plan.map { Self.prefix + $0.id })
-        let stale = pending.filter { !wanted.contains($0) }
+    /// Replaces our pending requests with the plan: adds new ids, removes the ones no longer planned, and
+    /// re-adds an id whose time or words changed (a moved dinner must not keep ringing at the old time).
+    /// `keepingKinds`: pending requests of these kinds are left alone when the plan has none of them — the
+    /// meal slots while the member's schedule is not known yet.
+    func apply(_ plan: [NotificationPlanner.Planned], keepingKinds: Set<NotificationPlanner.Kind> = []) async {
+        let pending = await center.pendingNotificationRequests().filter { $0.identifier.hasPrefix(Self.prefix) }
+        let wanted = Dictionary(plan.map { (Self.prefix + $0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        let kept = pending.filter { request in
+            guard wanted[request.identifier] == nil else { return false }
+            let kind = (request.content.userInfo["kind"] as? String).flatMap(NotificationPlanner.Kind.init(rawValue:))
+            return kind.map { keepingKinds.contains($0) } ?? false
+        }.map(\.identifier)
+        var stale = pending.map(\.identifier).filter { wanted[$0] == nil && !kept.contains($0) }
+        var current: Set<String> = []
+        for request in pending {
+            guard let p = wanted[request.identifier] else { continue }
+            if Self.matches(request, p) { current.insert(request.identifier) } else { stale.append(request.identifier) }
+        }
         if !stale.isEmpty { center.removePendingNotificationRequests(withIdentifiers: stale) }
-        let existing = Set(pending)
-        for p in plan where !existing.contains(Self.prefix + p.id) {
-            let content = UNMutableNotificationContent()
-            content.title = p.title
-            content.body = p.body
-            content.sound = .default
-            content.threadIdentifier = p.threadId
-            content.userInfo = ["route": p.route, "kind": p.kind.rawValue]
-            content.categoryIdentifier = category(for: p.kind)
-            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: p.fireAt)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-            try? await center.add(UNNotificationRequest(identifier: Self.prefix + p.id, content: content, trigger: trigger))
+        for p in plan where !current.contains(Self.prefix + p.id) {
+            try? await center.add(request(for: p))
         }
     }
 
     /// One request, on top of what is pending (used right after a meal is logged).
     func add(_ p: NotificationPlanner.Planned) async {
+        try? await center.add(request(for: p))
+    }
+
+    private func request(for p: NotificationPlanner.Planned) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = p.title
         content.body = p.body
@@ -66,8 +73,21 @@ final class LocalNotifications {
         content.threadIdentifier = p.threadId
         content.userInfo = ["route": p.route, "kind": p.kind.rawValue]
         content.categoryIdentifier = category(for: p.kind)
-        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: p.fireAt)
-        try? await center.add(UNNotificationRequest(identifier: Self.prefix + p.id, content: content, trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
+        let trigger = UNCalendarNotificationTrigger(dateMatching: Self.components(p.fireAt), repeats: false)
+        return UNNotificationRequest(identifier: Self.prefix + p.id, content: content, trigger: trigger)
+    }
+
+    private static func components(_ date: Date) -> DateComponents {
+        Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+    }
+
+    /// Same moment, same words — nothing to redo.
+    private static func matches(_ request: UNNotificationRequest, _ p: NotificationPlanner.Planned) -> Bool {
+        guard let trigger = request.trigger as? UNCalendarNotificationTrigger else { return false }
+        let want = components(p.fireAt), have = trigger.dateComponents
+        return have.year == want.year && have.month == want.month && have.day == want.day
+            && have.hour == want.hour && have.minute == want.minute
+            && request.content.title == p.title && request.content.body == p.body
     }
 
     func cancel(id: String) {
@@ -82,7 +102,7 @@ final class LocalNotifications {
     private func category(for kind: NotificationPlanner.Kind) -> String {
         switch kind {
         case .morningCheckin, .middayCheckin, .eveningCheckin: Self.categoryCheckin
-        case .lunchNotLogged, .dinnerNotLogged: Self.categoryMeal
+        case .breakfast, .morningSnack, .lunch, .afternoonSnack, .dinner: Self.categoryMeal
         case .mealReaction: Self.categoryReaction
         case .weeklySummary, .wearableStale: ""
         }

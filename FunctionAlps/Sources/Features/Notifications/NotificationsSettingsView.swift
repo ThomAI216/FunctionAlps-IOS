@@ -29,7 +29,23 @@ struct NotificationsSettingsView: View {
                     SettingsSectionLabel(title: String(localized: "notif.section.meals", defaultValue: "Meals"))
                     FACard {
                         VStack(spacing: 12) {
-                            toggleRow(String(localized: "notif.row.mealReminders", defaultValue: "Meal not logged"), sub: String(localized: "notif.row.mealReminders.sub", defaultValue: "Lunch at 13:30 and dinner at 20:15 — only when nothing was logged"), on: $prefs.mealRemindersEnabled)
+                            toggleRow(String(localized: "notif.row.meals", defaultValue: "Meal reminders"), sub: String(localized: "notif.row.meals.sub", defaultValue: "At your usual meal times — only while that meal isn't logged yet"), on: $prefs.mealRemindersEnabled)
+                            if prefs.mealRemindersEnabled {
+                                NavigationLink(value: Route.mealTimes) {
+                                    HStack(spacing: 8) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(String(localized: "notif.row.mealTimes", defaultValue: "Your meal times")).font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                                            Text(String(localized: "notif.row.mealTimes.sub", defaultValue: "Which meals, and when — day by day if you like"))
+                                                .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(3)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(ProfilePalette.muted).accessibilityHidden(true)
+                                    }
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            Divider().overlay(ProfilePalette.hairline)
                             toggleRow(String(localized: "notif.row.followup", defaultValue: "How do you feel?"), sub: String(localized: "notif.row.followup.sub", defaultValue: "2½ hours after each meal, once"), on: $prefs.postMealFollowupEnabled)
                         }
                     }
@@ -48,7 +64,7 @@ struct NotificationsSettingsView: View {
                         VStack(spacing: 12) {
                             toggleRow(String(localized: "notif.row.weekly", defaultValue: "Weekly summary"), sub: String(localized: "notif.row.weekly.sub", defaultValue: "Sunday, 18:00"), on: $prefs.weeklySummaryEnabled)
                             Divider().overlay(ProfilePalette.hairline)
-                            toggleRow(String(localized: "notif.row.quiet", defaultValue: "Quiet hours"), sub: String(localized: "notif.row.quiet.sub", defaultValue: "Reminders wait until the window ends"), on: $prefs.quietHoursEnabled)
+                            toggleRow(String(localized: "notif.row.quiet", defaultValue: "Quiet hours"), sub: String(localized: "notif.row.quiet.sub2", defaultValue: "Reminders wait until the window ends — a meal reminder inside it is skipped"), on: $prefs.quietHoursEnabled)
                             if prefs.quietHoursEnabled {
                                 HStack(spacing: 12) {
                                     timeField(String(localized: "notif.quiet.from", defaultValue: "From"), $prefs.quietStart)
@@ -116,7 +132,7 @@ struct NotificationsSettingsView: View {
                         Image(systemName: "bell.badge").font(.system(size: 13, weight: .semibold)).foregroundStyle(FAColor.brand)
                         Text(String(localized: "notif.ask.title", defaultValue: "Allow reminders")).font(FATypography.headline).foregroundStyle(FAColor.ink)
                     }
-                    Text(String(localized: "notif.ask.body", defaultValue: "Your check-ins, meals not logged, how a meal felt, and news from your practitioner."))
+                    Text(String(localized: "notif.ask.body2", defaultValue: "Your check-ins, your meal times, how a meal felt, and news from your practitioner."))
                         .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
                     FAButton(title: String(localized: "notif.ask.cta", defaultValue: "Turn on notifications")) {
                         Task { await service.askIfNeeded(); await service.replan(snapshot: nil, wearables: dependencies.wearables) }

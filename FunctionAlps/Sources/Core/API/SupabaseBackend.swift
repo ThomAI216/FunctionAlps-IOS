@@ -1307,6 +1307,17 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.upsert("patient_notification_preferences", onConflict: "patient_id", body: [write])
     }
 
+    // MARK: Meal schedule (member_meal_schedule)
+
+    func mealSchedule() async throws -> [MealScheduleRow] {
+        try await rest.rpc("member_meal_schedule_seed", body: EmptyBody())
+    }
+
+    func saveMealSchedule(_ rows: [MealScheduleRow]) async throws {
+        guard !rows.isEmpty else { return }
+        try await rest.upsert("member_meal_schedule", onConflict: "patient_id,slot,weekday", body: rows)
+    }
+
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
     func carePlan(patientId: String) async throws -> CarePlan? {

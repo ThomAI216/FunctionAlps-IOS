@@ -52,14 +52,53 @@ struct NotificationPlannerTests {
         #expect(ids(plan).contains("meal.dinner.2026-09-02"))
     }
 
-    @Test("A meal logged in the lunch window silences the lunch reminder, not dinner's")
+    @Test("A meal logged at lunchtime silences today's lunch reminder, not dinner's")
     func mealWindows() {
-        var state = NotificationPlanner.State(now: now)
-        state.mealsToday = [date("2026-09-02 12:10")]
+        var state = NotificationPlanner.State(now: date("2026-09-02 11:00"))
+        state.mealsToday = [.init(at: date("2026-09-02 10:50"), type: nil)]       // untyped: placed by the clock → breakfast
+        #expect(ids(NotificationPlanner.plan(prefs: .default, state: state, calendar: calendar)).contains("meal.lunch.2026-09-02"))
+        state.now = date("2026-09-02 11:45")
+        state.mealsToday = [.init(at: date("2026-09-02 11:40"), type: .lunch)]    // an early lunch, before its 12:00 reminder
         let plan = NotificationPlanner.plan(prefs: .default, state: state, calendar: calendar)
         #expect(!ids(plan).contains("meal.lunch.2026-09-02"))
-        #expect(plan.first { $0.id == "meal.dinner.2026-09-02" }?.fireAt == date("2026-09-02 20:15"))
+        #expect(plan.first { $0.id == "meal.dinner.2026-09-02" }?.fireAt == date("2026-09-02 20:00"))
         #expect(ids(plan).contains("meal.lunch.2026-09-03"))
+    }
+
+    @Test("Meal slots come from the member's schedule: off days stay silent, a Sunday-only breakfast rings once")
+    func scheduleSlots() {
+        var schedule = MealSchedule.defaults
+        schedule.set(.breakfast, weekdays: [1, 2, 3, 4, 5, 6], enabled: false)
+        schedule.set(.breakfast, weekdays: [7], remindAt: "09:45")
+        schedule.set(.afternoonSnack, weekdays: Array(1...7), enabled: true)
+        let friday = NotificationPlanner.State(now: date("2026-09-04 07:00"))
+        let plan = NotificationPlanner.plan(prefs: .default, schedule: schedule, state: friday, calendar: calendar)
+        let breakfasts = plan.filter { $0.kind == .breakfast }
+        #expect(breakfasts.map(\.id) == ["meal.breakfast.2026-09-06"])
+        #expect(breakfasts.first?.fireAt == date("2026-09-06 09:45"))
+        #expect(plan.first { $0.id == "meal.afternoon_snack.2026-09-04" }?.fireAt == date("2026-09-04 16:00"))
+        #expect(plan.filter { $0.kind == .morningSnack }.isEmpty)
+        #expect(plan.first { $0.kind == .lunch }?.route == "functionalps://food")
+    }
+
+    @Test("Meal slots are planned four days ahead; an unknown schedule plans none")
+    func mealHorizon() {
+        let state = NotificationPlanner.State(now: now)                            // Wednesday 09:00
+        let plan = NotificationPlanner.plan(prefs: .default, state: state, calendar: calendar)
+        #expect(plan.filter { $0.kind == .lunch }.map(\.id) == ["meal.lunch.2026-09-02", "meal.lunch.2026-09-03", "meal.lunch.2026-09-04", "meal.lunch.2026-09-05"])
+        #expect(plan.filter { $0.kind == .breakfast }.count == 3)                  // today's 08:00 is past
+        #expect(plan.filter { $0.kind == .eveningCheckin }.count == 7)             // check-ins keep their week
+        #expect(NotificationPlanner.plan(prefs: .default, schedule: nil, state: state, calendar: calendar).allSatisfy { !$0.kind.isMealSlot })
+    }
+
+    @Test("A snack does not count as lunch; the old fixed nudges keep their ids so pending ones reconcile")
+    func snackIsNotLunch() {
+        var schedule = MealSchedule.defaults
+        schedule.set(.morningSnack, weekdays: Array(1...7), enabled: true)
+        var state = NotificationPlanner.State(now: date("2026-09-02 10:30"))
+        state.mealsToday = [.init(at: date("2026-09-02 10:20"), type: .snack)]
+        #expect(ids(NotificationPlanner.plan(prefs: .default, schedule: schedule, state: state, calendar: calendar)).contains("meal.lunch.2026-09-02"))
+        #expect(NotificationPlanner.Kind.lunch.rawValue == "meal.lunch" && NotificationPlanner.Kind.dinner.rawValue == "meal.dinner")
     }
 
     @Test("2.5 h after an unrated meal — rated meals are simply absent from the state")
@@ -94,6 +133,45 @@ struct NotificationPlannerTests {
         var state = NotificationPlanner.State(now: now)
         state.unratedRecentMeals = [(id: "m1", loggedAt: now)]
         #expect(NotificationPlanner.plan(prefs: prefs, state: state, calendar: calendar).isEmpty)
+    }
+
+    @Test("Quiet hours drop a meal reminder instead of moving it to the next morning")
+    func quietHoursDropMeals() {
+        let prefs = NotificationPrefs.default                                      // quiet 22:00–07:30
+        let dinner = NotificationPlanner.Planned(id: "meal.dinner.2026-09-02", kind: .dinner, fireAt: date("2026-09-02 22:15"), title: "", body: "", route: "", threadId: "")
+        let reaction = NotificationPlanner.Planned(id: "r", kind: .mealReaction, fireAt: date("2026-09-02 22:30"), title: "", body: "", route: "", threadId: "")
+        let kept = NotificationPlanner.respectingQuietHours([dinner, reaction], prefs: prefs, calendar: calendar)
+        #expect(kept.map(\.id) == ["r"])
+        #expect(kept.first?.fireAt == date("2026-09-03 07:30"))
+    }
+
+    @Test("No two reminders within 20 minutes: the check-in keeps its time, the rest step aside or drop")
+    func spacing() {
+        func p(_ id: String, _ kind: NotificationPlanner.Kind, _ at: String) -> NotificationPlanner.Planned {
+            .init(id: id, kind: kind, fireAt: date(at), title: "", body: "", route: "", threadId: "")
+        }
+        let spaced = NotificationPlanner.spaced([
+            p("meal.breakfast.x", .breakfast, "2026-09-02 08:00"),
+            p("checkin.morning.x", .morningCheckin, "2026-09-02 08:00"),
+            p("meal.morning_snack.x", .morningSnack, "2026-09-02 08:00"),
+            p("meal.reaction.m", .mealReaction, "2026-09-02 08:00"),
+            p("meal.lunch.x", .lunch, "2026-09-02 12:00"),
+        ])
+        #expect(spaced.map(\.id) == ["checkin.morning.x", "meal.breakfast.x", "meal.morning_snack.x", "meal.lunch.x"])
+        #expect(spaced.map(\.fireAt) == [date("2026-09-02 08:00"), date("2026-09-02 08:20"), date("2026-09-02 08:40"), date("2026-09-02 12:00")])
+    }
+
+    @Test("The phone never holds more than 60 of ours — the nearest win")
+    func pendingCap() {
+        let start = date("2026-09-02 08:00")
+        let many = (0..<80).map { i in
+            NotificationPlanner.Planned(id: "x\(i)", kind: .weeklySummary, fireAt: start.addingTimeInterval(Double(i) * 3600), title: "", body: "", route: "", threadId: "")
+        }
+        let kept = NotificationPlanner.finalized(Array(many.reversed()), prefs: {
+            var p = NotificationPrefs.default; p.quietHoursEnabled = false; return p
+        }(), calendar: calendar)
+        #expect(kept.count == 60)
+        #expect(kept.first?.id == "x0" && kept.last?.id == "x59")
     }
 
     @Test("Quiet hours move a reminder to the end of the window — across midnight too")

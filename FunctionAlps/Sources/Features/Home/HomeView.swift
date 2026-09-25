@@ -90,6 +90,7 @@ struct HomeView: View {
 
                     TodayFocusCard()
                     PlanTodayCard()
+                    MealTimesSetupCard()
 
                     if HealthKitReader.isAvailable {
                         if dependencies.wearables.isConnected {

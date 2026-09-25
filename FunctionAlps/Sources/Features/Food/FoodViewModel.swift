@@ -60,7 +60,7 @@ final class FoodViewModel {
         self.meals = meals
         self.auth = auth
         self.calendar = calendar
-        describe = MealDictationModel(meals: meals) { MealService.mealType(at: Date(), calendar: calendar) }
+        describe = MealDictationModel(meals: meals) { meals.defaultMealType(at: Date()) }
     }
 
     func load(refresh: Bool = false) async {

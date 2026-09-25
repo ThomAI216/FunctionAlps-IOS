@@ -6,10 +6,13 @@ import UserNotifications
 /// The phone's notification engine: preferences (CM OS row), the local plan (`NotificationPlanner` →
 /// `LocalNotifications`), the APNs token (uploaded to the same row so `push-send` can reach this phone),
 /// and taps (→ `AppRouter.open`). Re-planned on every foreground, after every meal or check-in.
+/// Meal reminders follow the member's own schedule (`member_meal_schedule`), read with the preferences.
 @MainActor
 @Observable
 final class NotificationService {
     private(set) var prefs: NotificationPrefs = .default
+    /// The member's meal schedule as last read or saved; nil until the first read succeeds.
+    private(set) var mealSchedule: MealSchedule?
     private(set) var authorization: UNAuthorizationStatus = .notDetermined
     private(set) var lastPlanCount = 0
     private(set) var apnsRegistered = false
@@ -17,14 +20,23 @@ final class NotificationService {
     private let backend: any FunctionAlpsBackend
     private let local = LocalNotifications()
     private let defaults: UserDefaults
+    /// Shared with `MealService`, which labels a new meal by the member's own times.
+    private let scheduleBox: MealScheduleBox
     private var patientId: String?
     private var pendingToken: Data?
+    /// Today as Home last saw it — a re-plan from Settings must not forget what is already done.
+    private var lastSnapshot: TodaySnapshot?
 
-    private enum Key { static let askedOnce = "fa.notifications.askedOnce" }
+    private enum Key {
+        static let askedOnce = "fa.notifications.askedOnce"
+        static let mealSetupOffered = "fa.notifications.mealSetupOffered"
+    }
 
-    init(backend: any FunctionAlpsBackend, defaults: UserDefaults = .standard) {
+    init(backend: any FunctionAlpsBackend, defaults: UserDefaults = .standard, scheduleBox: MealScheduleBox = MealScheduleBox()) {
         self.backend = backend
         self.defaults = defaults
+        self.scheduleBox = scheduleBox
+        mealSetupOffered = defaults.bool(forKey: Key.mealSetupOffered)
         local.registerCategories()
     }
 
@@ -50,10 +62,17 @@ final class NotificationService {
     // MARK: Preferences
 
     /// Reads the row once per member (Settings re-reads on open); later calls only flush a waiting token.
+    /// The meal schedule rides along: read (and seeded server-side) once per member, retried until it lands.
     func loadPrefs(patientId: String, force: Bool = false) async {
         let fresh = self.patientId != patientId
         self.patientId = patientId
+        if fresh {
+            mealSchedule = nil
+            scheduleBox.set(nil)
+            lastSnapshot = nil
+        }
         if fresh || force, let row = try? await backend.notificationPrefs(patientId: patientId) { prefs = row.prefs }
+        if fresh || force || mealSchedule == nil { _ = try? await loadMealSchedule() }
         if let token = pendingToken { await upload(token: token) }
     }
 
@@ -61,6 +80,48 @@ final class NotificationService {
         guard let patientId else { return }
         try await backend.saveNotificationPrefs(NotificationPrefsRow.write(new, patientId: patientId))
         prefs = new
+    }
+
+    // MARK: Meal schedule (member_meal_schedule)
+
+    /// Reads the member's schedule; the server creates it on the first read (intake, profile, defaults).
+    /// An empty answer means no linked profile yet — `AppError.notFound`, never a made-up schedule.
+    @discardableResult
+    func loadMealSchedule() async throws -> MealSchedule {
+        let rows = try await backend.mealSchedule()
+        let entries = rows.compactMap(\.entry)
+        guard !entries.isEmpty else { throw AppError.notFound }
+        let schedule = MealSchedule(entries: entries)
+        mealSchedule = schedule
+        scheduleBox.set(schedule)
+        return schedule
+    }
+
+    /// Writes only the rows that changed since the last read or save. On failure nothing is marked saved,
+    /// so the next save carries these changes too.
+    func saveMealSchedule(_ new: MealSchedule) async throws {
+        guard let patientId, let old = mealSchedule else { throw AppError.notFound }
+        let changed = new.changes(since: old)
+        guard !changed.isEmpty else { return }
+        try await backend.saveMealSchedule(changed.map { MealScheduleRow.write($0, patientId: patientId) })
+        mealSchedule = new
+        scheduleBox.set(new)
+    }
+
+    /// The 20-second "when do you usually eat?" setup: offered once per phone, only to a member who allowed
+    /// reminders, has meal reminders on, and has not chosen a single time yet.
+    var shouldOfferMealSetup: Bool {
+        (authorization == .authorized || authorization == .provisional)
+            && prefs.mealRemindersEnabled
+            && mealSchedule?.awaitsSetup == true
+            && !mealSetupOffered
+    }
+
+    private(set) var mealSetupOffered = false
+
+    func markMealSetupOffered() {
+        mealSetupOffered = true
+        defaults.set(true, forKey: Key.mealSetupOffered)
     }
 
     // MARK: APNs token
@@ -85,14 +146,17 @@ final class NotificationService {
 
     // MARK: The local plan
 
-    /// Rebuilds the pending set from today's state. `snapshot` nil = keep the last known state (e.g. before load).
+    /// Rebuilds the pending set from today's state. `snapshot` nil = keep the last known state of the same day
+    /// (a re-plan from Settings must not re-add a check-in or a meal already done).
     /// Reactions for the recent meals are read here (one small PostgREST call) so a rated meal never gets its 2.5 h nudge.
     func replan(snapshot: TodaySnapshot?, wearables: WearableService?) async {
         guard authorization == .authorized || authorization == .provisional else { return }
+        if let snapshot { lastSnapshot = snapshot }
+        let known = snapshot ?? lastSnapshot.flatMap { $0.day == ISO8601.dayString(Date()) ? $0 : nil }
         var state = NotificationPlanner.State(now: Date())
-        if let snapshot {
+        if let snapshot = known {
             state.momentsDone = Set(snapshot.moments.map(\.slot))
-            state.mealsToday = snapshot.meals.map(\.loggedAt)
+            state.mealsToday = snapshot.meals.map { NotificationPlanner.LoggedMeal(at: $0.loggedAt, type: $0.mealType) }
             let cutoff = Date().addingTimeInterval(-4 * 3600)
             let recent = snapshot.meals.filter { $0.loggedAt > cutoff && $0.isAnalysed }
             var rated: Set<String> = ratedLocally
@@ -102,16 +166,23 @@ final class NotificationService {
             state.unratedRecentMeals = recent.filter { !rated.contains($0.id) }.map { (id: $0.id, loggedAt: $0.loggedAt) }
         }
         if let wearables { state.appleHealthConnected = wearables.isConnected; state.appleHealthLastSync = wearables.lastSyncAt }
-        let plan = NotificationPlanner.respectingQuietHours(NotificationPlanner.plan(prefs: prefs, state: state), prefs: prefs)
-        await local.apply(plan)
+        let plan = NotificationPlanner.finalized(NotificationPlanner.plan(prefs: prefs, schedule: mealSchedule, state: state), prefs: prefs)
+        // Schedule not read yet (offline launch): leave the meal reminders already pending as they are.
+        let keep: Set<NotificationPlanner.Kind> = mealSchedule == nil && prefs.mealRemindersEnabled
+            ? Set(NotificationPlanner.Kind.allCases.filter(\.isMealSlot)) : []
+        await local.apply(plan, keepingKinds: keep)
         lastPlanCount = plan.count
     }
 
     /// Meals rated on this phone this session (so a replan racing the write never re-adds the nudge).
     private var ratedLocally: Set<String> = []
 
-    /// A meal was just logged: its 2.5 h follow-up joins the plan without waiting for the next replan.
+    /// A meal was just logged: today's reminder for that meal goes at once (whichever screen logged it), and
+    /// its 2.5 h follow-up joins the plan without waiting for the next replan.
     func mealLogged(id: String, at: Date) async {
+        let schedule = mealSchedule ?? .defaults
+        let slot = schedule.slot(forMealAt: at, type: nil, calendar: .current)
+        local.cancel(id: "\(NotificationPlanner.Kind.meal(slot).rawValue).\(ISO8601.dayString(at))")
         guard prefs.postMealFollowupEnabled, authorization == .authorized || authorization == .provisional else { return }
         let state = NotificationPlanner.State(now: Date(), unratedRecentMeals: [(id: id, loggedAt: at)])
         var only = NotificationPlanner.plan(prefs: NotificationPrefs(morningEnabled: false, middayEnabled: false, eveningEnabled: false, mealRemindersEnabled: false, postMealFollowupEnabled: true, weeklySummaryEnabled: false), state: state)

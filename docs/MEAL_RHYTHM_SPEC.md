@@ -1,6 +1,6 @@
 # Meal Rhythm — per-member meal reminders that learn
 
-**Status:** spec, 2026-09-25. Nothing built. Cross-repo (iOS · CM OS · CLINICAL · MEMBERS), so a T3
+**Status:** 2026-09-25 — **slice 1 live** (table + seed applied to CM OS; iOS in this branch). Slices 2–6 not built. Cross-repo (iOS · CM OS · CLINICAL · MEMBERS), so a T3
 programme under CLINICAL's ladder: each slice below follows the SOPs of the repo it lands in.
 
 **One-paragraph answer.** Eating habits are the right first routine. The app already holds the
@@ -110,11 +110,11 @@ not a judgement. The judgement belongs to the score and the practitioner.
 1. A submitted Nutrition pillar questionnaire with the rhythm grid (§5.1) → `source = questionnaire`
 2. The in-app setup (§5.2) → `source = setup`
 3. Intake `breakfast = "I usually skip breakfast"` → breakfast off on all days → `source = intake`
-4. `nb_patient_app_profiles.snacks_per_day >= 1` → `morning_snack` on → `source = intake`
+4. `nb_patient_app_profiles.snacks_per_day >= 1` → `morning_snack` on (`>= 2` → both snacks) → `source = profile`
 5. Defaults → `source = default`
 
 A **later** stated source (a new questionnaire, a re-run setup) overwrites only rows whose source is
-still `default` or `intake`. For rows the member set by hand or through an accepted proposal, it
+still `default`, `intake` or `profile`. For rows the member set by hand or through an accepted proposal, it
 raises one consolidated proposal instead (§4). The member's last explicit word is never silently
 replaced.
 
@@ -343,7 +343,7 @@ create table public.member_meal_schedule (
   enabled boolean not null,
   remind_at time not null,                                            -- member wall clock; kept when off
   source text not null check (source in
-    ('default','intake','setup','questionnaire','member','learned','pillar_observation')),
+    ('default','intake','profile','setup','questionnaire','member','learned','pillar_observation')),
   learning_enabled boolean not null default true,                     -- false = "don't ask about this slot again"
   updated_via text check (updated_via in ('ios','web','engine')),
   created_at timestamptz not null default now(),
@@ -509,7 +509,7 @@ that lands.
 
 | Slice | Repo(s) | Ships | Depends on |
 |---|---|---|---|
-| **1. Your meal times** | CM OS + iOS | `member_meal_schedule` + RLS. The edge function with **seeding only** (defaults, intake skip-breakfast, snacks). `MealScheduleView`. `MealRhythmSetupView`. Planner reads the schedule, with drop-in-quiet-hours, spacing and the 60 cap. Default slot from the schedule. | nothing |
+| **1. Your meal times** ✅ | CM OS + iOS | `member_meal_schedule` + RLS. Seeding by the SQL function `member_meal_schedule_seed()` rather than the edge function — the same rule in one place, one RPC fewer to deploy; the slice-3 engine calls it. `MealScheduleView`. The setup (`MealTimesSetupSheet`, offered by a one-time Home card). Planner reads the schedule, with drop-in-quiet-hours, spacing and the 60 cap. Default slot from the schedule. | nothing |
 | **2. Skipped** | CM OS + iOS | `member_meal_skip`, the `FA_MEAL_SLOT` actions, the `capture?slot=` route | 1 |
 | **3. The loop** | CM OS + iOS | `member_routine_prompt` + RPC, the engine rules §4.3–4.4 with fixture tests, `RoutinePromptCard` on confirm and Home | 1, 2 |
 | **4. The habit view** | CLINICAL | punch-card timezone fix + schedule overlay + routine timeline, and the wiki tables page | 3 |

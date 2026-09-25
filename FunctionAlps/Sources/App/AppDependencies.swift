@@ -45,14 +45,16 @@ final class AppDependencies {
         self.auth = auth
         self.members = MemberService(sessions: sessions, backend: backend)
         self.dashboard = DashboardService(backend: backend)
-        self.meals = MealService(backend: backend)
+        // One schedule, two readers: the reminders plan from it, the capture screen labels a meal by it.
+        let mealSchedule = MealScheduleBox()
+        self.meals = MealService(backend: backend, schedule: mealSchedule)
         self.checkins = CheckinService(backend: backend)
         self.library = LibraryService(backend: backend)
         self.profile = ProfileService(backend: backend)
         self.messaging = MessagingService(backend: backend)
         self.account = AccountService(backend: backend)
         self.wearables = WearableService(backend: backend)
-        self.notifications = NotificationService(backend: backend)
+        self.notifications = NotificationService(backend: backend, scheduleBox: mealSchedule)
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
