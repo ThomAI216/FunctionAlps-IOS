@@ -188,9 +188,9 @@ struct HabitEngineTests {
         let a = HabitAction(id: "1", title: "A", detail: nil, slot: .morning, completionId: "c", streak: 0)
         let b = HabitAction(id: "2", title: "B", detail: nil, slot: .morning, completionId: nil, streak: 0)
         let c = HabitAction(id: "3", title: "C", detail: nil, slot: nil, completionId: nil, streak: 0)
-        #expect(HabitEngine.subtitle([a, b, c], hour: 8) == String(localized: "plan.progress.moment", defaultValue: "\(HabitSlot.morning.label) · 1 of 2 done"))
-        #expect(HabitEngine.subtitle([a, b, c], hour: 13) == String(localized: "plan.progress.day", defaultValue: "1 of 3 done"))
-        #expect(HabitEngine.subtitle([a], hour: 8) == String(localized: "plan.allDone", defaultValue: "All done for today ✓"))
+        #expect(HabitEngine.subtitle([a, b, c], hour: 8) == "Morning · 1 of 2 done")   // the current moment's count
+        #expect(HabitEngine.subtitle([a, b, c], hour: 13) == "1 of 3 done")             // midday has none: the day's
+        #expect(HabitEngine.subtitle([a], hour: 8) == "All done for today ✓")
         #expect(HabitSlot.current(hour: 10) == .morning)
         #expect(HabitSlot.current(hour: 11) == .midday)
         #expect(HabitSlot.current(hour: 17) == .evening)
