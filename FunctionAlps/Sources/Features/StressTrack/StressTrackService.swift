@@ -28,8 +28,9 @@ struct StressCheckinContext: Sendable, Equatable {
     let part: StressDiaryPart
     /// 1-based, for "Day 6 of 14".
     let dayNumber: Int
-    /// S7 shown at all — `StressWorkGate`.
-    let showsWorkItem: Bool
+    /// S7's switch-off question can show on an obligation day (`StressWorkGate`). It
+    /// never hides S7's day-type chip, which every member is asked.
+    let showsWorkDetachment: Bool
     /// The day as it was loaded: the prefill, and the baseline a save compares against.
     let original: StressCheckinDraft
 
@@ -50,7 +51,7 @@ struct StressCheckinContext: Sendable, Equatable {
         saved.existedOnServer = true
         saved.lastUpdatedVia = StressDiaryWrite.via
         saved.lastUpdatedAt = nil
-        return StressCheckinContext(window: window, part: part, dayNumber: dayNumber, showsWorkItem: showsWorkItem, original: saved)
+        return StressCheckinContext(window: window, part: part, dayNumber: dayNumber, showsWorkDetachment: showsWorkDetachment, original: saved)
     }
 }
 
@@ -101,14 +102,17 @@ struct StressTrackService: Sendable {
         // The prefill is not optional. Without it, a half answered on the web would
         // look blank here, and the first tap would overwrite it.
         let existing = try await backend.stressDiaryDay(patientId: patientId, assessmentId: window.assessmentId, localDate: day)
-        // The S7 gate is optional, and fails open (see StressWorkGate).
+        // The switch-off gate is optional, and fails open (see StressWorkGate). It is
+        // only about work: the day-type chip shows either way.
         let questionnaire = try? await backend.stressQuestionnaireWork(assessmentId: window.assessmentId)
 
         return StressCheckinContext(
             window: window,
             part: part,
             dayNumber: dayNumber,
-            showsWorkItem: StressWorkGate.showsWorkItem(questionnaire),
+            showsWorkDetachment: StressWorkGate.showsWorkDetachment(questionnaire),
+            // The prefill carries the stored day_type, so a day typed on the web shows
+            // its chip here and a save does not clear it.
             original: existing.map(StressCheckinDraft.init(row:)) ?? StressCheckinDraft(localDate: day)
         )
     }

@@ -23,8 +23,9 @@ import Foundation
 ///     = calmer). This feature never reads it, never writes it, never inverts it.
 ///  3. **NULL, never 0.** Every item can be skipped, and a skipped item costs that one
 ///     metric on that one day — never the day. Tapping a chosen answer again clears it.
-///  4. **A follow-up exists only behind its "yes".** Work detachment only when the
-///     member worked; what-and-how-much only when they did something restorative.
+///  4. **A follow-up exists only behind its "yes".** Work detachment only on an
+///     obligation day the member did not mark "I didn't work today"; what-and-how-much
+///     only when they did something restorative.
 
 // MARK: - Which half of the day
 
@@ -32,7 +33,8 @@ import Foundation
 enum StressDiaryPart: String, Sendable, Equatable, CaseIterable {
     /// S1–S3: recovered · unwell · alcohol last evening.
     case morning
-    /// S4–S9: peak · back to normal · still carrying · work · restorative · connection.
+    /// S4–S9: peak · back to normal · still carrying · day type (then work) ·
+    /// restorative · connection.
     case evening
 
     init?(slot: MomentSlot) {
@@ -156,11 +158,20 @@ struct StressCheckinDraft: Sendable, Equatable {
         var recoveryLatency: RecoveryLatencyBand?
         /// S6 · `pm_carryover` · 0…10
         var carryover: Int?
-        /// S7 gate — "Did you work today?". **Screen state only, never stored.**
-        /// "I didn't work today" writes `pm_work_detachment` NULL, which is the same
-        /// NULL a skip writes: a day off is not "switched off well".
-        var workedToday: Bool?
-        /// S7 follow-up · `pm_work_detachment` · 0…10
+        /// S7 · `day_type` — "What kind of day was today?" (decision 2026-09-25).
+        ///
+        /// The obligation/free axis every pillar shares, so it is the Nutrition track's
+        /// `NutritionDayType`, reused and **not redeclared** (that type's own rule, and
+        /// Nutrition brief §3). Its raw values, `obligation` and `free`, are exactly the
+        /// two the `stress_diary_day.day_type` CHECK accepts (migration 205) and
+        /// `DayType` in `lib/pillars/types.ts`. The engine needs it: `high` coverage
+        /// requires ≥2 of each, and `free_vs_obligation_calm` reads it on every day.
+        var dayType: NutritionDayType?
+        /// S7, obligation day only: "I didn't work today", for an obligation day that
+        /// was not work (caring, errands, admin). **Screen state only, never stored.**
+        /// It writes `pm_work_detachment` NULL, the same NULL a skip writes.
+        var didNotWork = false
+        /// S7 follow-up · `pm_work_detachment` · 0…10. Asked only on an obligation day.
         var workDetachment: Int?
         /// S8 · `pm_restorative`
         var restorative: Bool?
@@ -171,10 +182,26 @@ struct StressCheckinDraft: Sendable, Equatable {
         /// S9 · `pm_meaningful_connection`
         var meaningfulConnection: Bool?
 
-        /// Answering anything but "yes" to S7 clears its follow-up, as the web does.
-        mutating func setWorkedToday(_ value: Bool?) {
-            workedToday = value
-            if value != true { workDetachment = nil }
+        /// Anything but "obligation" (a free day, or the chip cleared) hides and clears
+        /// the switch-off question, as the web does. A day off is not "switched off well".
+        mutating func setDayType(_ value: NutritionDayType?) {
+            dayType = value
+            if value != .obligation {
+                didNotWork = false
+                workDetachment = nil
+            }
+        }
+
+        /// "I didn't work today" clears the rating: the two answer different questions.
+        mutating func setDidNotWork(_ value: Bool) {
+            didNotWork = value
+            if value { workDetachment = nil }
+        }
+
+        /// A rating clears "I didn't work today", for the same reason.
+        mutating func setWorkDetachment(_ value: Int?) {
+            workDetachment = value
+            if value != nil { didNotWork = false }
         }
 
         /// Answering anything but "yes" to S8 clears both follow-ups. The table
@@ -199,16 +226,20 @@ struct StressCheckinDraft: Sendable, Equatable {
 
         // What actually reaches the table. A follow-up is stored only behind its "yes",
         // whatever the screen still holds.
-        var storedWorkDetachment: Int? { workedToday == true ? workDetachment : nil }
+        /// `day_type` as the column spells it. `NutritionDayType` is not `Encodable`,
+        /// so the wire sends its raw value.
+        var storedDayType: String? { dayType?.rawValue }
+        var storedWorkDetachment: Int? { dayType == .obligation && !didNotWork ? workDetachment : nil }
         var storedRestorativeTypes: [String] { restorative == true ? restorativeTypes : [] }
         var storedRestorativeEffect: Int? { restorative == true ? restorativeEffect : nil }
 
-        /// Compares what would be STORED, not the screen state — tapping "Did you work
-        /// today? Yes" and rating nothing changes no column.
+        /// Compares what would be STORED, not the screen state. Tapping "I didn't work
+        /// today" on a day with no rating changes no column.
         func storesSameAs(_ other: Evening) -> Bool {
             peak == other.peak
                 && recoveryLatency == other.recoveryLatency
                 && carryover == other.carryover
+                && storedDayType == other.storedDayType
                 && storedWorkDetachment == other.storedWorkDetachment
                 && restorative == other.restorative
                 && storedRestorativeTypes == other.storedRestorativeTypes
@@ -245,9 +276,11 @@ struct StressCheckinDraft: Sendable, Equatable {
             peak: row.pmPeak,
             recoveryLatency: row.pmRecoveryLatency,
             carryover: row.pmCarryover,
-            // A stored detachment means they worked. A NULL cannot be told apart from
-            // "didn't work" or a skip — both are NULL by design — so it stays unanswered.
-            workedToday: row.pmWorkDetachment != nil ? true : nil,
+            // The CHECK allows only 'obligation' and 'free', so every stored value maps.
+            dayType: row.dayType.flatMap(NutritionDayType.init(rawValue:)),
+            // A NULL detachment on an obligation day cannot be told apart from "didn't
+            // work" or a skip (both are NULL by design), so it stays unanswered.
+            didNotWork: false,
             workDetachment: row.pmWorkDetachment,
             restorative: row.pmRestorative,
             restorativeTypes: row.pmRestorativeTypes,
@@ -340,19 +373,25 @@ enum StressDays {
     }
 }
 
-// MARK: - Who sees S7
+// MARK: - Who is asked about switching off from work
 
-/// Whether the evening shows S7 ("Did you work today?") at all.
+/// Whether S7's switch-off question ("How well have you switched off from work?") can
+/// show on an obligation day.
+///
+/// **It gates the follow-up only, never the day-type chip.** Since 2026-09-25 S7 opens
+/// with the obligation/free chip, and every member sees it: coverage and the
+/// free-vs-obligation pattern need a day type from everyone, whether or not they
+/// named work. Before that, this gate hid the whole of S7.
 ///
 /// Mirror of `WORK_TRIGGER` in `clinical-dashboard/lib/stress/questionnaire.ts`: the
 /// questionnaire's work section opens when work is named as a source of stress, or
 /// "work follows me" as a goal. A member for whom it never opened is told, on their
-/// results, that work was not asked about — so the evening does not ask either.
+/// results, that work was not asked about, so the evening does not ask either.
 ///
 /// **If `WORK_TRIGGER` changes, change this.** It is a visibility rule, not a metric,
 /// and it fails OPEN: a questionnaire that cannot be read, or is not yet submitted,
-/// shows S7. Showing a skippable item costs one tap; hiding it from someone who works
-/// loses the whole domain.
+/// shows the question. Showing a skippable item costs one tap; hiding it from someone
+/// who works loses the whole domain.
 enum StressWorkGate {
     static let workSources: Set<String> = ["workload", "work_control", "work_relationships", "business"]
     static let workGoal = "work_follows_me"
@@ -361,7 +400,7 @@ enum StressWorkGate {
         sources.contains { workSources.contains($0) } || goals.contains(workGoal)
     }
 
-    static func showsWorkItem(_ questionnaire: StressQuestionnaireWorkRow?) -> Bool {
+    static func showsWorkDetachment(_ questionnaire: StressQuestionnaireWorkRow?) -> Bool {
         guard let questionnaire, questionnaire.isSubmitted else { return true }
         return opensWorkSection(sources: questionnaire.stressSources ?? [], goals: questionnaire.stressGoal ?? [])
     }

@@ -58,7 +58,9 @@ struct StressDiaryDay: Codable, Sendable, Equatable, Identifiable {
     /// IANA zone the member was in that day.
     var timezone: String?
 
-    /// The shared obligation/free axis. NOT written by this app — see brief §12 Q1.
+    /// The shared obligation/free axis: `'obligation'` or `'free'` (the column's CHECK).
+    /// Written by the evening save from S7's chip (decision 2026-09-25, brief §12 Q1).
+    /// Kept as the raw string here; the draft maps it to `NutritionDayType`.
     var dayType: String?
     /// NOT written by this app.
     var dayModifiers: [String]
@@ -136,11 +138,15 @@ struct StressDiaryDay: Codable, Sendable, Equatable, Identifiable {
 ///  - bookkeeping: `updated_via` always; `logged_via` / `logged_at` only when this
 ///    app believes it is creating the row, so they keep meaning "who logged it first".
 ///
-/// Never sent: mood, calm (not columns here, and never will be), `day_type`,
-/// `day_modifiers`, `note`, `id`, `created_at`, `updated_at` (a trigger sets it).
+/// `day_type` belongs to the EVENING half: S7's chip asks it, so only the evening save
+/// sends it, explicitly, like any other evening column. The morning save leaves it alone.
+///
+/// Never sent: mood, calm (not columns here, and never will be), `day_modifiers`,
+/// `note`, `id`, `created_at`, `updated_at` (a trigger sets it).
 ///
 /// The follow-ups are stored only behind their "yes" (`Evening.stored…`), which also
-/// keeps the table's `stress_diary_day_effect_needs_action` CHECK satisfied.
+/// keeps the table's `stress_diary_day_effect_needs_action` CHECK satisfied. The
+/// switch-off rating is stored only on an obligation day without "I didn't work today".
 struct StressDiaryWrite: Encodable, Sendable, Equatable {
     let patientId: String
     let assessmentId: String
@@ -175,6 +181,8 @@ struct StressDiaryWrite: Encodable, Sendable, Equatable {
             try c.encodeExplicit(evening.peak, forKey: .pmPeak)
             try c.encodeExplicit(evening.recoveryLatency, forKey: .pmRecoveryLatency)
             try c.encodeExplicit(evening.carryover, forKey: .pmCarryover)
+            // S7. 'obligation' | 'free', or null when the chip was skipped or cleared.
+            try c.encodeExplicit(evening.storedDayType, forKey: .dayType)
             try c.encodeExplicit(evening.storedWorkDetachment, forKey: .pmWorkDetachment)
             try c.encodeExplicit(evening.restorative, forKey: .pmRestorative)
             // NOT NULL default '{}': an empty array, never null.

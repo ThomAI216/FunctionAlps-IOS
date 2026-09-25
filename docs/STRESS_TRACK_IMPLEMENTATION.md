@@ -10,6 +10,11 @@ Every design-system and app identifier they use was verified by grep against thi
 repo (§10). Your first job is §9: wire, `cd FunctionAlps && xcodegen generate`,
 build, and fix what the compiler finds.
 
+**Changed 2026-09-25 (Thomas's decisions, §12):** S7 is now the day-type chip, and
+the evening save writes `day_type` (Q1, resolved). `short_sleep_vs_morning_recovery`
+is held until the morning check-in records where its sleep time came from (§13).
+Drivers now rank observed domains first (server only; nothing changes here).
+
 Sources this brief follows, in order of authority:
 `FunctionAlps-CLINICAL/clinical-dashboard/docs/wiki/four-pillars/09_STRESS_MENTAL_HEALTH_SCOPE.md`
 (binding) · `10_STRESS_PILLAR_SPEC.md` §3 · migration
@@ -152,9 +157,9 @@ chosen answer again clears it. `nil` round-trips as SQL `NULL`, never a sentinel
 |---|---|
 | Show the nine additions inside the morning / evening check-in while a Stress track is active and today is in its window | Build a second daily form, a track home screen, or a results view |
 | Prefill them from today's row (so a day answered on the web is shown, not re-asked) | Re-ask or copy mood / calm |
-| Upsert one half of today's row per save, on the natural key | Write `day_type`, `day_modifiers` or `note` |
+| Upsert one half of today's row per save, on the natural key (the evening half includes `day_type`, from S7) | Write `day_modifiers` or `note` |
 | Stamp `updated_via = 'ios'` (and `logged_via` / `logged_at` on the first write) | Compute any metric, coverage, association, domain state or driver |
-| Hide S7 for members whose questionnaire never opened the work section | Read or display GAD-2 / PHQ-2, a flag, or an instrument result |
+| Hide S7's switch-off question for members whose questionnaire never opened the work section. S7's day-type chip is for everyone | Read or display GAD-2 / PHQ-2, a flag, or an instrument result |
 | Show "you last saved these on the web at …" when the web wrote the row | Start, stop or extend a track (web-first for now — §12 Q7) |
 | | Send a push. The check-in's existing reminders are the only prompt |
 
@@ -176,7 +181,7 @@ against the server's own read (`STRESS_DAY_COLUMNS` in `lib/stress/db.ts`) — s
 | `assessment_id` | uuid | — | every write (key) |
 | `local_date` | date | — | every write (key) — the member's own date, §4.3 |
 | `timezone` | text | — | every write — `calendar.timeZone.identifier` |
-| `day_type` | text `obligation`\|`free` | — | **never** — §12 Q1 |
+| `day_type` | text `obligation`\|`free` | **S7** | evening save: `'obligation'` \| `'free'`, NULL when skipped (§12 Q1, resolved) |
 | `day_modifiers` | text[] NOT NULL `'{}'` | — | never |
 | `am_recovered` | smallint 0–10 | **S1** | morning save |
 | `am_unwell` | boolean | **S2** | morning save |
@@ -184,7 +189,7 @@ against the server's own read (`STRESS_DAY_COLUMNS` in `lib/stress/db.ts`) — s
 | `pm_peak` | smallint 0–10 | **S4** | evening save |
 | `pm_recovery_latency` | text, 7 values (§4.2) | **S5** | evening save |
 | `pm_carryover` | smallint 0–10 | **S6** | evening save |
-| `pm_work_detachment` | smallint 0–10 | **S7** follow-up | evening save — NULL unless "worked today" |
+| `pm_work_detachment` | smallint 0–10 | **S7** follow-up | evening save: NULL unless an obligation day without "I didn't work today" |
 | `pm_restorative` | boolean | **S8** | evening save |
 | `pm_restorative_types` | text[] NOT NULL `'{}'` | S8 follow-up | evening save — `[]` unless S8 = yes |
 | `pm_restorative_effect` | smallint 0–10 | S8 follow-up | evening save — NULL unless S8 = yes (DB CHECK `stress_diary_day_effect_needs_action`) |
@@ -227,6 +232,20 @@ The column has **no CHECK**, so the draft keeps
 raw strings and **preserves a key it does not know** (one the web added later)
 through an edit made here. §12 Q4: this list has no canonical home yet.
 
+**`day_type`**: exactly the two values the CHECK accepts, `obligation` and `free`,
+which is also `DayType` in `lib/pillars/types.ts`. The Swift type is the Nutrition
+track's `NutritionDayType` (`Features/NutritionTrack/NutritionTrackModel.swift`),
+**reused, not redeclared**: that type's own comment and Nutrition brief §3 both say
+the obligation/free axis is one type across pillars. It is not `Encodable`, so the
+wire sends `rawValue` (`Evening.storedDayType`) and the read keeps the column as a
+`String` (`StressDiaryDay.dayType`) that the draft maps back. When wiring moves
+shared types out of `Features/`, move this one too and keep both call sites on it.
+
+| Raw value | Swift case | Label (iOS, from `DayCloseView` D02) | Label (web, from the Nutrition close) |
+|---|---|---|---|
+| `obligation` | `.obligation` | Work or obligation | A work or obligation day |
+| `free` | `.free` | A free day | A free day |
+
 **`logged_via` / `updated_via`** — `'ios'` \| `'web'`. This app always sends `ios`.
 
 ### 4.3 Writes: an upsert of ONE half of the day
@@ -240,9 +259,11 @@ every absent key alone.** So `StressDiaryWrite` (the only body this app sends):
 3. carries **none of the other half's columns** — the morning save cannot null the
    evening, the evening cannot null the morning, and a half answered on the web
    survives a save of the other half here;
-4. stores a follow-up only behind its "yes" (`Evening.stored…`), so "I didn't work
-   today" writes `pm_work_detachment = NULL` (the same NULL a skip writes: a day off
-   is not "switched off well") and "No" to S8 writes `[]` and `NULL`;
+4. stores a follow-up only behind its "yes" (`Evening.stored…`), so a free day, a
+   skipped chip, or "I didn't work today" on an obligation day all write
+   `pm_work_detachment = NULL` (the same NULL a skip writes: a day off is not
+   "switched off well"), and "No" to S8 writes `[]` and `NULL`. `day_type` is an
+   evening column like the others: sent explicitly, NULL when skipped;
 5. is **not sent at all** when the half is unchanged from what was loaded — so a
    member who only moved the calm slider does not re-stamp the web's answers.
 
@@ -327,13 +348,19 @@ renders **exactly as it does today**. A failed read fails **closed** (no block),
 because an empty block over a row the web already filled would invite an overwrite.
 The track must never block, slow or break the check-in.
 
-**S7 ("Did you work today?")** additionally shows only when the questionnaire's work
-section opened — the mirror of `WORK_TRIGGER` in `lib/stress/questionnaire.ts`:
-`stress_sources` contains `workload`, `work_control`, `work_relationships` or
-`business`, or `stress_goal` contains `work_follows_me` (`StressWorkGate`). The
-server's results then say "Not asked — you did not mention work", which stays true.
-This gate fails **open**: a questionnaire that cannot be read or is not yet submitted
-shows S7. **If `WORK_TRIGGER` changes, change `StressWorkGate`.**
+**S7's day-type chip shows to every member.** Coverage and the free-vs-obligation
+pattern need a day type from everyone, whether or not they named work.
+
+**S7's switch-off question** ("How well have you switched off from work?") shows only
+on an obligation day, and only when the questionnaire's work section opened. That is
+the mirror of `WORK_TRIGGER` in `lib/stress/questionnaire.ts`: `stress_sources`
+contains `workload`, `work_control`, `work_relationships` or `business`, or
+`stress_goal` contains `work_follows_me` (`StressWorkGate.showsWorkDetachment`,
+carried as `StressCheckinContext.showsWorkDetachment`). The server's results then say
+"Not asked — you did not mention work", which stays true. Before 2026-09-25 this gate
+hid the whole of S7. Now it hides only the follow-up. It fails **open**: a
+questionnaire that cannot be read or is not yet submitted shows the question.
+**If `WORK_TRIGGER` changes, change `StressWorkGate`.**
 
 At save, the window is checked again with the date taken at save time; outside it,
 nothing is written for the track (`.windowClosed`) and the member is **told**, with
@@ -367,8 +394,9 @@ track's M01…M11 idiom, so a bug report can name the field.
 | S4 | evening | Today, at its most stressful — how intense did it get? | 0–10 · *Hardly at all* … *As intense as it gets* | `pm_peak` |
 | S5 | evening | After the hardest moment, how long until you felt close to normal? | six band chips; below, apart and muted, *Nothing really stressful today* | `pm_recovery_latency` |
 | S6 | evening | How much are you still carrying right now? — *Whatever from today is still with you.* | 0–10 · *Nothing* … *A great deal* | `pm_carryover` |
-| S7 | evening, if §5 gate | Did you work today? — *Whatever counts as work for you.* | Yes / *I didn't work today* (muted) | not stored |
-| ↳ | if Yes | How well have you switched off from it since? | 0–10 · *Not at all, still in it* … *Completely* | `pm_work_detachment` |
+| S7 | evening, everyone | What kind of day was today? (Nutrition D02, verbatim) | *Work or obligation* / *A free day* | `day_type` |
+| ↳ | obligation day, if §5 gate | How well have you switched off from work? | 0–10 · *Not at all, still in it* … *Completely* | `pm_work_detachment` |
+| ↳ | same | *I didn't work today* (muted, apart, below the scale) | chip, for an obligation day that wasn't work: caring, errands, admin | not stored; writes `pm_work_detachment` NULL |
 | S8 | evening | Did you do anything today on purpose to recharge? — *Anything deliberate counts, even ten quiet minutes.* | Yes / No | `pm_restorative` |
 | ↳ | if Yes | What was it? | multi-select chips (§4.2) | `pm_restorative_types` |
 | ↳ | if Yes | How much did it help, in the moment? | 0–10 · *Not at all* … *A lot* | `pm_restorative_effect` |
@@ -380,8 +408,14 @@ to clear it**. The 0–10 row is a private `StressScaleRow`: one accent (`forest
 for the chosen value, a hairline for the rest, tap again to clear — not the Sleep
 track's `ZeroToTenRow`, which cannot clear, and never `FAColor.scale`. Answers that
 answer a different question (*no stressor*, *didn't work*) are drawn in the neutral
-hue, never as a peer of the measured options. Answering anything but "yes" to S7 or
-S8 clears its follow-ups immediately, as the web does.
+hue, never as a peer of the measured options. Anything but "obligation" on S7 (a free
+day, or the chip cleared) hides and clears the switch-off question. On an obligation
+day, *I didn't work today* and a rating clear each other. Anything but "yes" to S8
+clears its follow-ups. All of this happens immediately, as the web does.
+
+**The day type is asked once, in the evening.** It describes the whole day, and the
+evening is when the member knows. It is not asked in the morning, and the morning
+save never sends it.
 
 **Why yes/no where pills exist.** The check-in already has tap-if-true pills
 ("Alcohol", "A walk outside", "Time with friends"). A pill nobody tapped is not a
@@ -396,8 +430,12 @@ question is a header; each 0–10 button has its number as label and `.isSelecte
 when chosen; selection is carried by weight and fill, never by colour alone; the
 field ids are hidden from VoiceOver.
 
-**Copy.** English defaults come from spec §3 and the MEMBERS mockup, verbatim. Every
-string goes through `String(localized:defaultValue:)` under `stressTrack.*` keys; add
+**Copy.** English defaults come from spec §3 and the MEMBERS mockup, verbatim. S7's
+question and chip labels come from the Nutrition day close on this app
+(`DayCloseView`: `nutrition.close.d02`, `nutrition.day.obligation`,
+`nutrition.day.free`). They sit under `stressTrack.s7.dayType` and
+`stressTrack.dayType.*`, and their French must match those Nutrition keys word for
+word. Every string goes through `String(localized:defaultValue:)` under `stressTrack.*` keys; add
 them to `Resources/Localizable.xcstrings` with French from the practice — not
 machine-translated (§12 Q5).
 
@@ -758,8 +796,12 @@ Sources/Features/StressTrack/
                                     explicit nulls) · StressAssessmentRow · StressQuestionnaireWorkRow
   StressTrackService.swift          StressTrackBackend (4 calls) · StressCheckinContext (+ rebased(on:))
                                     StressSaveOutcome · StressTrackService (load / save — the upsert)
-  StressCheckinAdditionsView.swift  the block (S1–S9) + three #Previews
+  StressCheckinAdditionsView.swift  the block (S1–S9) + four #Previews
 ```
+
+Reused from another feature, not redeclared: `NutritionDayType` (`.obligation` /
+`.free`), declared at `Features/NutritionTrack/NutritionTrackModel.swift:109`, for
+S7's `day_type` (§4.2).
 
 **Identifiers the drafts use that are not SwiftUI/Foundation standard — each
 verified to exist in this repo by grep:** `FACard` · `FATypography.sans(_:_:relativeTo:)`,
@@ -777,6 +819,13 @@ re-proved every one of them by grep, with its signature and `file:line`, and dif
 the CodingKeys, the latency values and the restorative keys against the migration,
 the engine and the MEMBERS mockup. No compiler has seen these files yet.
 
+The day-type change (2026-09-25) adds one non-standard identifier, `NutritionDayType`
+with `.obligation`, `.free`, `allCases` and `init(rawValue:)` (proved by grep as
+above). Everything else it adds is SwiftUI or standard library (`Binding(get:set:)`,
+`Optional`) or declared in `Features/StressTrack/` itself. Its raw values were diffed
+against the `day_type` CHECK in migration 205, and the CodingKeys were re-diffed
+against the migration and `STRESS_DAY_COLUMNS`: still the same 24, in the same order.
+
 No new type name collides with an existing declaration (checked).
 
 **Still to do, and not yours to skip:** steps 1–7; the tests in §11; French copy.
@@ -788,8 +837,10 @@ No new type name collides with an existing declaration (checked).
 
 **Build**
 
-- `xcodegen generate` picks the files up; the project builds; the three `#Preview`s
-  render (morning, evening, evening without S7).
+- `xcodegen generate` picks the files up; the project builds; the four `#Preview`s
+  render: morning; evening (obligation day, switch-off answered); evening on a free
+  day (chip, nothing under it); evening on an obligation day for a member who never
+  named work (chip, no switch-off question).
 
 **Behaviour**
 
@@ -800,11 +851,15 @@ No new type name collides with an existing declaration (checked).
   (`StressTrackWindow.dayCount`), so a planned end that differs from the protocol
   never reads "Day 16 of 14".
 - Outside the window (day 15 while the assessment is still `active`), no block.
-- A member whose questionnaire never named work sees no S7; one whose questionnaire
-  is unreadable or unsubmitted does.
+- Every member sees S7's day-type chip. A member whose questionnaire never named work
+  sees no switch-off question under it, even on an obligation day. One whose
+  questionnaire is unreadable or unsubmitted does see it.
 - Every item can be skipped; a chosen answer tapped again clears; a cleared answer
-  on an edited day is stored as `NULL`.
-- "I didn't work today" and "No" to S8 hide and clear their follow-ups.
+  on an edited day is stored as `NULL`. That includes the day-type chip.
+- An obligation day shows the switch-off question. A free day hides it and stores
+  `pm_work_detachment` NULL. "I didn't work today" stores NULL and keeps
+  `day_type = 'obligation'`. "No" to S8 hides and clears its follow-ups.
+- The evening save sends `day_type`; the morning save never does.
 - A day answered on the web is prefilled here with the provenance line, and saving
   the calm slider alone does not rewrite it.
 - The morning save leaves every `pm_*` column untouched; the evening save leaves
@@ -821,8 +876,11 @@ No new type name collides with an existing declaration (checked).
    answer as `NSNull`, and **no** `pm_*` key. Mutant: switch
    `encodeExplicit` to `encodeIfPresent`.
 2. *Evening body* — no `am_*` key; `restorative = false` → `pm_restorative_types = []`
-   and `pm_restorative_effect = null`; `workedToday = false` → `pm_work_detachment =
-   null` even when the screen still holds a number.
+   and `pm_restorative_effect = null`; `day_type` present, `"obligation"` / `"free"`,
+   or `NSNull` when skipped; `dayType = .free` → `pm_work_detachment = null` and
+   `didNotWork = true` → `pm_work_detachment = null`, both even when the screen still
+   holds a number. Mutant: make `storedWorkDetachment` ignore `dayType`. Morning body
+   (test 1) carries **no** `day_type`.
 3. *Decoding trap* — a real row decodes through `StressWire`; the same bytes through
    `JSON.decode` do **not** round-trip (`amRecovered` nil or a throw). This test is
    the reason §4.6 exists.
@@ -832,15 +890,16 @@ No new type name collides with an existing declaration (checked).
    *Rebase* — save S4 = 7 (`.saved`), rebase, set S4 back to nil, save again → a
    request carrying `pm_peak: null` and no `logged_via`. Mutant: use the pre-save
    context for the second save → `.nothingToSave`, the stale 7 survives.
-5. *Gate* — `StressWorkGate` against every `WORK_TRIGGER` branch, plus nil and
-   `in_progress` → shows.
+5. *Gate* — `StressWorkGate.showsWorkDetachment` against every `WORK_TRIGGER` branch,
+   plus nil and `in_progress` → shows. The gate never hides the day-type chip.
 6. *No score* — reflect over `StressDiaryDay` and `StressCheckinDraft`: no property
    name contains `score`, `calm`, `mood` or `stress`.
 7. *Contract* — `StressDiaryDay.columns` equals the server's `STRESS_DAY_COLUMNS`
    string; `RecoveryLatencyBand.allCases.map(\.rawValue)` equals the migration's
    seven, in order; `RestorativeType.allCases.map(\.rawValue)` equals the MEMBERS
-   web list (13, `meditation` included). (All three were checked by script in the
-   audit; the tests keep them true.)
+   web list (13, `meditation` included); `NutritionDayType.allCases.map(\.rawValue)`
+   equals `["obligation", "free"]`, the `day_type` CHECK. (All four were checked by
+   script; the tests keep them true.)
 
 **Scope**
 
@@ -855,22 +914,32 @@ No new type name collides with an existing declaration (checked).
 
 ## 12. Open questions for Thomas
 
-1. **Day type is never collected.** Spec §3's nine items do not include
-   obligation/free, and neither does the web check-in. The engine needs it: `high`
-   coverage requires ≥2 free and ≥2 obligation days, and the `free_vs_obligation_calm`
-   pattern needs it on every day. As built, high coverage is unreachable and that
-   pattern never evaluates. Options: (a) a tenth item, the shared "Work or obligation
-   / A free day" chip the Nutrition day-close uses; (b) derive it server-side from S7
-   (not equivalent: an obligation is not always work); (c) read it from a concurrent
-   Sleep or Nutrition diary. Recommendation: (a), evening only.
+1. **Day type: RESOLVED 2026-09-25 (Thomas).** The question was that spec §3's
+   nine items did not collect obligation/free, so `high` coverage (≥2 free and ≥2
+   obligation days) was unreachable and `free_vs_obligation_calm` never evaluated.
+   **Decision: merge day type into the evening work question.** S7 "Did you work
+   today?" became the day-type chip shared with Sleep and Nutrition, and it stores
+   `stress_diary_day.day_type` (`'obligation'` | `'free'`, an existing column). On an
+   **obligation day** "How well have you switched off from work?" (0–10) shows, with
+   *I didn't work today* for an obligation day that wasn't work (caring, errands,
+   admin). That option leaves `pm_work_detachment` NULL. On a **free day** the
+   switch-off question is hidden and `pm_work_detachment` is NULL. The chip is
+   skippable. There are still nine items, and S7 now opens with the chip. Built in
+   the drafts: §4.1, §4.2, §5, §6; `Evening.dayType` / `setDayType` / `storedDayType`;
+   the evening body sends `day_type`. The web mockup does the same. Two calls made in
+   building it, open for review: (i) the chip shows to every member, and the work
+   gate now governs only the switch-off question (§5); (ii) with the chip skipped,
+   the switch-off question stays hidden, as every follow-up does behind its "yes".
 2. **The calm card already reads as a stress score.** `DimensionCardView` titles the
    calm dimension "Stress" (`dim.stress`) and prints the 0–100 calmness beside it on
    the ramp — so a member reads "Stress 72" as high stress. That contradicts "calm
    is calm" and "no stress score". Relabel the card "Calm" (or hide its number),
    at least while a Stress track runs? Pre-existing; the web mockup raised it too.
-3. **S7 for everyone, or only when work was named?** Drafted: only when
-   `WORK_TRIGGER` opened the work section (fail-open). The alternative asks every
-   member and lets "I didn't work today" carry non-workers — one extra tap a day, and
+3. **The switch-off question for everyone, or only when work was named?** Since Q1's
+   decision S7's chip is for everyone. What is still gated is the switch-off question
+   on an obligation day: drafted as only when `WORK_TRIGGER` opened the work section
+   (fail-open). The alternative asks it of every member on an obligation day, and lets
+   "I didn't work today" carry non-workers. That costs one extra tap on some days, and
    a worker who never named work as a source would still get the domain.
 4. **Restorative keys have no canonical home.** They live only in the MEMBERS mockup;
    the column has no CHECK. Promote them to `lib/stress` (next to
@@ -879,7 +948,10 @@ No new type name collides with an existing declaration (checked).
    the spec's shorthand. The rank-5 band now reads *Not yet today* on both surfaces
    (the web changed it; this app followed). The web mockup is still being edited, so
    the two lists can drift again until Q4 gives them one home. French from the
-   practice.
+   practice. S7's obligation label differs between surfaces because the Nutrition
+   close already does: *A work or obligation day* on the web, *Work or obligation*
+   here. Each Stress surface copies its own Nutrition close. Aligning them is one
+   decision for both pillars, not a Stress one.
 6. **After midnight.** An evening check-in saved at 00:20 lands on the next date in
    both tables (inherited from the check-in, kept so the join holds). Acceptable for
    v1?
@@ -891,13 +963,21 @@ No new type name collides with an existing declaration (checked).
    write (engine note 1 below). One meaning for both surfaces, please.
 9. **Two tracks at once.** A member running Sleep and Stress together gets the Sleep
    morning log and S1–S3 on the same morning. Allowed, staggered, or one at a time?
-10. **Apple Health reaches an association through the check-in.** The engine reads
-   the morning moment's `sleep_duration_min` for `short_sleep_vs_morning_recovery`,
-   and the check-in prefills that field from Apple Health (`applyHealthNight`) and
-   stores no trace that it did. A device estimate the member did not touch is then
-   read as member-reported — the layer rule says the wearable moves nothing. Not this
-   feature's code and not changed here: should the check-in record the prefill's
-   provenance, or should the engine stop reading sleep duration from it?
+10. **Apple Health reaches an association through the check-in. DECIDED 2026-09-25
+   (Thomas): the pattern is held.** The engine read the morning moment's
+   `sleep_duration_min` for `short_sleep_vs_morning_recovery`, and the check-in
+   prefills that field from Apple Health (`applyHealthNight`) and stores no trace
+   that it did. A device estimate the member did not touch would be read as
+   member-reported, and the layer rule says the wearable moves nothing. The engine now
+   holds the pattern (`SHORT_SLEEP_HELD_REASON` in `lib/stress/associations.ts`) and
+   never evaluates it. It unblocks when the check-in records where sleep time came
+   from; then only typed nights are read. What the check-in needs is in §13. **This
+   needs a schema decision in CLINICAL** before any iOS work.
+
+**Also decided 2026-09-25, for information only.** Drivers now rank domains the
+observed fortnight speaks to before domains known only from the questionnaire
+(`lib/stress/profile.ts`). This is server-side ranking. This app computes, reads and
+shows no driver (§3, §8), so nothing here changes.
 
 ### Engine and schema notes (reported, not edited)
 
@@ -918,3 +998,51 @@ No new type name collides with an existing declaration (checked).
    move a row to another of the member's assessments. The server write path
    (`requireActiveStressAssessment`) checks the pillar; the member-session path this
    app uses does not. Verified against the live policies on CM OS.
+
+---
+
+## 13. Follow-up: where the morning's sleep time came from
+
+**Needs a schema decision in CLINICAL.** Not built, and deliberately not designed as
+a migration here. The table is `patient_checkin_moments`, written by
+`member_submit_checkin` and shared by every surface, so CLINICAL owns the shape. This
+section says only what the check-in must be able to record, so that
+`short_sleep_vs_morning_recovery` can be unheld (§12 Q10).
+
+**What happens today.** On a first morning save, `prefill()` calls
+`applyHealthNight(_:)` (`Features/Checkin/CheckinMomentViewModel.swift:34`, called at
+`:59`) when Apple Health is connected. It fills five sleep inputs: bed time, wake
+time, `durationMin` (the bed-to-wake window of Health's main sleep, not time asleep),
+the wake-count band and the latency band. The member can change any of them. The
+only trace is `sleepFromHealth` (`:17`), held in memory for the on-screen note "From
+Apple Health · …". None of it reaches the server: `member_submit_checkin` receives
+`sleep.duration_min` (`Core/Checkin/CheckinEngine.swift:308`) with no marker, so
+`sleep_duration_min` cannot say whether the member typed it or the watch did.
+
+**What the check-in needs to record, per morning moment:**
+
+1. **How the sleep time was entered**: `typed` (the member entered it, with no
+   prefill), `health` (taken from Apple Health and saved untouched), or
+   `health_edited` (taken from Apple Health, then changed by the member). Whether
+   `health_edited` counts as the member's own report is the engine's call. Recording
+   it keeps that call possible.
+2. **The source, when it came from Health**: the writing app's bundle id and the
+   first sample's HealthKit uuid. The night already carries both, as
+   `SleepNight.sourceDeviceId` and `.sourceRecordId` (`Core/Health/WearableCatalog.swift:230–231`,
+   "Provenance (D7)"). They tell a Watch night from another sleep app's.
+3. **Which fields it covers.** `applyHealthNight` fills latency and wake count as well
+   as the times. So a single "sleep time" marker is ambiguous: either one marker per
+   prefilled field, or one for the set with a rule for what editing one field means.
+   The schema decision picks.
+4. **Edits keep it true.** Re-opening a saved morning does not re-run the prefill,
+   so a later change to a prefilled time must update the stored record (`health` →
+   `health_edited`), not leave it stale.
+5. **Rows from before it read as unknown, never as `typed`.** No backfill guesses.
+
+**What it is not.** Not a change to this feature: the Stress additions ask no sleep
+question and take nothing from Health (§2.3). Not a reason to drop the prefill, which
+is useful. It only has to say what it did.
+
+**When it lands.** The check-in records it (`Features/Checkin/`, not
+`Features/StressTrack/`). The engine reads only `typed` nights, as its hold note in
+`lib/stress/associations.ts` says, and removes the hold server-side.

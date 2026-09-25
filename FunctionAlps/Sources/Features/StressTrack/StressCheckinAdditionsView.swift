@@ -14,8 +14,8 @@ import SwiftUI
 ///     chosen value, neutral for the rest.
 ///  3. **Mood and calm are not asked here.** The check-in above already asks them, and
 ///     calm stays calm — this block never mentions a stress number.
-///  4. **Follow-ups live behind their "yes".** S7's rating only when they worked; S8's
-///     what and how-much only when they did something restorative.
+///  4. **Follow-ups live behind their "yes".** S7's switch-off rating only on an
+///     obligation day; S8's what and how-much only when they did something restorative.
 ///  5. **Social connection is one gentle yes/no.** No rating of anyone's relationships.
 struct StressCheckinAdditionsView: View {
     let context: StressCheckinContext
@@ -183,34 +183,45 @@ struct StressCheckinAdditionsView: View {
             )
         }
 
-        if context.showsWorkItem {
-            StressItem(
-                id: "S7",
-                question: String(localized: "stressTrack.s7", defaultValue: "Did you work today?"),
-                hint: String(localized: "stressTrack.s7.hint", defaultValue: "Whatever counts as work for you.")
-            ) {
-                VStack(alignment: .leading, spacing: 12) {
-                    StressChoiceChips(
-                        options: [
-                            (true, String(localized: "stressTrack.yes", defaultValue: "Yes")),
-                            (false, String(localized: "stressTrack.s7.no", defaultValue: "I didn’t work today")),
-                        ],
-                        selection: draft.evening.workedToday,
-                        // A day off is not "switched off well" — it answers a different
-                        // question, and is stored as the same NULL a skip is.
-                        muted: [false],
-                        accent: accent
-                    ) { draft.evening.setWorkedToday($0) }
+        // S7 is the day-type chip (decision 2026-09-25), shown to EVERY member: coverage
+        // and the free-vs-obligation pattern need a day type from everyone. The work
+        // gate (`showsWorkDetachment`) governs only the switch-off question under it.
+        StressItem(
+            id: "S7",
+            // The Nutrition day close's D02 wording, verbatim (DayCloseView.swift), so the
+            // one shared axis is asked the same way in every track.
+            question: String(localized: "stressTrack.s7.dayType", defaultValue: "What kind of day was today?")
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                StressChoiceChips(
+                    options: NutritionDayType.allCases.map { ($0, Self.dayTypeLabel($0)) },
+                    selection: draft.evening.dayType,
+                    accent: accent
+                ) { draft.evening.setDayType($0) }
 
-                    if draft.evening.workedToday == true {
-                        StressFollowUp(text: String(localized: "stressTrack.s7.followUp", defaultValue: "How well have you switched off from it since?"))
-                        StressScaleRow(
-                            value: $draft.evening.workDetachment,
-                            low: String(localized: "stressTrack.s7.low", defaultValue: "Not at all, still in it"),
-                            high: String(localized: "stressTrack.s7.high", defaultValue: "Completely"),
-                            accent: accent
-                        )
-                    }
+                // Only on an obligation day. A free day hides it: a day off is not
+                // "switched off well", and it is stored as NULL.
+                if draft.evening.dayType == .obligation && context.showsWorkDetachment {
+                    StressFollowUp(text: String(localized: "stressTrack.s7.switchOff", defaultValue: "How well have you switched off from work?"))
+                    StressScaleRow(
+                        // A rating clears "I didn't work today" (setWorkDetachment).
+                        value: Binding(
+                            get: { draft.evening.workDetachment },
+                            set: { draft.evening.setWorkDetachment($0) }
+                        ),
+                        low: String(localized: "stressTrack.s7.low", defaultValue: "Not at all, still in it"),
+                        high: String(localized: "stressTrack.s7.high", defaultValue: "Completely"),
+                        accent: accent
+                    )
+                    // For an obligation day that wasn't work (caring, errands, admin). Apart
+                    // and muted, as "no stressor" is under S5: it answers a different
+                    // question, and is stored as the same NULL a skip is.
+                    StressChoiceChips(
+                        options: [(true, String(localized: "stressTrack.s7.no", defaultValue: "I didn’t work today"))],
+                        selection: draft.evening.didNotWork ? Optional(true) : nil,
+                        muted: [true],
+                        accent: accent
+                    ) { draft.evening.setDidNotWork($0 == true) }
                 }
             }
         }
@@ -262,6 +273,15 @@ struct StressCheckinAdditionsView: View {
             (true, String(localized: "stressTrack.yes", defaultValue: "Yes")),
             (false, String(localized: "stressTrack.no", defaultValue: "No")),
         ]
+    }
+
+    /// The Nutrition day close's chip labels, verbatim (`DayCloseView`, D02:
+    /// `nutrition.day.obligation` / `nutrition.day.free`). French must match those keys.
+    private static func dayTypeLabel(_ type: NutritionDayType) -> String {
+        switch type {
+        case .obligation: String(localized: "stressTrack.dayType.obligation", defaultValue: "Work or obligation")
+        case .free: String(localized: "stressTrack.dayType.free", defaultValue: "A free day")
+        }
     }
 }
 
@@ -397,8 +417,8 @@ private struct StressScaleRow: View {
 private enum StressAdditionsSample {
     static let window = StressTrackWindow(assessmentId: "preview", protocolDays: 14, startedOn: "2026-09-20", lastDay: "2026-10-03")
 
-    static func context(_ part: StressDiaryPart, showsWorkItem: Bool = true) -> StressCheckinContext {
-        StressCheckinContext(window: window, part: part, dayNumber: 6, showsWorkItem: showsWorkItem, original: StressCheckinDraft(localDate: "2026-09-25"))
+    static func context(_ part: StressDiaryPart, showsWorkDetachment: Bool = true) -> StressCheckinContext {
+        StressCheckinContext(window: window, part: part, dayNumber: 6, showsWorkDetachment: showsWorkDetachment, original: StressCheckinDraft(localDate: "2026-09-25"))
     }
 
     /// The evening the MEMBERS web mockup shows, so the two surfaces can be compared
@@ -409,12 +429,27 @@ private enum StressAdditionsSample {
         d.evening.peak = 7
         d.evening.recoveryLatency = .from1to3h
         d.evening.carryover = 5
-        d.evening.setWorkedToday(true)
-        d.evening.workDetachment = 3
+        d.evening.setDayType(.obligation)
+        d.evening.setWorkDetachment(3)
         d.evening.setRestorative(true)
         d.evening.toggle(.walking)
         d.evening.restorativeEffect = 6
         d.evening.meaningfulConnection = true
+        return d
+    }
+
+    /// The same evening on a free day: S7 shows the chip and nothing under it.
+    static var freeDay: StressCheckinDraft {
+        var d = answered
+        d.evening.setDayType(.free)
+        return d
+    }
+
+    /// An obligation day, blank otherwise: what a member whose questionnaire never
+    /// named work sees (with the gate closed, no switch-off question).
+    static var obligationOnly: StressCheckinDraft {
+        var d = StressCheckinDraft(localDate: "2026-09-25")
+        d.evening.setDayType(.obligation)
         return d
     }
 }
@@ -441,9 +476,13 @@ private struct StressAdditionsPreviewHost: View {
     StressAdditionsPreviewHost(context: StressAdditionsSample.context(.evening), draft: StressAdditionsSample.answered)
 }
 
-#Preview("Stress additions · evening, blank, no work item") {
+#Preview("Stress additions · evening, free day") {
+    StressAdditionsPreviewHost(context: StressAdditionsSample.context(.evening), draft: StressAdditionsSample.freeDay)
+}
+
+#Preview("Stress additions · evening, obligation day, work never named") {
     StressAdditionsPreviewHost(
-        context: StressAdditionsSample.context(.evening, showsWorkItem: false),
-        draft: StressCheckinDraft(localDate: "2026-09-25")
+        context: StressAdditionsSample.context(.evening, showsWorkDetachment: false),
+        draft: StressAdditionsSample.obligationOnly
     )
 }
