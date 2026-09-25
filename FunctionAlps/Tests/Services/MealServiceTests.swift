@@ -108,6 +108,10 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
     func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] { [] }
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: "2026-09-25", needsCheckin: true, offers: []) }
+    func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan { HabitPlan(day: day, header: nil, phases: [], habits: [], completions: []) }
+    func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
+    func deleteHabitCompletion(id: String) async throws {}
+    func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     func wearableVendors() async throws -> [WearableVendorRow] { [] }

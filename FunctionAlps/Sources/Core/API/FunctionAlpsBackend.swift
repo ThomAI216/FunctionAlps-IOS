@@ -209,6 +209,18 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// The member marked an offer done, or undid it. Today's rows only (the `habit_offers` update policy).
     func setFocusOfferCompleted(id: String, completed: Bool) async throws
+
+    /// The Habit Loop's day: the active care plan (header + phases), the member's habits (RLS: own, not
+    /// cancelled, and — when prescribed — the care-plan item approved and patient-visible) and the completions
+    /// from `since` to `day` inclusive.
+    func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan
+    /// Check a habit off for `day` — today or yesterday, patient-local, the RLS write window. Returns the row id.
+    func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String
+    /// Undo a check-off (same window).
+    func deleteHabitCompletion(id: String) async throws
+    /// Poke the server's gate evaluator after a check-off (`evaluate-gates`): completion arithmetic only,
+    /// clinician-pre-authorised releases only. Best effort — the nightly sweep does the same.
+    func evaluateHabitGates(day: String) async throws
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)

@@ -181,6 +181,7 @@ struct PostgRESTClient: Sendable {
 enum PG {
     static func eq(_ column: String, _ value: String) -> URLQueryItem { URLQueryItem(name: column, value: "eq.\(value)") }
     static func gte(_ column: String, _ value: String) -> URLQueryItem { URLQueryItem(name: column, value: "gte.\(value)") }
+    static func lte(_ column: String, _ value: String) -> URLQueryItem { URLQueryItem(name: column, value: "lte.\(value)") }
     static func lt(_ column: String, _ value: String) -> URLQueryItem { URLQueryItem(name: column, value: "lt.\(value)") }
     static func select(_ columns: String) -> URLQueryItem { URLQueryItem(name: "select", value: columns) }
     static func order(_ column: String, descending: Bool = false) -> URLQueryItem {

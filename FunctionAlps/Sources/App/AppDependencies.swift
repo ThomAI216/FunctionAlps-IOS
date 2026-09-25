@@ -25,6 +25,8 @@ final class AppDependencies {
     let focus: FocusService
     /// Released lab results — shared, so the list, the result and the marker sheet read one load.
     let labs: LabResultsService
+    /// The clinician's habits for today, with the check-off.
+    let habits: HabitsService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -58,6 +60,7 @@ final class AppDependencies {
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
+        self.habits = HabitsService(backend: backend, auth: auth)
         self.backend = backend
     }
 
