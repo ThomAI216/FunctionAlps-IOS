@@ -198,7 +198,8 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// Today's focus (`member-daily-focus`). The day is computed once and then read back; `recompute`
     /// (sent after the morning check-in is saved or edited) recomputes it and retires what changed.
-    func dailyFocus(recompute: Bool) async throws -> TodayFocus
+    /// `locale` (`en` · `fr`) picks the language the practice's texts come back in — English where no French is written.
+    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus
 
     /// The member marked an offer done, or undid it. Today's rows only (the `habit_offers` update policy).
     func setFocusOfferCompleted(id: String, completed: Bool) async throws

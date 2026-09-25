@@ -1,6 +1,6 @@
 // member-daily-focus — Today's focus for the signed-in member.
 //
-// POST { recompute?: boolean }  →  { day, needsCheckin, offers: [...] }
+// POST { recompute?: boolean, locale?: "en" | "fr" }  →  { day, needsCheckin, offers: [...] }
 //
 // Reads what the morning already holds (sleep score, day_intent, day_priority), today's readiness exactly as
 // Trends computes it (`recoveryScore` over the wearable row and the 42-day HRV baseline), the practice's state
@@ -14,6 +14,9 @@
 // offer is still a true record of what was put in front of them. Anything the member accepted or completed
 // survives every recomputation.
 //
+// LANGUAGE. The day is stored in English and French side by side (the practice's `*_fr` texts, null = not
+// translated yet); `locale` only chooses which one this read returns — see `_shared/focus/present.ts`.
+//
 // Everything runs under the MEMBER's session (createUserScopedClient): RLS decides what is read and written,
 // exactly as if the app had made each call itself. No service role.
 
@@ -22,6 +25,7 @@ import { createUserScopedClient } from "../_shared/supabase.ts"
 import { loadWearableInputs } from "../_shared/scoring/wearable-inputs.ts"
 import { recoveryScore } from "../member-scores/engine/health/recovery-score.ts"
 import { type BankHabit, decideFocus, type StateOffer, type StateResponse } from "../_shared/focus/engine.ts"
+import { contentLocale, OFFER_COLUMNS, type OfferRow, present } from "../_shared/focus/present.ts"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -34,37 +38,6 @@ const json = (body: unknown, status = 200) =>
 /** A personal HRV baseline needs this many days before "below your usual" means anything (member-scores' gate). */
 const MIN_HRV_BASELINE_DAYS = 14
 
-const OFFER_COLUMNS = "id,offer_key,rank,title,description,pillar,slot,variant,reason,state_key,accepted,completed,superseded,state_responses(title)"
-
-interface OfferRow {
-  id: string
-  offer_key: string
-  rank: number | null
-  title: string
-  description: string | null
-  pillar: string | null
-  slot: string | null
-  variant: string | null
-  reason: string | null
-  state_key: string
-  accepted: boolean | null
-  completed: boolean
-  superseded: boolean
-  state_responses: { title: string } | null
-}
-
-/** What the member sees: the day's live offers — current ones, plus any retired one they had already said yes to. */
-function present(rows: OfferRow[]) {
-  return rows
-    .filter((r) => !r.superseded || r.accepted === true || r.completed)
-    .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
-    .map((r) => ({
-      id: r.id, offerKey: r.offer_key, rank: r.rank, title: r.title, description: r.description,
-      pillar: r.pillar, slot: r.slot, variant: r.variant, reason: r.reason, trigger: r.state_key,
-      stateTitle: r.state_responses?.title ?? null, accepted: r.accepted, completed: r.completed,
-    }))
-}
-
 const num = (v: unknown): number | null => (typeof v === "number" ? v : v != null && !Number.isNaN(Number(v)) ? Number(v) : null)
 const keys = (pills: unknown, group: string): string[] => {
   const v = (pills as Record<string, unknown> | null)?.[group]
@@ -75,8 +48,10 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS })
   if (req.method !== "POST") return json({ error: "POST only" }, 405)
 
-  let body: { recompute?: boolean } = {}
+  let body: { recompute?: boolean; locale?: string } = {}
   try { body = await req.json() } catch { /* empty body is fine */ }
+  // The app's own word first; builds from before it sent one still carry the Accept-Language iOS adds itself.
+  const locale = contentLocale(body.locale ?? req.headers.get("accept-language"))
 
   const db = createUserScopedClient(req)
   const { data: patientId, error: pidErr } = await db.rpc("current_member_patient_id")
@@ -98,13 +73,13 @@ Deno.serve(async (req: Request) => {
   try {
     const rows = await readToday()
     const current = rows.filter((r) => !r.superseded)
-    if (!body.recompute && current.length > 0) return json({ day: today, needsCheckin: false, offers: present(rows) })
+    if (!body.recompute && current.length > 0) return json({ day: today, needsCheckin: false, offers: present(rows, locale) })
 
     // No morning check-in, no focus — the engine never guesses a day it was told nothing about.
     const { data: morning, error: mErr } = await db.from("patient_checkin_moments").select("sleep_overall,pills")
       .eq("patient_id", patientId).eq("checkin_date", today).eq("slot", "morning").maybeSingle()
     if (mErr) throw mErr
-    if (!morning) return json({ day: today, needsCheckin: true, offers: present(rows) })
+    if (!morning) return json({ day: today, needsCheckin: true, offers: present(rows, locale) })
 
     // Readiness, exactly as Trends computes it (member-scores trends-derive `recoveryFor`, minus the felt form
     // the morning doesn't ask). A failed wearable read degrades to "unknown", never to a failed focus.
@@ -132,7 +107,7 @@ Deno.serve(async (req: Request) => {
     // RLS returns only what this member may see: the practice-wide responses and their own care plan's.
     const [{ data: stateRows, error: sErr }, { data: bankRows, error: bErr }] = await Promise.all([
       db.from("state_responses").select("id,state_key,title,care_plan_id,offers").eq("active", true),
-      db.from("habit_bank").select("id,pillar,category,title,description,default_slot,easy_title,easy_description,rev_title,rev_description,sort_order").eq("active", true),
+      db.from("habit_bank").select("id,pillar,category,title,description,default_slot,easy_title,easy_description,rev_title,rev_description,sort_order,title_fr,description_fr,easy_title_fr,easy_description_fr,rev_title_fr,rev_description_fr").eq("active", true),
     ])
     if (sErr) throw sErr
     if (bErr) throw bErr
@@ -145,6 +120,8 @@ Deno.serve(async (req: Request) => {
       id: b.id, pillar: b.pillar, category: b.category, title: b.title, description: b.description,
       defaultSlot: b.default_slot, easyTitle: b.easy_title, easyDescription: b.easy_description,
       revTitle: b.rev_title, revDescription: b.rev_description, sortOrder: b.sort_order,
+      titleFr: b.title_fr, descriptionFr: b.description_fr, easyTitleFr: b.easy_title_fr,
+      easyDescriptionFr: b.easy_description_fr, revTitleFr: b.rev_title_fr, revDescriptionFr: b.rev_description_fr,
     }))
 
     const decided = decideFocus({
@@ -167,13 +144,13 @@ Deno.serve(async (req: Request) => {
     if (decided.offers.length > 0) {
       const { error } = await db.from("habit_offers").upsert(decided.offers.map((o) => ({
         patient_id: patientId, offered_on: today, offer_key: o.offerKey,
-        title: o.title, description: o.description, state_key: o.trigger, state_response_id: o.stateResponseId,
+        title: o.title, description: o.description, title_fr: o.titleFr, description_fr: o.descriptionFr, state_key: o.trigger, state_response_id: o.stateResponseId,
         rank: o.rank, reason: o.reason, pillar: o.pillar, slot: o.slot, variant: o.variant, superseded: false,
       })), { onConflict: "patient_id,offer_key,offered_on" })
       if (error) throw error
     }
 
-    return json({ day: today, needsCheckin: false, offers: present(await readToday()) })
+    return json({ day: today, needsCheckin: false, offers: present(await readToday(), locale) })
   } catch (e) {
     const message = e instanceof Error ? e.message : (e as { message?: string })?.message ?? String(e)
     console.error("member-daily-focus", message)

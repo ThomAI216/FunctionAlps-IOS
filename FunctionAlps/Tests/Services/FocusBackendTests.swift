@@ -35,7 +35,7 @@ struct FocusBackendTests {
     @Test func decodesTheDayAndAsksTheRightFunction() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: reply)
-        let focus = try await make(transport).dailyFocus(recompute: true)
+        let focus = try await make(transport).dailyFocus(recompute: true, locale: "fr")
 
         #expect(focus.day == "2026-09-25")
         #expect(!focus.needsCheckin)
@@ -54,15 +54,24 @@ struct FocusBackendTests {
         #expect(request.method == .post)
         #expect(request.url.path.hasSuffix("/functions/v1/member-daily-focus"))
         #expect(try json(request)["recompute"] as? Bool == true)
+        #expect(try json(request)["locale"] as? String == "fr")
     }
 
     @Test func noCheckinYetDecodesEmpty() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: #"{"day":"2026-09-25","needsCheckin":true,"offers":[]}"#)
-        let focus = try await make(transport).dailyFocus(recompute: false)
+        let focus = try await make(transport).dailyFocus(recompute: false, locale: "en")
         #expect(focus.needsCheckin)
         #expect(focus.focus == nil)
         #expect(try json(try #require(transport.requests.first))["recompute"] as? Bool == false)
+    }
+
+    @Test func asksInTheLanguageTheAppIsDrawnIn() {
+        #expect(TodayFocus.locale(["fr"]) == "fr")
+        #expect(TodayFocus.locale(["fr-CH", "en"]) == "fr")
+        #expect(TodayFocus.locale(["en"]) == "en")
+        #expect(TodayFocus.locale(["Base"]) == "en")
+        #expect(TodayFocus.locale([]) == "en")
     }
 
     @Test func aStateTriggerIsNotMistakenForAPriority() throws {

@@ -54,7 +54,7 @@ final class FocusService {
         // Keep what is on screen while refreshing; only a first load shows the spinner.
         if focus == nil { phase = .loading }
         do {
-            phase = .loaded(try await backend.dailyFocus(recompute: recompute))
+            phase = .loaded(try await backend.dailyFocus(recompute: recompute, locale: TodayFocus.locale()))
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "focus.load")
             if case .unauthorized = error { await auth.handleUnauthorized(); return }

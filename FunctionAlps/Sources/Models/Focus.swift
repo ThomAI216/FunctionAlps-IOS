@@ -13,6 +13,13 @@ struct TodayFocus: Sendable, Equatable, Decodable {
 
     var focus: FocusOffer? { offers.first }
     var alsoToday: [FocusOffer] { Array(offers.dropFirst()) }
+
+    /// The language to ask for: the one this app is actually drawn in (`en` · `fr`), so the practice's words
+    /// match the card around them. Not the phone's first language — a phone set to German, then French, shows
+    /// this app in French, and must get the offers in French too.
+    static func locale(_ localizations: [String] = Bundle.main.preferredLocalizations) -> String {
+        localizations.first.map { $0.lowercased().hasPrefix("fr") ? "fr" : "en" } ?? "en"
+    }
 }
 
 struct FocusOffer: Sendable, Equatable, Decodable, Identifiable {

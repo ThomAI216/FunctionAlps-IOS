@@ -11,6 +11,8 @@
 //
 // Nothing here invents member-facing words (rule 6): every title and description comes from the practice's
 // content tables. The engine returns a REASON CODE; the app owns the one sentence per code, localised.
+// Every decision is made on the ENGLISH text (the practice's source); the French rides along beside it
+// (`*_fr`, null = not translated yet), and `present.ts` picks the language the member reads.
 
 import { bandLevel } from "../../member-scores/engine/checkin/score-bands.ts"
 
@@ -30,6 +32,9 @@ export interface StateOffer {
   key: string
   title: string
   description?: string | null
+  /** The French, beside the English inside the same `offers` element (keys named like the tables' columns). */
+  title_fr?: string | null
+  description_fr?: string | null
   easy?: boolean | null
   lift?: boolean | null
 }
@@ -56,6 +61,13 @@ export interface BankHabit {
   revTitle: string | null
   revDescription: string | null
   sortOrder: number | null
+  /** The French of each text above; absent or null = not translated yet. */
+  titleFr?: string | null
+  descriptionFr?: string | null
+  easyTitleFr?: string | null
+  easyDescriptionFr?: string | null
+  revTitleFr?: string | null
+  revDescriptionFr?: string | null
 }
 
 export interface FocusInput {
@@ -82,6 +94,9 @@ export interface FocusOffer {
   rank: number
   title: string
   description: string | null
+  /** The same words in French, when the practice has them — null otherwise. */
+  titleFr: string | null
+  descriptionFr: string | null
   pillar: string | null
   slot: Slot | null
   variant: Variant
@@ -165,13 +180,28 @@ export function variantFor(h: BankHabit, band: Band | null): Variant {
   return "standard"
 }
 
-function wording(h: BankHabit, v: Variant): { title: string; description: string | null } {
-  switch (v) {
-    case "easy": return { title: h.easyTitle ?? h.title, description: h.easyDescription ?? h.description }
-    case "progression": return { title: h.revTitle ?? h.title, description: h.revDescription ?? h.description }
-    default: return { title: h.title, description: h.description }
+type Wording = Pick<FocusOffer, "title" | "description" | "titleFr" | "descriptionFr">
+
+/** A variant's words in both languages. The French falls back EXACTLY where the English does — it follows the
+ *  English text it translates, never its own ladder — so the two can never name different versions of a habit
+ *  (the gentle one in English, the standard one in French). */
+export function wording(h: BankHabit, v: Variant): Wording {
+  const [title, titleFr, description, descriptionFr] =
+    v === "easy" ? [h.easyTitle, h.easyTitleFr, h.easyDescription, h.easyDescriptionFr]
+    : v === "progression" ? [h.revTitle, h.revTitleFr, h.revDescription, h.revDescriptionFr]
+    : [null, null, null, null]
+  return {
+    title: title ?? h.title,
+    titleFr: (title != null ? titleFr : h.titleFr) ?? null,
+    description: description ?? h.description,
+    descriptionFr: (description != null ? descriptionFr : h.descriptionFr) ?? null,
   }
 }
+
+/** A state offer's words in both languages. */
+const offerWording = (o: StateOffer): Wording => ({
+  title: o.title, description: o.description ?? null, titleFr: o.title_fr ?? null, descriptionFr: o.description_fr ?? null,
+})
 
 /** The library habit that best serves a priority, deterministically: fitting category, then — on a low or
  *  a high day — one that HAS the gentler or the further version (a low day that lands on a habit with no
@@ -233,7 +263,7 @@ export function decideFocus(input: FocusInput): FocusResult {
     const offer = leadOffer(lead.response, band)
     const twin = bankTwin(offer.title)
     push({
-      offerKey: `state:${lead.key}:${offer.key}`, title: offer.title, description: offer.description ?? null,
+      offerKey: `state:${lead.key}:${offer.key}`, ...offerWording(offer),
       pillar: twin?.pillar ?? null, slot: asSlot(twin?.defaultSlot ?? null), variant: stateVariant(offer),
       reason: "state", trigger: lead.key, stateResponseId: lead.response.id, stateTitle: lead.response.title,
     }, twin?.id)
@@ -277,7 +307,7 @@ export function decideFocus(input: FocusInput): FocusResult {
       const offer = leadOffer(r, band)
       const twin = bankTwin(offer.title)
       push({
-        offerKey: `state:${s}:${offer.key}`, title: offer.title, description: offer.description ?? null,
+        offerKey: `state:${s}:${offer.key}`, ...offerWording(offer),
         pillar: twin?.pillar ?? null, slot: asSlot(twin?.defaultSlot ?? null), variant: stateVariant(offer),
         reason: "state", trigger: s, stateResponseId: r.id, stateTitle: r.title,
       }, twin?.id)

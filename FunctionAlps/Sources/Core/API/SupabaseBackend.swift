@@ -744,10 +744,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Today's focus (edge function member-daily-focus · habit_offers)
 
-    private struct FocusBody: Encodable, Sendable { let recompute: Bool }
+    private struct FocusBody: Encodable, Sendable { let recompute: Bool; let locale: String }
 
-    func dailyFocus(recompute: Bool) async throws -> TodayFocus {
-        try await functions.invoke("member-daily-focus", body: FocusBody(recompute: recompute), snakeCase: false)
+    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus {
+        try await functions.invoke("member-daily-focus", body: FocusBody(recompute: recompute, locale: locale), snakeCase: false)
     }
 
     /// Done implies yes: completing an offer also accepts it. Undoing it leaves the acceptance alone.

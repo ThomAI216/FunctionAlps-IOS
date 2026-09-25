@@ -1,7 +1,7 @@
 import { assert, assertEquals } from "jsr:@std/assert@1"
 import {
   type BankHabit, decideFocus, detectStates, type FocusInput, leadOffer, MAX_OFFERS, pickHabit, PRIORITIES,
-  responseFor, sameIdea, type StateResponse, variantFor,
+  responseFor, sameIdea, type StateResponse, variantFor, wording,
 } from "../engine.ts"
 
 // The practice's own content, as CM OS holds it on 2026-09-25 (`state_responses`, all five practice-wide).
@@ -221,4 +221,53 @@ Deno.test("unknown priority keys are ignored, not fatal", () => {
 Deno.test("deterministic: the same morning always yields the same focus", () => {
   const input = base({ intents: ["intent_tense"], priorities: ["prio_eat_well", "prio_deep_work"], sleepOverall: 30 })
   assertEquals(decideFocus(input), decideFocus(input))
+})
+
+// MARK: - French
+
+// As stored on CM OS since 20260925_focus_offer_texts_fr.sql.
+const SIT_FR: BankHabit = {
+  ...BANK.find((b) => b.id === "sit-stand")!,
+  description: "From a chair, no equipment — legs carry everything else.", easyDescription: "Half a round still counts.",
+  titleFr: "Dix assis-debout", descriptionFr: "Depuis une chaise, sans matériel — les jambes portent tout le reste.",
+  easyTitleFr: "Cinq assis-debout", easyDescriptionFr: "Une demi-série compte quand même.", revTitleFr: "Deux séries de dix",
+}
+
+Deno.test("the French follows the English it translates — never its own fallback", () => {
+  // Each version in both languages.
+  assertEquals(wording(SIT_FR, "easy"), { title: "Five sit-to-stands", description: "Half a round still counts.", titleFr: "Cinq assis-debout", descriptionFr: "Une demi-série compte quand même." })
+  // Where the English falls back to the habit's own description, so does the French — even when a French
+  // gentle description exists, it does not translate what the English shows.
+  const noEasyDescription = wording({ ...SIT_FR, easyDescription: null }, "easy")
+  assertEquals(noEasyDescription.description, SIT_FR.description)
+  assertEquals(noEasyDescription.descriptionFr, SIT_FR.descriptionFr)
+  // The progression has no description of its own in either language: both fall back to the habit's.
+  assertEquals(wording(SIT_FR, "progression").descriptionFr, SIT_FR.descriptionFr)
+  assertEquals(wording(SIT_FR, "progression").titleFr, "Deux séries de dix")
+  // The gentle version is written in English but not yet in French: the French must NOT fall back to the
+  // standard habit ("Dix assis-debout") — that would be a different habit. No French at all instead.
+  const untranslatedEasy = { ...SIT_FR, easyTitleFr: null }
+  assertEquals(wording(untranslatedEasy, "easy").title, "Five sit-to-stands")
+  assertEquals(wording(untranslatedEasy, "easy").titleFr, null)
+  // A habit with no gentle version falls back to itself — in both languages alike.
+  const veg = { ...BANK.find((b) => b.id === "veg")!, titleFr: "Des légumes sur la moitié de l’assiette" }
+  assertEquals(wording(veg, "easy").titleFr, "Des légumes sur la moitié de l’assiette")
+  // A row from before the French existed carries none.
+  assertEquals(wording(BANK.find((b) => b.id === "veg")!, "standard").titleFr, null)
+})
+
+Deno.test("French rides along — the same morning makes the same decisions in either language", () => {
+  const french: StateResponse[] = STATES.map((s) => s.stateKey !== "low_energy" ? s : {
+    ...s, offers: s.offers.map((o) => o.key === "daylight_pause"
+      ? { ...o, title_fr: "Cinq minutes dehors, à la lumière du jour", description_fr: "Une courte pause qui recharge — aucun entraînement requis." }
+      : o),
+  })
+  const bank = BANK.map((b) => b.id === "sit-stand" ? SIT_FR : b)
+  const morning = { priorities: ["prio_train"], readiness: 25, readinessVsBaseline: true }
+  const plain = decideFocus(base(morning))
+  const bilingual = decideFocus(base({ ...morning, states: french, bank }))
+  assertEquals(bilingual.offers.map((o) => [o.offerKey, o.title, o.variant, o.reason]), plain.offers.map((o) => [o.offerKey, o.title, o.variant, o.reason]))
+  assertEquals(bilingual.offers[0].titleFr, "Cinq minutes dehors, à la lumière du jour")
+  assertEquals(bilingual.offers.find((o) => o.trigger === "prio_train")?.titleFr, "Cinq assis-debout")
+  assertEquals(plain.offers[0].titleFr, null)
 })
