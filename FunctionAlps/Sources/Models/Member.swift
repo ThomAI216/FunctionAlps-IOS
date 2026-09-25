@@ -50,3 +50,13 @@ struct MemberProfile: Sendable, Equatable {
     var hasBodyData: Bool { weightKg != nil && heightCm != nil && age != nil }
     var hasTargets: Bool { targetCalories != nil && targetProteinG != nil && targetCarbsG != nil && targetFatG != nil }
 }
+
+/// What `patient-register` answered for this session — the third rung of `MemberService.currentMember`.
+enum RegisterOutcome: Sendable, Equatable {
+    /// The patient row this auth user now owns: created, or a clinician-created record linked to it.
+    case patient(id: String)
+    /// HTTP 409 `existing-identity`: the mailbox already owns a patient under a DIFFERENT auth user, and a
+    /// patient row has exactly one owner. `providers` says how that account signs in (`email`, `google`,
+    /// `apple`), so the app can tell the member which door to use.
+    case existingIdentity(providers: [String])
+}

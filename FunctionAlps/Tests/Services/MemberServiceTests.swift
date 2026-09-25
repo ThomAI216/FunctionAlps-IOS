@@ -39,11 +39,16 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
     var registerFails = false
+    /// What `patient-register` answers; by default a fresh patient row.
+    var registerOutcome: RegisterOutcome = .patient(id: "registered")
+    /// The real function links the new row to this auth user, so the ownership re-check then finds it.
+    var serverLinksOnRegister = true
     private(set) var registered: (first: String, last: String, email: String)?
-    func registerPatient(firstName: String, lastName: String, email: String) async throws -> String {
+    func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome {
         if registerFails { throw AppError.notFound }
         registered = (firstName, lastName, email)
-        return "registered"
+        if case .patient(let id) = registerOutcome, serverLinksOnRegister { patientId = id }
+        return registerOutcome
     }
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
     func confirmAdult(dateOfBirth: String) async throws -> Bool { true }
@@ -170,6 +175,43 @@ struct MemberServiceTests {
         #expect(backend.registered?.email == "alex@example.com")
         // Names: no first_name metadata → the display name split.
         #expect(backend.registered?.first == "Alex")
+        // Ownership is read before AND after registration; the second read is what confirms the id.
+        #expect(backend.patientIdCalls == 2)
+    }
+
+    /// The re-check after registration. `patient-register` lives in four repos, and an older copy answers
+    /// the existing-identity case with the OTHER account's id and a 200. An id the server does not
+    /// confirm as this session's is never used — that session is the one that reached the consent gate
+    /// on 2026-09-25 and had every save refused with 403 "no member context".
+    @Test func anIdTheServerDidNotLinkIsNotUsed() async throws {
+        let (manager, store) = sessions(patientId: nil)
+        let backend = StubBackend()
+        backend.serverLinksOnRegister = false
+        await #expect(throws: MemberService.MemberError.registeredElsewhere(providers: [])) {
+            _ = try await MemberService(sessions: manager, backend: backend).currentMember()
+        }
+        #expect(try store.load()?.patientId == nil)
+    }
+
+    /// The current `patient-register` says it outright — 409 `existing-identity`, naming how the owning
+    /// account signs in — so the screen can send the member to the right door.
+    @Test func existingIdentityNamesTheOtherSignIn() async {
+        let (manager, _) = sessions(patientId: nil)
+        let backend = StubBackend()
+        backend.registerOutcome = .existingIdentity(providers: ["email"])
+        await #expect(throws: MemberService.MemberError.registeredElsewhere(providers: ["email"])) {
+            _ = try await MemberService(sessions: manager, backend: backend).currentMember()
+        }
+    }
+
+    @Test func signInMethodPhraseNamesTheDoor() {
+        #expect(MemberService.signInMethodPhrase(providers: ["email"]).contains("password"))
+        let two = MemberService.signInMethodPhrase(providers: ["google", "apple"])
+        #expect(two.contains("Google") && two.contains("Apple"))
+        // Duplicates collapse; an unknown provider is never shown as a raw slug.
+        #expect(MemberService.signInMethodPhrase(providers: ["google", "google"]) == MemberService.signInMethodPhrase(providers: ["google"]))
+        #expect(!MemberService.signInMethodPhrase(providers: ["sso"]).contains("sso"))
+        #expect(MemberService.signInMethodPhrase(providers: ["sso"]) == MemberService.signInMethodPhrase(providers: []))
     }
 
     @Test func unregisteredAccountIsSurfacedWhenRegistrationFails() async {

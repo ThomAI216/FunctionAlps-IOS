@@ -343,3 +343,21 @@ change, a meal that needs input. The APNs token is uploaded by the app to the sa
    `base64 -i AuthKey_XXXX.p8 | tr -d '\n'`), `APNS_TOPIC` = `com.functionalps.patient`. Never paste the .p8 in chat.
 3. Test: send yourself a message from the practitioner side → the phone shows "New message from your practitioner"
    within seconds; `patient_notifications` has the row.
+
+## Consent gate refusals (2026-09-25)
+
+Two members were refused at "Agree and continue" the same day, both on build 35, both shown *"check your connection"*:
+a 403 (`record_consent` → `no member context`: a Google sign-in that was a second auth user for a mailbox whose password
+account owns the record) and a 400 (X0018: no date of birth on file, and the age screen had been removed on 2026-09-18).
+Neither was a version problem — builds 35 and 40 carry the same gate code. Three things changed:
+
+1. **Migration `20260925_record_consent_terms_is_the_declaration.sql` — applied on CM OS 2026-09-25.** `record_consent`
+   no longer refuses an unconfirmed member; a granted `terms_of_use` stamps `nb_patient_app_profiles.adult_confirmed_at`
+   (`source = terms_declaration`, a row is created when missing). Also revokes anon EXECUTE on `record_consent_batch`.
+   Rollback is in the file header.
+2. **`patient-register` v57 — deployed 2026-09-25 from `supabase/functions/patient-register/index.ts`** (verify_jwt
+   true, NOT in `NO_JWT`; `workflow_dispatch` with `target=patient-register` redeploys it). The existing-identity case
+   answers 409 and records nothing; the dedup key is the verified session email. ⚠ The same file lives in the MEMBERS,
+   CLINICAL and APP repos: copy this version there before anyone deploys from those, or the fix is overwritten.
+3. **App (this branch):** the third rung re-checks ownership after registration, models the 409, shows *"This email
+   already has an account"*, and the consent gate stops blaming the connection for a server refusal.
