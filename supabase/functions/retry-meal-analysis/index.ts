@@ -49,6 +49,7 @@ import {
   priceMeal,
   retryLaterPatch,
   sanitiseError,
+  staleClaimExhausted,
   writeMealPatch,
 } from "../_shared/meals/meal-analysis.ts"
 import { bytesToBase64, photoPathsFor } from "../_shared/meals/identify-parts.ts"
@@ -169,6 +170,21 @@ Deno.serve(async (req: Request) => {
     const photoPaths = photoPathsFor(raw)
     if (!photoPaths.length && raw.source === "photo" && ageMs < CLAIM_STALE_MS) {
       console.log(`[retry-meal-analysis] ${raw.id} photo still uploading, leaving it`)
+      continue
+    }
+
+    // A stale claim that has already spent the whole budget: the isolate died on
+    // it every time, so another attempt would die the same way. Ask the member.
+    if (staleClaimExhausted(raw)) {
+      await writeMealPatch(
+        db,
+        raw.id,
+        needsInputPatch("analysis stopped before finishing on every attempt", "ATTEMPTS_EXHAUSTED"),
+        "retry:stale-exhausted",
+        { onlyIfInFlight: true },
+      )
+      needs_input++
+      console.log(`[retry-meal-analysis] ${raw.id} stale after ${raw.analysis_attempts}/${MAX_ATTEMPTS} attempts -> needs_input`)
       continue
     }
 
