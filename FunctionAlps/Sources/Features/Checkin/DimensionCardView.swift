@@ -19,10 +19,12 @@ struct DimensionCardView: View {
                 HStack {
                     Text(spec.title).font(FATypography.title).foregroundStyle(FAColor.ink)
                     Spacer()
-                    Text(score.map(String.init) ?? "·")
-                        .font(FATypography.headline)
-                        .foregroundStyle(score.map { FunctionalSliderView.ramp[CheckinEngine.stateRampIndex(Double($0))] } ?? FAColor.inkMuted)
-                        .monospacedDigit()
+                    if spec.scored {
+                        Text(score.map(String.init) ?? "·")
+                            .font(FATypography.headline)
+                            .foregroundStyle(score.map { FunctionalSliderView.ramp[CheckinEngine.stateRampIndex(Double($0))] } ?? FAColor.inkMuted)
+                            .monospacedDigit()
+                    }
                 }
                 .padding(.bottom, 10)
                 .accessibilityElement(children: .combine)
@@ -36,7 +38,7 @@ struct DimensionCardView: View {
                     pillBlock(after("latency") + after("wakeCount") + spec.sliders.flatMap { after($0.key) })
                 } else {
                     ForEach(spec.sliders) { slider in
-                        FunctionalSliderView(spec: slider, value: sliderBinding(slider.key))
+                        FunctionalSliderView(spec: slider, value: sliderBinding(slider.key), neutralTint: accent)
                         pillBlock(after(slider.key))
                     }
                 }

@@ -38,6 +38,8 @@ enum MomentSlot: String, Sendable, Hashable, CaseIterable {
 
 enum DimKey: String, Sendable, Hashable, CaseIterable {
     case energy, sleep, mood, stress
+    /// Evening only, recorded never scored (`FunctionalSchema.hunger`).
+    case hunger
 }
 
 /// Sleep's non-slider answers. `durationMin` is written only once the member touched the times.
@@ -109,6 +111,11 @@ struct CheckinMoment: Sendable, Equatable {
     /// The night's wall clock, `HH:mm` — what duration is the length of. Kept, not just measured.
     var sleepBedTime: String? = nil
     var sleepWakeTime: String? = nil
+    /// Evening hunger, 0–100. `hungerBetweenMeals` has NO better end (0 barely hungry · 100 hungry all day) —
+    /// it is the one read here that is NOT a marker and must never be painted on the higher-is-better ramp.
+    /// `hungerSatiety` is higher = better (100 = full until the next meal). Recorded, never scored.
+    var hungerBetweenMeals: Int? = nil
+    var hungerSatiety: Int? = nil
     var pills: [String: [String]] = [:]
     var note: String? = nil
 

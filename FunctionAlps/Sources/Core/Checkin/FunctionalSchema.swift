@@ -9,6 +9,8 @@ struct SliderSpec: Sendable, Identifiable {
     let highLabel: String
     /// Five words, ordered by value (low → high).
     let words: [String]
+    /// A read with no better end (how hungry you were): one flat tint instead of the red → green ramp.
+    var neutral = false
     var id: String { key }
 }
 
@@ -37,6 +39,8 @@ struct DimensionSpec: Sendable, Identifiable {
     let sliders: [SliderSpec]
     let hasSleepInputs: Bool
     let pills: [PillModule]
+    /// False for a dimension that is recorded, never scored (hunger): no overall in the card header.
+    var scored = true
     var id: DimKey { key }
 }
 
@@ -170,8 +174,37 @@ enum FunctionalSchema {
         ]
     )
 
+    /// Hunger, asked in the EVENING only: how hungry the member was between meals and how long meals held
+    /// them. Recorded, NEVER scored — neither end of "how hungry" is the better one, so `between` carries no
+    /// ramp and the card no overall. The practitioner reads the pattern (always hungry, never full, hunger
+    /// that rides with stress) against the meals of the same days. `satiety` is higher = better.
+    static let hunger = DimensionSpec(
+        key: .hunger,
+        title: String(localized: "dim.hunger", defaultValue: "Hunger"),
+        accentHex: 0x8A6D4B,
+        sliders: [
+            SliderSpec(key: "between", label: String(localized: "slider.hunger.between", defaultValue: "Hunger between meals"), lowLabel: String(localized: "slider.hunger.between.low", defaultValue: "Barely hungry"), highLabel: String(localized: "slider.hunger.between.high", defaultValue: "Hungry all day"),
+                       words: [String(localized: "w.hunger.barely", defaultValue: "Barely"), String(localized: "w.hunger.a_little", defaultValue: "A little"), String(localized: "w.hunger.moderate", defaultValue: "Moderate"), String(localized: "w.hunger.very", defaultValue: "Very hungry"), String(localized: "w.hunger.constant", defaultValue: "All the time")],
+                       neutral: true),
+            SliderSpec(key: "satiety", label: String(localized: "slider.hunger.satiety", defaultValue: "Fullness after meals"), lowLabel: String(localized: "slider.hunger.satiety.low", defaultValue: "Hungry again soon"), highLabel: String(localized: "slider.hunger.satiety.high", defaultValue: "Full until the next meal"),
+                       words: [String(localized: "w.satiety.gone_fast", defaultValue: "Gone fast"), String(localized: "w.satiety.short", defaultValue: "Short"), String(localized: "w.okay", defaultValue: "Okay"), String(localized: "w.satiety.lasting", defaultValue: "Lasting"), String(localized: "w.satiety.full", defaultValue: "Full till the next")]),
+        ],
+        hasSleepInputs: false,
+        pills: [
+            module("cravings", String(localized: "pills.cravings", defaultValue: "Any cravings?"), after: "satiety",
+                   when: { a in has(a, "between") || has(a, "satiety") },
+                   [opt("none", String(localized: "pill.cravings_none", defaultValue: "None")), opt("sweet", String(localized: "pill.craving_sweet", defaultValue: "Sweet")), opt("salty", String(localized: "pill.craving_salty", defaultValue: "Salty")), opt("fatty", String(localized: "pill.craving_fatty", defaultValue: "Fatty/fried")), opt("starchy", String(localized: "pill.craving_starchy", defaultValue: "Bread/pasta")), opt("alcohol", String(localized: "pill.alcohol", defaultValue: "Alcohol"))]),
+            module("hunger_drivers", String(localized: "pills.hunger_drivers", defaultValue: "What might have driven it?"), after: "satiety",
+                   when: { a in lvl(a, "between") == .high || lvl(a, "satiety") == .low },
+                   [opt("skipped_meals", String(localized: "pill.skipped_meals", defaultValue: "Skipped/late meals")), opt("light_meals", String(localized: "pill.light_meals", defaultValue: "Meals too light")), opt("low_protein", String(localized: "pill.low_protein", defaultValue: "Little protein")), opt("sugary_food", String(localized: "pill.sugary_food", defaultValue: "Sugary food")), opt("poor_sleep", String(localized: "pill.poor_sleep", defaultValue: "Poor sleep")), opt("stress", String(localized: "pill.stress", defaultValue: "Stress")), opt("emotions", String(localized: "pill.emotions", defaultValue: "Emotions")), opt("boredom", String(localized: "pill.boredom", defaultValue: "Boredom")), opt("habit", String(localized: "pill.habit_clock", defaultValue: "Habit/the clock")), opt("thirst", String(localized: "pill.thirst", defaultValue: "Thirst")), opt("exercise", String(localized: "pill.exercise", defaultValue: "Exercise")), opt("hormones", String(localized: "pill.hormones", defaultValue: "Hormones"))]),
+            module("hunger_when", String(localized: "pills.hunger_when", defaultValue: "When did it hit hardest?"), after: "satiety",
+                   when: { a in lvl(a, "between") == .high }, timesOfDay),
+        ],
+        scored: false
+    )
+
     /// Sleep leads: the night is the freshest memory in a morning check-in.
-    static let dimensions: [DimensionSpec] = [sleep, energy, mood, stress]
+    static let dimensions: [DimensionSpec] = [sleep, energy, mood, stress, hunger]
 
     static func spec(_ key: DimKey) -> DimensionSpec {
         switch key {
@@ -179,6 +212,7 @@ enum FunctionalSchema {
         case .sleep: sleep
         case .mood: mood
         case .stress: stress
+        case .hunger: hunger
         }
     }
 

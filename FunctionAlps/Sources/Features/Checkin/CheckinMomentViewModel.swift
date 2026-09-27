@@ -135,15 +135,16 @@ final class CheckinMomentViewModel {
 
     // MARK: Sections (moment-sections.ts)
 
-    enum Section: Hashable { case sleep, intent, priority, markers, digestion, context }
+    enum Section: Hashable { case sleep, intent, priority, markers, hunger, digestion, context }
 
-    /// Morning = the night behind you and the day ahead. Evening = the day you lived, digestion included.
+    /// Morning = the night behind you and the day ahead. Evening = the day you lived: hunger and digestion
+    /// included, hunger first because it looks back on the same meals the digestion read does.
     /// Midday is never offered any more; a legacy row opened from a deep link still renders what it holds.
     var sections: [Section] {
         switch slot {
         case .morning: [.sleep, .intent, .priority]
         case .midday: [.markers, .context]
-        case .evening: [.markers, .digestion, .context]
+        case .evening: [.markers, .hunger, .digestion, .context]
         }
     }
 

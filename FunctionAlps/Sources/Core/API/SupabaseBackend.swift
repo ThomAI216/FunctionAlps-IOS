@@ -500,7 +500,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Check-in moments (patient_checkin_moments → patient_daily_checkins → nb_checkin_events)
 
-    private static let momentColumns = "slot,submitted_at,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,sleep_bed_time,sleep_wake_time,pills,note"
+    private static let momentColumns = "slot,submitted_at,energy_body,energy_mind,energy_stability,energy_overall,mood_score,stress_score,sleep_overall,sleep_refreshed,sleep_duration_min,sleep_latency_band,sleep_wake_count,sleep_bed_time,sleep_wake_time,hunger_between_meals,hunger_satiety,pills,note"
 
     private struct MomentRow: Decodable, Sendable {
         let slot: String
@@ -518,13 +518,15 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let sleepWakeCount: String?
         let sleepBedTime: String?
         let sleepWakeTime: String?
+        let hungerBetweenMeals: Int?
+        let hungerSatiety: Int?
         let pills: [String: [String]]?
         let note: String?
 
         private enum CodingKeys: String, CodingKey {
             case slot, submittedAt, energyBody, energyMind, energyStability, energyOverall, moodScore, stressScore
             case sleepOverall, sleepRefreshed, sleepDurationMin, sleepLatencyBand, sleepWakeCount
-            case sleepBedTime, sleepWakeTime, pills, note
+            case sleepBedTime, sleepWakeTime, hungerBetweenMeals, hungerSatiety, pills, note
         }
 
         init(from decoder: any Decoder) throws {
@@ -545,6 +547,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             // a postgres `time` arrives as "22:15:00" on a select and as "22:15" from the RPC reply.
             sleepBedTime = SleepSpecials.clock(try c.decodeIfPresent(String.self, forKey: .sleepBedTime))
             sleepWakeTime = SleepSpecials.clock(try c.decodeIfPresent(String.self, forKey: .sleepWakeTime))
+            hungerBetweenMeals = try c.decodeIfPresent(Int.self, forKey: .hungerBetweenMeals)
+            hungerSatiety = try c.decodeIfPresent(Int.self, forKey: .hungerSatiety)
             // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost moment.
             pills = try? c.decodeIfPresent([String: [String]].self, forKey: .pills)
             note = try c.decodeIfPresent(String.self, forKey: .note)
@@ -560,6 +564,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 sleepOverall: sleepOverall, sleepRefreshed: sleepRefreshed, sleepDurationMin: sleepDurationMin,
                 sleepLatencyBand: sleepLatencyBand, sleepWakeCount: sleepWakeCount,
                 sleepBedTime: sleepBedTime, sleepWakeTime: sleepWakeTime,
+                hungerBetweenMeals: hungerBetweenMeals, hungerSatiety: hungerSatiety,
                 pills: pills ?? [:], note: note
             )
         }

@@ -2,9 +2,12 @@ import SwiftUI
 
 /// Continuous 0–100 slider, higher = better: red (left) → green (right) veil, a 5-word state
 /// translation above the bar, the score on the right. Untouched = grey thumb parked at centre.
+/// A `neutral` spec (a read with no better end, e.g. hunger) drops the ramp for one flat `neutralTint`,
+/// so neither end is painted as good or bad.
 struct FunctionalSliderView: View {
     let spec: SliderSpec
     @Binding var value: Double?
+    var neutralTint: Color = FAColor.inkSecondary
     @State private var dragging = false
 
     static let ramp: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xE2BE3A), Color(hex: 0xDB5A4B)]
@@ -12,7 +15,11 @@ struct FunctionalSliderView: View {
 
     private var color: Color {
         guard let value else { return Self.grey }
+        if spec.neutral { return neutralTint }
         return Self.ramp[CheckinEngine.stateRampIndex(value)]
+    }
+    private var track: [Color] {
+        spec.neutral ? [neutralTint.opacity(0.12), neutralTint.opacity(0.4)] : Self.ramp.reversed().map { $0.opacity(0.33) }
     }
     private var word: String? {
         guard let value else { return nil }
@@ -40,7 +47,7 @@ struct FunctionalSliderView: View {
                 let thumb: CGFloat = dragging ? 33 : 24
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(LinearGradient(colors: Self.ramp.reversed().map { $0.opacity(0.33) }, startPoint: .leading, endPoint: .trailing))
+                        .fill(LinearGradient(colors: track, startPoint: .leading, endPoint: .trailing))
                         .frame(height: trackH)
                     if value != nil {
                         Capsule().fill(color).frame(width: max(trackH, pos), height: trackH)
@@ -73,9 +80,9 @@ struct FunctionalSliderView: View {
             .frame(height: 38)
             .animation(.easeOut(duration: 0.12), value: dragging)
             HStack {
-                Text(spec.lowLabel).font(FATypography.caption).foregroundStyle(Self.ramp[4])
+                Text(spec.lowLabel).font(FATypography.caption).foregroundStyle(spec.neutral ? FAColor.inkSecondary : Self.ramp[4])
                 Spacer()
-                Text(spec.highLabel).font(FATypography.caption).foregroundStyle(Self.ramp[0])
+                Text(spec.highLabel).font(FATypography.caption).foregroundStyle(spec.neutral ? FAColor.inkSecondary : Self.ramp[0])
             }
         }
         .padding(.vertical, 8)

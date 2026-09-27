@@ -40,6 +40,20 @@ struct CheckinBackendTests {
         #expect(query.contains("order=submitted_at.asc"))
     }
 
+    @Test func momentsSelectAndDecodeTheEveningHunger() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: """
+        [{"slot":"evening","submitted_at":"2026-09-02T19:10:00+00:00","hunger_between_meals":82,"hunger_satiety":26,"pills":{"hunger_drivers":["stress"]},"note":null},
+         {"slot":"morning","submitted_at":"2026-09-02T06:10:00+00:00","pills":{}}]
+        """)
+        let moments = try await make(transport).checkinMoments(patientId: "p1", day: "2026-09-02")
+        #expect(moments[0].hungerBetweenMeals == 82 && moments[0].hungerSatiety == 26)
+        #expect(moments[1].hungerBetweenMeals == nil && moments[1].hungerSatiety == nil)
+        // The column nobody selected: a read that never asks for the column decodes nil forever.
+        let query = try #require(transport.requests.first?.url.query?.removingPercentEncoding)
+        #expect(query.contains("hunger_between_meals") && query.contains("hunger_satiety"))
+    }
+
     @Test func momentUpsertWritesEveryColumnWithExplicitNulls() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 201, json: "")

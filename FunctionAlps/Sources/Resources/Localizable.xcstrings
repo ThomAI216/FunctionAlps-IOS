@@ -2786,6 +2786,22 @@
         }
       }
     },
+    "checkin.hunger": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your hunger today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre faim aujourd'hui"
+          }
+        }
+      }
+    },
     "checkin.intent": {
       "localizations": {
         "en": {
@@ -4222,6 +4238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Énergie et concentration"
+          }
+        }
+      }
+    },
+    "dim.hunger": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hunger"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faim"
           }
         }
       }
@@ -24130,6 +24162,22 @@
         }
       }
     },
+    "pill.boredom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boredom"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ennui"
+          }
+        }
+      }
+    },
     "pill.boundaries": {
       "localizations": {
         "en": {
@@ -24258,6 +24306,86 @@
         }
       }
     },
+    "pill.craving_fatty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatty/fried"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gras/frit"
+          }
+        }
+      }
+    },
+    "pill.craving_salty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salty"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salé"
+          }
+        }
+      }
+    },
+    "pill.craving_starchy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bread/pasta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pain/pâtes"
+          }
+        }
+      }
+    },
+    "pill.craving_sweet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sweet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sucré"
+          }
+        }
+      }
+    },
+    "pill.cravings_none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune"
+          }
+        }
+      }
+    },
     "pill.dark_cool": {
       "localizations": {
         "en": {
@@ -24318,6 +24446,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tôt le matin"
+          }
+        }
+      }
+    },
+    "pill.emotions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emotions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Émotions"
           }
         }
       }
@@ -24478,6 +24622,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ventre noué"
+          }
+        }
+      }
+    },
+    "pill.habit_clock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habit/the clock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habitude/l'heure"
           }
         }
       }
@@ -24718,6 +24878,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lumière"
+          }
+        }
+      }
+    },
+    "pill.light_meals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meals too light"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repas trop légers"
+          }
+        }
+      }
+    },
+    "pill.low_protein": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Little protein"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peu de protéines"
           }
         }
       }
@@ -25394,6 +25586,22 @@
         }
       }
     },
+    "pill.sugary_food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugary food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aliments sucrés"
+          }
+        }
+      }
+    },
     "pill.sunlight": {
       "localizations": {
         "en": {
@@ -25634,6 +25842,22 @@
         }
       }
     },
+    "pills.cravings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any cravings?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des envies particulières ?"
+          }
+        }
+      }
+    },
     "pills.drained": {
       "localizations": {
         "en": {
@@ -25710,6 +25934,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qu'est-ce qui a aidé ?"
+          }
+        }
+      }
+    },
+    "pills.hunger_drivers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What might have driven it?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu'est-ce qui a pu jouer ?"
+          }
+        }
+      }
+    },
+    "pills.hunger_when": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When did it hit hardest?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand était-ce le plus fort ?"
           }
         }
       }
@@ -32834,6 +33090,102 @@
         }
       }
     },
+    "slider.hunger.between": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hunger between meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faim entre les repas"
+          }
+        }
+      }
+    },
+    "slider.hunger.between.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hungry all day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faim toute la journée"
+          }
+        }
+      }
+    },
+    "slider.hunger.between.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barely hungry"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À peine faim"
+          }
+        }
+      }
+    },
+    "slider.hunger.satiety": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fullness after meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satiété après les repas"
+          }
+        }
+      }
+    },
+    "slider.hunger.satiety.high": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full until the next meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenu jusqu'au repas suivant"
+          }
+        }
+      }
+    },
+    "slider.hunger.satiety.low": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hungry again soon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vite de nouveau faim"
+          }
+        }
+      }
+    },
     "slider.mind.high": {
       "localizations": {
         "en": {
@@ -36978,6 +37330,86 @@
         }
       }
     },
+    "w.hunger.a_little": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A little"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un peu"
+          }
+        }
+      }
+    },
+    "w.hunger.barely": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barely"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À peine"
+          }
+        }
+      }
+    },
+    "w.hunger.constant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All the time"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout le temps"
+          }
+        }
+      }
+    },
+    "w.hunger.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modérée"
+          }
+        }
+      }
+    },
+    "w.hunger.very": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very hungry"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très faim"
+          }
+        }
+      }
+    },
     "w.low": {
       "localizations": {
         "en": {
@@ -37038,6 +37470,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Régénéré"
+          }
+        }
+      }
+    },
+    "w.satiety.full": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full till the next"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jusqu'au repas suivant"
+          }
+        }
+      }
+    },
+    "w.satiety.gone_fast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gone fast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vite passée"
+          }
+        }
+      }
+    },
+    "w.satiety.lasting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lasting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durable"
+          }
+        }
+      }
+    },
+    "w.satiety.short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courte"
           }
         }
       }

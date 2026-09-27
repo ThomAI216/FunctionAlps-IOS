@@ -56,6 +56,8 @@ enum CheckinEngine {
             return a.sliders["mood"].map(jsRound)
         case .stress:
             return a.sliders["calm"].map(jsRound) // stress = calmness
+        case .hunger:
+            return nil // recorded, never scored — neither end of "how hungry" is the better one
         }
     }
 
@@ -89,6 +91,7 @@ enum CheckinEngine {
         let mood = answers[.mood] ?? .empty
         let stress = answers[.stress] ?? .empty
         let sleep = answers[.sleep] ?? .empty
+        let hunger = answers[.hunger] ?? .empty
 
         var pills = collectAnswerPills(answers)
         for (group, keys) in catalogPills {
@@ -112,6 +115,8 @@ enum CheckinEngine {
             sleepWakeCount: sleep.specials.wakeCount,
             sleepBedTime: sleep.specials.bedTime,
             sleepWakeTime: sleep.specials.wakeTime,
+            hungerBetweenMeals: int(hunger.sliders["between"]),
+            hungerSatiety: int(hunger.sliders["satiety"]),
             pills: pills,
             note: (trimmedNote?.isEmpty == false) ? trimmedNote : nil
         )
@@ -119,7 +124,8 @@ enum CheckinEngine {
 
     /// Guards against stamping a phantom moment when someone taps Save without answering.
     static func momentHasContent(_ m: CheckinMoment) -> Bool {
-        let markers: [Int?] = [m.energyBody, m.energyMind, m.energyStability, m.energyOverall, m.moodScore, m.stressScore, m.sleepOverall, m.sleepRefreshed, m.sleepDurationMin]
+        let markers: [Int?] = [m.energyBody, m.energyMind, m.energyStability, m.energyOverall, m.moodScore, m.stressScore, m.sleepOverall, m.sleepRefreshed, m.sleepDurationMin,
+                               m.hungerBetweenMeals, m.hungerSatiety]
         if markers.contains(where: { $0 != nil }) { return true }
         if m.sleepLatencyBand != nil || m.sleepWakeCount != nil || m.sleepBedTime != nil || m.sleepWakeTime != nil { return true }
         if m.note != nil { return true }
@@ -154,6 +160,10 @@ enum CheckinEngine {
         sleep.specials = SleepSpecials(bedTime: moment.sleepBedTime, wakeTime: moment.sleepWakeTime, durationMin: moment.sleepDurationMin,
                                        latency: moment.sleepLatencyBand, wakeCount: moment.sleepWakeCount)
         answers[.sleep] = sleep
+        var hunger = DimAnswers.empty
+        if let v = moment.hungerBetweenMeals { hunger.sliders["between"] = Double(v) }
+        if let v = moment.hungerSatiety { hunger.sliders["satiety"] = Double(v) }
+        answers[.hunger] = hunger
         for (group, keys) in moment.pills where !keys.isEmpty {
             guard let dim = dimension(forGroup: group) else { continue }
             answers[dim]?.pills[group] = keys
@@ -313,6 +323,10 @@ enum CheckinEngine {
         if !sleep.isEmpty { out["sleep"] = .object(sleep) }
         if let v = slider(.mood, "mood") { out["mood"] = .object(["mood": v]) }
         if let v = slider(.stress, "calm") { out["stress"] = .object(["calm": v]) } // calmness — the server never inverts it either
+        var hunger: [String: JSONValue] = [:]
+        if let v = slider(.hunger, "between") { hunger["between"] = v }
+        if let v = slider(.hunger, "satiety") { hunger["satiety"] = v }
+        if !hunger.isEmpty { out["hunger"] = .object(hunger) } // raw reads — recorded server-side, never scored
         return .object(out)
     }
 

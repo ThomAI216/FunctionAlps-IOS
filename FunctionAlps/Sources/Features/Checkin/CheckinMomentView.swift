@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// ONE screen per check-in moment. TWO are asked for: the MORNING (last night, and what today is for)
-/// and the EVENING (the day you lived — energy, focus, mood, calm, and the whole digestion read).
+/// and the EVENING (the day you lived — energy, focus, mood, calm, hunger, and the whole digestion read).
 /// Nothing is hidden behind an expander: what a moment asks, it asks on one page.
 struct CheckinMomentView: View {
     @Environment(AppDependencies.self) private var dependencies
@@ -113,6 +113,9 @@ private struct CheckinMomentScreen: View {
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
             DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
+        case .hunger:
+            sectionLabel(String(localized: "checkin.hunger", defaultValue: "Your hunger today"))
+            DimensionCardView(spec: FunctionalSchema.hunger, answers: dimBinding(.hunger))
         case .digestion:
             if let gut = model.gut {
                 sectionLabel(String(localized: "checkin.digestion", defaultValue: "Your digestion today"))
