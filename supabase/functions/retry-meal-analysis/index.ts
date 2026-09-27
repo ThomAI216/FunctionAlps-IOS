@@ -43,6 +43,7 @@ import {
   identificationPatch,
   identifyMeal,
   IDENTIFY_CONFIGURED,
+  IDENTIFY_NOT_CONFIGURED,
   MAX_ATTEMPTS,
   needsInputPatch,
   priceMeal,
@@ -101,7 +102,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null)
   // FAIL-CLOSED: no secret configured is a refusal, not an open door.
   if (!secretMatches(req.headers.get("x-report-secret"))) return json({ error: "unauthorized" }, 401)
-  if (!IDENTIFY_CONFIGURED) return json({ error: "INFOMANIAK_AI_API_KEY not configured" }, 500)
+  if (!IDENTIFY_CONFIGURED) return json({ error: IDENTIFY_NOT_CONFIGURED }, 500)
 
   const db = createServiceRoleClient()
   const startedAt = Date.now()

@@ -39,6 +39,7 @@ import {
   identificationPatch,
   identifyMeal,
   IDENTIFY_CONFIGURED,
+  IDENTIFY_NOT_CONFIGURED,
   needsInputPatch,
   priceMeal,
   writeMealPatch,
@@ -80,7 +81,7 @@ const json = (body: unknown, status = 200) =>
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS })
-  if (!IDENTIFY_CONFIGURED) return json({ error: "INFOMANIAK_AI_API_KEY not configured in Supabase secrets" }, 500)
+  if (!IDENTIFY_CONFIGURED) return json({ error: IDENTIFY_NOT_CONFIGURED }, 500)
 
   let body: {
     imageBase64?: string

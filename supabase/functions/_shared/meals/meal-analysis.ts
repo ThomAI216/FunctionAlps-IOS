@@ -142,13 +142,42 @@ export function sanitiseError(err: unknown, code = "UNKNOWN"): string {
 // no material change, which is why this edit was allowed at all. §12 then showed
 // the model reports partial correctly on cropped plates and never on a whole one.
 // Any further change to this prompt needs the same treatment — measure, then edit.
+// WHICH UPSTREAM IDENTIFIES THE MEAL. Infomaniak unless the operator sets the secret
+// MEAL_AI_PROVIDER=openai. It is an explicit switch, never inferred from OPENAI_API_KEY
+// merely existing: a key set for something else must not move member meals to another
+// provider. Flip it only once the published consents (privacy_policy, ai_analysis,
+// health_data_processing) name OpenAI — until then they promise the opposite.
+// Both speak the same Chat Completions contract; the prompt and the parse are shared.
+export type IdentifyProvider = "infomaniak" | "openai"
+export const IDENTIFY_PROVIDER: IdentifyProvider =
+  (Deno.env.get("MEAL_AI_PROVIDER") ?? "").trim().toLowerCase() === "openai" ? "openai" : "infomaniak"
+
 const PRODUCT = Deno.env.get("INFOMANIAK_AI_PRODUCT_ID") ?? Deno.env.get("INFOMANIAK_PRODUCT_ID") ?? "108797"
-const API_KEY = Deno.env.get("INFOMANIAK_AI_API_KEY")
-const TEXT_MODEL = Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "qwen3"
-const VISION_MODEL = Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it"
-const BASE = `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`
+const UPSTREAM = IDENTIFY_PROVIDER === "openai"
+  ? {
+    base: "https://api.openai.com/v1",
+    key: Deno.env.get("OPENAI_API_KEY"),
+    keyName: "OPENAI_API_KEY",
+    // One model for photos and words: gpt-5.4-mini reads images, and its default
+    // reasoning effort is `none`, which keeps a photo answer to a few seconds.
+    textModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+    visionModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+  }
+  : {
+    base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
+    key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
+    keyName: "INFOMANIAK_AI_API_KEY",
+    textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "qwen3",
+    visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
+  }
+const API_KEY = UPSTREAM.key
+const TEXT_MODEL = UPSTREAM.textModel
+const VISION_MODEL = UPSTREAM.visionModel
+const BASE = UPSTREAM.base
 
 export const IDENTIFY_CONFIGURED = Boolean(API_KEY)
+/** The refusal both entry points return when the selected provider has no key. */
+export const IDENTIFY_NOT_CONFIGURED = `${UPSTREAM.keyName} not configured in Supabase secrets (MEAL_AI_PROVIDER=${IDENTIFY_PROVIDER})`
 
 const SYSTEM = `You are a nutrition vision assistant for a functional-health app.
 Your ONLY job is to IDENTIFY what is on the plate and estimate each portion in grams. Do NOT estimate calories, macros or micronutrients — a reference nutrition database prices every item afterwards, so a number from you would only be overwritten.
@@ -278,22 +307,40 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   //
   // Hedging inside ONE request cannot beat ~85%. The remaining 15% is what the
   // retry worker exists for — see docs/plans/2026-07-29-async-meal-pipeline.md.
-  const MODEL_DEADLINE_MS = Number(Deno.env.get("ANALYZE_MEAL_TIMEOUT_MS") ?? "9000")
-  const HEDGE_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_MS") ?? "1800")
-  const HEDGE_2_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_2_MS") ?? "3600")
+  //
+  // OpenAI does not hang at the connection level, so it gets the opposite trade:
+  // ONE attempt with a longer deadline (a vision answer takes seconds, not ~1.2s),
+  // and a single late hedge as insurance instead of three calls on every slow
+  // photo. 20s keeps the whole request inside the app's 30s request timeout.
+  const openai = IDENTIFY_PROVIDER === "openai"
+  const MODEL_DEADLINE_MS = Number(Deno.env.get("ANALYZE_MEAL_TIMEOUT_MS") ?? (openai ? "20000" : "9000"))
+  const HEDGE_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_MS") ?? (openai ? "10000" : "1800"))
+  const HEDGE_2_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_2_MS") ?? (openai ? "Infinity" : "3600"))
 
-  const payload = {
-    model,
-    messages: [
-      { role: "system", content: SYSTEM },
-      { role: "user", content: userParts },
-    ],
-    temperature: 0.2,
-    stream: false,
-    // qwen3 quirk (mirrors chatbot-message / generate-periodic-report):
-    // disable thinking-mode so the JSON lands in message.content.
-    reasoning_effort: "none",
-  }
+  const payload = openai
+    ? {
+      model,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: userParts },
+      ],
+      // No temperature: the GPT-5 family rejects anything but the default.
+      // json_object guarantees one JSON object, which the parse below expects.
+      response_format: { type: "json_object" },
+      reasoning_effort: "none",
+    }
+    : {
+      model,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: userParts },
+      ],
+      temperature: 0.2,
+      stream: false,
+      // qwen3 quirk (mirrors chatbot-message / generate-periodic-report):
+      // disable thinking-mode so the JSON lands in message.content.
+      reasoning_effort: "none",
+    }
 
   const startedAt = Date.now()
   // ONE shared wall-clock deadline for both attempts. The hedge does not get its
@@ -332,7 +379,10 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
 
   let resp: Response
   try {
-    resp = await Promise.any([attempt(0), attempt(HEDGE_AFTER_MS), attempt(HEDGE_2_AFTER_MS)])
+    // A hedge scheduled at or past the deadline could never run — leave it out
+    // rather than park a timer that outlives the request.
+    const delays = [0, HEDGE_AFTER_MS, HEDGE_2_AFTER_MS].filter((d, i) => i === 0 || d < MODEL_DEADLINE_MS)
+    resp = await Promise.any(delays.map((d) => attempt(d)))
   } catch (e) {
     const elapsed = Date.now() - startedAt
     // An honest, fast, RETRYABLE failure — not a gateway 504 the app cannot
