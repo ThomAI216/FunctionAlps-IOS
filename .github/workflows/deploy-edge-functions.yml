@@ -2,7 +2,8 @@
 #
 # Mirrors FunctionAlps-APP/.github/workflows/deploy-edge-functions.yml — same secret, same guard rails.
 # It never deploys "everything": only the functions the pushed commit touched, or the one named in a
-# manual run. A change under `_shared/wearables/` maps to the six direct-connector functions.
+# manual run. A change under `_shared/wearables/` maps to the six direct-connector functions, one under
+# `_shared/meals/` to the meal pair (analyze-meal + retry-meal-analysis).
 #
 # SETUP (one time): repository secret `SUPABASE_ACCESS_TOKEN`
 #   Settings -> Secrets and variables -> Actions -> New repository secret
@@ -32,8 +33,9 @@ env:
   # ⚠ THIS LIST CUTS BOTH WAYS: deploying a listed function WITHOUT --no-verify-jwt flips its live
   # setting on and breaks the vendor/cron calls; deploying an UNLISTED function WITH the flag silently
   # re-opens an endpoint. The `verify` step reads the live values first and fails on any disagreement.
-  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page'
+  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page analyze-meal retry-meal-analysis'
   WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile'
+  MEALS: 'analyze-meal retry-meal-analysis'
 
 jobs:
   deploy:
@@ -61,6 +63,7 @@ jobs:
             # killed the step silently (run 5, and FunctionAlps-APP run 10 before it).
             LIST="$(echo "$CHANGED" | sed -n 's#^supabase/functions/\([^_/][^/]*\)/.*#\1#p' | grep -v '^bundle$' | sort -u | tr '\n' ' ' || true)"
             if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/wearables/'; then LIST="$LIST $WEARABLES"; fi
+            if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/meals/'; then LIST="$LIST $MEALS"; fi
             LIST="$(echo "$LIST" | tr ' ' '\n' | sed '/^$/d' | sort -u | tr '\n' ' ')"
           fi
           echo "list=$LIST" >> "$GITHUB_OUTPUT"
