@@ -142,6 +142,7 @@ export function sanitiseError(err: unknown, code = "UNKNOWN"): string {
 // no material change, which is why this edit was allowed at all. §12 then showed
 // the model reports partial correctly on cropped plates and never on a whole one.
 // Any further change to this prompt needs the same treatment — measure, then edit.
+
 // WHICH UPSTREAM IDENTIFIES THE MEAL. Infomaniak unless the operator sets the secret
 // MEAL_AI_PROVIDER=openai. It is an explicit switch, never inferred from OPENAI_API_KEY
 // merely existing: a key set for something else must not move member meals to another
