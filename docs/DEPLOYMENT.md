@@ -361,3 +361,41 @@ Neither was a version problem — builds 35 and 40 carry the same gate code. Thr
    CLINICAL and APP repos: copy this version there before anyone deploys from those, or the fix is overwritten.
 3. **App (this branch):** the third rung re-checks ownership after registration, models the 409, shows *"This email
    already has an account"*, and the consent gate stops blaming the connection for a server refusal.
+
+## Meal identification on OpenAI (2026-09-27)
+
+**Why.** From 2026-09-26 ~09:00 UTC Infomaniak's vision model (`google/gemma-4-31B-it`) stopped answering inside
+`analyze-meal`'s 9 s deadline: 5 of 10 photo meals ended `needs_input` or looping in the retry worker with
+`IDENTIFY_FAILED: UPSTREAM_TIMEOUT`, and the few that succeeded took 5.5–6.7 s on the worker's last attempt. The iOS
+client was not at fault (row, upload, attach and the `analyze-meal` call all landed). Owner decision: identify meals with
+OpenAI.
+
+**Source of truth moved here.** `analyze-meal` (live v92) and `retry-meal-analysis` (live v28) were imported verbatim
+from the deployed CM OS bundles into `supabase/functions/`, their helpers under `supabase/functions/_shared/meals/`.
+Both are `verify_jwt=false` and listed in `NO_JWT`; a change under `_shared/meals/` deploys the pair. ⚠ The same
+functions still live in FunctionAlps-APP — a deploy from there overwrites this version and silently puts meals back on
+Infomaniak. Copy `_shared/meals/meal-analysis.ts` across (or stop deploying them from APP) first.
+
+**The switch is a secret, not a deploy.** `identifyMeal` reads `MEAL_AI_PROVIDER` once per cold start:
+
+| Secret (Supabase → Edge Functions → Secrets) | Value |
+|---|---|
+| `MEAL_AI_PROVIDER` | `openai` (anything else, or unset = Infomaniak, unchanged) |
+| `OPENAI_API_KEY` | the key; an OpenAI key on its own never moves meals |
+| `OPENAI_MEAL_MODEL` | optional, default `gpt-5.4-mini` |
+
+OpenAI path: one Chat Completions call with `response_format: json_object`, no temperature, 20 s deadline and one
+hedge at 10 s (`ANALYZE_MEAL_TIMEOUT_MS` / `ANALYZE_MEAL_HEDGE_MS` still override). Provider selected without its key
+→ both functions answer 500 naming the missing key, and queued rows wait untouched for the worker.
+`preprocess-meal`, `transcribe-audio`, reports and tips are not affected — they stay on Infomaniak.
+
+**Go-live order — do not reorder.**
+1. Sign OpenAI's DPA (with the SCCs the Privacy Notice §12 already promises for non-CH/EEA providers).
+2. Apply `supabase/migrations/20260927_consents_openai_meal_identification.sql` (NOT APPLIED — signs as the operator).
+   It bumps `health_data_processing` (a `doc_kind='consent'` row), so every member re-accepts on next launch and sees
+   the new `privacy_policy` / `ai_analysis` beside it. Until then all three documents promise data is *not* sent to OpenAI.
+3. Merge to `main` (deploys the pair — still Infomaniak), then set `OPENAI_API_KEY` and `MEAL_AI_PROVIDER=openai`.
+4. Ship the build carrying the new in-app wording (`privacy.collect.ai.body2`, `privacy.banner.body2`, `login.swiss2`).
+5. Rows stuck in `needs_input` from the outage do not retry by themselves: the member taps "try the photo again", or
+   reset them to `queued` with `analysis_attempts = 0`.
+Rollback: unset `MEAL_AI_PROVIDER` (next cold start is back on Infomaniak).
