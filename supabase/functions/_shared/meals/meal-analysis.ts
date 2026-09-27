@@ -74,6 +74,19 @@ export function backoffSeconds(attempts: number): number {
   return RETRY_BACKOFF_S[Math.min(i, RETRY_BACKOFF_S.length - 1)]
 }
 
+/** A STALE claim (identifying / pricing past CLAIM_STALE_MS) is a row whose
+ *  isolate died mid-analysis — no failure patch was ever written, so the budget
+ *  check in failurePatch never ran. The pick query reclaims stale rows WITHOUT an
+ *  attempt bound (it must: nothing else unsticks them), so a meal that kills the
+ *  isolate every time ("CPU Time exceeded" while pricing an 8-item stir-fry,
+ *  2026-09-27) was reclaimed every three minutes forever, a paid identify call
+ *  each time. This is the bound: once the budget is spent the worker asks the
+ *  member instead of trying again. */
+export function staleClaimExhausted(row: { analysis_status?: string | null; analysis_attempts?: number | null }): boolean {
+  const stale = row.analysis_status === "identifying" || row.analysis_status === "pricing"
+  return stale && (row.analysis_attempts ?? 0) >= MAX_ATTEMPTS
+}
+
 /** ISO timestamp for `analysis_next_retry_at`. */
 export function nextRetryAt(attempts: number, now: Date = new Date()): string {
   return new Date(now.getTime() + backoffSeconds(attempts) * 1000).toISOString()
