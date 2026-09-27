@@ -158,7 +158,7 @@ struct LoginView: View {
             Task { await model.continueWithEmail() }
         }
         .padding(.top, 18)
-        Text(String(localized: "login.swiss", defaultValue: "Your data stays in Switzerland, private."))
+        Text(String(localized: "login.swiss2", defaultValue: "A Swiss company · your data stays private."))
             .font(.system(size: 11))
             .foregroundStyle(stoneLight)
             .frame(maxWidth: .infinity)

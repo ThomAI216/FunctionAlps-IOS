@@ -14498,18 +14498,18 @@
         }
       }
     },
-    "login.swiss": {
+    "login.swiss2": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your data stays in Switzerland, private."
+            "value": "A Swiss company · your data stays private."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos données restent en Suisse et sont protégées."
+            "value": "Une entreprise suisse · vos données restent protégées."
           }
         }
       }
@@ -26418,18 +26418,18 @@
         }
       }
     },
-    "privacy.banner.body": {
+    "privacy.banner.body2": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "FunctionAlps is based in Switzerland and complies with the Federal Act on Data Protection (nFADP, revised 2023) and GDPR. Your health data never leaves Swiss or EU-compliant servers."
+            "value": "FunctionAlps is based in Switzerland and complies with the Federal Act on Data Protection (nFADP, revised 2023) and GDPR. Your data is stored on EU-compliant servers; meal photos and descriptions are analysed by OpenAI in the United States."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "FunctionAlps est basée en Suisse et respecte la loi fédérale sur la protection des données (nLPD, révisée en 2023) et le RGPD. Vos données de santé ne quittent jamais des serveurs suisses ou conformes au droit européen."
+            "value": "FunctionAlps est basée en Suisse et respecte la loi fédérale sur la protection des données (nLPD, révisée en 2023) et le RGPD. Vos données sont hébergées sur des serveurs conformes au droit européen ; les photos et descriptions de repas sont analysées par OpenAI aux États-Unis."
           }
         }
       }
@@ -26466,18 +26466,18 @@
         }
       }
     },
-    "privacy.collect.ai.body": {
+    "privacy.collect.ai.body2": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your data is sent · de-identified, with your name never attached · to Infomaniak's Swiss AI for analysis. It produces observations, not medical advice or diagnosis. AI is required for the app to work · you can manage your consent below."
+            "value": "Photos and descriptions of your meals are sent to OpenAI to identify the foods · your name is never attached. Everything else is analysed · de-identified · by Infomaniak's Swiss AI. The AI produces observations, not medical advice or diagnosis. AI is required for the app to work · you can manage your consent below."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos données sont envoyées · dé-identifiées, jamais accompagnées de votre nom · à l’IA suisse d’Infomaniak pour analyse. Elle produit des observations, pas un avis médical ni un diagnostic. L’IA est nécessaire au fonctionnement de l’application · vous pouvez gérer votre consentement ci-dessous."
+            "value": "Les photos et descriptions de vos repas sont envoyées à OpenAI pour identifier les aliments · jamais accompagnées de votre nom. Tout le reste est analysé · dé-identifié · par l’IA suisse d’Infomaniak. L’IA produit des observations, pas un avis médical ni un diagnostic. L’IA est nécessaire au fonctionnement de l’application · vous pouvez gérer votre consentement ci-dessous."
           }
         }
       }
