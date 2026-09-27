@@ -1,5 +1,10 @@
 -- privacy_policy v12 + terms_of_use v9 — the app no longer asks for a date of birth.
 --
+-- ⚠ STALE NUMBERING (2026-09-27): privacy_policy v12 now exists (OpenAI meal identification,
+-- 20260927_consents_openai_meal_identification.sql). As written this draft refuses to run ("already
+-- exist"). Before applying it: make it privacy_policy v13 built from v12 (its anchors are untouched by v12);
+-- terms_of_use v9 is still free.
+--
 -- NOT APPLIED. This file is a draft awaiting the operator's approval, because inserting it asserts
 -- `approved_by = 'Thomas Convent — operator, FunctionAlps'` — a signature on a legal document — and
 -- because publishing it makes every member re-accept (the version moves, so `accepted` flips to false

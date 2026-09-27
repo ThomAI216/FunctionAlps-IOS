@@ -391,7 +391,7 @@ hedge at 10 s (`ANALYZE_MEAL_TIMEOUT_MS` / `ANALYZE_MEAL_HEDGE_MS` still overrid
 
 **Go-live order — do not reorder.**
 1. Sign OpenAI's DPA (with the SCCs the Privacy Notice §12 already promises for non-CH/EEA providers).
-2. Apply `supabase/migrations/20260927_consents_openai_meal_identification.sql` (NOT APPLIED — signs as the operator).
+2. Apply `supabase/migrations/20260927_consents_openai_meal_identification.sql` — **applied 2026-09-27** (privacy_policy v12, ai_analysis v8, health_data_processing v7).
    It bumps `health_data_processing` (a `doc_kind='consent'` row), so every member re-accepts on next launch and sees
    the new `privacy_policy` / `ai_analysis` beside it. Until then all three documents promise data is *not* sent to OpenAI.
 3. Merge to `main` (deploys the pair — still Infomaniak), then set `OPENAI_API_KEY` and `MEAL_AI_PROVIDER=openai`.

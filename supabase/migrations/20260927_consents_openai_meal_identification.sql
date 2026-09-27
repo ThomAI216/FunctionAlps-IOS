@@ -1,9 +1,10 @@
 -- privacy_policy (next version) + ai_analysis v8 + health_data_processing v7 — meal identification moves to OpenAI.
 --
--- NOT APPLIED. This file is a draft awaiting the operator's approval, because inserting it asserts
--- `approved_by = 'Thomas Convent — operator, FunctionAlps'` — a signature on a legal document — and
--- because publishing it makes every member re-accept (the versions move, so `accepted` flips to false
--- and the consent gate reopens on the next launch).
+-- APPLIED on CM OS 2026-09-27 19:49 UTC at the operator's instruction (migration
+-- `consents_openai_meal_identification`): privacy_policy v11 -> v12, ai_analysis v7 -> v8,
+-- health_data_processing v6 -> v7, en + fr. The 36 text literals stored in schema_migrations were
+-- checked byte-for-byte against this file. health_data_processing is a doc_kind='consent' row, so every
+-- member re-accepts on next launch (the versions moved, `accepted` flips to false).
 --
 -- WHY: on 2026-09-27 the operator decided that identifying the foods in a meal photograph or a meal
 -- description runs on OpenAI (gpt-5.4-mini) instead of Infomaniak's vision model, which had started
