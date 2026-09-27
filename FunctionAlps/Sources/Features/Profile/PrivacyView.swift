@@ -20,7 +20,7 @@ struct PrivacyView: View {
                     Image(systemName: "shield").font(.system(size: 18, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(String(localized: "privacy.banner.title", defaultValue: "Swiss Data Protection (nFADP)")).font(FATypography.sans(14, .bold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
-                        Text(String(localized: "privacy.banner.body", defaultValue: "FunctionAlps is based in Switzerland and complies with the Federal Act on Data Protection (nFADP, revised 2023) and GDPR. Your health data never leaves Swiss or EU-compliant servers."))
+                        Text(String(localized: "privacy.banner.body2", defaultValue: "FunctionAlps is based in Switzerland and complies with the Federal Act on Data Protection (nFADP, revised 2023) and GDPR. Your data is stored on EU-compliant servers; meal photos and descriptions are analysed by OpenAI in the United States."))
                             .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(5)
                     }
                 }
@@ -31,7 +31,7 @@ struct PrivacyView: View {
 
                 section(String(localized: "privacy.collect", defaultValue: "What we collect & why")) {
                     infoCard("eye", 0x3F7FC4, String(localized: "privacy.collect.health.title", defaultValue: "Health & nutrition data"), String(localized: "privacy.collect.health.body", defaultValue: "Meals, check-ins and the symptoms you log. Used only to mirror how your body responds to food · observations, never medical advice."))
-                    infoCard("brain", 0xA98FD0, String(localized: "privacy.collect.ai.title", defaultValue: "AI analysis"), String(localized: "privacy.collect.ai.body", defaultValue: "Your data is sent · de-identified, with your name never attached · to Infomaniak's Swiss AI for analysis. It produces observations, not medical advice or diagnosis. AI is required for the app to work · you can manage your consent below."))
+                    infoCard("brain", 0xA98FD0, String(localized: "privacy.collect.ai.title", defaultValue: "AI analysis"), String(localized: "privacy.collect.ai.body2", defaultValue: "Photos and descriptions of your meals are sent to OpenAI to identify the foods · your name is never attached. Everything else is analysed · de-identified · by Infomaniak's Swiss AI. The AI produces observations, not medical advice or diagnosis. AI is required for the app to work · you can manage your consent below."))
                     infoCard("person.2", 0x4A8A5C, String(localized: "privacy.collect.who.title", defaultValue: "Who sees your data"), String(localized: "privacy.collect.who.body", defaultValue: "Analysis is de-identified · your name is never attached. A wellness reviewer may see anonymised flags; your identity is revealed only with your explicit consent, and every access is logged. Never shared with advertisers or insurers. Ever."))
                     infoCard("server.rack", 0x4A8A5C, String(localized: "privacy.collect.storage.title", defaultValue: "Storage"), String(localized: "privacy.collect.storage.body", defaultValue: "Your data is stored encrypted on Supabase (EU data centre). You can request deletion at any time · all your data is erased within 30 days."))
                 }
