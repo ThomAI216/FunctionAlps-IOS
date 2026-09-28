@@ -26,6 +26,30 @@ struct ConsentLogicTests {
         #expect(!ConsentLogic.isUpdate(item("terms_of_use", version: "v8", held: "")))
     }
 
+    // startsTicked — only what is new or changed asks for a tick
+
+    @Test func whatIsAlreadySignedAtThisVersionStartsTicked() {
+        // 2026-09-28: health-data consent moved v6 → v7; the Terms stayed v8 and were already signed.
+        let terms = item("terms_of_use", version: "v8", accepted: true, held: "v8")
+        let health = item("health_data_processing", version: "v7", held: "v6")
+        #expect(ConsentLogic.startsTicked(terms))
+        #expect(ConsentLogic.isAlreadyAccepted(terms))
+        #expect(!ConsentLogic.startsTicked(health))
+        #expect(!ConsentLogic.isAlreadyAccepted(health))
+    }
+
+    @Test func aFirstSittingStartsWithNothingTicked() {
+        #expect(!ConsentLogic.startsTicked(item("terms_of_use", version: "v8")))
+        #expect(!ConsentLogic.startsTicked(item("health_data_processing", version: "v7", held: "")))
+    }
+
+    @Test func anOptionalItemStartsInTheMembersStandingStateAndIsNeverLabelledRequired() {
+        let analytics = item("usage_analytics", version: "v3", required: false, accepted: true, held: "v3")
+        #expect(ConsentLogic.startsTicked(analytics))
+        #expect(!ConsentLogic.isAlreadyAccepted(analytics))
+        #expect(!ConsentLogic.startsTicked(item("marketing_comms", version: "v3", required: false)))
+    }
+
     // isReAcceptance — which wording the whole screen wears
 
     @Test func aFirstSittingIsNotAReAcceptance() {

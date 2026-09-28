@@ -2946,6 +2946,38 @@
         }
       }
     },
+    "checkin.nothingAnswered": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is answered yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’est encore renseigné"
+          }
+        }
+      }
+    },
+    "checkin.nothingAnswered.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move at least one slider or pick an answer, then tap Save."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplacez au moins un curseur ou choisissez une réponse, puis touchez Enregistrer."
+          }
+        }
+      }
+    },
     "checkin.priority": {
       "localizations": {
         "en": {
@@ -3038,6 +3070,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "D'après %1$@ · l'heure du coucher n'a pas été enregistrée · indiquez-la vous-même"
+          }
+        }
+      }
+    },
+    "checkin.slider.tapToRate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to rate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez pour noter"
           }
         }
       }
@@ -6770,6 +6818,22 @@
         }
       }
     },
+    "gate.consent.alreadyAccepted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already accepted · unchanged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjà accepté · inchangé"
+          }
+        }
+      }
+    },
     "gate.consent.collapse": {
       "localizations": {
         "en": {
@@ -7042,18 +7106,18 @@
         }
       }
     },
-    "gate.consent.updated.intro": {
+    "gate.consent.updated.intro2": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The wording below has changed since you last agreed. The items marked as updated carry a new version — please read what is new and accept again to carry on. Nothing is ticked for you."
+            "value": "Some of the wording below has changed since you last agreed. What you already accepted stays ticked. The items marked as updated carry a new version · please read what is new and tick them to carry on."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le texte ci-dessous a changé depuis votre dernier accord. Les éléments marqués comme mis à jour portent une nouvelle version — merci de lire ce qui est nouveau et d’accepter à nouveau pour continuer. Rien n’est coché à votre place."
+            "value": "Une partie du texte ci-dessous a changé depuis votre dernier accord. Ce que vous aviez déjà accepté reste coché. Les éléments marqués comme mis à jour portent une nouvelle version · merci de lire ce qui est nouveau et de les cocher pour continuer."
           }
         }
       }

@@ -399,3 +399,14 @@ hedge at 10 s (`ANALYZE_MEAL_TIMEOUT_MS` / `ANALYZE_MEAL_HEDGE_MS` still overrid
 5. Rows stuck in `needs_input` from the outage do not retry by themselves: the member taps "try the photo again", or
    reset them to `queued` with `analysis_attempts = 0`.
 Rollback: unset `MEAL_AI_PROVIDER` (next cold start is back on Infomaniak).
+
+## TestFlight distribution to members (2026-09-28)
+
+Members are **external** testers in the group **BetaTesters**. Until 2026-09-28 the `beta` lane uploaded and stopped:
+a build reached only the internal team (automatic distribution), and members stayed on build 35 while 36–43 shipped.
+The lane now waits for processing and hands every build to BetaTesters (`distribute_external`, `groups`, override with
+`FA_TESTFLIGHT_GROUP`), notifying testers. Apple may hold a build for Beta App Review first.
+
+Old builds are **not** expired by the lane (a build held in review would leave members nothing to open). Once a build
+is live in BetaTesters: App Store Connect → TestFlight → iOS Builds → each older build → Expire Build. An expired build
+no longer opens, so testers move to the current one.
