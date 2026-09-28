@@ -63,6 +63,17 @@ private struct CheckinMomentScreen: View {
 
                 ForEach(model.sections, id: \.self) { s in section(s) }
 
+                if model.nothingAnswered {
+                    FACard {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "checkin.nothingAnswered", defaultValue: "Nothing is answered yet"))
+                                .font(FATypography.headline).foregroundStyle(FAColor.ink)
+                            Text(String(localized: "checkin.nothingAnswered.hint", defaultValue: "Move at least one slider or pick an answer, then tap Save."))
+                                .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                        }
+                    }
+                }
+
                 if let error = model.saveError {
                     FACard {
                         VStack(alignment: .leading, spacing: 4) {

@@ -117,6 +117,12 @@ enum CheckinEngine {
         )
     }
 
+    /// The same guard, asked of the raw answers BEFORE saving, so the screen can refuse an empty Save out loud
+    /// instead of closing as if something had been recorded (2026-09-28: members did exactly that).
+    static func answersHaveContent(slot: MomentSlot, answers: FunctionalAnswers, catalogPills: [String: [String]], note: String?) -> Bool {
+        momentHasContent(momentFromAnswers(slot: slot, answers: answers, catalogPills: catalogPills, note: note, submittedAt: Date()))
+    }
+
     /// Guards against stamping a phantom moment when someone taps Save without answering.
     static func momentHasContent(_ m: CheckinMoment) -> Bool {
         let markers: [Int?] = [m.energyBody, m.energyMind, m.energyStability, m.energyOverall, m.moodScore, m.stressScore, m.sleepOverall, m.sleepRefreshed, m.sleepDurationMin]

@@ -44,6 +44,15 @@ struct CheckinServiceTests {
         #expect(backend.calls.isEmpty)
     }
 
+    /// The screen asks this BEFORE saving: an untouched form must be refused out loud, not closed as if saved.
+    @Test func anUntouchedFormHasNothingToSave() {
+        #expect(!CheckinEngine.answersHaveContent(slot: .evening, answers: .blank, catalogPills: [:], note: nil))
+        #expect(!CheckinEngine.answersHaveContent(slot: .morning, answers: .blank, catalogPills: [:], note: "  "))
+        #expect(CheckinEngine.answersHaveContent(slot: .evening, answers: answers(calm: 50), catalogPills: [:], note: nil))
+        #expect(CheckinEngine.answersHaveContent(slot: .evening, answers: .blank, catalogPills: ["drained": ["travel"]], note: nil))
+        #expect(CheckinEngine.answersHaveContent(slot: .evening, answers: .blank, catalogPills: [:], note: "long day"))
+    }
+
     @Test func summaryUsesEveryMomentOfTheDay() {
         let day = [
             CheckinMoment(slot: .morning, submittedAt: noon, energyOverall: 40, sleepOverall: 79),
