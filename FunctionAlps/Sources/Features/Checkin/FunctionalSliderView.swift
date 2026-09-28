@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Continuous 0–100 slider, higher = better: red (left) → green (right) veil, a 5-word state
-/// translation above the bar, the score on the right. Untouched = grey thumb parked at centre.
+/// translation above the bar, the score on the right. Untouched = NO thumb and "Tap to rate": a thumb parked
+/// at centre read as an answer, members left it there, tapped Save and nothing was recorded (2026-09-28).
 struct FunctionalSliderView: View {
     let spec: SliderSpec
     @Binding var value: Double?
@@ -30,7 +31,7 @@ struct FunctionalSliderView: View {
                     .foregroundStyle(value == nil ? FAColor.inkMuted : color)
                     .monospacedDigit()
             }
-            Text(word ?? "·")
+            Text(word ?? String(localized: "checkin.slider.tapToRate", defaultValue: "Tap to rate"))
                 .font(FATypography.label)
                 .foregroundStyle(word == nil ? FAColor.inkMuted : color)
             GeometryReader { geo in
@@ -45,17 +46,18 @@ struct FunctionalSliderView: View {
                     if value != nil {
                         Capsule().fill(color).frame(width: max(trackH, pos), height: trackH)
                     }
-                    ZStack {
-                        Circle().fill(FAColor.cream)
-                        Circle().strokeBorder(color, lineWidth: 1.5)
-                        Image(systemName: "mountain.2.fill")
-                            .font(.system(size: thumb * 0.42))
-                            .foregroundStyle(color)
-                            .opacity(value == nil ? 0.32 : 1)
+                    if value != nil {
+                        ZStack {
+                            Circle().fill(FAColor.cream)
+                            Circle().strokeBorder(color, lineWidth: 1.5)
+                            Image(systemName: "mountain.2.fill")
+                                .font(.system(size: thumb * 0.42))
+                                .foregroundStyle(color)
+                        }
+                        .frame(width: thumb, height: thumb)
+                        .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
+                        .offset(x: pos - thumb / 2)
                     }
-                    .frame(width: thumb, height: thumb)
-                    .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
-                    .offset(x: pos - thumb / 2)
                 }
                 .frame(height: 38)
                 .contentShape(Rectangle())

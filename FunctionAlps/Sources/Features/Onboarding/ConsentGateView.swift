@@ -2,7 +2,8 @@ import SwiftUI
 
 /// The blocking acceptance screen (the Expo `ConsentGate`): nothing in the app is reachable until every
 /// `required` consent is ticked. Four properties, all legal rather than visual:
-///   1. Nothing is pre-ticked — a pre-ticked mandatory box is not consent (`default_state` says so).
+///   1. Nothing NEW is pre-ticked — a pre-ticked mandatory box is not consent (`default_state` says so). Only
+///      an item the member already holds at this exact version starts ticked, labelled "Already accepted".
 ///   2. The full wording is on THIS screen, expandable in place.
 ///   3. A refusal of an optional item is RECORDED, so the ledger shows the member was asked and said no.
 ///   4. The 18+ declaration rides ON these terms rather than on a screen of its own (owner's call,
@@ -26,9 +27,9 @@ struct ConsentGateView: View {
     var body: some View {
         list
         .onAppear {
-            // Required items start OFF, always; an optional one starts in the member's standing state.
+            // New and updated items start OFF; what the member already holds at this version starts ON.
             if ticks.isEmpty {
-                for c in bundle.consents { ticks[c.consentKey] = c.required ? false : c.accepted }
+                for c in bundle.consents { ticks[c.consentKey] = ConsentLogic.startsTicked(c) }
             }
         }
     }
@@ -47,7 +48,7 @@ struct ConsentGateView: View {
                         : String(localized: "gate.consent.heading", defaultValue: "Before you start"))
                         .font(FATypography.display(27, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink).padding(.bottom, 8)
                     Text(isReAcceptance
-                        ? String(localized: "gate.consent.updated.intro", defaultValue: "The wording below has changed since you last agreed. The items marked as updated carry a new version — please read what is new and accept again to carry on. Nothing is ticked for you.")
+                        ? String(localized: "gate.consent.updated.intro2", defaultValue: "Some of the wording below has changed since you last agreed. What you already accepted stays ticked. The items marked as updated carry a new version · please read what is new and tick them to carry on.")
                         : String(localized: "gate.consent.intro", defaultValue: "FunctionAlps handles your health data, so two things need your agreement — and two more are here for you to read. Tap any item to open it in full. Nothing is ticked for you."))
                         .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(ProfilePalette.muted).lineSpacing(6).padding(.bottom, 20)
 
@@ -140,6 +141,10 @@ struct ConsentGateView: View {
                             Text(row.title).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                             if ConsentLogic.isUpdate(row) { updatedChip(row.version) }
                         }
+                        if ConsentLogic.isAlreadyAccepted(row) {
+                            Text(String(localized: "gate.consent.alreadyAccepted", defaultValue: "Already accepted · unchanged"))
+                                .font(FATypography.sans(11, .semibold, relativeTo: .caption2)).foregroundStyle(FAColor.forestSoft)
+                        }
                         Text(row.summary).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
                     }
                     .multilineTextAlignment(.leading).frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
@@ -218,7 +223,7 @@ struct ConsentGateView: View {
         working = true
         defer { working = false }
         let decisions = bundle.consents.map { c in
-            ConsentDecision(key: c.consentKey, version: c.version, granted: ticks[c.consentKey] ?? false, defaultState: c.required ? false : c.accepted)
+            ConsentDecision(key: c.consentKey, version: c.version, granted: ticks[c.consentKey] ?? false, defaultState: ConsentLogic.startsTicked(c))
         }
         do {
             try await dependencies.account.recordGate(decisions, in: bundle)

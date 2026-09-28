@@ -9,6 +9,8 @@ final class CheckinMomentViewModel {
     var catalogPills: [String: [String]] = [:]
     var isSaving = false
     var saveError: String?
+    /// Save was tapped with nothing answered: nothing was sent, and the screen says so and stays open.
+    private(set) var nothingAnswered = false
     var isEditing = false
 
     /// The evening moment owns the day's digestion — the gut check-in is part of the reflection, not a
@@ -100,11 +102,18 @@ final class CheckinMomentViewModel {
         (catalogPills[group.rawValue] ?? []).contains(key)
     }
 
-    /// True when saved (or there was nothing to save). False leaves the answers in place with an error.
+    /// True when saved. False leaves the answers in place with an error — or, when nothing was answered at all,
+    /// with `nothingAnswered` set and nothing sent (it used to return true there and close as if saved).
     /// The evening saves twice — the moment, then the day's digestion. The moment write is an upsert on
     /// the slot, so a retry after a failed gut write costs nothing and duplicates nothing.
     func save() async -> Bool {
         saveError = nil
+        nothingAnswered = false
+        let gutHasContent = gut.map { GutEngine.hasAnyAnswer($0.answers) || $0.redFlags.any } ?? false
+        guard CheckinEngine.answersHaveContent(slot: slot, answers: answers, catalogPills: catalogPills, note: note) || gutHasContent else {
+            nothingAnswered = true
+            return false
+        }
         isSaving = true
         defer { isSaving = false }
         do {

@@ -50,11 +50,21 @@ platform :ios do
       xcargs: "-skipMacroValidation"
     )
 
+    # Members are EXTERNAL testers: a build reaches them only once it is added to their group. Until
+    # 2026-09-28 this lane uploaded and stopped there, so builds 36–43 never left the internal team while
+    # members stayed on 35. Distribution needs the PROCESSED build, hence no skip_waiting here.
+    # Older builds are NOT expired automatically: if Beta App Review holds a build, expiring the one
+    # members have would leave them nothing to open. Expire them in App Store Connect once this one is live.
     upload_to_testflight(
       api_key: api_key,
       app_identifier: BUNDLE_ID,
-      skip_waiting_for_build_processing: true,
-      changelog: "FunctionAlps native iOS — build #{latest + 1} (#{ENV['GITHUB_SHA'].to_s[0, 7]})"
+      changelog: "FunctionAlps native iOS — build #{latest + 1} (#{ENV['GITHUB_SHA'].to_s[0, 7]})",
+      skip_waiting_for_build_processing: false,
+      wait_processing_timeout_duration: 2400,
+      distribute_external: true,
+      groups: [ENV.fetch("FA_TESTFLIGHT_GROUP", "BetaTesters")],
+      notify_external_testers: true,
+      uses_non_exempt_encryption: false
     )
   end
 end

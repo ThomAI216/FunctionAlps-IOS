@@ -88,6 +88,15 @@ enum ConsentLogic {
         consents.contains { $0.acceptedVersion != nil }
     }
 
+    /// Where a row's box starts. An item the member already holds AT THIS VERSION starts ticked: nothing about
+    /// it changed, and re-asking read as the app having lost their answer — returning members stopped at the
+    /// screen (2026-09-28). New and updated items start unticked, always. The recorded `default_state` is this
+    /// value, so the ledger says truthfully which boxes were pre-ticked and why.
+    static func startsTicked(_ c: ConsentItem) -> Bool { c.accepted }
+
+    /// A required row that is already signed at this version: shown as such, in words.
+    static func isAlreadyAccepted(_ c: ConsentItem) -> Bool { c.required && c.accepted }
+
     /// Every key on screen, `key@version` — ticks and notices alike (`presented_keys`).
     static func presentedKeys(_ consents: [ConsentItem], notices: [LegalDocument]) -> [String] {
         consents.map { "\($0.consentKey)@\($0.version)" } + notices.map { "\($0.consentKey)@\($0.version)" }
