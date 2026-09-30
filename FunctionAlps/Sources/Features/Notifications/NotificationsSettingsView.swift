@@ -21,7 +21,6 @@ struct NotificationsSettingsView: View {
                     SettingsSectionLabel(title: String(localized: "notif.section.checkins", defaultValue: "Check-ins"))
                     FACard {
                         VStack(spacing: 12) {
-                            timedRow(String(localized: "notif.row.morning", defaultValue: "Morning check-in"), sub: String(localized: "notif.row.morning.sub", defaultValue: "Last night and the day ahead"), on: $prefs.morningEnabled, time: $prefs.morningTime)
                             timedRow(String(localized: "notif.row.evening", defaultValue: "Evening check-in"), sub: String(localized: "notif.row.evening.sub", defaultValue: "A look back on the day — energy, focus, mood, digestion"), on: $prefs.eveningEnabled, time: $prefs.eveningTime)
                         }
                     }
