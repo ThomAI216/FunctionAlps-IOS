@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// The web app's Home, card for card: functional hero → the two action squares → messages.
+/// Home: functional hero → the two squares (log a meal · the evening check-in) → today's actions →
+/// Apple Health's readings as charts → messages. The owner's layout (2026-09-30): one check-in a day, in the
+/// evening, with digestion inside it; no separate focus or digestion cards.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
-    /// Last night's sleep for the carousel chip — Apple Health first, else the member's own morning answer.
-    @State private var sleepHours: Double?
 
     var body: some View {
         ZStack {
@@ -40,9 +40,6 @@ struct HomeView: View {
                 await notifications.refreshAuthorization()
                 await notifications.replan(snapshot: today, wearables: wearables)
                 await wearables.refreshSnapshot()
-                let fromHealth = await wearables.lastNightSleepHours()
-                let fromAnswer = today.moments.first { $0.slot == .morning }?.sleepDurationMin.map { Double($0) / 60 }
-                sleepHours = fromHealth ?? fromAnswer
             }
         }
     }
@@ -78,42 +75,24 @@ struct HomeView: View {
                         .buttonStyle(.plain)
                         .aspectRatio(1, contentMode: .fit)
 
-                        CheckinCarouselCard(
+                        EveningCheckinCard(
                             today: content.today,
                             now: dependencies.checkins.currentSlot,
-                            streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day),
-                            sleepHours: sleepHours
+                            streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day)
                         )
                         .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
 
-                    TodayFocusCard()
                     PlanTodayCard()
-
-                    if HealthKitReader.isAvailable {
-                        if dependencies.wearables.isConnected {
-                            NavigationLink(value: Route.health) {
-                                AppleHealthCard(snapshot: dependencies.wearables.snapshot, connected: true)
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            NavigationLink(value: Route.wearables) {
-                                AppleHealthCard(snapshot: nil, connected: false)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()
                     }
 
-                    // Digestion is answered inside the evening reflection now — this card is the way in.
-                    NavigationLink(value: Route.checkin(.evening)) {
-                        GutCheckinCard(done: content.today.checkin?.isGutDone ?? false, score: content.today.checkin?.gutOverall)
+                    if HealthKitReader.isAvailable {
+                        healthReadings
                     }
-                    .buttonStyle(.plain)
 
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
@@ -122,6 +101,32 @@ struct HomeView: View {
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load(refresh: true) }
+        }
+    }
+
+    /// Apple Health straight as its charts once connected; the invitation until then.
+    @ViewBuilder
+    private var healthReadings: some View {
+        let wearables = dependencies.wearables
+        if !wearables.isConnected {
+            NavigationLink(value: Route.wearables) { AppleHealthConnectCard() }
+                .buttonStyle(.plain)
+        } else if let snapshot = wearables.snapshot {
+            if snapshot.hasAnyReading {
+                HealthCharts(snapshot: snapshot)
+            } else {
+                FACard {
+                    Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds."))
+                        .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        } else {
+            FACard {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                }
+            }
         }
     }
 }

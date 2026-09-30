@@ -310,44 +310,6 @@ struct MessagesCard: View {
     }
 }
 
-/// The gut check-in as a long row beneath the two squares — the messages card's shape: icon disc,
-/// title + line, the state on the right. Done once a day, editable all day.
-struct GutCheckinCard: View {
-    let done: Bool
-    let score: Int?
-
-    var body: some View {
-        FACard {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle().fill(Color(red: 74 / 255, green: 138 / 255, blue: 92 / 255, opacity: 0.14))
-                    Text("🫧").font(.system(size: 18))
-                }
-                .frame(width: 40, height: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.gut.title", defaultValue: "Today's digestion"))
-                        .font(FATypography.sans(15, .semibold, relativeTo: .headline))
-                        .foregroundStyle(FAColor.ink)
-                    Text(done ? String(localized: "home.gut.done", defaultValue: "✓ Answered today · tap to adjust") : String(localized: "home.gut.sub", defaultValue: "Part of your evening check-in"))
-                        .font(FATypography.sans(13, relativeTo: .callout))
-                        .foregroundStyle(done ? FAColor.accent : FAColor.inkSecondary)
-                        .lineLimit(1).minimumScaleFactor(0.85)
-                }
-                Spacer()
-                if let score {
-                    Text("\(score)")
-                        .font(FATypography.display(15, relativeTo: .headline))
-                        .foregroundStyle(FAColor.ink)
-                        .padding(.horizontal, 9).padding(.vertical, 4)
-                        .background(FAColor.forestSoft.opacity(0.16), in: Capsule())
-                }
-                Image(systemName: "chevron.right").foregroundStyle(FAColor.inkSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
 /// The doctor signpost — shown only while today's day row carries a red flag (raised by the gut check-in or
 /// the web daily form). The Expo `RED_FLAG_SIGNPOST`, verbatim: never a diagnosis, never a food link.
 struct RedFlagSignpostCard: View {
@@ -375,79 +337,29 @@ struct RedFlagSignpostCard: View {
     }
 }
 
-/// Apple Health on Home: today's four headline readings (steps, last night, resting pulse, HRV) against the
-/// member's own week, straight from HealthKit. Not connected → the invitation; nothing on a device without Health.
-struct AppleHealthCard: View {
-    let snapshot: HealthSnapshot?
-    let connected: Bool
-
+/// Apple Health on Home before it is connected: the invitation. Once connected, Home shows the readings
+/// themselves (`HealthCharts`) instead of a card about them.
+struct AppleHealthConnectCard: View {
     var body: some View {
         FACard {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle().fill(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255, opacity: 0.12))
-                        Image(systemName: "heart.fill").font(.system(size: 15, weight: .semibold)).foregroundStyle(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255))
-                    }
-                    .frame(width: 34, height: 34)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(String(localized: "home.health.title", defaultValue: "Apple Health")).font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                        Text(connected ? String(localized: "home.health.today", defaultValue: "Today · from your iPhone and Apple Watch") : String(localized: "home.health.connect.body", defaultValue: "See your steps, sleep and heart readings next to what you log."))
-                            .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).lineLimit(2)
-                    }
-                    Spacer(minLength: 0)
-                    if connected {
-                        Image(systemName: "chevron.right").foregroundStyle(FAColor.inkSecondary)
-                    } else {
-                        Text(String(localized: "home.health.connect.cta", defaultValue: "Connect"))
-                            .font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(.white)
-                            .padding(.horizontal, 12).padding(.vertical, 7).background(FAColor.forestSoft, in: Capsule())
-                    }
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle().fill(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255, opacity: 0.12))
+                    Image(systemName: "heart.fill").font(.system(size: 15, weight: .semibold)).foregroundStyle(Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255))
                 }
-                if connected {
-                    if let snapshot {
-                        let tiles = snapshot.headline
-                        if tiles.isEmpty {
-                            Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds."))
-                                .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-                        } else {
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                                ForEach(tiles) { stat in AppleHealthTile(stat: stat) }
-                            }
-                        }
-                    } else {
-                        HStack(spacing: 8) {
-                            ProgressView().controlSize(.small)
-                            Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                        }
-                    }
+                .frame(width: 34, height: 34)
+                .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(String(localized: "home.health.title", defaultValue: "Apple Health")).font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
+                    Text(String(localized: "home.health.connect.body", defaultValue: "See your steps, sleep and heart readings next to what you log."))
+                        .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).lineLimit(2)
                 }
+                Spacer(minLength: 0)
+                Text(String(localized: "home.health.connect.cta", defaultValue: "Connect"))
+                    .font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 7).background(FAColor.forestSoft, in: Capsule())
             }
         }
         .accessibilityElement(children: .combine)
-    }
-}
-
-/// One headline reading on the Home card: value, name, the delta against the member's week.
-struct AppleHealthTile: View {
-    let stat: HealthSnapshot.Stat
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: stat.metric.symbol).font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.forestSoft).frame(width: 16)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(stat.today.map { HealthFormat.value($0, metric: stat.metric) } ?? "—")
-                    .font(FATypography.display(14, relativeTo: .subheadline)).foregroundStyle(FAColor.ink).monospacedDigit().lineLimit(1).minimumScaleFactor(0.8)
-                HStack(spacing: 4) {
-                    Text(stat.metric.shortLabel).font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary).lineLimit(1)
-                    if let delta = stat.deltaRatio {
-                        Text(HealthFormat.delta(delta)).font(FATypography.sans(10, .semibold, relativeTo: .caption2)).foregroundStyle(FAColor.ink.opacity(0.8))
-                    }
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 10).padding(.vertical, 8)
-        .modifier(FAGlassSurface(cornerRadius: 12, inset: true))
     }
 }
