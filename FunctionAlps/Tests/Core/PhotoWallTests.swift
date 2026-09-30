@@ -4,16 +4,24 @@ import Testing
 
 @Suite("Photo walls (Settings → Appearance)")
 struct PhotoWallTests {
+    /// The owner kept four of the eleven uploads (2026-09-30).
+    @Test func theFourKeptPhotos() {
+        #expect(FAPhotoWalls.all.map(\.file) == ["bg-blue-1", "bg-blue-3", "bg-sand-1", "bg-sand-4"])
+    }
+
     /// The first-launch draw is stored, so the wall holds on every later launch until the member changes it.
     @Test func defaultIsAStoredPhoto() {
         let key = FAWalls.defaultKey
-        #expect(FAPhotoWalls.photo(for: key) != nil || FAWalls.choices.contains(where: { $0.key == key }))
+        #expect(FAPhotoWalls.photo(for: key) != nil)
         #expect(UserDefaults.standard.string(forKey: FAWalls.storageKey) != nil)
     }
 
-    @Test func gradientKeysAreNotPhotos() {
-        for wall in FAWalls.choices {
-            #expect(FAPhotoWalls.photo(for: wall.key) == nil)
+    /// A retired wall (a gradient, or a photo the owner dropped) falls back to the default photo.
+    @Test func retiredKeysResolveToTheDefault() {
+        let fallback = FAWalls.resolved(FAWalls.defaultKey)
+        for key in ["dd9", "dd7", "photo.bg-sand-5", ""] {
+            #expect(FAPhotoWalls.photo(for: key) == nil)
+            #expect(FAWalls.resolved(key) == fallback)
         }
     }
 
@@ -21,8 +29,7 @@ struct PhotoWallTests {
         let keys = FAPhotoWalls.all.map(\.key)
         #expect(Set(keys).count == keys.count)
         for photo in FAPhotoWalls.all {
-            #expect(FAPhotoWalls.photo(for: photo.key) == photo)
-            #expect(FAWalls.label(for: photo.key) == photo.label)
+            #expect(FAWalls.resolved(photo.key) == photo)
         }
     }
 
