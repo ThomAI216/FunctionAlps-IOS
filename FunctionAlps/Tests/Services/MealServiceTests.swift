@@ -52,6 +52,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func libraryStage() async throws -> RelationshipStage { .lead }
     func libraryRaw(patientId: String) async throws -> LibraryRaw { throw AppError.notFound }
     func libraryItem(slug: String) async throws -> LibraryGetRow? { nil }
+    func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { [] }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }

@@ -6,6 +6,7 @@ import Foundation
 struct LibraryService: Sendable {
     private let backend: any FunctionAlpsBackend
     private let now: @Sendable () -> Date
+    private let coverCache = TopicCoverCache()
 
     init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { Date() }) {
         self.backend = backend
@@ -19,9 +20,20 @@ struct LibraryService: Sendable {
     }
 
     func bundle(patientId: String) async -> LibraryBundle? {
+        async let covers = topicCovers()
         let current = await stage()
         guard let raw = try? await backend.libraryRaw(patientId: patientId) else { return nil }
-        return LibraryLogic.assemble(raw, stage: current)
+        return LibraryLogic.assemble(raw, stage: current, covers: await covers)
+    }
+
+    /// The topic covers, read once per app run and reused by every screen. Fails soft to an empty map
+    /// (the gradients show); a failed read is not remembered, so the next library load tries again.
+    func topicCovers() async -> [String: URL] {
+        if let cached = await coverCache.map { return cached }
+        guard let rows = try? await backend.libraryTopicCovers() else { return [:] }
+        let map = LibraryLogic.topicCovers(rows)
+        await coverCache.store(map)
+        return map
     }
 
     func reader(slug: String, patientId: String) async -> ReaderResult? {
@@ -55,4 +67,10 @@ struct LibraryService: Sendable {
     func weekNumber(startDate: String?) -> Int? {
         LibraryLogic.weekNumber(startDate: startDate, now: now())
     }
+}
+
+/// Holds the topic-cover map for the app run (covers change only in STUDIO, and a swap is a new URL).
+private actor TopicCoverCache {
+    private(set) var map: [String: URL]?
+    func store(_ value: [String: URL]) { map = value }
 }

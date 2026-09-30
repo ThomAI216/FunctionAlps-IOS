@@ -19,18 +19,19 @@ struct PillarCover: View {
     var badge: String? = nil
     var badgeTone: BadgeTone = .plain
     var lockLabel: String? = nil
-    /// Resolves the bundled cover art; without it (or without a file) the gradient stands in.
-    var slug: String? = nil
+    /// The resolved cover (`LibraryLogic.resolveCover`), drawn over the gradient once it loads; nil → gradient only.
+    var cover: URL? = nil
 
     var body: some View {
         let (from, to) = LibraryLogic.pillarGradient(pillar)
         ZStack(alignment: .topLeading) {
             LinearGradient(colors: [Color(hex: from), Color(hex: to)], startPoint: .topLeading, endPoint: .bottomTrailing)
-            if let slug, LibraryLogic.bundledCovers.contains(slug), let art = FAMedia.image(slug) {
-                // 16:9 masters composed with the subject in the middle third — `fill` crops top and bottom.
-                Image(uiImage: art).resizable().scaledToFill()
+            if let cover {
+                // 16:9 masters composed so the middle survives any crop — cover fit, centred.
+                CachedCoverImage(url: cover)
+            } else {
+                LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0)], startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.9))
             }
-            LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0)], startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.9))
             if let badge {
                 Text(badge.uppercased())
                     .font(FATypography.sans(8.5, .bold, relativeTo: .caption2))
@@ -74,11 +75,11 @@ struct PillarCover: View {
     }
 }
 
-/// The 84×64 article preview: this article's own infographic, else the track's cover art, else the
-/// pillar gradient. The image FILLS the frame anchored top-left ("zoom in … align left and top").
+/// The 84×64 article preview: this article's own infographic, else the track's resolved cover, else the
+/// pillar gradient. The infographic FILLS the frame anchored top-left ("zoom in … align left and top").
 struct ArticleCoverSlot: View {
     let pillar: String
-    var trackSlug: String? = nil
+    var trackCover: URL? = nil
     var coverURL: URL? = nil
     var width: CGFloat = 84
     var height: CGFloat = 64
@@ -86,7 +87,7 @@ struct ArticleCoverSlot: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            PillarCover(pillar: pillar, height: height, slug: coverURL == nil ? trackSlug : nil)
+            PillarCover(pillar: pillar, height: height, cover: coverURL == nil ? trackCover : nil)
             if let url = LibraryLogic.storageThumbnail(coverURL, width: 512, height: 512) {
                 AsyncImage(url: url) { phase in
                     if case .success(let image) = phase {
@@ -139,7 +140,7 @@ struct TrackCard: View {
             FACard(padded: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     PillarCover(pillar: track.pillar, height: coverHeight, badge: locked ? nil : track.badge.label, badgeTone: track.badge.tone,
-                                lockLabel: locked ? (track.lockLabel ?? String(localized: "library.locked", defaultValue: "Locked")) : nil, slug: track.slug)
+                                lockLabel: locked ? (track.lockLabel ?? String(localized: "library.locked", defaultValue: "Locked")) : nil, cover: track.cover)
                     ProgressHairline(pct: track.pct)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(track.pillar.uppercased()).font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
@@ -175,7 +176,8 @@ struct ResourceCard: View {
         Button(action: onPress) {
             FACard(padded: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    PillarCover(pillar: resource.pillar, height: 56, badge: String(localized: "library.badge.resource", defaultValue: "Resource"))
+                    // The web's ~96 pt image band at the top of every article card.
+                    PillarCover(pillar: resource.pillar, height: 96, badge: String(localized: "library.badge.resource", defaultValue: "Resource"), cover: resource.cover)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(resource.pillar.uppercased()).font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
                         Text(resource.title).font(FATypography.display(14, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)

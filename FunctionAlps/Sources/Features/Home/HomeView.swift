@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Home: the two squares (log a meal · the evening check-in) → today's actions → Apple Health's readings as
-/// charts → messages. The owner's layout (2026-09-30): Home is for meals, the check-in and the actions — a
-/// place to understand and act, not a scoreboard — so the scores live in Trends only. One check-in a day, in
-/// the evening, with digestion inside it; no separate focus or digestion cards.
+/// Home (owner's layout, 2026-09-30): "My health plan" (objective, phase, goals, priorities) → today's actions
+/// → the two squares (log a meal · the evening check-in) → the doctor signpost when raised → "Worth a look
+/// together" → messages. A place to understand and act, not a scoreboard: the scores and Apple Health's charts
+/// live in Trends. One check-in a day, in the evening, with digestion inside it.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: HomeViewModel?
@@ -62,7 +62,8 @@ struct HomeView: View {
         case .loaded(let content):
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
-                    ProtocolReviewCard()
+                    HealthPlanCard()
+                    PlanTodayCard()
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {
@@ -72,20 +73,15 @@ struct HomeView: View {
                         .aspectRatio(1, contentMode: .fit)
 
                         EveningCheckinCard(today: content.today, now: dependencies.checkins.currentSlot)
-                        .aspectRatio(1, contentMode: .fit)
+                            .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
-
-                    PlanTodayCard()
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()
                     }
 
-                    if HealthKitReader.isAvailable {
-                        healthReadings
-                    }
-
+                    ProtocolReviewCard()
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)
@@ -93,32 +89,6 @@ struct HomeView: View {
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load(refresh: true) }
-        }
-    }
-
-    /// Apple Health straight as its charts once connected; the invitation until then.
-    @ViewBuilder
-    private var healthReadings: some View {
-        let wearables = dependencies.wearables
-        if !wearables.isConnected {
-            NavigationLink(value: Route.wearables) { AppleHealthConnectCard() }
-                .buttonStyle(.plain)
-        } else if let snapshot = wearables.snapshot {
-            if snapshot.hasAnyReading {
-                HealthCharts(snapshot: snapshot)
-            } else {
-                FACard {
-                    Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds."))
-                        .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        } else {
-            FACard {
-                HStack(spacing: 8) {
-                    ProgressView().controlSize(.small)
-                    Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                }
-            }
         }
     }
 }

@@ -161,15 +161,42 @@ enum LibraryLogic {
         pillarGradients[(pillar ?? "").lowercased()] ?? pillarGradients["foundations"]!
     }
 
-    /// The six bundled 16:9 track covers (the Expo app ships the same masters).
-    static let bundledCovers: Set<String> = [
-        "phase-1-build-your-engine", "phase-2-build-your-stamina", "phase-3-muscle-and-capacity",
-        "phase-4-fuel-the-adaptation", "phase-5-recovery-is-training", "phase-6-observe-and-adapt",
-    ]
+    // MARK: Topic covers (the members web `src/lib/library/covers.ts`, line for line)
+
+    /// The eight pillar keys a resource's tags are matched against (plus `foundations`, the fallback topic).
+    static let pillarTopics: [String] = ["intestin", "energie", "hormones", "sommeil", "stress", "inflammation", "nutrition", "mouvement"]
+    /// The English pillar names STUDIO has written on tracks.
+    static let topicAliases: [String: String] = ["gut": "intestin", "energy": "energie", "sleep": "sommeil", "movement": "mouvement"]
+
+    /// Topic key for a pillar: trimmed, lowercased, aliased; empty or missing → `foundations`.
+    static func topicKey(_ pillar: String?) -> String {
+        let p = (pillar ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return p.isEmpty ? "foundations" : (topicAliases[p] ?? p)
+    }
+
+    /// Topic key for an article/resource: the first tag that is one of the eight pillar keys, else `foundations`.
+    static func topicKey(fromTags tags: [String]?) -> String {
+        (tags ?? []).first { pillarTopics.contains($0) } ?? "foundations"
+    }
+
+    /// `library_topic_covers` rows → `topic → url`; rows without an http(s) URL are skipped.
+    static func topicCovers(_ rows: [LibraryTopicCoverRow]) -> [String: URL] {
+        var map: [String: URL] = [:]
+        for row in rows {
+            if let url = coverURL(row.imageUrl) { map[row.topic] = url }
+        }
+        return map
+    }
+
+    /// First hit wins: assigned personal track → the track's own → the pillar's topic cover → `foundations`
+    /// → nil (the pillar gradient stands in).
+    static func resolveCover(explicit: URL?, own: URL?, pillar: String?, covers: [String: URL]) -> URL? {
+        explicit ?? own ?? covers[topicKey(pillar)] ?? covers["foundations"]
+    }
 
     // MARK: Assembly (the members `loadBundle`, line for line in spirit)
 
-    static func assemble(_ raw: LibraryRaw, stage: RelationshipStage) -> LibraryBundle? {
+    static func assemble(_ raw: LibraryRaw, stage: RelationshipStage, covers: [String: URL] = [:]) -> LibraryBundle? {
         guard !raw.tracks.isEmpty else { return nil }
         let access = raw.access ?? .none
 
@@ -223,7 +250,9 @@ enum LibraryLogic {
                 lessons: lessons, done: done, total: total,
                 pct: trackPct(done: done, total: total),
                 state: trackState(unlocked: unlocked, done: done, total: total),
-                lockLabel: unlocked ? nil : lockLabel(gate, titleBySlug: titleBySlug)
+                lockLabel: unlocked ? nil : lockLabel(gate, titleBySlug: titleBySlug),
+                // No assigned personal tracks (`patient_tracks`) on the phone yet, so nothing explicit.
+                cover: resolveCover(explicit: nil, own: coverURL(t.coverImageUrl), pillar: t.pillar, covers: covers)
             )
         }
 
@@ -238,7 +267,8 @@ enum LibraryLogic {
                     supplement: isSupplement(tags: r.tags ?? []),
                     locked: r.isLocked ?? false,
                     publishedAt: r.publishedAt,
-                    coverURL: coverURL(r.coverUrl)
+                    coverURL: coverURL(r.coverUrl),
+                    cover: resolveCover(explicit: nil, own: nil, pillar: topicKey(fromTags: r.tags), covers: covers)
                 )
             }
 
