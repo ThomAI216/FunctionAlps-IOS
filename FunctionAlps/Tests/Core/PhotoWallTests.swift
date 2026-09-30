@@ -9,19 +9,16 @@ struct PhotoWallTests {
         #expect(FAPhotoWalls.all.map(\.file) == ["bg-blue-1", "bg-blue-3", "bg-sand-1", "bg-sand-4"])
     }
 
-    /// The first-launch draw is stored, so the wall holds on every later launch until the member changes it.
-    @Test func defaultIsAStoredPhoto() {
-        let key = FAWalls.defaultKey
-        #expect(FAPhotoWalls.photo(for: key) != nil)
-        #expect(UserDefaults.standard.string(forKey: FAWalls.storageKey) != nil)
+    /// Sand 1 is the owner's default.
+    @Test func defaultIsSand1() {
+        #expect(FAWalls.resolved(FAWalls.defaultKey).file == "bg-sand-1")
     }
 
     /// A retired wall (a gradient, or a photo the owner dropped) falls back to the default photo.
     @Test func retiredKeysResolveToTheDefault() {
-        let fallback = FAWalls.resolved(FAWalls.defaultKey)
         for key in ["dd9", "dd7", "photo.bg-sand-5", ""] {
             #expect(FAPhotoWalls.photo(for: key) == nil)
-            #expect(FAWalls.resolved(key) == fallback)
+            #expect(FAWalls.resolved(key).file == "bg-sand-1")
         }
     }
 
