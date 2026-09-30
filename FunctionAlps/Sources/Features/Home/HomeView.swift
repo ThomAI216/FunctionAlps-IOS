@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// Home: functional hero → the two squares (log a meal · the evening check-in) → today's actions →
-/// Apple Health's readings as charts → messages. The owner's layout (2026-09-30): one check-in a day, in the
-/// evening, with digestion inside it; no separate focus or digestion cards.
+/// Home: the two squares (log a meal · the evening check-in) → today's actions → Apple Health's readings as
+/// charts → messages. The owner's layout (2026-09-30): Home is for meals, the check-in and the actions — a
+/// place to understand and act, not a scoreboard — so the scores live in Trends only. One check-in a day, in
+/// the evening, with digestion inside it; no separate focus or digestion cards.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
-    @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
 
@@ -62,10 +62,6 @@ struct HomeView: View {
         case .loaded(let content):
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
-                    Button { router.tab = .trends } label: {
-                        FunctionalHeroCard(today: content.today)
-                    }
-                    .buttonStyle(.plain)
                     ProtocolReviewCard()
 
                     HStack(spacing: 12) {
