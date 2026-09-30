@@ -15826,6 +15826,22 @@
         }
       }
     },
+    "marker.digestion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digestion"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digestion"
+          }
+        }
+      }
+    },
     "marker.energy": {
       "localizations": {
         "en": {

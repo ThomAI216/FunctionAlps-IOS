@@ -75,11 +75,7 @@ struct HomeView: View {
                         .buttonStyle(.plain)
                         .aspectRatio(1, contentMode: .fit)
 
-                        EveningCheckinCard(
-                            today: content.today,
-                            now: dependencies.checkins.currentSlot,
-                            streak: CheckinStreak.days(history: content.today.history, todayDone: !content.today.moments.isEmpty, today: content.today.day)
-                        )
+                        EveningCheckinCard(today: content.today, now: dependencies.checkins.currentSlot)
                         .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
