@@ -29,7 +29,7 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
 | H | profile-wearables (OFF), `wearable-ingest` | HealthKit → `wearable-ingest` (server contract exists, no client anywhere); Thryve connect via web auth session | Privacy Policy must re-disclose wearables first | ⬜ |
 
 ## Design changes
-- **Photo walls (2026-09-30).** The owner uploaded 11 fluted-glass backgrounds and kept four: Blue 1, Blue 3, Sand 1, Sand 4 — the only walls now; the gradient walls (Sage, Cream, Honey, Mist) are retired. Settings → Appearance picks one. For the owner's testing, the first launch draws a random photo and stores it (kept until changed); the owner will name the real default. Preference key `fa.wall.v2`. A 28 % white wash keeps ink text on the wall legible; card glass carries a 20 % white frost on top of the glass so text on cards reads over the photos. Originals in `design/backgrounds/`.
+- **Photo walls (2026-09-30).** The owner uploaded 11 fluted-glass backgrounds and kept four: Blue 1, Blue 3, Sand 1, Sand 4 — the only walls now; the gradient walls (Sage, Cream, Honey, Mist) are retired. Settings → Appearance picks one. Default: Sand 1 (owner's pick). Preference key `fa.wall.v3`. A 28 % white wash keeps ink text on the wall legible; card glass carries a 40 % white frost on top of the glass so text on cards reads over the photos. Originals in `design/backgrounds/`.
 
 ## Server-side moves required (the PRD §41 debt the audit exposed)
 1. `lib/health/*` score stack (crown composite, vitality/metabolic/nutrition/recovery/longevity, gut composites) → `member_scores(p_day)` RPC or edge function; `nb_score_tips` already assumes such keys.
