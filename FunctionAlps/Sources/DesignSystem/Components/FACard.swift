@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// Every card in the app is this surface, and this surface is always the see-through glass:
-/// on iOS 26 it is Apple's clear Liquid Glass (the Sage wall and its dots show through, the
-/// pane refracts what is behind it); before iOS 26 it is the web `GlassCard` "seethrough"
-/// recipe (a faint white veil + shine bevel), never an opaque material. There is deliberately
+/// on iOS 26 it is Apple's clear Liquid Glass (the photo wall shows through, the pane refracts
+/// what is behind it) with a white frost on top; before iOS 26 it is the web `GlassCard`
+/// "seethrough" recipe (a white veil + shine bevel), never an opaque material. There is deliberately
 /// no opaque or tinted variant — the owner's rule (2026-09-03) is that all cards on every screen,
 /// including future ones, and the floating tab bar use exactly this glass.
 struct FACard<Content: View>: View {
@@ -27,6 +27,10 @@ struct FAGlassSurface: ViewModifier {
     /// `glassEffect` inside a card renders as a milky slab, which is exactly what the owner saw (2026-09-14).
     var inset = false
 
+    /// White frost laid over the glass, under the card's content. The owner asked for 20 % more frost
+    /// (2026-09-30) so text on cards reads over the photo walls.
+    static let frost = 0.20
+
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         if inset {
@@ -40,11 +44,12 @@ struct FAGlassSurface: ViewModifier {
                 }
         } else if #available(iOS 26.0, *) {
             content
+                .background(Color.white.opacity(Self.frost), in: shape)
                 .glassEffect(.clear, in: shape)
                 .shadow(color: .black.opacity(0.10), radius: 14, y: 8)
         } else {
             content
-                .background(Color.white.opacity(0.20), in: shape)
+                .background(Color.white.opacity(0.20 + Self.frost), in: shape)
                 .overlay {
                     shape.strokeBorder(
                         LinearGradient(colors: [Color.white.opacity(0.72), Color.white.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing),
