@@ -28,6 +28,9 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
 | G | profile-notifications (orphan), email reminders | Push: device-token table + APNs sender on the backend (nothing exists); local reminders; offline cache; Face ID unlock | new table + edge fn | ⬜ |
 | H | profile-wearables (OFF), `wearable-ingest` | HealthKit → `wearable-ingest` (server contract exists, no client anywhere); Thryve connect via web auth session | Privacy Policy must re-disclose wearables first | ⬜ |
 
+## Design changes
+- **Photo walls (2026-09-30).** The owner's 11 fluted-glass backgrounds (4 blue, 7 sand) are app walls. Settings → Appearance: each photo · the four gradient walls. For the owner's testing, the first launch draws a random photo and stores it (kept until changed in Settings); the owner will name the real default. The preference moved to `fa.wall.v2` so the photos reach everyone once. A 28 % white wash keeps ink text on the wall legible. Originals in `design/backgrounds/`.
+
 ## Server-side moves required (the PRD §41 debt the audit exposed)
 1. `lib/health/*` score stack (crown composite, vitality/metabolic/nutrition/recovery/longevity, gut composites) → `member_scores(p_day)` RPC or edge function; `nb_score_tips` already assumes such keys.
 2. `lib/checkin/red-flags.ts` → evaluated server-side on check-in write (mirror of what `q1-complete` already does for Q1).

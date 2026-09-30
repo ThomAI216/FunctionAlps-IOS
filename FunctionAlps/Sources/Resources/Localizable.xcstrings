@@ -37170,6 +37170,22 @@
         }
       }
     },
+    "wall.blue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bleu"
+          }
+        }
+      }
+    },
     "wall.cream": {
       "localizations": {
         "en": {
@@ -37230,6 +37246,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sauge"
+          }
+        }
+      }
+    },
+    "wall.sand": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sand"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sable"
           }
         }
       }
