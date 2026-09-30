@@ -100,6 +100,10 @@ struct HabitPlan: Sendable, Equatable {
     let habits: [HabitRow]
     /// The trailing `HabitEngine.completionsLookbackDays` of completions, today included.
     var completions: [HabitCompletionRow]
+    /// The plan's patient-visible goals (`care_plan_goals.statement`, in order) — "My health plan" on Home.
+    var goals: [String] = []
+    /// The clinician's current priorities: the plan items flagged `is_weekly_focus`, as the member reads them.
+    var priorities: [String] = []
 
     var activeHabits: [HabitRow] { habits.filter(\.isActive) }
 }
@@ -293,18 +297,19 @@ enum HabitEngine {
 
     // MARK: Today
 
-    /// The habits to act on today, in the order the Expo Home card shows them: the CURRENT moment's first,
-    /// then Anytime, then the moments still ahead, then the earlier moments' undone ones (catch-up), then the
-    /// earlier moments' done ones — so completed work never disappears. Only active habits due today, with
-    /// sequencing applied, each on the face the day's band calls for. Stable: a row does not move when it is
-    /// checked off.
+    /// The habits to act on today: the CURRENT moment's first, then Anytime, then the moments still ahead, then
+    /// the earlier moments' done ones — completed work never disappears. An earlier moment's habit left undone
+    /// is not carried as catch-up (owner, 2026-09-30: the right action at the right time; a skipped morning
+    /// action does not hang around all afternoon — it can be corrected later elsewhere). Only active habits due
+    /// today, with sequencing applied, each on the face the day's band calls for. Stable: a row does not move
+    /// when it is checked off.
     static func todayActions(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil) -> [HabitAction] {
         let now = HabitSlot.current(hour: hour)
         let done = doneIds(plan.completions, on: plan.day)
         let due = plan.activeHabits.filter { isDue($0.frequencyRule, on: plan.day, start: $0.createdDay) }
         var current: [HabitAction] = [], anytime: [HabitAction] = []
         var later: [HabitSlot: [HabitAction]] = [:]
-        var earlierUndone: [HabitAction] = [], earlierDone: [HabitAction] = []
+        var earlierDone: [HabitAction] = []
 
         for habit in due where visibleToday(habit, in: plan.habits, doneIds: done) {
             let shown = face(habit, band: band)
@@ -318,11 +323,10 @@ enum HabitEngine {
             if slot == now { current.append(action) }
             else if slot.rank > now.rank { later[slot, default: []].append(action) }
             else if action.done { earlierDone.append(action) }
-            else { earlierUndone.append(action) }
         }
         var out = current + anytime
         for slot in HabitSlot.order { out += later[slot] ?? [] }
-        return out + earlierUndone + earlierDone
+        return out + earlierDone
     }
 
     // MARK: The line above the habits (the Expo `plan-headline.ts`)

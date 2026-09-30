@@ -12722,6 +12722,102 @@
         }
       }
     },
+    "home.healthPlan.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens your full plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre votre plan complet"
+          }
+        }
+      }
+    },
+    "home.healthPlan.objectives": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectives"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objectifs"
+          }
+        }
+      }
+    },
+    "home.healthPlan.phaseWeek": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · Week %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · Semaine %2$lld"
+          }
+        }
+      }
+    },
+    "home.healthPlan.priorities": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorities"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorités"
+          }
+        }
+      }
+    },
+    "home.healthPlan.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My health plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon plan de santé"
+          }
+        }
+      }
+    },
+    "home.healthPlan.week": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine %lld"
+          }
+        }
+      }
+    },
     "home.hero.a11y": {
       "localizations": {
         "en": {
@@ -15826,18 +15922,18 @@
         }
       }
     },
-    "marker.digestion" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Digestion"
+    "marker.digestion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Digestion"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digestion"
           }
         }
       }
@@ -26238,6 +26334,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Matin"
+          }
+        }
+      }
+    },
+    "plan.today.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions du jour"
           }
         }
       }

@@ -1,15 +1,16 @@
 import SwiftUI
 
-/// "Today from your plan" — the clinician's habits due today, checked off in place (the Expo `PlanTodayCard`).
+/// "Today's actions" — the clinician's habits due today, checked off in place, right under "My health plan"
+/// (the plan's objective and phase live there now, so this card's title is simply the day's actions).
 ///
 /// The clinician decides, the software reveals: every row is a habit a practitioner authored and approved
 /// (RLS on `habits` is the boundary); the card adds nothing but arithmetic — due today, done today, the run so
-/// far. Done is said by the mark AND the strikethrough, never by colour alone (rule 10). The headline is the
-/// clinician's objective when they wrote one; otherwise it describes the practice and never promises an outcome.
+/// far. Done is said by the mark AND the strikethrough, never by colour alone (rule 10). The current moment's
+/// actions lead; an earlier moment's skipped action is not carried (see `HabitEngine.todayActions`).
 ///
 /// States (rule 5): while the first load is in flight the card holds no place — most members have no habits yet,
 /// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits
-/// sees no card (the two squares sit right above); a failed load says so, with a retry; a refresh keeps the rows.
+/// sees no card ("My health plan" sits right above); a failed load says so, with a retry; a refresh keeps the rows.
 struct PlanTodayCard: View {
     @Environment(AppDependencies.self) private var dependencies
 
@@ -34,7 +35,7 @@ struct PlanTodayCard: View {
 
     private func card(_ plan: HabitPlan, actions: [HabitAction], hour: Int, readiness: FocusReadiness?) -> some View {
         let remaining = actions.filter { !$0.done }.count
-        let headline = HabitEngine.headline(plan)
+        let headline = String(localized: "plan.today.title", defaultValue: "Today's actions")
         // Active habits, none due today (a weekly one on its off day): a rest day is not "all done".
         let subtitle = actions.isEmpty
             ? String(localized: "plan.nothingDue", defaultValue: "Nothing due today")
@@ -72,16 +73,6 @@ struct PlanTodayCard: View {
                         ForEach(actions.prefix(HabitEngine.homeActionLimit)) { HabitLine(action: $0) }
                     }
                 }
-                NavigationLink(value: Route.carePlan) {
-                    HStack(spacing: 3) {
-                        Text(String(localized: "plan.open", defaultValue: "Open my plan"))
-                            .font(FATypography.sans(12.5, .semibold, relativeTo: .caption))
-                        Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).accessibilityHidden(true)
-                    }
-                    .foregroundStyle(FAColor.accent)
-                    .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.plain)
             }
         }
     }

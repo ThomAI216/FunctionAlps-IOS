@@ -58,13 +58,45 @@ struct TrendsView: View {
                     }
                     .buttonStyle(.plain)
                     NavigationLink(value: Route.gutIntelligence) { GutIntelligenceCard(breakdown: scores.gut) }.buttonStyle(.plain)
-                    DailyCheckinCTA(slot: dependencies.checkins.currentSlot)
+                    // One check-in a day, in the evening (owner, 2026-09-30).
+                    DailyCheckinCTA(slot: .evening)
+                    // Apple Health's readings as charts — moved here from Home (Trends is the data side).
+                    if HealthKitReader.isAvailable {
+                        healthReadings
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 38)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load(refresh: true) }
+            .task { await dependencies.wearables.refreshSnapshot() }
+        }
+    }
+
+    /// Apple Health straight as its charts once connected; the invitation until then.
+    @ViewBuilder
+    private var healthReadings: some View {
+        let wearables = dependencies.wearables
+        if !wearables.isConnected {
+            NavigationLink(value: Route.wearables) { AppleHealthConnectCard() }
+                .buttonStyle(.plain)
+        } else if let snapshot = wearables.snapshot {
+            if snapshot.hasAnyReading {
+                HealthCharts(snapshot: snapshot)
+            } else {
+                FACard {
+                    Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds."))
+                        .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        } else {
+            FACard {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                }
+            }
         }
     }
 }
@@ -328,7 +360,7 @@ struct GutIntelligenceCard: View {
     }
 }
 
-/// The single entry into the daily check-in (DailyCheckinCTA.tsx) — opens the current moment.
+/// The single entry into the daily check-in (DailyCheckinCTA.tsx) — opens the evening check-in, the one of the day.
 struct DailyCheckinCTA: View {
     let slot: MomentSlot
 
