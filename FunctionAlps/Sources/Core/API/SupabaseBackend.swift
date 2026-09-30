@@ -767,7 +767,30 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 PG.select("phase_key,week_start,week_end,title,summary"), PG.eq("care_plan_id", header.id), PG.order("week_start"),
             ])
         }
-        return HabitPlan(day: day, header: header, phases: phases, habits: habits, completions: completions)
+        var plan = HabitPlan(day: day, header: header, phases: phases, habits: habits, completions: completions)
+        if let header {
+            // "My health plan" on Home: goals and priorities are extras — each fails soft to empty so neither can
+            // take the day's habits down with it. Read one after the other: two small reads, in a fixed order.
+            let rest = self.rest
+            let goals = await soft { () -> [GoalRow] in
+                try await rest.select("care_plan_goals", query: [
+                    PG.select("statement,sort_order"), PG.eq("care_plan_id", header.id),
+                    URLQueryItem(name: "visibility_class", value: "in.(patient_visible,patient_visible_after_approval)"),
+                    PG.order("sort_order"),
+                ])
+            }
+            let focus = await soft { () -> [FocusItemRow] in
+                try await rest.select("care_plan_items", query: [
+                    PG.select("title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
+                    PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
+                ])
+            }
+            plan.goals = (goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            plan.priorities = (focus ?? []).compactMap { row in
+                [row.title, row.objective].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
+            }
+        }
+        return plan
     }
 
     private struct CompletionInsert: Encodable, Sendable {
@@ -913,6 +936,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct AccessRow: Decodable, Sendable { let tracksEnabled: Bool?; let foundationsEnabled: Bool?; let supplementsEnabled: Bool? }
     private struct PriorityRow: Decodable, Sendable { let trackId: String }
     private struct GoalRow: Decodable, Sendable { let statement: String? }
+    private struct FocusItemRow: Decodable, Sendable { let title: String?; let objective: String? }
     private struct ProgressBody: Encodable, Sendable { let patientId: String; let trackId: String?; let contentSlug: String }
 
     func libraryStage() async throws -> RelationshipStage {
@@ -928,7 +952,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func libraryRaw(patientId: String) async throws -> LibraryRaw {
         let rest = self.rest
         async let tracks: [LibraryRawTrack] = rest.select("library_tracks", query: [
-            PG.select("id,slug,title,description,pillar,cover_style,position,requires_stage,requires_track_id"), PG.order("position"),
+            PG.select("id,slug,title,description,pillar,cover_style,position,requires_stage,requires_track_id,cover_image_url"), PG.order("position"),
         ])
         async let lessons = soft { () -> [LibraryRawLesson] in
             try await rest.select("library_track_lessons", query: [PG.select("track_id,position,content_slug"), PG.order("position")])
@@ -973,6 +997,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
             raw.planObjectives = (goals ?? []).compactMap(\.statement).filter { !$0.isEmpty }
         }
         return raw
+    }
+
+    func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] {
+        try await rest.select("library_topic_covers", query: [PG.select("topic,image_url")])
     }
 
     func libraryItem(slug: String) async throws -> LibraryGetRow? {

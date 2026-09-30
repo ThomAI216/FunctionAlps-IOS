@@ -129,16 +129,17 @@ struct HabitEngineTests {
         ]
         let p = plan(habits, completions: [done("m-done", today)])
         let actions = HabitEngine.todayActions(p, hour: 12)   // midday
-        #expect(actions.map(\.id) == ["mid", "any", "eve", "m-undone", "m-done"])
+        #expect(actions.map(\.id) == ["mid", "any", "eve", "m-done"])   // the skipped morning one is not carried
         #expect(actions.first { $0.id == "m-done" }?.done == true)
         #expect(actions.first { $0.id == "m-done" }?.completionId == "c-m-done-2026-09-25")
         #expect(actions.first { $0.id == "mid" }?.done == false)
-        // In the evening the evening habit leads; the morning and midday ones become catch-up, undone first,
-        // each group in the practice's (creation) order.
-        #expect(HabitEngine.todayActions(p, hour: 19).map(\.id) == ["eve", "any", "m-undone", "mid", "m-done"])
+        // In the evening the evening habit leads; earlier moments keep only what was done.
+        #expect(HabitEngine.todayActions(p, hour: 19).map(\.id) == ["eve", "any", "m-done"])
+        // In the morning nothing is earlier: every moment is still ahead.
+        #expect(HabitEngine.todayActions(p, hour: 8).map(\.id) == ["m-done", "m-undone", "any", "mid", "eve"])
         // Once the midday habit is done, the chained one appears behind it.
         let later = HabitPlan(day: today, header: nil, phases: [], habits: habits, completions: [done("m-done", today), done("mid", today)])
-        #expect(HabitEngine.todayActions(later, hour: 12).map(\.id) == ["mid", "chained", "any", "eve", "m-undone", "m-done"])
+        #expect(HabitEngine.todayActions(later, hour: 12).map(\.id) == ["mid", "chained", "any", "eve", "m-done"])
     }
 
     @Test func facesFollowTheDaysBandAndKeepTheIdentity() {

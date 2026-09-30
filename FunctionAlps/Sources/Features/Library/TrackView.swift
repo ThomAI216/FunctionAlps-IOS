@@ -62,7 +62,7 @@ struct TrackView: View {
         return FACard(padded: false) {
             VStack(alignment: .leading, spacing: 0) {
                 PillarCover(pillar: t.pillar, height: 120, badge: t.state == .locked ? nil : t.badge.label, badgeTone: t.badge.tone,
-                            lockLabel: t.state == .locked ? (t.lockLabel ?? String(localized: "library.locked", defaultValue: "Locked")) : nil, slug: t.slug)
+                            lockLabel: t.state == .locked ? (t.lockLabel ?? String(localized: "library.locked", defaultValue: "Locked")) : nil, cover: t.cover)
                 ProgressHairline(pct: t.pct)
                 VStack(alignment: .leading, spacing: 5) {
                     Text("\(t.pillar) · \(String(localized: "library.lessons.count", defaultValue: "\(t.total) lessons"))".uppercased())
@@ -108,7 +108,7 @@ struct TrackView: View {
                     let access: LessonAccess = t.state == .locked ? .locked : LibraryLogic.lessonAccess(index: i, first: first)
                     Button { router.libraryPath.append(.read(l.contentSlug)) } label: {
                         HStack(spacing: 10) {
-                            if illustrated { ArticleCoverSlot(pillar: t.pillar, trackSlug: t.slug, coverURL: l.coverURL, radius: 8) }
+                            if illustrated { ArticleCoverSlot(pillar: t.pillar, trackCover: t.cover, coverURL: l.coverURL, radius: 8) }
                             statusDot(access, index: i)
                             Text(l.title).font(FATypography.display(13.5, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(illustrated ? 2 : 1).multilineTextAlignment(.leading)
                             Spacer(minLength: 6)
