@@ -1,85 +1,33 @@
 import SwiftUI
 
-/// The Home check-in square (right of the meal-scan square): a paged carousel of two photo cards —
-/// morning (sunrise) and evening (sunset) — where the owner's photograph IS the card. On each: the four
-/// marker curves drawing themselves across the picture (the old Check-In square's pulse), small glass
-/// panes with the page's own numbers, the four marker pills (mood · sleep · energy · calm) in glass,
-/// and the title + white pill on a dark foot band. Page dots in the top-right corner.
-struct CheckinCarouselCard: View {
-    enum Page: String, CaseIterable, Hashable {
-        case morning, evening
-        var route: Route {
-            switch self {
-            case .morning: .checkin(.morning)
-            case .evening: .checkin(.evening)
-            }
-        }
-    }
-
+/// The Home check-in square (right of the meal-scan square): the evening check-in — the one check-in of the
+/// day since 2026-09-30 (digestion is answered inside it) — where the owner's sunset photograph IS the card.
+/// On it: the four marker curves drawing themselves across the picture, small glass panes with the day's
+/// numbers, the four marker pills (mood · sleep · energy · calm) in glass, and the title + white pill on a
+/// dark foot band.
+struct EveningCheckinCard: View {
     let today: TodaySnapshot
     let now: MomentSlot
     let streak: Int
-    /// Hours asleep last night (Apple Health, else the member's own morning answer); nil = unknown.
-    let sleepHours: Double?
-    @State private var page: Page
-
-    init(today: TodaySnapshot, now: MomentSlot, streak: Int, sleepHours: Double?) {
-        self.today = today
-        self.now = now
-        self.streak = streak
-        self.sleepHours = sleepHours
-        _page = State(initialValue: now == .evening ? .evening : .morning)
-    }
 
     var body: some View {
-        TabView(selection: $page) {
-            ForEach(Page.allCases, id: \.self) { p in
-                NavigationLink(value: p.route) {
-                    CheckinPhotoCard(page: p, today: today, now: now, streak: streak, sleepHours: sleepHours)
-                }
-                .buttonStyle(.plain)
-                .tag(p)
-            }
+        NavigationLink(value: Route.checkin(.evening)) {
+            CheckinPhotoCard(today: today, now: now, streak: streak)
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .overlay(alignment: .topTrailing) {
-            HStack(spacing: 4) {
-                ForEach(Page.allCases, id: \.self) { p in
-                    Capsule()
-                        .fill(Color.white.opacity(p == page ? 0.95 : 0.45))
-                        .frame(width: p == page ? 12 : 4, height: 4)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: page)
-                }
-            }
-            .padding(10)
-            .accessibilityHidden(true)
-        }
+        .buttonStyle(.plain)
         .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
         .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
-        .accessibilityElement(children: .contain)
     }
 }
 
 /// One photo card, sized by its parent (a square on Home).
 private struct CheckinPhotoCard: View {
-    let page: CheckinCarouselCard.Page
     let today: TodaySnapshot
     let now: MomentSlot
     let streak: Int
-    let sleepHours: Double?
 
-    private var done: Bool {
-        switch page {
-        case .morning: CheckinEngine.slotIsDone(today.moments, .morning)
-        case .evening: CheckinEngine.slotIsDone(today.moments, .evening)
-        }
-    }
-    private var isNow: Bool {
-        switch page {
-        case .morning: now == .morning
-        case .evening: now == .evening
-        }
-    }
+    private var done: Bool { CheckinEngine.slotIsDone(today.moments, .evening) }
+    private var isNow: Bool { now == .evening }
 
     /// mood · sleep · energy · calmness — today's reads, each with its canonical accent (the old square's chips).
     private var markers: [(name: String, color: Color, value: Int?)] {
@@ -96,7 +44,7 @@ private struct CheckinPhotoCard: View {
         GeometryReader { geo in
             let h = geo.size.height
             ZStack(alignment: .bottom) {
-                CheckinLandscape(name: "checkin-\(page.rawValue)", fallback: sky)
+                CheckinLandscape(name: "checkin-evening", fallback: sky)
                 LinearGradient(colors: [.black.opacity(0.26), .black.opacity(0)], startPoint: .top, endPoint: .bottom)
                     .frame(height: h * 0.45)
                     .frame(maxHeight: .infinity, alignment: .top)
@@ -106,18 +54,12 @@ private struct CheckinPhotoCard: View {
                     .offset(y: h * 0.06)
                     .allowsHitTesting(false)
                 VStack(alignment: .leading, spacing: 5) {
-                    switch page {
-                    case .morning:
-                        pane(symbol: "moon.zzz", value: sleepValue, label: String(localized: "home.pane.slept.short", defaultValue: "slept"))
-                        pane(symbol: "flame", value: "\(streak)", label: streak == 1
-                            ? String(localized: "home.pane.streakOne", defaultValue: "day streak")
-                            : String(localized: "home.pane.streak", defaultValue: "day streak"))
-                    case .evening:
-                        pane(symbol: "fork.knife", value: "\(today.meals.count)", label: today.meals.count == 1
-                            ? String(localized: "home.pane.mealOne", defaultValue: "meal logged")
-                            : String(localized: "home.pane.meals", defaultValue: "meals logged"))
-                        pane(symbol: "checkmark.circle", value: "\(momentsDone)/\(MomentSlot.scheduled.count)", label: String(localized: "home.pane.checkins.short", defaultValue: "check-ins"))
-                    }
+                    pane(symbol: "fork.knife", value: "\(today.meals.count)", label: today.meals.count == 1
+                        ? String(localized: "home.pane.mealOne", defaultValue: "meal logged")
+                        : String(localized: "home.pane.meals", defaultValue: "meals logged"))
+                    pane(symbol: "flame", value: "\(streak)", label: streak == 1
+                        ? String(localized: "home.pane.streakOne", defaultValue: "day streak")
+                        : String(localized: "home.pane.streak", defaultValue: "day streak"))
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -156,36 +98,15 @@ private struct CheckinPhotoCard: View {
         .accessibilityLabel("\(title). \(status)")
     }
 
-    private var momentsDone: Int { MomentSlot.scheduled.filter { CheckinEngine.slotIsDone(today.moments, $0) }.count }
-
-    private var sleepValue: String {
-        guard let sleepHours else { return "—" }
-        let total = Int((sleepHours * 60).rounded())
-        return "\(total / 60)h\(String(format: "%02d", total % 60))"
-    }
-
-    private var title: String {
-        switch page {
-        case .morning: String(localized: "home.carousel.morning", defaultValue: "Morning check-in")
-        case .evening: String(localized: "home.carousel.evening", defaultValue: "Evening check-in")
-        }
-    }
+    private var title: String { String(localized: "home.carousel.evening", defaultValue: "Evening check-in") }
 
     private var status: String {
         if done { return String(localized: "home.carousel.done", defaultValue: "Done · tap to adjust") }
         if isNow { return String(localized: "home.carousel.now", defaultValue: "It's time · about a minute") }
-        switch page {
-        case .morning: return String(localized: "home.carousel.morning.sub", defaultValue: "Sleep, energy and how you woke up")
-        case .evening: return String(localized: "home.carousel.evening.sub", defaultValue: "How the day landed, before bed")
-        }
+        return String(localized: "home.carousel.evening.sub", defaultValue: "How the day landed, before bed")
     }
 
-    private var sky: [Color] {
-        switch page {
-        case .morning: [Color(hex: 0xF7CDA9), Color(hex: 0xE9A3A4), Color(hex: 0x9B8AB9)]
-        case .evening: [Color(hex: 0xF2A96A), Color(hex: 0xD8707C), Color(hex: 0x5B4B7A)]
-        }
-    }
+    private var sky: [Color] { [Color(hex: 0xF2A96A), Color(hex: 0xD8707C), Color(hex: 0x5B4B7A)] }
 
     /// One marker pill: its colour dot, the name and today's read (— until the check-in is done).
     private func markerPill(_ m: (name: String, color: Color, value: Int?)) -> some View {

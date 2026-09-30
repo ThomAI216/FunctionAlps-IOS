@@ -28,8 +28,8 @@ struct FAGlassSurface: ViewModifier {
     var inset = false
 
     /// White frost laid over the glass, under the card's content, so text on cards reads over the photo
-    /// walls. The owner's call (2026-09-30): 20 %, then 20 % more.
-    static let frost = 0.40
+    /// walls. The owner's call (2026-09-30): 20 %, then 20 % more, then 20 % more again.
+    static let frost = 0.60
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
