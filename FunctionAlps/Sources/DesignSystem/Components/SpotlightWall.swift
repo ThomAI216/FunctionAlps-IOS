@@ -26,21 +26,28 @@ enum FAWalls {
 
     /// The light walls the Appearance picker offers (the dark family needs the dark palette — not ported).
     static let choices: [WallDef] = [sage, cream, honey, mist]
-    /// `UserDefaults` key the picker writes and every wall reads. `.v2` so the photo walls' Random default
-    /// reaches members who picked a gradient before the photos shipped.
+    /// `UserDefaults` key the picker writes and every wall reads. `.v2` so the photo walls reach
+    /// members who picked a gradient before the photos shipped.
     static let storageKey = "fa.wall.v2"
-    static let defaultKey = FAPhotoWalls.randomKey
+    /// Owner testing (2026-09-30): until the owner names the default photo, the first launch draws one at
+    /// random and stores it, so it holds on every later launch until changed in Settings → Appearance.
+    static let defaultKey: String = {
+        let defaults = UserDefaults.standard
+        if let stored = defaults.string(forKey: FAWalls.storageKey) { return stored }
+        let key = (FAPhotoWalls.all.randomElement() ?? FAPhotoWalls.all[0]).key
+        defaults.set(key, forKey: FAWalls.storageKey)
+        return key
+    }()
 
     static func wall(for key: String) -> WallDef { choices.first { $0.key == key } ?? sage }
 
     static func label(for key: String) -> String {
-        if key == FAPhotoWalls.randomKey { return String(localized: "wall.random", defaultValue: "Random") }
-        if let photo = FAPhotoWalls.all.first(where: { $0.key == key }) { return photo.label }
+        if let photo = FAPhotoWalls.photo(for: key) { return photo.label }
         switch key {
-        case "dd7": String(localized: "wall.cream", defaultValue: "Cream")
-        case "dd8": String(localized: "wall.honey", defaultValue: "Honey")
-        case "dd10": String(localized: "wall.mist", defaultValue: "Mist")
-        default: String(localized: "wall.sage", defaultValue: "Sage")
+        case "dd7": return String(localized: "wall.cream", defaultValue: "Cream")
+        case "dd8": return String(localized: "wall.honey", defaultValue: "Honey")
+        case "dd10": return String(localized: "wall.mist", defaultValue: "Mist")
+        default: return String(localized: "wall.sage", defaultValue: "Sage")
         }
     }
 }
@@ -80,14 +87,8 @@ enum FAPhotoWalls {
         .init(file: "bg-sand-7", family: .sand, number: 7, tint: 0xB49D84),
     ]
 
-    /// "Random" picks one photo per launch, so every screen of a session shares the same wall.
-    static let randomKey = "random"
-    static let launchPick: PhotoWall = all.randomElement() ?? all[0]
-
     /// The photo a stored key shows, or nil for a gradient wall.
-    static func photo(for key: String) -> PhotoWall? {
-        key == randomKey ? launchPick : all.first { $0.key == key }
-    }
+    static func photo(for key: String) -> PhotoWall? { all.first { $0.key == key } }
 
     /// A white wash over the photo so ink text on the wall keeps its contrast over the darker folds.
     static let veilOpacity = 0.28
@@ -95,7 +96,7 @@ enum FAPhotoWalls {
 
 /// Renders a wall as the page background: a photo wall, or a vector gradient wall (crisp at any size).
 struct SpotlightWallView: View {
-    /// The member's pick from Settings → Appearance; a random photo each launch until they choose.
+    /// The member's pick from Settings → Appearance; until then, the photo drawn at first launch.
     @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
     private var wall: WallDef { FAWalls.wall(for: wallKey) }
 

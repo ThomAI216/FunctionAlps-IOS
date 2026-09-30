@@ -4,11 +4,11 @@ import Testing
 
 @Suite("Photo walls (Settings → Appearance)")
 struct PhotoWallTests {
-    @Test func randomIsTheDefaultAndResolvesToAPhoto() {
-        #expect(FAWalls.defaultKey == FAPhotoWalls.randomKey)
-        let pick = FAPhotoWalls.photo(for: FAPhotoWalls.randomKey)
-        #expect(pick != nil)
-        #expect(pick == FAPhotoWalls.photo(for: FAPhotoWalls.randomKey)) // one pick for the whole launch
+    /// The first-launch draw is stored, so the wall holds on every later launch until the member changes it.
+    @Test func defaultIsAStoredPhoto() {
+        let key = FAWalls.defaultKey
+        #expect(FAPhotoWalls.photo(for: key) != nil || FAWalls.choices.contains(where: { $0.key == key }))
+        #expect(UserDefaults.standard.string(forKey: FAWalls.storageKey) != nil)
     }
 
     @Test func gradientKeysAreNotPhotos() {
@@ -20,9 +20,9 @@ struct PhotoWallTests {
     @Test func keysAreUniqueAndResolve() {
         let keys = FAPhotoWalls.all.map(\.key)
         #expect(Set(keys).count == keys.count)
-        #expect(!keys.contains(FAPhotoWalls.randomKey))
         for photo in FAPhotoWalls.all {
             #expect(FAPhotoWalls.photo(for: photo.key) == photo)
+            #expect(FAWalls.label(for: photo.key) == photo.label)
         }
     }
 

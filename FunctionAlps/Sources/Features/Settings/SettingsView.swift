@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// The Expo `profile-settings.tsx`: Language · Appearance · Account rows · Sign out · Delete account.
-/// Language is the phone's own per-app setting (iOS owns it); Appearance offers Random, the photo walls and the light gradient walls.
+/// Language is the phone's own per-app setting (iOS owns it); Appearance offers the photo walls and the light gradient walls.
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
@@ -25,16 +25,10 @@ struct SettingsView: View {
                         }
                     }
 
-                    // Appearance — Random (a new photo each launch), the owner's photo walls, then the light gradient walls.
+                    // Appearance — the owner's photo walls, then the light gradient walls.
                     SettingsSectionLabel(title: String(localized: "settings.appearance", defaultValue: "Appearance"))
                     FACard(padded: false) {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 60), spacing: 6)], spacing: 12) {
-                            WallSwatch(key: FAPhotoWalls.randomKey, selection: $wallKey) {
-                                ZStack {
-                                    ProfilePalette.hairline.opacity(0.35)
-                                    Image(systemName: "shuffle").font(.system(size: 15, weight: .semibold)).foregroundStyle(FAColor.ink)
-                                }
-                            }
                             ForEach(FAPhotoWalls.all, id: \.key) { photo in
                                 WallSwatch(key: photo.key, selection: $wallKey) {
                                     if let thumb = PhotoWallImages.thumbnail(photo) {

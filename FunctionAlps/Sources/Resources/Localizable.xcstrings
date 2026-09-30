@@ -37234,22 +37234,6 @@
         }
       }
     },
-    "wall.random": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Random"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aléatoire"
-          }
-        }
-      }
-    },
     "wall.sage": {
       "localizations": {
         "en": {

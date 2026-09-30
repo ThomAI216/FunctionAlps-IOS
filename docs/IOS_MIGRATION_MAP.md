@@ -29,7 +29,7 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
 | H | profile-wearables (OFF), `wearable-ingest` | HealthKit → `wearable-ingest` (server contract exists, no client anywhere); Thryve connect via web auth session | Privacy Policy must re-disclose wearables first | ⬜ |
 
 ## Design changes
-- **Photo walls (2026-09-30).** The owner's 11 fluted-glass backgrounds (4 blue, 7 sand) are app walls. Settings → Appearance: Random (the default, one photo per launch) · each photo · the four gradient walls. The preference moved to `fa.wall.v2` so Random reached everyone once. A 28 % white wash keeps ink text on the wall legible. Originals in `design/backgrounds/`.
+- **Photo walls (2026-09-30).** The owner's 11 fluted-glass backgrounds (4 blue, 7 sand) are app walls. Settings → Appearance: each photo · the four gradient walls. For the owner's testing, the first launch draws a random photo and stores it (kept until changed in Settings); the owner will name the real default. The preference moved to `fa.wall.v2` so the photos reach everyone once. A 28 % white wash keeps ink text on the wall legible. Originals in `design/backgrounds/`.
 
 ## Server-side moves required (the PRD §41 debt the audit exposed)
 1. `lib/health/*` score stack (crown composite, vitality/metabolic/nutrition/recovery/longevity, gut composites) → `member_scores(p_day)` RPC or edge function; `nb_score_tips` already assumes such keys.

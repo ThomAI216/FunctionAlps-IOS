@@ -5,8 +5,9 @@ The owner's full-size originals (941 × 1672 PNG, uploaded 2026-09-30). They are
 (quality 88, ~150 KB each) as `FunctionAlps/Sources/Resources/Media/<name>.jpg`, listed in
 `FAPhotoWalls.all` (`DesignSystem/Components/SpotlightWall.swift`).
 
-Settings → Appearance offers **Random** (the default: a new photo each launch), each photo below,
-and the four gradient walls (Sage, Cream, Honey, Mist).
+Settings → Appearance offers each photo below and the four gradient walls (Sage, Cream, Honey, Mist).
+While the owner tests, the first launch draws one photo at random and keeps it until changed in
+Settings; once the owner names the default, `FAWalls.defaultKey` becomes that photo.
 
 | Name | Picker label | Uploaded as |
 |---|---|---|
