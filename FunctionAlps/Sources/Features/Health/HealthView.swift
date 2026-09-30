@@ -31,12 +31,7 @@ struct HealthView: View {
                     if !snapshot.hasAnyReading {
                         FACard { Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds.")).font(FATypography.sans(13, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary) }
                     }
-                    section(String(localized: "health.section.activity", defaultValue: "Activity"), metrics: HealthSnapshot.Metric.activity, snapshot: snapshot)
-                    if let night = snapshot.night { SleepNightCard(night: night, stat: snapshot.stat(.sleep)) }
-                    else if let stat = snapshot.stat(.sleep) { section(String(localized: "health.section.sleep", defaultValue: "Last night"), metrics: [.sleep], snapshot: snapshot, stats: [stat]) }
-                    section(String(localized: "health.section.heart", defaultValue: "Heart & breathing"), metrics: HealthSnapshot.Metric.heart, snapshot: snapshot)
-                    section(String(localized: "health.section.body", defaultValue: "Body"), metrics: HealthSnapshot.Metric.body, snapshot: snapshot)
-                    if !snapshot.workoutsToday.isEmpty { workouts(snapshot.workoutsToday) }
+                    HealthCharts(snapshot: snapshot)
                     footer(snapshot)
                 } else {
                     FACard { HStack(spacing: 10) { ProgressView(); Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(13, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary) } }
@@ -62,8 +57,40 @@ struct HealthView: View {
         }
     }
 
+    private func footer(_ snapshot: HealthSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "health.footer", defaultValue: "FunctionAlps shows these readings next to what you log; it never diagnoses. Nothing is written back to Health."))
+                .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                let readAt = HealthFormat.clock(snapshot.capturedAt)
+                Text(String(localized: "home.health.synced", defaultValue: "Read \(readAt)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
+                Spacer()
+                Button { router.push(.wearables) } label: {
+                    Text(String(localized: "health.manage.short", defaultValue: "Manage in Devices")).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
+                }
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+}
+
+/// The readings as cards, one per group: activity (steps, distance, active energy, exercise), last night,
+/// heart & breathing, body, and today's workouts — each reading with its eight-day bars. Groups without a
+/// reading are left out. Shared by the Health page and Home.
+struct HealthCharts: View {
+    let snapshot: HealthSnapshot
+
+    var body: some View {
+        section(String(localized: "health.section.activity", defaultValue: "Activity"), metrics: HealthSnapshot.Metric.activity)
+        if let night = snapshot.night { SleepNightCard(night: night, stat: snapshot.stat(.sleep)) }
+        else if let stat = snapshot.stat(.sleep) { section(String(localized: "health.section.sleep", defaultValue: "Last night"), metrics: [.sleep], stats: [stat]) }
+        section(String(localized: "health.section.heart", defaultValue: "Heart & breathing"), metrics: HealthSnapshot.Metric.heart)
+        section(String(localized: "health.section.body", defaultValue: "Body"), metrics: HealthSnapshot.Metric.body)
+        if !snapshot.workoutsToday.isEmpty { workouts(snapshot.workoutsToday) }
+    }
+
     @ViewBuilder
-    private func section(_ title: String, metrics: [HealthSnapshot.Metric], snapshot: HealthSnapshot, stats: [HealthSnapshot.Stat]? = nil) -> some View {
+    private func section(_ title: String, metrics: [HealthSnapshot.Metric], stats: [HealthSnapshot.Stat]? = nil) -> some View {
         let rows = stats ?? metrics.compactMap(snapshot.stat)
         if !rows.isEmpty {
             FACard {
@@ -97,22 +124,6 @@ struct HealthView: View {
         var text = HealthFormat.integer(w.minutes, locale: .current) + " min"
         if let kcal = w.kcal { text += " · " + HealthFormat.integer(kcal, locale: .current) + " kcal" }
         return text
-    }
-
-    private func footer(_ snapshot: HealthSnapshot) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "health.footer", defaultValue: "FunctionAlps shows these readings next to what you log; it never diagnoses. Nothing is written back to Health."))
-                .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-            HStack {
-                let readAt = HealthFormat.clock(snapshot.capturedAt)
-                Text(String(localized: "home.health.synced", defaultValue: "Read \(readAt)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
-                Spacer()
-                Button { router.push(.wearables) } label: {
-                    Text(String(localized: "health.manage.short", defaultValue: "Manage in Devices")).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
-                }
-            }
-        }
-        .padding(.horizontal, 4)
     }
 }
 

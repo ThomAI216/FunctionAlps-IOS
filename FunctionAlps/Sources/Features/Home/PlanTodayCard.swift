@@ -9,7 +9,7 @@ import SwiftUI
 ///
 /// States (rule 5): while the first load is in flight the card holds no place — most members have no habits yet,
 /// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits
-/// sees no card (Today's focus sits right above); a failed load says so, with a retry; a refresh keeps the rows.
+/// sees no card (the two squares sit right above); a failed load says so, with a retry; a refresh keeps the rows.
 struct PlanTodayCard: View {
     @Environment(AppDependencies.self) private var dependencies
 
