@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// The Expo `profile-settings.tsx`: Language · Appearance · Account rows · Sign out · Delete account.
-/// Language is the phone's own per-app setting (iOS owns it); Appearance offers the light walls.
+/// Language is the phone's own per-app setting (iOS owns it); Appearance offers Random, the photo walls and the light gradient walls.
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
@@ -25,34 +25,34 @@ struct SettingsView: View {
                         }
                     }
 
-                    // Appearance — the light walls (the dark family needs the dark palette, not ported).
+                    // Appearance — Random (a new photo each launch), the owner's photo walls, then the light gradient walls.
                     SettingsSectionLabel(title: String(localized: "settings.appearance", defaultValue: "Appearance"))
                     FACard(padded: false) {
-                        HStack(spacing: 10) {
-                            ForEach(FAWalls.choices, id: \.key) { wall in
-                                let active = wall.key == wallKey
-                                Button { wallKey = wall.key } label: {
-                                    VStack(spacing: 5) {
-                                        ZStack {
-                                            LinearGradient(colors: [Color(hex: wall.baseStart), Color(hex: wall.baseEnd)], startPoint: UnitPoint(x: 0.2, y: 0), endPoint: UnitPoint(x: 0.8, y: 1))
-                                            Circle().fill(Color(hex: wall.dot.hex).opacity(min(1, wall.dot.opacity * 3))).frame(width: 10, height: 10)
-                                        }
-                                        .frame(width: 44, height: 44)
-                                        .clipShape(Circle())
-                                        .overlay { Circle().strokeBorder(active ? FAColor.forestSoft : ProfilePalette.hairline, lineWidth: active ? 2 : 1) }
-                                        Text(FAWalls.label(for: wall.key))
-                                            .font(FATypography.sans(9.5, .semibold, relativeTo: .caption2))
-                                            .foregroundStyle(active ? FAColor.ink : ProfilePalette.muted)
-                                            .lineLimit(1)
-                                    }
-                                    .frame(width: 64)
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 60), spacing: 6)], spacing: 12) {
+                            WallSwatch(key: FAPhotoWalls.randomKey, selection: $wallKey) {
+                                ZStack {
+                                    ProfilePalette.hairline.opacity(0.35)
+                                    Image(systemName: "shuffle").font(.system(size: 15, weight: .semibold)).foregroundStyle(FAColor.ink)
                                 }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(FAWalls.label(for: wall.key))
-                                .accessibilityAddTraits(active ? .isSelected : [])
+                            }
+                            ForEach(FAPhotoWalls.all, id: \.key) { photo in
+                                WallSwatch(key: photo.key, selection: $wallKey) {
+                                    if let thumb = PhotoWallImages.thumbnail(photo) {
+                                        Image(uiImage: thumb).resizable().scaledToFill()
+                                    } else {
+                                        Color(hex: photo.tint)
+                                    }
+                                }
+                            }
+                            ForEach(FAWalls.choices, id: \.key) { wall in
+                                WallSwatch(key: wall.key, selection: $wallKey) {
+                                    ZStack {
+                                        LinearGradient(colors: [Color(hex: wall.baseStart), Color(hex: wall.baseEnd)], startPoint: UnitPoint(x: 0.2, y: 0), endPoint: UnitPoint(x: 0.8, y: 1))
+                                        Circle().fill(Color(hex: wall.dot.hex).opacity(min(1, wall.dot.opacity * 3))).frame(width: 10, height: 10)
+                                    }
+                                }
                             }
                         }
-                        .frame(maxWidth: .infinity)
                         .padding(10)
                     }
 
@@ -123,5 +123,32 @@ struct SettingsView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showDelete) { DeleteAccountSheet() }
+    }
+}
+
+/// One Appearance choice: a 44 pt round preview, its name under it, a ring when selected.
+private struct WallSwatch<Preview: View>: View {
+    let key: String
+    @Binding var selection: String
+    @ViewBuilder let preview: () -> Preview
+
+    var body: some View {
+        let active = key == selection
+        Button { selection = key } label: {
+            VStack(spacing: 5) {
+                preview()
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+                    .overlay { Circle().strokeBorder(active ? FAColor.forestSoft : ProfilePalette.hairline, lineWidth: active ? 2 : 1) }
+                Text(FAWalls.label(for: key))
+                    .font(FATypography.sans(9.5, .semibold, relativeTo: .caption2))
+                    .foregroundStyle(active ? FAColor.ink : ProfilePalette.muted)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(FAWalls.label(for: key))
+        .accessibilityAddTraits(active ? .isSelected : [])
     }
 }

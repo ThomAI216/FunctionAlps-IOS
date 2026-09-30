@@ -1,3 +1,4 @@
+import ImageIO
 import SwiftUI
 import UIKit
 
@@ -25,13 +26,16 @@ enum FAWalls {
 
     /// The light walls the Appearance picker offers (the dark family needs the dark palette — not ported).
     static let choices: [WallDef] = [sage, cream, honey, mist]
-    /// `UserDefaults` key the picker writes and every wall reads.
-    static let storageKey = "fa.wall"
-    static let defaultKey = "dd9"
+    /// `UserDefaults` key the picker writes and every wall reads. `.v2` so the photo walls' Random default
+    /// reaches members who picked a gradient before the photos shipped.
+    static let storageKey = "fa.wall.v2"
+    static let defaultKey = FAPhotoWalls.randomKey
 
     static func wall(for key: String) -> WallDef { choices.first { $0.key == key } ?? sage }
 
     static func label(for key: String) -> String {
+        if key == FAPhotoWalls.randomKey { return String(localized: "wall.random", defaultValue: "Random") }
+        if let photo = FAPhotoWalls.all.first(where: { $0.key == key }) { return photo.label }
         switch key {
         case "dd7": String(localized: "wall.cream", defaultValue: "Cream")
         case "dd8": String(localized: "wall.honey", defaultValue: "Honey")
@@ -41,13 +45,69 @@ enum FAWalls {
     }
 }
 
-/// Renders a wall as the page background — vector, crisp at any size, no image asset.
+/// A photo wall: one of the owner's backgrounds, shipped as `Resources/Media/<file>.jpg`
+/// (full-size originals kept in `design/backgrounds/`).
+struct PhotoWall: Sendable, Equatable {
+    enum Family: Sendable { case blue, sand }
+    let file: String
+    let family: Family
+    let number: Int
+    /// The image's average colour — painted underneath so a slow decode never flashes white.
+    let tint: UInt32
+
+    var key: String { "photo.\(file)" }
+
+    var label: String {
+        switch family {
+        case .blue: "\(String(localized: "wall.blue", defaultValue: "Blue")) \(number)"
+        case .sand: "\(String(localized: "wall.sand", defaultValue: "Sand")) \(number)"
+        }
+    }
+}
+
+enum FAPhotoWalls {
+    static let all: [PhotoWall] = [
+        .init(file: "bg-blue-1", family: .blue, number: 1, tint: 0x91AEC6),
+        .init(file: "bg-blue-2", family: .blue, number: 2, tint: 0x8BAFCC),
+        .init(file: "bg-blue-3", family: .blue, number: 3, tint: 0x8FB2CA),
+        .init(file: "bg-blue-4", family: .blue, number: 4, tint: 0x92B4CD),
+        .init(file: "bg-sand-1", family: .sand, number: 1, tint: 0xC0A78C),
+        .init(file: "bg-sand-2", family: .sand, number: 2, tint: 0xBAA68E),
+        .init(file: "bg-sand-3", family: .sand, number: 3, tint: 0xA28D75),
+        .init(file: "bg-sand-4", family: .sand, number: 4, tint: 0xA58E77),
+        .init(file: "bg-sand-5", family: .sand, number: 5, tint: 0xA08A74),
+        .init(file: "bg-sand-6", family: .sand, number: 6, tint: 0xAD9881),
+        .init(file: "bg-sand-7", family: .sand, number: 7, tint: 0xB49D84),
+    ]
+
+    /// "Random" picks one photo per launch, so every screen of a session shares the same wall.
+    static let randomKey = "random"
+    static let launchPick: PhotoWall = all.randomElement() ?? all[0]
+
+    /// The photo a stored key shows, or nil for a gradient wall.
+    static func photo(for key: String) -> PhotoWall? {
+        key == randomKey ? launchPick : all.first { $0.key == key }
+    }
+
+    /// A white wash over the photo so ink text on the wall keeps its contrast over the darker folds.
+    static let veilOpacity = 0.28
+}
+
+/// Renders a wall as the page background: a photo wall, or a vector gradient wall (crisp at any size).
 struct SpotlightWallView: View {
-    /// The member's pick from Settings → Appearance; the Sage reference look until they choose.
+    /// The member's pick from Settings → Appearance; a random photo each launch until they choose.
     @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
     private var wall: WallDef { FAWalls.wall(for: wallKey) }
 
     var body: some View {
+        if let photo = FAPhotoWalls.photo(for: wallKey) {
+            PhotoWallView(photo: photo)
+        } else {
+            gradientWall
+        }
+    }
+
+    private var gradientWall: some View {
         GeometryReader { geo in
             let w = geo.size.width
             let h = geo.size.height
@@ -67,6 +127,56 @@ struct SpotlightWallView: View {
         Rectangle()
             .fill(RadialGradient(colors: [Color(hex: g.hex, opacity: g.opacity), Color(hex: g.hex, opacity: 0)], center: center, startRadius: 0, endRadius: max(1, rx)))
             .scaleEffect(x: 1, y: rx > 0 ? ry / rx : 1, anchor: center)
+    }
+}
+
+struct PhotoWallView: View {
+    let photo: PhotoWall
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                if let image = PhotoWallImages.full(photo) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
+                Color.white.opacity(FAPhotoWalls.veilOpacity)
+            }
+        }
+        .background(Color(hex: photo.tint))
+        .accessibilityHidden(true)
+    }
+}
+
+/// Decoded photo walls, kept once per file: every screen's wall reuses the same bitmap. Thumbnails are
+/// downsampled by ImageIO so the Appearance picker never decodes eleven full-size photos.
+enum PhotoWallImages {
+    nonisolated(unsafe) private static var fullCache: [String: UIImage] = [:]
+    nonisolated(unsafe) private static var thumbCache: [String: UIImage] = [:]
+
+    static func full(_ photo: PhotoWall) -> UIImage? {
+        if let cached = fullCache[photo.file] { return cached }
+        guard let image = FAMedia.image(photo.file, ext: "jpg")?.preparingForDisplay() else { return nil }
+        fullCache[photo.file] = image
+        return image
+    }
+
+    static func thumbnail(_ photo: PhotoWall, maxPixel: Int = 180) -> UIImage? {
+        if let cached = thumbCache[photo.file] { return cached }
+        guard let url = Bundle.main.url(forResource: photo.file, withExtension: "jpg"),
+              let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+        ]
+        guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+        let image = UIImage(cgImage: cg)
+        thumbCache[photo.file] = image
+        return image
     }
 }
 
