@@ -7,8 +7,7 @@ kept these four (the other seven were removed from the repo, recoverable from gi
 `FAPhotoWalls.all` (`DesignSystem/Components/SpotlightWall.swift`).
 
 Settings → Appearance offers each photo below (the gradient walls Sage, Cream, Honey and Mist are retired).
-While the owner tests, the first launch draws one photo at random and keeps it until changed in
-Settings; once the owner names the default, `FAWalls.defaultKey` becomes that photo.
+The default is **Sand 1** (`FAWalls.defaultKey`), the owner's pick.
 
 | Name | Picker label | Uploaded as |
 |---|---|---|

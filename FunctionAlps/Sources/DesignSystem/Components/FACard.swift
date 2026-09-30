@@ -27,9 +27,9 @@ struct FAGlassSurface: ViewModifier {
     /// `glassEffect` inside a card renders as a milky slab, which is exactly what the owner saw (2026-09-14).
     var inset = false
 
-    /// White frost laid over the glass, under the card's content. The owner asked for 20 % more frost
-    /// (2026-09-30) so text on cards reads over the photo walls.
-    static let frost = 0.20
+    /// White frost laid over the glass, under the card's content, so text on cards reads over the photo
+    /// walls. The owner's call (2026-09-30): 20 %, then 20 % more.
+    static let frost = 0.40
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)

@@ -5,18 +5,11 @@ import UIKit
 /// App walls are the owner's photos (2026-09-30: Blue 1, Blue 3, Sand 1, Sand 4 kept of the eleven
 /// uploaded; the gradient "spotlight" walls are retired). Settings → Appearance picks one.
 enum FAWalls {
-    /// `UserDefaults` key the picker writes and every wall reads (`.v2` since the photo walls).
-    static let storageKey = "fa.wall.v2"
-    /// Owner testing: until the owner names the default photo, the first launch draws one at random and
-    /// stores it, so it holds on every later launch until changed. A stored key for a photo that is no
-    /// longer offered is redrawn the same way.
-    static let defaultKey: String = {
-        let defaults = UserDefaults.standard
-        if let stored = defaults.string(forKey: FAWalls.storageKey), FAPhotoWalls.photo(for: stored) != nil { return stored }
-        let key = (FAPhotoWalls.all.randomElement() ?? FAPhotoWalls.all[0]).key
-        defaults.set(key, forKey: FAWalls.storageKey)
-        return key
-    }()
+    /// `UserDefaults` key the picker writes and every wall reads. `.v3` drops the random draws the test builds
+    /// stored under `.v2`, so every phone starts on the default.
+    static let storageKey = "fa.wall.v3"
+    /// Sand 1 — the owner's default (2026-09-30).
+    static let defaultKey = "photo.bg-sand-1"
 
     /// The photo for a stored key; anything unknown shows the default.
     static func resolved(_ key: String) -> PhotoWall {
@@ -62,7 +55,7 @@ enum FAPhotoWalls {
 
 /// Renders the member's wall as the page background.
 struct SpotlightWallView: View {
-    /// The member's pick from Settings → Appearance; until then, the photo drawn at first launch.
+    /// The member's pick from Settings → Appearance; Sand 1 until they choose.
     @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
 
     var body: some View {
