@@ -7,6 +7,8 @@ import Foundation
 /// change · a meal that needs input). Rule: a reminder is never scheduled for something already done.
 enum NotificationPlanner {
     enum Kind: String, Sendable, CaseIterable {
+        /// Retired 2026-09-30 (one check-in a day, in the evening) — never planned; kept, like midday, so
+        /// `apply()` still recognises and clears the morning requests a previous build left pending.
         case morningCheckin = "checkin.morning"
         /// Retired — never planned. The case stays so `apply()` still recognises (and clears) the
         /// midday requests a previous build left pending on the phone.
@@ -69,14 +71,8 @@ enum NotificationPlanner {
                 out.append(Planned(id: "\(kind.rawValue).\(dayKey)", kind: kind, fireAt: fireAt, title: title, body: body, route: route, threadId: kind.rawValue))
             }
 
-            // TWO check-in moments, and only two: the night behind you, then the day you lived.
-            // Skipped today when that moment is already done. Midday is never planned (retired).
-            if prefs.morningEnabled, !(isToday && state.momentsDone.contains(.morning)) {
-                add(.morningCheckin, at(prefs.morningTime),
-                    String(localized: "notif.morning.title", defaultValue: "Good morning ☀️"),
-                    String(localized: "notif.morning.body", defaultValue: "How did you sleep, and what does today need? Under a minute."),
-                    "functionalps://checkin/morning")
-            }
+            // ONE check-in a day, in the evening: the day you lived, digestion included. Skipped today when
+            // it is already done. Morning and midday are never planned (retired), whatever the stored prefs say.
             if prefs.eveningEnabled, !(isToday && state.momentsDone.contains(.evening)) {
                 add(.eveningCheckin, at(prefs.eveningTime),
                     String(localized: "notif.evening.title", defaultValue: "Look back on your day 🌙"),

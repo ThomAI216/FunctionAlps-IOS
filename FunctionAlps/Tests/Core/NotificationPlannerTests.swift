@@ -24,22 +24,22 @@ struct NotificationPlannerTests {
 
     private func ids(_ plan: [NotificationPlanner.Planned]) -> [String] { plan.map(\.id) }
 
-    @Test("Two check-ins a day for a week; a done moment drops today's only; midday is never planned")
+    @Test("One check-in a day, in the evening, for a week; done today drops today's only; morning and midday are never planned")
     func checkins() {
         var state = NotificationPlanner.State(now: now)
-        state.momentsDone = [.morning]
+        state.momentsDone = [.evening]
         let plan = NotificationPlanner.plan(prefs: .default, state: state, calendar: calendar)
-        let morning = plan.filter { $0.kind == .morningCheckin }
-        #expect(morning.count == 6)                                   // 7 days minus today
-        #expect(!ids(plan).contains("checkin.morning.2026-09-02"))
-        #expect(ids(plan).contains("checkin.morning.2026-09-03"))
-        #expect(plan.filter { $0.kind == .eveningCheckin }.count == 7)
-        #expect(plan.first { $0.id == "checkin.evening.2026-09-02" }?.fireAt == date("2026-09-02 20:45"))
-        #expect(plan.first { $0.id == "checkin.evening.2026-09-02" }?.route == "functionalps://checkin/evening")
-        // The retired moment: not planned even for a member whose stored preference still has it on.
+        #expect(plan.filter { $0.kind == .eveningCheckin }.count == 6)   // 7 days minus today
+        #expect(!ids(plan).contains("checkin.evening.2026-09-02"))
+        #expect(plan.first { $0.id == "checkin.evening.2026-09-03" }?.fireAt == date("2026-09-03 20:45"))
+        #expect(plan.first { $0.id == "checkin.evening.2026-09-03" }?.route == "functionalps://checkin/evening")
+        // The retired moments: not planned even for a member whose stored preferences still have them on.
         var revived = NotificationPrefs.default
+        revived.morningEnabled = true
         revived.middayEnabled = true
-        #expect(NotificationPlanner.plan(prefs: revived, state: state, calendar: calendar).allSatisfy { $0.kind != .middayCheckin })
+        let revivedPlan = NotificationPlanner.plan(prefs: revived, state: NotificationPlanner.State(now: now), calendar: calendar)
+        #expect(revivedPlan.allSatisfy { $0.kind != .morningCheckin && $0.kind != .middayCheckin })
+        #expect(revivedPlan.filter { $0.kind == .eveningCheckin }.count == 7)
     }
 
     @Test("Past times today are never scheduled")
