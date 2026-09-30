@@ -770,23 +770,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
         var plan = HabitPlan(day: day, header: header, phases: phases, habits: habits, completions: completions)
         if let header {
             // "My health plan" on Home: goals and priorities are extras — each fails soft to empty so neither can
-            // take the day's habits down with it.
+            // take the day's habits down with it. Read one after the other: two small reads, in a fixed order.
             let rest = self.rest
-            async let goals = soft { () -> [GoalRow] in
+            let goals = await soft { () -> [GoalRow] in
                 try await rest.select("care_plan_goals", query: [
                     PG.select("statement,sort_order"), PG.eq("care_plan_id", header.id),
                     URLQueryItem(name: "visibility_class", value: "in.(patient_visible,patient_visible_after_approval)"),
                     PG.order("sort_order"),
                 ])
             }
-            async let focus = soft { () -> [FocusItemRow] in
+            let focus = await soft { () -> [FocusItemRow] in
                 try await rest.select("care_plan_items", query: [
                     PG.select("title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
                     PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
                 ])
             }
-            plan.goals = (await goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-            plan.priorities = (await focus ?? []).compactMap { row in
+            plan.goals = (goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            plan.priorities = (focus ?? []).compactMap { row in
                 [row.title, row.objective].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
             }
         }

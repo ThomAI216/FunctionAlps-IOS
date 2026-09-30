@@ -33,12 +33,14 @@ struct HabitsBackendTests {
     private let completionRows = #"[{"id":"c-1","habit_id":"h-1","completion_date":"2026-09-24"}]"#
     private let phaseRows = #"[{"phase_key":"p1","week_start":1,"week_end":2,"title":"Settle","summary":null}]"#
 
-    @Test func loadsTheDayInFourReadsUnderTheMembersSession() async throws {
+    @Test func loadsTheDayInSixReadsUnderTheMembersSession() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: planRow)
         transport.enqueue(status: 200, json: habitRows)
         transport.enqueue(status: 200, json: completionRows)
         transport.enqueue(status: 200, json: phaseRows)
+        transport.enqueue(status: 200, json: #"[{"statement":"More energy through the afternoon","sort_order":1},{"statement":"  ","sort_order":2}]"#)
+        transport.enqueue(status: 200, json: #"[{"title":"Balance the microbiome","objective":null,"sort_order":1},{"title":null,"objective":"Steadier blood sugar","sort_order":2}]"#)
         let (backend, _) = make(transport)
 
         let plan = try await backend.habitPlan(patientId: "p-1", day: "2026-09-25", since: "2026-07-18")
@@ -49,14 +51,34 @@ struct HabitsBackendTests {
         #expect(plan.habits[0].createdDay == "2026-08-16")
         #expect(plan.completions.first?.day == "2026-09-24")
         #expect(plan.phases.first?.title == "Settle")
+        // "My health plan": the patient-visible goals (blank ones dropped) and the weekly-focus items as priorities.
+        #expect(plan.goals == ["More energy through the afternoon"])
+        #expect(plan.priorities == ["Balance the microbiome", "Steadier blood sugar"])
 
         let paths = transport.requests.map { $0.url.path }
-        #expect(paths == ["/rest/v1/care_plans", "/rest/v1/habits", "/rest/v1/habit_completions", "/rest/v1/care_plan_phases"])
+        #expect(paths == ["/rest/v1/care_plans", "/rest/v1/habits", "/rest/v1/habit_completions", "/rest/v1/care_plan_phases",
+                          "/rest/v1/care_plan_goals", "/rest/v1/care_plan_items"])
         let q = transport.requests.map { $0.url.query ?? "" }
         #expect(q[0].contains("status=eq.active") && q[0].contains("objective_line") && q[0].contains("limit=1"))
         #expect(q[1].contains("status=neq.cancelled") && q[1].contains("patient_id=eq.p-1") && !q[1].contains("gate_criteria"))
         #expect(q[2].contains("completion_date=gte.2026-07-18") && q[2].contains("completion_date=lte.2026-09-25"))
         #expect(q[3].contains("care_plan_id=eq.cp-1") && !q[3].contains("gate_criteria"))
+        #expect(q[4].contains("care_plan_id=eq.cp-1") && q[4].contains("visibility_class=in.(patient_visible,patient_visible_after_approval)"))
+        #expect(q[5].contains("care_plan_id=eq.cp-1") && q[5].contains("is_weekly_focus=eq.true"))
+    }
+
+    @Test func goalsAndPrioritiesFailSoft() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: planRow)
+        transport.enqueue(status: 200, json: habitRows)
+        transport.enqueue(status: 200, json: completionRows)
+        transport.enqueue(status: 200, json: phaseRows)
+        transport.enqueue(status: 500, json: #"{"message":"boom"}"#)
+        transport.enqueue(status: 400, json: #"{"message":"column care_plan_items.is_weekly_focus does not exist"}"#)
+        let (backend, _) = make(transport)
+        let plan = try await backend.habitPlan(patientId: "p-1", day: "2026-09-25", since: "2026-07-18")
+        #expect(plan.habits.count == 2)
+        #expect(plan.goals.isEmpty && plan.priorities.isEmpty)
     }
 
     @Test func noActivePlanMeansNoPhaseRead() async throws {
