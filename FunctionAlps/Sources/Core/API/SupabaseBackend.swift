@@ -928,7 +928,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func libraryRaw(patientId: String) async throws -> LibraryRaw {
         let rest = self.rest
         async let tracks: [LibraryRawTrack] = rest.select("library_tracks", query: [
-            PG.select("id,slug,title,description,pillar,cover_style,position,requires_stage,requires_track_id"), PG.order("position"),
+            PG.select("id,slug,title,description,pillar,cover_style,position,requires_stage,requires_track_id,cover_image_url"), PG.order("position"),
         ])
         async let lessons = soft { () -> [LibraryRawLesson] in
             try await rest.select("library_track_lessons", query: [PG.select("track_id,position,content_slug"), PG.order("position")])
@@ -973,6 +973,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
             raw.planObjectives = (goals ?? []).compactMap(\.statement).filter { !$0.isEmpty }
         }
         return raw
+    }
+
+    func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] {
+        try await rest.select("library_topic_covers", query: [PG.select("topic,image_url")])
     }
 
     func libraryItem(slug: String) async throws -> LibraryGetRow? {

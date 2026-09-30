@@ -50,6 +50,8 @@ struct TrackWithProgress: Sendable, Equatable, Identifiable {
     let pct: Int
     let state: TrackState
     let lockLabel: String?
+    /// The card/header art, resolved once at assembly (`LibraryLogic.resolveCover`); nil → pillar gradient.
+    var cover: URL? = nil
 }
 
 enum LessonAccess: Sendable { case done, current, open, locked }
@@ -63,6 +65,8 @@ struct LibResource: Sendable, Equatable, Identifiable {
     let locked: Bool
     let publishedAt: String?
     let coverURL: URL?
+    /// The card art — the topic cover of the resource's pillar tag (`LibraryLogic.resolveCover`); nil → gradient.
+    var cover: URL? = nil
     var id: String { slug }
 }
 
@@ -121,6 +125,14 @@ struct LibraryRawTrack: Sendable, Equatable, Decodable {
     let position: Int
     let requiresStage: String?
     let requiresTrackId: String?
+    /// The track's own cover (`library_tracks.cover_image_url`), usually nil.
+    var coverImageUrl: String? = nil
+}
+
+/// One `library_topic_covers` row — STUDIO → Media → Topic covers; read-only for the app.
+struct LibraryTopicCoverRow: Sendable, Equatable, Decodable {
+    let topic: String
+    let imageUrl: String?
 }
 
 struct LibraryRawLesson: Sendable, Equatable, Decodable {

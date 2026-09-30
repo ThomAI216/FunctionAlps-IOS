@@ -65,6 +65,8 @@ protocol FunctionAlpsBackend: Sendable {
     func libraryRaw(patientId: String) async throws -> LibraryRaw
     /// `member_library_get(p_slug)`; nil when the slug is unknown.
     func libraryItem(slug: String) async throws -> LibraryGetRow?
+    /// `library_topic_covers` — one cover per topic, shared with the members web (anon/authenticated select).
+    func libraryTopicCovers() async throws -> [LibraryTopicCoverRow]
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 

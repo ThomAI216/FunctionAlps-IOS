@@ -201,7 +201,7 @@ private struct LibraryScreen: View {
             FACard(padded: false) {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        PillarCover(pillar: t.pillar, height: 64, slug: t.slug).frame(width: 84)
+                        PillarCover(pillar: t.pillar, height: 64, cover: t.cover).frame(width: 84)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(t.title.uppercased()).font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
                             Text(t.lessons.first { !$0.done }?.title ?? String(localized: "library.reviewTrack", defaultValue: "Review the track"))
