@@ -258,27 +258,34 @@ private struct MealResultPage: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                ConfirmHero(
-                    photo: model.request.input.photos.first.flatMap(UIImage.init(data:)),
-                    photoPath: nil,
-                    meal: meal,
-                    itemCount: meal?.items.count ?? 0,
-                    numbersReady: numbersReady,
-                    showItems: !(meal?.items.isEmpty ?? true)
-                )
+            VStack(alignment: .leading, spacing: 12) {
+                // Every block of text sits on the card glass: the photo walls behind would otherwise eat it.
+                FACard {
+                    ConfirmHero(
+                        photo: model.request.input.photos.first.flatMap(UIImage.init(data:)),
+                        photoPath: nil,
+                        meal: meal,
+                        itemCount: meal?.items.count ?? 0,
+                        numbersReady: numbersReady,
+                        showItems: !(meal?.items.isEmpty ?? true)
+                    )
+                }
                 if needsAttention, let meal {
                     attention(meal)
                 } else if editing, let edit = model.edit {
-                    MealItemsEditor(model: edit)
+                    FACard { MealItemsEditor(model: edit) }
                 } else if let meal, !meal.items.isEmpty {
-                    if numbersReady, let flags = lens?.flags, flags.isEmpty { ProtocolFitsLine() }
-                    MealItemRows(items: meal.items, numbersReady: numbersReady && !reanalyzing, protocolFlags: lens?.flags) { lens?.why = $0 }
-                    if numbersReady { FlagLegend(flags: FoodFlag.flags(in: meal.items)) }
-                    if let edit = model.edit { MealAdjustBar(model: edit) }
+                    FACard {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if numbersReady, let flags = lens?.flags, flags.isEmpty { ProtocolFitsLine() }
+                            MealItemRows(items: meal.items, numbersReady: numbersReady && !reanalyzing, protocolFlags: lens?.flags) { lens?.why = $0 }
+                            if numbersReady { FlagLegend(flags: FoodFlag.flags(in: meal.items)) }
+                            if let edit = model.edit { MealAdjustBar(model: edit) }
+                        }
+                    }
                 }
                 if numbersReady, !editing, let scores = meal?.scores {
-                    MealScoresRow(scores: scores).opacity(reanalyzing ? 0.4 : 1)
+                    FACard { MealScoresRow(scores: scores) }.opacity(reanalyzing ? 0.4 : 1)
                 }
                 if let onNext, let position = model.request.nextPosition {
                     FAButton(title: String(localized: "capture.nextMeal", defaultValue: "Next meal · \(position) of \(model.request.total)")) {
@@ -290,8 +297,9 @@ private struct MealResultPage: View {
                         onFinish()
                     } label: {
                         Text(String(localized: "capture.stopQueue", defaultValue: "Stop · finish the rest later"))
-                            .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FoodPalette.muted)
-                            .frame(maxWidth: .infinity).padding(.vertical, 12)
+                            .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                            .faFrost(cornerRadius: 14, horizontal: 16, vertical: 9)
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.plain)
                 } else {
@@ -299,7 +307,7 @@ private struct MealResultPage: View {
                         model.edit?.persistOnExit()
                         onFinish()
                     }
-                    .padding(.top, numbersReady ? 0 : 16)
+                    .padding(.top, 4)
                 }
             }
             .padding(.horizontal, 18)
@@ -347,15 +355,17 @@ private struct MealResultPage: View {
                 Button { model.retryPhoto() } label: {
                     Text(String(localized: "capture.retryPhoto", defaultValue: "Or try the photo again"))
                         .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                        .frame(maxWidth: .infinity).padding(.vertical, 12).contentShape(Rectangle())
+                        .faFrost(cornerRadius: 14, horizontal: 16, vertical: 9)
+                        .frame(maxWidth: .infinity).contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .padding(.top, 6)
+                .padding(.top, 12)
             }
             FAButton(title: String(localized: "capture.keep", defaultValue: "Keep it as is"), style: .tertiary) { onFinish() }
+                .modifier(FAGlassSurface(cornerRadius: FACornerRadius.md))
+                .padding(.top, 12)
         }
-        .padding(.top, 6)
-        .padding(.bottom, 16)
+        .padding(.bottom, 4)
     }
 }
 
