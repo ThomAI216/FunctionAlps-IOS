@@ -87,7 +87,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan { ShowcaseData.habitPlan(day: day) }
     func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
-    func actionBank() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values).sorted { $0.id < $1.id } }
+    func actionBank() async throws -> [ActionCardRow] {
+        ShowcaseData.cards.values.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
+    }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }

@@ -79,11 +79,12 @@ jobs:
           shoot() {
             xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
             SIMCTL_CHILD_TZ="$TZONE" xcrun simctl launch "$UDID" "$BUNDLE" \
-              -FAShowcase "$2" -AppleLanguages "(en)" -AppleLocale en_US
+              -FAShowcase "$2" -AppleLanguages "(${LANG_CODE:-en})" -AppleLocale "${LOCALE_CODE:-en_US}"
             sleep "${3:-9}"
             xcrun simctl io "$UDID" screenshot --type=png "shots/$1.png"
             echo "shot $1"
           }
+          shootfr() { LANG_CODE=fr LOCALE_CODE=fr_CH shoot "$@"; }
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
           shoot 02-checkin checkin
@@ -98,6 +99,17 @@ jobs:
           shoot 08-library library 14
           shoot 09-symptoms symptoms
           shoot 11-article article 10
+          # The action-card anatomy, for the content brief (EN then FR).
+          shoot 20-card-top card 10
+          shoot 21-card-middle card-middle 10
+          shoot 22-card-bottom card-bottom 10
+          shoot 23-card-breath card-breath 10
+          shoot 24-bank bank 10
+          shootfr 20-card-top-fr card 10
+          shootfr 21-card-middle-fr card-middle 10
+          shootfr 22-card-bottom-fr card-bottom 10
+          shootfr 23-card-breath-fr card-breath 10
+          shootfr 24-bank-fr bank 10
           ls -la shots
 
       - name: Upload

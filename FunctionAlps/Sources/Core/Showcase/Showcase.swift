@@ -10,6 +10,8 @@ import SwiftUI
 enum Showcase {
     enum Screen: String, CaseIterable {
         case today, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, symptoms, article, onboarding
+        /// The action-card anatomy for the content brief: one complete card from the top, middle and bottom, a breathing card, the bank.
+        case card, cardMiddle = "card-middle", cardBottom = "card-bottom", cardBreath = "card-breath", bank
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -26,10 +28,10 @@ enum Showcase {
 
     /// Scrolls a screen to the part the screenshot frames (there is no finger in the simulator): only for `on`.
     @MainActor
-    static func scroll(_ proxy: ScrollViewProxy, to id: String, on target: Screen) async {
+    static func scroll(_ proxy: ScrollViewProxy, to id: String, on target: Screen, anchor: UnitPoint = .top) async {
         guard screen == target else { return }
         try? await Task.sleep(for: .seconds(1.5))
-        proxy.scrollTo(id, anchor: .top)
+        proxy.scrollTo(id, anchor: anchor)
     }
 
     /// Where the app opens — the same `functionalps://` links notifications use.
@@ -44,6 +46,9 @@ enum Showcase {
         case .scores: "functionalps://scores"
         case .careplan: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
+        case .card, .cardMiddle, .cardBottom: "functionalps://action/\(ShowcaseData.anatomyHabitId)"
+        case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"
+        case .bank: "functionalps://bank"
         case .library: "functionalps://library"
         case .symptoms: "functionalps://checkin/gut"
         case .article: "functionalps://library/\(ShowcaseData.articleSlug)"

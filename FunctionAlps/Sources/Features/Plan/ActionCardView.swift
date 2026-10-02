@@ -28,6 +28,7 @@ struct ActionCardView: View {
 
     var body: some View {
         let habits = dependencies.habits
+        ScrollViewReader { proxy in
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
                 backRow
@@ -58,9 +59,17 @@ struct ActionCardView: View {
                         }
                     }
                 }
+                #if DEBUG
+                Color.clear.frame(height: 0).id("showcase.end")
+                #endif
             }
             .padding(.horizontal, 16)
             .padding(.bottom, FASpacing.navBarClearance)
+        }
+        #if DEBUG
+        .task { await Showcase.scroll(proxy, to: "showcase.steps", on: .cardMiddle) }
+        .task { await Showcase.scroll(proxy, to: "showcase.end", on: .cardBottom, anchor: UnitPoint(x: 0.5, y: 0.88)) }
+        #endif
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
@@ -132,7 +141,7 @@ struct ActionCardView: View {
         if content.kind == .breath { BreathPacer(minutes: content.durationMin) }
         if content.easyTitle != nil || content.furtherTitle != nil { versions(content, selected: shown) }
         if content.video != nil || content.youtubeQuery != nil { media(content) }
-        if !content.steps.isEmpty { steps(content.steps) }
+        if !content.steps.isEmpty { steps(content.steps).id("showcase.steps") }
         if let why = content.why { whyCard(why) }
         if let article = content.article { articleCard(article) }
     }

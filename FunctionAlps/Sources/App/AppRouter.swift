@@ -85,7 +85,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] ·
-    ///   messages · careplan · results[/<id>] · devices · settings · home
+    ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -109,6 +109,10 @@ final class AppRouter {
             // action/<habitId> — one action of the plan, on its card (a reminder can open it).
             tab = .home; homePath = []
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.action(id)) }
+        case "bank":
+            // bank · bank/<cardId> — the foundation action bank, or one card in it.
+            tab = .home; homePath = [.actionBank]
+            if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
         case "library":
             // library · library/<slug> — the Library, or one article in it.
             tab = .library; libraryPath = []
