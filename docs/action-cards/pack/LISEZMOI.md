@@ -10,7 +10,7 @@ remplit quelle zone**, pour que l'agent écrive des textes qui tiennent à l'éc
 3. **`carte-action-anatomie.html`** : à ouvrir dans un navigateur. C'est une réplique interactive de la carte (largeur iPhone, vraies polices et couleurs de l'app), avec chaque zone numérotée et sa légende : colonne `habit_bank`, limite, règle EN/FR, et où le champ apparaît ailleurs.
    - On peut basculer EN/FR, la version Douce / Normale / Plus loin, une carte « routine » ou « respiration », et l'ouverture depuis le plan ou depuis la banque.
    - Le fichier est autonome et fonctionne hors ligne.
-4. **`captures-app/`** : de **vraies captures du simulateur iPhone 16 Pro**, avec l'app en mode démonstration, sans aucune donnée réelle.
+4. **`captures-app/`** : de **vraies captures du simulateur iPhone 16 Pro**, avec l'app en mode démonstration, sans aucune donnée réelle. Elles existent en anglais et en français (suffixe `-fr`). La requête YouTube reste en anglais en français : c'est la donnée de l'exemple, pas une règle.
 5. **`rendus/`** : des captures de la réplique HTML, pour qui ne peut pas ouvrir le fichier.
 6. **`code/`** : le code source qui dessine la carte, pour lever tout doute.
 
@@ -18,14 +18,13 @@ remplit quelle zone**, pour que l'agent écrive des textes qui tiennent à l'éc
 
 | Fichier | Ce qu'on voit |
 |---|---|
-| `20-card-top.png` / `-fr` | Une carte complète (« Morning circadian routine »), ouverte depuis les actions du jour : ligne type · moment · durée, titre, description, choix de version, lien YouTube, début des étapes |
-| `21-card-middle.png` / `-fr` | La même carte, au milieu : « Comment faire », puis « Pourquoi dans votre plan », puis l'article de la bibliothèque |
-| `22-card-bottom.png` / `-fr` | La fin de la carte : pourquoi, article, boutons « C'est fait » / « Pas aujourd'hui » |
-| `23-card-breath.png` / `-fr` | Une carte **respiration**, ouverte depuis la banque : le cercle de respiration avec son minuteur, puis « Ajouter à mon plan » |
-| `24-bank.png` / `-fr` | La banque « Actions de base » : les cartes que le membre peut ajouter lui-même, regroupées par pilier |
-| `07b-action-card.png` | Une autre carte complète (« Strength session », mouvement, avec versions) |
-| `01-today.png` | L'accueil : la ligne d'une action dans « Actions du jour », avec type · durée sous le titre |
-| `07-care-plan.png` | « Mon plan de santé », où les actions s'inscrivent dans le plan du membre |
+| `20-card-top.jpg` / `-fr` | Une carte complète (« Morning circadian routine »), ouverte depuis les actions du jour : ligne type · moment · durée, titre, description, choix de version, lien YouTube, début des étapes |
+| `22-card-bottom.jpg` / `-fr` | La même carte, en bas : « Comment faire », « Pourquoi dans votre plan », l'article de la bibliothèque, puis le bouton du jour (ici déjà coché : « Done ✓ · Undo » / « Fait ✓ · Annuler ») |
+| `23-card-breath.jpg` / `-fr` | Une carte **respiration**, ouverte depuis la banque : le cercle de respiration avec son minuteur, puis « Ajouter à mon plan » |
+| `24-bank.jpg` / `-fr` | La banque « Actions de base » : les cartes que le membre peut ajouter lui-même, regroupées par pilier |
+| `07b-action-card.jpg` | Une autre carte complète (« Strength session », mouvement, avec versions) |
+| `01-today.jpg` | L'accueil : la ligne d'une action dans « Actions du jour », avec type · durée sous le titre |
+| `07-care-plan.jpg` | « Mon plan de santé », où les actions s'inscrivent dans le plan du membre |
 
 Les textes de démonstration se trouvent dans le fichier `ShowcaseData.swift` de l'app. Ce sont des
 exemples rédigés pour la vitrine ; ils sont relus par un clinicien avant de servir de modèle.
