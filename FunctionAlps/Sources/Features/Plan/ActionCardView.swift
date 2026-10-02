@@ -1,21 +1,30 @@
 import SwiftUI
 
-/// One action, opened from "Today's actions" or the plan page: what to do, how, a demonstration, why, and what to
-/// read — the practice's action card (CLINICAL → Action cards) around the clinician's habit. Laid out exactly as
-/// CLINICAL's preview draws it. Every word is the practice's (rule 6); the app adds the controls only.
+/// One action, opened from "Today's actions", the plan page or the action bank: what to do, how, a demonstration,
+/// why, and what to read — the practice's action card (CLINICAL → Action cards), around the clinician's habit when
+/// there is one. Laid out exactly as CLINICAL's preview draws it. Every word is the practice's (rule 6); the app
+/// adds the controls only.
 ///
-/// A habit without a card still opens: its own title, description and versions. "Done" is today's check-off
-/// (the same completion the Home row writes); "Not today" records nothing — the action simply comes back at its
-/// next moment, which is what the line says.
+/// From a habit: "Done" is today's check-off (the same completion the Home row writes); "Not today" records
+/// nothing — the action comes back at its next moment, which is what the line says; a member's OWN action can be
+/// removed. From the bank: "Add to my plan" at the moment the member picks (the card's suggestion first).
+/// A habit without a card still opens, on its own words.
 struct ActionCardView: View {
+    enum Source: Hashable {
+        case habit(String)
+        case bankCard(String)
+    }
+
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-    let habitId: String
+    let source: Source
 
     @State private var face: HabitFace?
     @State private var skipped = false
+    @State private var busy = false
+    @State private var writeFailed = false
 
     var body: some View {
         let habits = dependencies.habits
@@ -32,12 +41,20 @@ struct ActionCardView: View {
                         }
                     }
                 case .loaded(let plan):
-                    if let habit = plan.habits.first(where: { $0.id == habitId }) {
-                        page(plan: plan, habit: habit)
-                    } else {
-                        FACard {
-                            FAEmptyState(title: String(localized: "action.missing.title", defaultValue: "This action is no longer in your plan"),
-                                         message: String(localized: "action.missing.message", defaultValue: "Your practitioner may have changed it."))
+                    switch source {
+                    case .habit(let habitId):
+                        if let habit = plan.habits.first(where: { $0.id == habitId }) {
+                            habitPage(plan: plan, habit: habit)
+                        } else {
+                            missing
+                        }
+                    case .bankCard(let cardId):
+                        if let card = bankCard(cardId, plan: plan) {
+                            bankPage(plan: plan, card: card)
+                        } else if case .loading = habits.bank {
+                            FALoadingState()
+                        } else {
+                            missing
                         }
                     }
                 }
@@ -47,11 +64,33 @@ struct ActionCardView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
+        .task {
+            if case .bankCard = source { await dependencies.habits.loadBank() }
+        }
+        .alert(String(localized: "error.title", defaultValue: "Something went wrong"), isPresented: $writeFailed) {
+            Button(String(localized: "action.ok", defaultValue: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "bank.writeFailed", defaultValue: "Your plan could not be updated. Please try again."))
+        }
+    }
+
+    private var missing: some View {
+        FACard {
+            FAEmptyState(title: String(localized: "action.missing.title", defaultValue: "This action is no longer in your plan"),
+                         message: String(localized: "action.missing.message", defaultValue: "Your practitioner may have changed it."))
+        }
+    }
+
+    private func bankCard(_ id: String, plan: HabitPlan) -> ActionCardRow? {
+        if case .loaded(let cards) = dependencies.habits.bank, let card = cards.first(where: { $0.id == id }) { return card }
+        return plan.cards[id]
     }
 
     private var backRow: some View {
         Button { dismiss() } label: {
-            Text("‹ " + String(localized: "plan.today.title", defaultValue: "Today's actions"))
+            Text("‹ " + (source.isBank
+                         ? String(localized: "bank.title", defaultValue: "Foundation actions")
+                         : String(localized: "plan.today.title", defaultValue: "Today's actions")))
                 .font(FATypography.sans(13, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
                 .faFrost(cornerRadius: 14, horizontal: 12, vertical: 8)
         }
@@ -60,26 +99,96 @@ struct ActionCardView: View {
     }
 
     @ViewBuilder
-    private func page(plan: HabitPlan, habit: HabitRow) -> some View {
+    private func habitPage(plan: HabitPlan, habit: HabitRow) -> some View {
         let content = ActionCardLogic.content(card: habit.habitBankId.flatMap { plan.cards[$0] }, habit: habit, locale: TodayFocus.locale())
         let todayFace = HabitEngine.face(habit, band: dependencies.focus.focus?.readiness?.bandValue).face
         let shown = face ?? todayFace
         let dueToday = habit.isActive && HabitEngine.isDue(habit.frequencyRule, on: plan.day, start: habit.createdDay)
         let completionId = HabitEngine.completionId(plan.completions, habit: habit.id, on: plan.day)
 
-        header(content, habit: habit, face: shown)
+        cardBody(content, slot: habit.slotValue, face: shown)
+        if dueToday { actions(habit: habit, completionId: completionId, plan: plan) }
+        if habit.isSelfInitiated { removeButton(habit) }
+    }
+
+    @ViewBuilder
+    private func bankPage(plan: HabitPlan, card: ActionCardRow) -> some View {
+        let content = ActionCardLogic.content(card: card, habit: nil, locale: TodayFocus.locale())
+        cardBody(content, slot: card.defaultSlot.flatMap(HabitSlot.init(rawValue:)), face: face ?? .standard)
+        if let own = PlanAccess.habit(for: card.id, in: plan) {
+            Text(String(localized: "bank.inPlan", defaultValue: "In your plan ✓"))
+                .font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.forest)
+                .faFrost(cornerRadius: 14, horizontal: 14, vertical: 10)
+                .frame(maxWidth: .infinity)
+            if own.isSelfInitiated { removeButton(own) }
+        } else {
+            addMenu(card)
+        }
+    }
+
+    @ViewBuilder
+    private func cardBody(_ content: ActionCardContent, slot: HabitSlot?, face shown: HabitFace) -> some View {
+        header(content, slot: slot, face: shown)
         if content.kind == .breath { BreathPacer(minutes: content.durationMin) }
         if content.easyTitle != nil || content.furtherTitle != nil { versions(content, selected: shown) }
         if content.video != nil || content.youtubeQuery != nil { media(content) }
         if !content.steps.isEmpty { steps(content.steps) }
         if let why = content.why { whyCard(why) }
         if let article = content.article { articleCard(article) }
-        if dueToday { actions(habit: habit, completionId: completionId, plan: plan) }
+    }
+
+    /// "Add to my plan" at a moment of the member's choosing — the card's own suggestion listed first.
+    private func addMenu(_ card: ActionCardRow) -> some View {
+        let suggested = card.defaultSlot.flatMap(HabitSlot.init(rawValue:))
+        let choices: [HabitSlot?] = [suggested] + (HabitSlot.order.map { Optional($0) } + [nil]).filter { $0 != suggested }
+        return Menu {
+            ForEach(Array(choices.enumerated()), id: \.offset) { _, slot in
+                Button(slot?.label ?? String(localized: "plan.slot.anytime", defaultValue: "Anytime")) { add(card, slot: slot) }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                if busy { ProgressView().tint(.white) }
+                Text(String(localized: "bank.add", defaultValue: "Add to my plan")).font(FATypography.headline)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .background(FAColor.brand, in: RoundedRectangle(cornerRadius: FACornerRadius.md, style: .continuous))
+        }
+        .disabled(busy)
+        .accessibilityHint(String(localized: "bank.add.hint", defaultValue: "Choose the moment of the day"))
+        .padding(.top, 4)
+    }
+
+    private func add(_ card: ActionCardRow, slot: HabitSlot?) {
+        busy = true
+        Task {
+            let ok = await dependencies.habits.add(card: card, slot: slot)
+            busy = false
+            if !ok { writeFailed = true }
+        }
+    }
+
+    private func removeButton(_ habit: HabitRow) -> some View {
+        Button {
+            busy = true
+            Task {
+                let ok = await dependencies.habits.remove(ownHabitId: habit.id)
+                busy = false
+                if ok { if case .habit = source { dismiss() } } else { writeFailed = true }
+            }
+        } label: {
+            Text(String(localized: "bank.remove", defaultValue: "Remove from my plan"))
+                .font(FATypography.sans(13, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary)
+                .faFrost(cornerRadius: 14, horizontal: 14, vertical: 9)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .disabled(busy)
     }
 
     // MARK: Pieces
 
-    private func header(_ content: ActionCardContent, habit: HabitRow, face: HabitFace) -> some View {
+    private func header(_ content: ActionCardContent, slot: HabitSlot?, face: HabitFace) -> some View {
         let title = face == .easy ? (content.easyTitle ?? content.title) : face == .progression ? (content.furtherTitle ?? content.title) : content.title
         let detail = face == .easy ? (content.easyDescription ?? content.description)
             : face == .progression ? (content.furtherDescription ?? content.description) : content.description
@@ -92,7 +201,7 @@ struct ActionCardView: View {
                         .clipped()
                 }
                 VStack(alignment: .leading, spacing: 6) {
-                    if let meta = metaLine(content, habit: habit) {
+                    if let meta = metaLine(content, slot: slot) {
                         Text(meta.uppercased())
                             .font(FATypography.sans(10, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.inkSecondary)
                     }
@@ -109,8 +218,8 @@ struct ActionCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
     }
 
-    private func metaLine(_ content: ActionCardContent, habit: HabitRow) -> String? {
-        let moment = habit.slotValue?.label ?? String(localized: "plan.slot.anytime", defaultValue: "Anytime")
+    private func metaLine(_ content: ActionCardContent, slot: HabitSlot?) -> String? {
+        let moment = slot?.label ?? String(localized: "plan.slot.anytime", defaultValue: "Anytime")
         let parts = [content.kind?.label, moment, content.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }]
         return parts.compactMap { $0 }.joined(separator: " · ")
     }
@@ -304,4 +413,8 @@ private struct BreathPacer: View {
     }
 
     private func clock(_ seconds: Int) -> String { String(format: "%d:%02d", max(0, seconds) / 60, max(0, seconds) % 60) }
+}
+
+private extension ActionCardView.Source {
+    var isBank: Bool { if case .bankCard = self { return true } else { return false } }
 }

@@ -67,20 +67,26 @@ struct ActionCardRow: Decodable, Sendable, Equatable, Identifiable {
     var generalWhyFr: String?
     var imageUrl: String?
     var imageAlt: String?
+    /// The moment the card suggests (`morning` · `midday` · `evening`; nil = anytime) and its RRULE (nil = daily) —
+    /// what a member's own habit starts with when they add the card from the bank.
+    var defaultSlot: String?
+    var frequencyRule: String?
+    /// A foundation card: members may add it to their own plan from the action bank.
+    var memberCanAdd: Bool?
     /// Kept raw: a malformed entry is dropped by `ActionCardLogic.links`, never fails the whole card.
     var resources: [RawLink]?
 
     /// The columns the app reads — Core/API only (rule 2) uses this list.
     static let columns = "id,pillar,card_kind,duration_min,title,title_fr,description,description_fr,easy_title,easy_title_fr,"
         + "easy_description,easy_description_fr,rev_title,rev_title_fr,rev_description,rev_description_fr,how_md,how_md_fr,"
-        + "general_why,general_why_fr,image_url,image_alt,resources"
+        + "general_why,general_why_fr,image_url,image_alt,resources,default_slot,frequency_rule,member_can_add"
 
     struct RawLink: Decodable, Sendable, Equatable {
         var kind: String?
         var url: String?
-        var title: String?
         var query: String?
         var slug: String?
+        var title: String?
     }
 }
 
@@ -164,26 +170,28 @@ enum ActionCardLogic {
     }
 
     /// The card in one language. `habit` supplies what the card leaves out: the habit's own title (the
-    /// clinician's words for THIS member lead), and its description and versions when the card has none.
-    static func content(card: ActionCardRow?, habit: HabitRow, locale: String) -> ActionCardContent {
+    /// clinician's words for THIS member lead), and its description and versions when the card has none. Without a
+    /// habit (a bank card the member is reading before adding it) the card speaks for itself.
+    static func content(card: ActionCardRow?, habit: HabitRow?, locale: String) -> ActionCardContent {
         guard let card else {
             return ActionCardContent(
-                kind: nil, durationMin: nil, title: habit.title, description: habit.description?.nilIfEmpty,
-                easyTitle: habit.easyTitle?.nilIfEmpty, easyDescription: habit.easyDescription?.nilIfEmpty,
-                furtherTitle: habit.revTitle?.nilIfEmpty, furtherDescription: habit.revDescription?.nilIfEmpty,
+                kind: nil, durationMin: nil, title: habit?.title ?? "", description: habit?.description?.nilIfEmpty,
+                easyTitle: habit?.easyTitle?.nilIfEmpty, easyDescription: habit?.easyDescription?.nilIfEmpty,
+                furtherTitle: habit?.revTitle?.nilIfEmpty, furtherDescription: habit?.revDescription?.nilIfEmpty,
                 steps: [], why: nil, imageURL: nil, imageAlt: nil, links: []
             )
         }
         let image = card.imageUrl.flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
+        let cardTitle = pick(card.title, card.titleFr, locale: locale) ?? card.title
         return ActionCardContent(
             kind: card.cardKind.flatMap(ActionCardKind.init(rawValue:)),
             durationMin: card.durationMin.flatMap { (1...240).contains($0) ? $0 : nil },
-            title: habit.title.nilIfEmpty ?? pick(card.title, card.titleFr, locale: locale) ?? card.title,
-            description: pick(card.description, card.descriptionFr, locale: locale) ?? habit.description?.nilIfEmpty,
-            easyTitle: pick(card.easyTitle, card.easyTitleFr, locale: locale) ?? habit.easyTitle?.nilIfEmpty,
-            easyDescription: pick(card.easyDescription, card.easyDescriptionFr, locale: locale) ?? habit.easyDescription?.nilIfEmpty,
-            furtherTitle: pick(card.revTitle, card.revTitleFr, locale: locale) ?? habit.revTitle?.nilIfEmpty,
-            furtherDescription: pick(card.revDescription, card.revDescriptionFr, locale: locale) ?? habit.revDescription?.nilIfEmpty,
+            title: habit?.title.nilIfEmpty ?? cardTitle,
+            description: pick(card.description, card.descriptionFr, locale: locale) ?? habit?.description?.nilIfEmpty,
+            easyTitle: pick(card.easyTitle, card.easyTitleFr, locale: locale) ?? habit?.easyTitle?.nilIfEmpty,
+            easyDescription: pick(card.easyDescription, card.easyDescriptionFr, locale: locale) ?? habit?.easyDescription?.nilIfEmpty,
+            furtherTitle: pick(card.revTitle, card.revTitleFr, locale: locale) ?? habit?.revTitle?.nilIfEmpty,
+            furtherDescription: pick(card.revDescription, card.revDescriptionFr, locale: locale) ?? habit?.revDescription?.nilIfEmpty,
             steps: steps(pick(card.howMd, card.howMdFr, locale: locale)),
             why: pick(card.generalWhy, card.generalWhyFr, locale: locale),
             imageURL: image,

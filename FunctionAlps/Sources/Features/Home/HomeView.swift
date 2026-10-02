@@ -34,7 +34,7 @@ struct HomeView: View {
             guard let today, let patientId = model?.state.value?.member.patientId else { return }
             let notifications = dependencies.notifications, wearables = dependencies.wearables, focus = dependencies.focus, habits = dependencies.habits
             Task { await focus.load() }   // read back — the day is computed once and holds still
-            Task { await habits.load(patientId: patientId, day: today.day) }
+            Task { await habits.load(patientId: patientId, day: today.day); await habits.loadNextCall() }
             Task {
                 await notifications.loadPrefs(patientId: patientId)
                 await notifications.refreshAuthorization()

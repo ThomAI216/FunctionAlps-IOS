@@ -11,7 +11,6 @@ import SwiftUI
 struct CarePlanView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var detail: CarePlan?
-    @State private var detailLoaded = false
 
     var body: some View {
         let habits = dependencies.habits
@@ -30,11 +29,7 @@ struct CarePlanView: View {
                             }
                         }
                     case .loaded(let plan):
-                        if plan.header == nil && detail == nil {
-                            if detailLoaded { waiting } else { FALoadingState().frame(maxWidth: .infinity).padding(.top, 40) }
-                        } else {
-                            content(plan)
-                        }
+                        content(plan)
                     }
                 }
                 .padding(16)
@@ -47,25 +42,32 @@ struct CarePlanView: View {
             if let member = try? await dependencies.members.currentMember() {
                 detail = await dependencies.profile.carePlan(patientId: member.patientId)
             }
-            detailLoaded = true
         }
+        .task { await dependencies.habits.loadNextCall() }
     }
 
-    private var waiting: some View {
-        FACard {
-            Text(String(localized: "careplan.waiting", defaultValue: "Your personalised care plan appears here once your practitioner publishes it after your call."))
-                .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary).lineSpacing(5)
-        }
-    }
-
+    /// Every area is the clinician's; one not written yet is blurred (owner, 2026-10-02). Before the first plan the
+    /// whole top waits behind the call; the member's actions — and the foundation bank — are there from day one.
     @ViewBuilder
     private func content(_ plan: HabitPlan) -> some View {
         let week = HabitEngine.planWeek(start: plan.header?.startDate, today: plan.day)
-        intro(plan)
-        objective(plan)
-        if !plan.phases.isEmpty { journey(plan, week: week) }
-        if !plan.priorities.isEmpty { priorities(plan.priorities) }
-        if !plan.activeHabits.isEmpty { actions(plan) }
+        if plan.header == nil {
+            FACard {
+                PlanLockedArea(reason: .awaitingCall(dependencies.habits.nextCall)) {
+                    VStack(alignment: .leading, spacing: 18) {
+                        PlanPlaceholderLines(lines: 3)
+                        PlanPlaceholderLines(lines: 4)
+                        PlanPlaceholderLines(lines: 1, chips: true)
+                    }
+                }
+            }
+        } else {
+            intro(plan)
+            objective(plan)
+            if plan.phases.isEmpty { locked(String(localized: "careplan.journey", defaultValue: "Your journey"), lines: 4) } else { journey(plan, week: week) }
+            if plan.priorities.isEmpty { locked(String(localized: "careplan.priorities", defaultValue: "This week's priorities"), lines: 1, chips: true) } else { priorities(plan.priorities) }
+        }
+        actions(plan)
         if let detail, !detail.sections.isEmpty { sections(detail) }
         let articles = PlanPageLogic.articles(plan)
         if !articles.isEmpty { reading(articles) }
@@ -88,11 +90,23 @@ struct CarePlanView: View {
         }
     }
 
+    /// A plan area the clinician has not written yet: its heading, then the blurred stand-in.
+    private func locked(_ title: String, lines: Int, chips: Bool = false) -> some View {
+        FACard {
+            VStack(alignment: .leading, spacing: 8) {
+                label(title)
+                PlanLockedArea(reason: .notDefinedYet) { PlanPlaceholderLines(lines: lines, chips: chips) }
+            }
+        }
+    }
+
     @ViewBuilder
     private func objective(_ plan: HabitPlan) -> some View {
         let line = plan.header?.objectiveLine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let goals = plan.goals.isEmpty ? (detail?.goals ?? []) : plan.goals
-        if !line.isEmpty || !goals.isEmpty {
+        if line.isEmpty && goals.isEmpty {
+            locked(String(localized: "careplan.objective", defaultValue: "Your objective"), lines: 3)
+        } else {
             FACard {
                 VStack(alignment: .leading, spacing: 10) {
                     label(String(localized: "careplan.objective", defaultValue: "Your objective"))
@@ -182,6 +196,18 @@ struct CarePlanView: View {
         let totals = PlanPageLogic.weekTotals(days)
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
+                if plan.activeHabits.isEmpty {
+                    label(String(localized: "careplan.actions", defaultValue: "My actions"))
+                    PlanLockedArea(reason: .noActions) { PlanPlaceholderLines(lines: 4) }
+                } else {
+                    actionsList(plan, days: days, totals: totals)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func actionsList(_ plan: HabitPlan, days: [PlanPageLogic.WeekDay], totals: (done: Int, due: Int)) -> some View {
                 HStack(alignment: .firstTextBaseline) {
                     label(String(localized: "careplan.actions", defaultValue: "My actions"))
                     Spacer()
@@ -198,8 +224,12 @@ struct CarePlanView: View {
                         ForEach(group.habits, id: \.id) { habit in actionRow(habit, plan: plan) }
                     }
                 }
-            }
-        }
+                NavigationLink(value: Route.actionBank) {
+                    Label(String(localized: "bank.addOne", defaultValue: "Add a foundation action"), systemImage: "plus.circle")
+                        .font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.forest)
+                        .padding(.top, 4)
+                }
+                .buttonStyle(.plain)
     }
 
     private func actionRow(_ habit: HabitRow, plan: HabitPlan) -> some View {

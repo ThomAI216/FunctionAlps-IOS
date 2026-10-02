@@ -824,6 +824,31 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.delete("habit_completions", query: [PG.eq("id", id)])
     }
 
+    func actionBank() async throws -> [ActionCardRow] {
+        try await rest.select("habit_bank", query: [
+            PG.select(ActionCardRow.columns), PG.eq("active", "true"), PG.eq("member_can_add", "true"),
+            URLQueryItem(name: "order", value: "pillar.asc,sort_order.asc"),
+        ])
+    }
+
+    func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String {
+        let row: InsertedRow = try await rest.insert("habits", body: habit)
+        return row.id
+    }
+
+    func removeOwnHabit(id: String) async throws {
+        try await rest.delete("habits", query: [PG.eq("id", id), PG.eq("source", "self_initiated")])
+    }
+
+    func nextAppointment(after: Date) async throws -> AppointmentRow? {
+        let rows: [AppointmentRow] = try await rest.select("appointments", query: [
+            PG.select("id,title,starts_at,ends_at,location,meeting_link,status"),
+            PG.gte("starts_at", ISO8601.string(after)), PG.neq("status", "cancelled"),
+            PG.order("starts_at"), PG.limit(1),
+        ])
+        return rows.first
+    }
+
     private struct GatesBody: Encodable, Sendable { let today: String }
 
     func evaluateHabitGates(day: String) async throws {

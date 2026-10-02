@@ -9,8 +9,9 @@ import SwiftUI
 /// actions lead; an earlier moment's skipped action is not carried (see `HabitEngine.todayActions`).
 ///
 /// States (rule 5): while the first load is in flight the card holds no place — most members have no habits yet,
-/// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits
-/// sees no card ("My health plan" sits right above); a failed load says so, with a retry; a refresh keeps the rows.
+/// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits sees
+/// the card's place blurred, with the foundation bank to start from (owner, 2026-10-02); a failed load says so,
+/// with a retry; a refresh keeps the rows.
 struct PlanTodayCard: View {
     @Environment(AppDependencies.self) private var dependencies
 
@@ -29,6 +30,14 @@ struct PlanTodayCard: View {
             let readiness = dependencies.focus.focus?.readiness
             if !plan.activeHabits.isEmpty {
                 card(plan, actions: habits.actions(band: readiness?.bandValue), hour: habits.hour, readiness: readiness)
+            } else {
+                // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
+                FACard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(String(localized: "plan.today.title", defaultValue: "Today's actions")).font(FATypography.headline).foregroundStyle(FAColor.ink)
+                        PlanLockedArea(reason: .noActions) { PlanPlaceholderLines(lines: 4) }
+                    }
+                }
             }
         }
     }

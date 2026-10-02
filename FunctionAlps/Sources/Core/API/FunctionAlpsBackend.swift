@@ -224,6 +224,17 @@ protocol FunctionAlpsBackend: Sendable {
     /// Poke the server's gate evaluator after a check-off (`evaluate-gates`): completion arithmetic only,
     /// clinician-pre-authorised releases only. Best effort — the nightly sweep does the same.
     func evaluateHabitGates(day: String) async throws
+    /// The action bank: published cards the practice lets members add themselves (`habit_bank`, active and
+    /// `member_can_add`), by pillar.
+    func actionBank() async throws -> [ActionCardRow]
+    /// Add a bank card to the member's own plan: a `self_initiated` habit pointing at the card (RLS
+    /// `habits_member_self_insert`). Returns the habit id.
+    func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String
+    /// Remove one of the member's OWN habits (RLS allows self_initiated only; a prescribed one never goes).
+    func removeOwnHabit(id: String) async throws
+    /// The member's next call with the practice — a patient-visible, not-cancelled appointment from `after` on
+    /// (RLS `appointments_member_self_select`); nil when none is booked.
+    func nextAppointment(after: Date) async throws -> AppointmentRow?
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)
