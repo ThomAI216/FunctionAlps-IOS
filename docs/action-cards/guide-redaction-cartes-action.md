@@ -80,17 +80,17 @@ plusieurs types (`item_kind`) : `habit`, `supplement_plan`, `reminder`,
 `meal_protocol`, `info_only`, `curriculum`. **Seuls les éléments de type `habit`
 deviennent des actions dans l'app.**
 
-- **Aujourd'hui.** Quand un élément `habit` approuvé est envoyé à l'app (activation du
-  care plan, ou envoi de l'élément seul), le push
-  (`lib/care-plan/translator.ts → pushItemToApp → pushHabit`) crée ou met à jour la ligne
-  `habits` du patient (titre, description tirée de `instruction_text`, fréquence ; aucun
-  moment, donc « N'importe quand »). Il **ne relie pas encore** cette ligne à une carte.
-  La clinicienne relie la carte à la main, dans l'onglet Plan du patient, panneau des
-  habitudes, sélecteur de carte (`CardSelect`, qui ne propose que les cartes publiées).
-- **Cible, pas encore livrée** (au 2026-10-02, `care_plan_items` n'a aucune colonne qui
-  désigne une carte). Un élément de care plan de type `habit`
-  **pointera vers une carte** dès sa création, et le push écrira `habits.habit_bank_id`.
-  Le patient verra alors automatiquement la carte complète.
+- **Depuis le 2026-10-02.** Un élément de care plan de type `habit` **pointe vers une carte**
+  (`care_plan_items.habit_bank_id`). La clinicienne la choisit dans l'éditeur de l'élément
+  (onglet Plan du patient), ou l'IA la propose depuis la liste des cartes publiées. Si aucune
+  carte ne convient, elle peut **créer une carte en brouillon à partir de l'élément**, qu'une
+  responsable relit et publie.
+- **Au push** vers l'app, la ligne `habits` du patient reçoit `habit_bank_id`, le moment
+  (`default_slot` de la carte), la fréquence (celle de l'élément, sinon celle de la carte), les
+  versions douce et plus loin de la carte, et le titre de la carte dans la langue du patient
+  quand la clinicienne n'en a pas écrit un autre. Le patient voit alors la carte complète.
+- Une carte **non publiée** n'est jamais envoyée : l'action part avec ses propres mots, et la
+  carte apparaît d'elle-même dès qu'une responsable la publie.
 
 Conséquence pour l'auteur : **chaque carte doit pouvoir être prescrite telle quelle à des
 patients très différents.** Ce qui est propre à un patient (fréquence, durée du suivi,
