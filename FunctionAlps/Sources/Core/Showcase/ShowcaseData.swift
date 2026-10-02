@@ -141,23 +141,24 @@ enum ShowcaseData {
         let json = """
         {"day":"\(day(0))","trend":"up",
          "composite":{"score":74,"basis":"checkins_meals","pillars":{"vitality":76,"metabolic":71,"nutrition":75}},
-         "vitality":{"score":76,"series_14d":[\(series(66, 76, 0.4))],"tip":null,"factors":[
+         "vitality":{"score":76,"series14d":[\(series(66, 76, 0.4))],"tip":null,"factors":[
            {"key":"energy","label":"Energy","value":77,"weight":0.3,"status":"good","detail":null},
            {"key":"sleep","label":"Sleep","value":72,"weight":0.3,"status":"good","detail":null},
            {"key":"mood","label":"Mood","value":79,"weight":0.2,"status":"good","detail":null},
            {"key":"calm","label":"Calm","value":70,"weight":0.2,"status":"watch","detail":null}]},
-         "metabolic":{"score":71,"series_14d":[\(series(63, 71, 1.2))],"tip":null,"factors":[
+         "metabolic":{"score":71,"series14d":[\(series(63, 71, 1.2))],"tip":null,"factors":[
            {"key":"glycemic","label":"Carb quality","value":74,"weight":0.5,"status":"good","detail":null},
            {"key":"rhythm","label":"Meal rhythm","value":68,"weight":0.5,"status":"watch","detail":null}]},
-         "nutrition":{"score":75,"series_14d":[\(series(67, 75, 2.1))],"tip":null,"factors":[
+         "nutrition":{"score":75,"series14d":[\(series(67, 75, 2.1))],"tip":null,"factors":[
            {"key":"plants","label":"Plants & fibre","value":81,"weight":0.4,"status":"good","detail":null},
            {"key":"protein","label":"Protein","value":72,"weight":0.3,"status":"good","detail":null},
            {"key":"fat","label":"Fat quality","value":73,"weight":0.3,"status":"good","detail":null}]},
-         "gut":{"score":78,"series_14d":[\(series(64, 78, 0.9))],"tip":null,"factors":[]},
-         "composite_series_14d":[\(series(65, 74, 0.6))],
+         "gut":{"score":78,"series14d":[\(series(64, 78, 0.9))],"tip":null,"factors":[]},
+         "compositeSeries14d":[\(series(65, 74, 0.6))],
          "wearable":null}
         """
-        return try? JSON.decode(MemberScores.self, from: Data(json.utf8))
+        // `member-scores` answers in camelCase (decoded without key conversion, like the real call).
+        return try? JSONDecoder().decode(MemberScores.self, from: Data(json.utf8))
     }
 
     // MARK: The plan, with Alessandra
@@ -267,7 +268,7 @@ enum ShowcaseData {
         }
         raw.access = .open
         raw.priorityTrackIds = ["showcase-track-0"]
-        raw.plan = LibraryRawPlan(id: "showcase-plan", title: "Care plan", startDate: day(-24))
+        raw.plan = LibraryRawPlan(id: "showcase-plan", title: "Steady energy through the afternoon", startDate: day(-24))
         raw.planObjectives = ["No more afternoon slump"]
         return raw
     }
