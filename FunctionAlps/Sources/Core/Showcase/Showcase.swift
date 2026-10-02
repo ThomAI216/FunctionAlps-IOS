@@ -1,8 +1,8 @@
 #if DEBUG
-import Foundation
+import SwiftUI
 
 /// The members-showcase screenshots (owner, 2026-10-02): the app, signed in as a SAMPLE member ("Marie", three
-/// weeks of check-ins and meals, a plan with Alessandra), opened straight on one screen. Debug builds only — the
+/// weeks of check-ins and meals, an energy / focus / sleep plan), opened straight on one screen. Debug builds only — the
 /// whole folder is compiled out of Release, so TestFlight and the App Store never contain it — and it reads no
 /// network data: `ShowcaseBackend` answers every call from the samples below. Nothing here is a real person.
 ///
@@ -21,6 +21,14 @@ enum Showcase {
 
     static var isOn: Bool { screen != nil }
 
+    /// Scrolls a screen to the part the screenshot frames (there is no finger in the simulator): only for `on`.
+    @MainActor
+    static func scroll(_ proxy: ScrollViewProxy, to id: String, on target: Screen) async {
+        guard screen == target else { return }
+        try? await Task.sleep(for: .seconds(1.5))
+        proxy.scrollTo(id, anchor: .top)
+    }
+
     /// Where the app opens — the same `functionalps://` links notifications use.
     static var route: URL? {
         guard let screen else { return nil }
@@ -32,7 +40,7 @@ enum Showcase {
         case .trends: "functionalps://trends"
         case .scores: "functionalps://scores"
         case .careplan: "functionalps://careplan"
-        case .action: "functionalps://action/\(ShowcaseData.breathHabitId)"
+        case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
         case .library: "functionalps://library"
         case .symptoms: "functionalps://checkin/gut"
         case .article: "functionalps://library/\(ShowcaseData.articleSlug)"

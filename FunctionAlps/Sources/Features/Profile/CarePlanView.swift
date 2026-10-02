@@ -16,6 +16,7 @@ struct CarePlanView: View {
         let habits = dependencies.habits
         VStack(spacing: 0) {
             CenteredHeader(title: String(localized: "home.healthPlan.title", defaultValue: "My health plan"), hairline: true)
+            ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 14) {
                     switch habits.phase {
@@ -34,6 +35,10 @@ struct CarePlanView: View {
                 }
                 .padding(16)
                 .padding(.bottom, FASpacing.navBarClearance)
+            }
+            #if DEBUG
+            .task { await Showcase.scroll(proxy, to: "showcase.objective", on: .careplan) }
+            #endif
             }
         }
         .faWall()
@@ -102,6 +107,11 @@ struct CarePlanView: View {
 
     @ViewBuilder
     private func objective(_ plan: HabitPlan) -> some View {
+        objectiveCard(plan).id("showcase.objective")
+    }
+
+    @ViewBuilder
+    private func objectiveCard(_ plan: HabitPlan) -> some View {
         let line = plan.header?.objectiveLine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let goals = plan.goals.isEmpty ? (detail?.goals ?? []) : plan.goals
         if line.isEmpty && goals.isEmpty {

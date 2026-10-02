@@ -53,6 +53,7 @@ private struct CheckinMomentScreen: View {
     private var canSave: Bool { model.gut.map(\.loaded) ?? true }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: FASpacing.md) {
                 VStack(alignment: .leading, spacing: FASpacing.xs) {
@@ -97,6 +98,10 @@ private struct CheckinMomentScreen: View {
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .scrollDismissesKeyboard(.interactively)
+        #if DEBUG
+        .task { await Showcase.scroll(proxy, to: "showcase.energy", on: .checkin) }
+        #endif
+        }
     }
 
     @ViewBuilder
@@ -122,6 +127,7 @@ private struct CheckinMomentScreen: View {
         case .markers:
             sectionLabel(model.markersTitle)
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
+                .id("showcase.energy")
             DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
         case .digestion:
