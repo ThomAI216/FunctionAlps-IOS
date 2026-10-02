@@ -8,9 +8,11 @@ on:
     branches: ["claude/**"]
   workflow_dispatch:
 
+# Queue, never cancel: a later push without "[screens]" also starts this workflow (its job is skipped), and
+# cancelling would kill the shoot already running.
 concurrency:
   group: screenshots-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 defaults:
   run:
