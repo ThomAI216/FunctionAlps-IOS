@@ -753,7 +753,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         ])
         let header = headers.first
         let habits: [HabitRow] = try await rest.select("habits", query: [
-            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at"),
+            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id"),
             PG.eq("patient_id", patientId), PG.neq("status", "cancelled"), PG.order("created_at"),
         ])
         let completions: [HabitCompletionRow] = try await rest.select("habit_completions", query: [
@@ -789,6 +789,16 @@ struct SupabaseBackend: FunctionAlpsBackend {
             plan.priorities = (focus ?? []).compactMap { row in
                 [row.title, row.objective].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
             }
+        }
+        // Action cards (CLINICAL → Action cards), read live: only published ones come back (RLS = active). An extra
+        // like goals — a failed read leaves the habits on their own words.
+        let cardIds = Array(Set(habits.compactMap(\.habitBankId))).sorted()
+        if !cardIds.isEmpty {
+            let rest = self.rest
+            let cards = await soft { () -> [ActionCardRow] in
+                try await rest.select("habit_bank", query: [PG.select(ActionCardRow.columns), PG.inList("id", cardIds)])
+            }
+            plan.cards = Dictionary((cards ?? []).map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         }
         return plan
     }

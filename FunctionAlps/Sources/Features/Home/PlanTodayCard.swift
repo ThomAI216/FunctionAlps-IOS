@@ -102,21 +102,42 @@ private struct HabitLine: View {
                 : String(localized: "plan.a11y.markDone", defaultValue: "Mark as done: \(action.title)"))
             .accessibilityAddTraits(action.done ? .isSelected : [])
 
-            Text(action.title)
-                .font(FATypography.callout)
-                .strikethrough(action.done)
-                .foregroundStyle(action.done ? FAColor.inkSecondary : FAColor.ink)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            if action.streak >= HabitEngine.streakBadgeMin {
-                HStack(spacing: 3) {
-                    Image(systemName: "flame").font(.system(size: 11)).accessibilityHidden(true)
-                    Text("\(action.streak)").font(FATypography.label)
+            // The rest of the row opens the action's card: how to do it, a demonstration, why, what to read.
+            NavigationLink(value: Route.action(action.id)) {
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(action.title)
+                            .font(FATypography.callout)
+                            .strikethrough(action.done)
+                            .foregroundStyle(action.done ? FAColor.inkSecondary : FAColor.ink)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let meta {
+                            Text(meta).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).lineLimit(1)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                    if action.streak >= HabitEngine.streakBadgeMin {
+                        HStack(spacing: 3) {
+                            Image(systemName: "flame").font(.system(size: 11)).accessibilityHidden(true)
+                            Text("\(action.streak)").font(FATypography.label)
+                        }
+                        .foregroundStyle(FAColor.inkMuted)
+                        .accessibilityLabel(String(localized: "plan.a11y.streak", defaultValue: "\(action.streak)-day streak"))
+                    }
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkMuted)
+                        .accessibilityHidden(true)
                 }
-                .foregroundStyle(FAColor.inkMuted)
-                .accessibilityLabel(String(localized: "plan.a11y.streak", defaultValue: "\(action.streak)-day streak"))
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityHint(String(localized: "action.a11y.open", defaultValue: "Opens how to do it"))
         }
+    }
+
+    /// "Breathwork · 5 min" — the card's type and length, when the habit has a card.
+    private var meta: String? {
+        let parts = [action.cardKind?.label, action.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }

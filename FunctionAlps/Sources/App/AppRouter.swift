@@ -10,6 +10,8 @@ enum Route: Hashable {
     case read(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
     case carePlan
+    /// One action of the plan (a habit), opened on its action card.
+    case action(String)
     case baseline
     case feedback
     case guide
@@ -233,6 +235,7 @@ struct MainTabView: View {
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
         case .carePlan: CarePlanView()
+        case .action(let habitId): ActionCardView(habitId: habitId)
         case .baseline: BaselineEditView()
         case .feedback: FeedbackView()
         case .guide: GuideView()
