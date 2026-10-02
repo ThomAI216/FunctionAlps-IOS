@@ -8,6 +8,13 @@ struct FunctionAlpsApp: App {
     @State private var configurationError: String?
 
     init() {
+        #if DEBUG
+        if Showcase.isOn {
+            _dependencies = State(initialValue: AppDependencies.showcase())
+            AppDelegate.pendingRoute = Showcase.route
+            return
+        }
+        #endif
         do {
             let live = try AppDependencies.live()
             _dependencies = State(initialValue: live)

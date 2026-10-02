@@ -1,0 +1,111 @@
+name: Screenshots
+
+# The members-showcase screenshots: the Debug app in its showcase mode (sample member "Marie", no network —
+# Sources/Core/Showcase), one launch per screen on an iPhone Pro simulator, light mode, English, 9:41 status bar.
+# macOS minutes are scarce: this runs only when a pushed commit message contains "[screens]", or by hand.
+on:
+  push:
+    branches: ["claude/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: FunctionAlps
+
+jobs:
+  shoot:
+    name: Shoot the showcase screens
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[screens]')
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Generate project
+        run: |
+          brew install xcodegen
+          printf 'DEVELOPMENT_TEAM = \n' > Config/Local.xcconfig
+          xcodegen generate
+
+      - name: Pick an iPhone Pro simulator
+        id: sim
+        run: |
+          xcrun simctl list devices available | grep -i "iphone" | head -30
+          LINE=$(xcrun simctl list devices available | grep -E "iPhone 16 Pro \(|iPhone 17 Pro \(|iPhone 15 Pro \(" | head -1)
+          UDID=$(echo "$LINE" | grep -oE '[0-9A-F-]{36}')
+          NAME=$(echo "$LINE" | sed -E 's/^ *//; s/ \(.*//')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "Using $NAME ($UDID)"
+
+      - name: Build (Debug, simulator)
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild build \
+            -project FunctionAlps.xcodeproj -scheme FunctionAlps -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO -skipMacroValidation \
+            | tee build/build.log | grep -E "error:|BUILD" || true
+          grep -q "BUILD SUCCEEDED" build/build.log
+
+      - name: Boot and dress the simulator
+        run: |
+          UDID=${{ steps.sim.outputs.udid }}
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance light
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
+          APP=$(find build/DerivedData/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
+          xcrun simctl install "$UDID" "$APP"
+
+      - name: Shoot
+        run: |
+          UDID=${{ steps.sim.outputs.udid }}
+          BUNDLE=com.functionalps.patient
+          # The screens are "in the morning": pick the whole-hour zone where it is 9 o'clock now.
+          H=$(date -u +%H); N=$(( (9 - 10#$H + 24) % 24 ))
+          if [ "$N" -le 14 ]; then TZONE="Etc/GMT-$N"; else TZONE="Etc/GMT+$(( 24 - N ))"; fi
+          echo "Time zone for the app: $TZONE"
+          mkdir -p shots
+          shoot() {
+            xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+            SIMCTL_CHILD_TZ="$TZONE" xcrun simctl launch "$UDID" "$BUNDLE" \
+              -FAShowcase "$2" -AppleLanguages "(en)" -AppleLocale en_US
+            sleep "${3:-9}"
+            xcrun simctl io "$UDID" screenshot --type=png "shots/$1.png"
+            echo "shot $1"
+          }
+          shoot 13-onboarding onboarding 10
+          shoot 01-today today 12
+          shoot 02-checkin checkin
+          shoot 03-checkin-done checkin-done 12
+          shoot 04-meal-log meal 12
+          shoot 05-food-day food 12
+          shoot 06-trends trends 12
+          shoot 06b-scores scores
+          shoot 07-care-plan careplan
+          shoot 07b-action-card action 10
+          shoot 08-library library 14
+          shoot 09-symptoms symptoms
+          shoot 11-article article 10
+          ls -la shots
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: showcase-screens
+          path: |
+            FunctionAlps/shots/*.png
+            FunctionAlps/build/build.log
+          if-no-files-found: warn
+          retention-days: 14
