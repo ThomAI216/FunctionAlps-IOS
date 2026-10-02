@@ -30,8 +30,8 @@ enum ShowcaseData {
 
     static func profile(onboarded: Bool) -> MemberProfile {
         MemberProfile(
-            sex: .female, age: 38, heightCm: 168, weightKg: 63, activityLevel: "moderate",
-            healthGoals: ["energy", "digestion", "sleep"], currentComplaints: ["afternoon slump", "bloating"],
+            sex: .female, age: 47, heightCm: 168, weightKg: 66, activityLevel: "moderate",
+            healthGoals: ["sleep", "energy", "hormones"], currentComplaints: ["night waking", "hot flushes", "mood swings"],
             dietaryPattern: "omnivore", targetCalories: 1900, targetProteinG: 105, targetCarbsG: 210, targetFatG: 68,
             goalMode: .maintain, onboardingCompletedAt: onboarded ? at(-24, 9) : nil, adultConfirmedAt: at(-24, 9), locale: "en"
         )
@@ -54,8 +54,9 @@ enum ShowcaseData {
 
     static func eveningMoment() -> CheckinMoment {
         var m = CheckinMoment(slot: .evening, submittedAt: at(0, 20, 40))
-        m.energyBody = 74; m.energyMind = 78; m.energyStability = 70; m.energyOverall = 76
-        m.moodScore = 80; m.stressScore = 30
+        // Different reads on purpose (owner): mood good, energy in the middle, focus drained.
+        m.energyBody = 52; m.energyMind = 22; m.energyStability = 45; m.energyOverall = 45
+        m.moodScore = 84; m.stressScore = 40
         return m
     }
 
@@ -161,29 +162,33 @@ enum ShowcaseData {
         return try? JSONDecoder().decode(MemberScores.self, from: Data(json.utf8))
     }
 
-    // MARK: The plan, with Alessandra
+    // MARK: The plan, with Alessandra — a typical perimenopause plan (owner, 2026-10-02)
+
+    static let objective = "Steadier energy and calmer nights through perimenopause"
 
     static let cards: [String: ActionCardRow] = {
-        var breath = ActionCardRow(id: "showcase-card-breath", title: "4-7-8 breathing")
+        var breath = ActionCardRow(id: "showcase-card-breath", title: "Cool-down breathing before bed")
         breath.pillar = "sleep"; breath.cardKind = "breath"; breath.durationMin = 5; breath.defaultSlot = "evening"
-        breath.description = "A slow breath to tell your body the day is over."
+        breath.description = "A slow breath in a cool, dark room to tell your body the day is over."
         breath.easyTitle = "Three slow breaths"; breath.easyDescription = "Just three rounds, sitting on the edge of the bed."
         breath.revTitle = "Eight rounds"; breath.revDescription = "Eight full rounds, then stay still for a minute."
-        breath.howMd = "1. Sit comfortably, one hand on your belly.\n2. Breathe in through your nose for 4.\n3. Hold for 7.\n4. Breathe out slowly through your mouth for 8.\n5. Repeat four times."
-        breath.generalWhy = "A longer out-breath is one of the simplest ways to slow down before sleep. Alessandra added it while we work on your evenings."
-        breath.resources = [.init(kind: "youtube", query: "4-7-8 breathing guided"), .init(kind: "article", slug: articleSlug, title: "Listening to your gut, week by week")]
+        breath.howMd = "1. Open the window or lower the heating a little.\n2. Sit comfortably, one hand on your belly.\n3. Breathe in through your nose for 4.\n4. Hold for 7.\n5. Breathe out slowly through your mouth for 8. Repeat four times."
+        breath.generalWhy = "Nights get lighter and warmer in perimenopause. A cooler room and a longer out-breath are two of the simplest ways to settle before sleep."
+        breath.resources = [.init(kind: "youtube", query: "4-7-8 breathing guided"), .init(kind: "article", slug: articleSlug, title: "Listening to your body, week by week")]
+        var protein = ActionCardRow(id: "showcase-card-protein", title: "Protein at breakfast")
+        protein.pillar = "nutrition"; protein.cardKind = "nutrition"; protein.defaultSlot = "morning"
+        protein.description = "Start the day with a real portion of protein."
+        protein.howMd = "1. Eggs, Greek yoghurt, cottage cheese or tofu.\n2. Aim for a palm-sized portion.\n3. Add fruit or oats for fibre."
+        protein.generalWhy = "A protein breakfast keeps energy steadier through the morning and helps you keep the muscle you build in your strength sessions."
+        var strength = ActionCardRow(id: "showcase-card-strength", title: "20-minute strength session")
+        strength.pillar = "exercise"; strength.cardKind = "movement"; strength.durationMin = 20; strength.defaultSlot = "midday"
+        strength.description = "Squats, push-ups and a row: three moves, two rounds."
+        strength.howMd = "1. 10 chair squats.\n2. 8 push-ups against a table.\n3. 10 rows with a backpack.\n4. Rest one minute, then a second round."
         var walk = ActionCardRow(id: "showcase-card-walk", title: "10-minute walk after lunch")
         walk.pillar = "exercise"; walk.cardKind = "movement"; walk.durationMin = 10; walk.defaultSlot = "midday"
-        walk.description = "An easy walk straight after lunch."
-        walk.howMd = "1. Leave your desk within 15 minutes of finishing lunch.\n2. Walk at a pace where you can still talk.\n3. Ten minutes is enough."
-        walk.generalWhy = "Moving after a meal helps your body use what you just ate, and it is a good antidote to the afternoon slump."
-        var water = ActionCardRow(id: "showcase-card-water", title: "A glass of water before coffee")
-        water.pillar = "nutrition"; water.cardKind = "routine"; water.durationMin = 1; water.defaultSlot = "morning"
-        water.howMd = "1. Keep a glass by the kettle.\n2. Drink it before your first coffee."
-        var plate = ActionCardRow(id: "showcase-card-plants", title: "Two plants at lunch")
-        plate.pillar = "nutrition"; plate.cardKind = "nutrition"; plate.defaultSlot = "midday"
-        plate.howMd = "1. Add two different vegetables or legumes to your lunch.\n2. Colour counts: pick two you did not have yesterday."
-        return [breath.id: breath, walk.id: walk, water.id: water, plate.id: plate]
+        walk.description = "An easy walk straight after lunch, outside if you can."
+        walk.howMd = "1. Leave within 15 minutes of finishing lunch.\n2. Walk at a pace where you can still talk.\n3. Ten minutes is enough."
+        return [breath.id: breath, protein.id: protein, strength.id: strength, walk.id: walk]
     }()
 
     private static func habit(_ id: String, _ title: String, slot: String?, card: String, pillar: String) -> HabitRow {
@@ -194,10 +199,10 @@ enum ShowcaseData {
 
     static func habitPlan(day today: String) -> HabitPlan {
         let habits = [
-            habit("showcase-h-water", "A glass of water before coffee", slot: "morning", card: "showcase-card-water", pillar: "nutrition"),
-            habit("showcase-h-plants", "Two plants at lunch", slot: "midday", card: "showcase-card-plants", pillar: "nutrition"),
+            habit("showcase-h-protein", "Protein at breakfast", slot: "morning", card: "showcase-card-protein", pillar: "nutrition"),
+            habit("showcase-h-strength", "20-minute strength session", slot: "midday", card: "showcase-card-strength", pillar: "exercise"),
             habit("showcase-h-walk", "10-minute walk after lunch", slot: "midday", card: "showcase-card-walk", pillar: "exercise"),
-            habit(breathHabitId, "4-7-8 breathing before bed", slot: "evening", card: "showcase-card-breath", pillar: "sleep"),
+            habit(breathHabitId, "Cool-down breathing before bed", slot: "evening", card: "showcase-card-breath", pillar: "sleep"),
         ]
         var completions: [HabitCompletionRow] = []
         for ago in 1...20 {
@@ -205,36 +210,42 @@ enum ShowcaseData {
                 completions.append(HabitCompletionRow(id: "c-\(h.id)-\(ago)", habitId: h.id, completionDate: day(-ago)))
             }
         }
-        completions.append(HabitCompletionRow(id: "c-water-today", habitId: "showcase-h-water", completionDate: today))
+        completions.append(HabitCompletionRow(id: "c-protein-today", habitId: "showcase-h-protein", completionDate: today))
         var plan = HabitPlan(
             day: today,
-            header: HabitPlanHeader(id: "showcase-plan", title: "Care plan", startDate: day(-24), objectiveLine: "Steady energy through the afternoon"),
+            header: HabitPlanHeader(id: "showcase-plan", title: "Care plan", startDate: day(-24), objectiveLine: objective),
             phases: [
-                HabitPlanPhase(phaseKey: "p1", weekStart: 1, weekEnd: 2, title: "Settle", summary: nil),
-                HabitPlanPhase(phaseKey: "p2", weekStart: 3, weekEnd: 6, title: "Rebuild", summary: "We steady your meals and evenings first: regular lunches, a calmer wind-down, and a walk to carry you through the afternoon."),
-                HabitPlanPhase(phaseKey: "p3", weekStart: 7, weekEnd: 10, title: "Consolidate", summary: nil),
+                HabitPlanPhase(phaseKey: "p1", weekStart: 1, weekEnd: 2, title: "Understand your cycle", summary: nil),
+                HabitPlanPhase(phaseKey: "p2", weekStart: 3, weekEnd: 6, title: "Rebuild your foundations",
+                               summary: "Protein and fibre at every meal, strength training twice a week, and a cooler, calmer evening routine for steadier nights."),
+                HabitPlanPhase(phaseKey: "p3", weekStart: 7, weekEnd: 10, title: "Find your rhythm", summary: nil),
             ],
             habits: habits, completions: completions
         )
-        plan.goals = ["No more afternoon slump", "Less bloating after meals", "Waking up rested five days out of seven"]
-        plan.priorities = ["Regular lunches", "A calmer evening", "Balance the microbiome"]
+        plan.goals = ["Fewer night-time wake-ups", "Steadier mood across the month", "No more mid-afternoon crash"]
+        plan.priorities = ["Protein at every meal", "Strength twice a week", "A cooler, calmer evening"]
         plan.cards = cards
         return plan
     }
 
     static let carePlan = CarePlan(
         title: "Care plan", startDate: "September 2026", practitioner: "With Alessandra",
-        goals: ["No more afternoon slump", "Less bloating after meals"],
+        goals: ["Fewer night-time wake-ups", "Steadier mood across the month"],
         sections: [
             CarePlan.Section(category: "Nutrition", symbol: "leaf", colorHex: 0x4A8A5C, items: [
-                CarePlan.Item(id: "s1", text: "Lunch between 12:00 and 13:00, with protein and two plants", status: .active),
-                CarePlan.Item(id: "s2", text: "Swap the afternoon biscuit for fruit and a handful of nuts", status: .completed),
+                CarePlan.Item(id: "s1", text: "Protein at every meal, a palm-sized portion", status: .active),
+                CarePlan.Item(id: "s2", text: "A tablespoon of ground flaxseed and two plants at lunch", status: .active),
+                CarePlan.Item(id: "s3", text: "Coffee before noon only", status: .completed),
+            ]),
+            CarePlan.Section(category: "Movement", symbol: "figure.strengthtraining.traditional", colorHex: 0xC07A3B, items: [
+                CarePlan.Item(id: "s4", text: "Strength training twice a week", status: .active),
+                CarePlan.Item(id: "s5", text: "A walk after lunch on working days", status: .active),
             ]),
             CarePlan.Section(category: "Sleep", symbol: "moon", colorHex: 0x5B6FA8, items: [
-                CarePlan.Item(id: "s3", text: "Screens off 30 minutes before bed", status: .active),
+                CarePlan.Item(id: "s6", text: "A cool bedroom and screens off 30 minutes before bed", status: .active),
             ]),
-            CarePlan.Section(category: "Movement", symbol: "figure.walk", colorHex: 0xC07A3B, items: [
-                CarePlan.Item(id: "s4", text: "A walk after lunch on working days", status: .active),
+            CarePlan.Section(category: "Cycle & symptoms", symbol: "calendar", colorHex: 0xB0607E, items: [
+                CarePlan.Item(id: "s7", text: "Note hot flushes, sleep and mood in the evening check-in", status: .active),
             ]),
         ]
     )
@@ -260,7 +271,7 @@ enum ShowcaseData {
                 if lesson.done { raw.progress.append(LibraryRawProgress(trackId: "showcase-track-\(i)", contentSlug: slug)) }
             }
         }
-        raw.list.append(LibraryListRow(slug: articleSlug, title: "Listening to your gut, week by week", summary: "The weekly loop: act, notice, adjust.",
+        raw.list.append(LibraryListRow(slug: articleSlug, title: "Listening to your body, week by week", summary: "The weekly loop: act, notice, adjust.",
                                        publishedAt: nil, tags: ["intestin"], isLocked: false, coverUrl: nil))
         for r in LibraryDemo.resources {
             raw.list.append(LibraryListRow(slug: "showcase-\(r.slug.dropFirst(5))", title: r.title, summary: r.summary, publishedAt: nil,
@@ -268,13 +279,13 @@ enum ShowcaseData {
         }
         raw.access = .open
         raw.priorityTrackIds = ["showcase-track-0"]
-        raw.plan = LibraryRawPlan(id: "showcase-plan", title: "Steady energy through the afternoon", startDate: day(-24))
-        raw.planObjectives = ["No more afternoon slump"]
+        raw.plan = LibraryRawPlan(id: "showcase-plan", title: objective, startDate: day(-24))
+        raw.planObjectives = ["Fewer night-time wake-ups"]
         return raw
     }
 
     static func libraryItem(slug: String) -> LibraryGetRow? {
-        let title = libraryRaw().list.first { $0.slug == slug }?.title ?? "Listening to your gut, week by week"
+        let title = libraryRaw().list.first { $0.slug == slug }?.title ?? "Listening to your body, week by week"
         return LibraryGetRow(title: title, tags: ["intestin"], bodyMd: LibraryDemo.readerBody, locked: false)
     }
 }
