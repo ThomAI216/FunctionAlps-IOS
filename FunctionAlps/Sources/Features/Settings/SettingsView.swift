@@ -95,6 +95,8 @@ struct SettingsView: View {
                     Text(String(localized: "settings.versionLine", defaultValue: "FunctionAlps v\(AppInfo.version) (\(AppInfo.build))"))
                         .font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)
                         .frame(maxWidth: .infinity).padding(.top, 18)
+                        // Hidden way into camera movement counting while it is being validated on real phones.
+                        .onLongPressGesture(minimumDuration: 1.2) { router.profilePath.append(.motionLab) }
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, FASpacing.navBarClearance)

@@ -48,6 +48,9 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    /// Camera-counted movement (FunctionMotionKit), first exercise: the chest opener. Not linked from any
+    /// member screen yet — Settings opens it from a long press on the version line.
+    case motionLab
 }
 
 @MainActor
@@ -150,9 +153,11 @@ final class AppRouter {
         }
     }
 
-    /// The reader replaces the floating navbar with its own mark-done bar.
+    /// The reader replaces the floating navbar with its own mark-done bar; the camera screen hides it too.
     var hidesTabBar: Bool {
         if case .read = libraryPath.last { return true }
+        // The camera screen owns the bottom edge (its status panel and Finish button).
+        if tab == .profile, case .motionLab = profilePath.last { return true }
         return false
     }
 }
@@ -279,6 +284,7 @@ struct MainTabView: View {
         case .labResults: LabResultsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
+        case .motionLab: MotionTrackingView(exercise: .chestOpener())
         }
     }
 }
