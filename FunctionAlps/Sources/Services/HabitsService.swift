@@ -91,6 +91,68 @@ final class HabitsService {
         }
     }
 
+    // MARK: - The action bank (foundation cards a member may add themselves) and the next call
+
+    enum BankPhase: Equatable {
+        case idle, loading
+        case loaded([ActionCardRow])
+        case failed(String)
+    }
+
+    private(set) var bank: BankPhase = .idle
+    /// The member's next call with the practice — shown where the plan is still blurred. Nil: none booked, or the
+    /// read failed (the "book your call" button is the safe fallback either way).
+    private(set) var nextCall: AppointmentRow?
+
+    func loadBank() async {
+        if case .loaded = bank { return }
+        bank = .loading
+        do {
+            bank = .loaded(try await backend.actionBank())
+        } catch {
+            report(error, context: "habits.bank")
+            bank = .failed((error as? AppError)?.userMessage ?? String(describing: error))
+        }
+    }
+
+    func retryBank() async {
+        bank = .idle
+        await loadBank()
+    }
+
+    /// Fail-soft: a missing date only means the button shows instead.
+    func loadNextCall() async {
+        nextCall = try? await backend.nextAppointment(after: now())
+    }
+
+    /// Add a bank card to the member's own plan, then reload the day so it shows everywhere at once.
+    /// Returns false (and leaves the plan as it was) when the write fails.
+    func add(card: ActionCardRow, slot: HabitSlot?) async -> Bool {
+        guard let request else { return false }
+        do {
+            let row = PlanAccess.ownHabit(from: card, patientId: request.patientId, locale: TodayFocus.locale(), slot: slot)
+            _ = try await backend.addOwnHabit(row)
+            await load(patientId: request.patientId, day: request.day)
+            return true
+        } catch {
+            report(error, context: "habits.add")
+            return false
+        }
+    }
+
+    /// Remove one of the member's own habits (a prescribed one is the clinician's and never offered here).
+    func remove(ownHabitId id: String) async -> Bool {
+        guard let request else { return false }
+        do {
+            try await backend.removeOwnHabit(id: id)
+            await load(patientId: request.patientId, day: request.day)
+            return true
+        } catch {
+            report(error, context: "habits.remove")
+            return false
+        }
+    }
+
     // MARK: - The completions on screen (always the CURRENT phase, never a stale copy captured before an await)
 
     private func mutate(_ change: (inout [HabitCompletionRow]) -> Void) {

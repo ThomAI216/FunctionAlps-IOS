@@ -9,8 +9,9 @@ import SwiftUI
 /// actions lead; an earlier moment's skipped action is not carried (see `HabitEngine.todayActions`).
 ///
 /// States (rule 5): while the first load is in flight the card holds no place — most members have no habits yet,
-/// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits
-/// sees no card ("My health plan" sits right above); a failed load says so, with a retry; a refresh keeps the rows.
+/// and a skeleton that vanishes on every launch would shove Home around for nothing; a member with no habits sees
+/// the card's place blurred, with the foundation bank to start from (owner, 2026-10-02); a failed load says so,
+/// with a retry; a refresh keeps the rows.
 struct PlanTodayCard: View {
     @Environment(AppDependencies.self) private var dependencies
 
@@ -29,6 +30,14 @@ struct PlanTodayCard: View {
             let readiness = dependencies.focus.focus?.readiness
             if !plan.activeHabits.isEmpty {
                 card(plan, actions: habits.actions(band: readiness?.bandValue), hour: habits.hour, readiness: readiness)
+            } else {
+                // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
+                FACard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(String(localized: "plan.today.title", defaultValue: "Today's actions")).font(FATypography.headline).foregroundStyle(FAColor.ink)
+                        PlanLockedArea(reason: .noActions) { PlanPlaceholderLines(lines: 4) }
+                    }
+                }
             }
         }
     }
@@ -102,21 +111,42 @@ private struct HabitLine: View {
                 : String(localized: "plan.a11y.markDone", defaultValue: "Mark as done: \(action.title)"))
             .accessibilityAddTraits(action.done ? .isSelected : [])
 
-            Text(action.title)
-                .font(FATypography.callout)
-                .strikethrough(action.done)
-                .foregroundStyle(action.done ? FAColor.inkSecondary : FAColor.ink)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            if action.streak >= HabitEngine.streakBadgeMin {
-                HStack(spacing: 3) {
-                    Image(systemName: "flame").font(.system(size: 11)).accessibilityHidden(true)
-                    Text("\(action.streak)").font(FATypography.label)
+            // The rest of the row opens the action's card: how to do it, a demonstration, why, what to read.
+            NavigationLink(value: Route.action(action.id)) {
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(action.title)
+                            .font(FATypography.callout)
+                            .strikethrough(action.done)
+                            .foregroundStyle(action.done ? FAColor.inkSecondary : FAColor.ink)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let meta {
+                            Text(meta).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).lineLimit(1)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                    if action.streak >= HabitEngine.streakBadgeMin {
+                        HStack(spacing: 3) {
+                            Image(systemName: "flame").font(.system(size: 11)).accessibilityHidden(true)
+                            Text("\(action.streak)").font(FATypography.label)
+                        }
+                        .foregroundStyle(FAColor.inkMuted)
+                        .accessibilityLabel(String(localized: "plan.a11y.streak", defaultValue: "\(action.streak)-day streak"))
+                    }
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkMuted)
+                        .accessibilityHidden(true)
                 }
-                .foregroundStyle(FAColor.inkMuted)
-                .accessibilityLabel(String(localized: "plan.a11y.streak", defaultValue: "\(action.streak)-day streak"))
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityHint(String(localized: "action.a11y.open", defaultValue: "Opens how to do it"))
         }
+    }
+
+    /// "Breathwork · 5 min" — the card's type and length, when the habit has a card.
+    private var meta: String? {
+        let parts = [action.cardKind?.label, action.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }

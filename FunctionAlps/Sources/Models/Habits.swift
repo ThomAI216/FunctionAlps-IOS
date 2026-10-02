@@ -56,6 +56,8 @@ struct HabitRow: Decodable, Sendable, Equatable, Identifiable {
     let revDescription: String?
     /// ISO timestamp — nothing is due before the habit existed.
     let createdAt: String
+    /// The action card this habit opens (`habit_bank`, read live). Nil = the habit's own words only.
+    var habitBankId: String? = nil
 
     var slotValue: HabitSlot? { slot.flatMap(HabitSlot.init(rawValue:)) }
     var isActive: Bool { status == "active" }
@@ -104,6 +106,8 @@ struct HabitPlan: Sendable, Equatable {
     var goals: [String] = []
     /// The clinician's current priorities: the plan items flagged `is_weekly_focus`, as the member reads them.
     var priorities: [String] = []
+    /// The published action cards the habits point at, by `habit_bank` id (absent = unpublished or none).
+    var cards: [String: ActionCardRow] = [:]
 
     var activeHabits: [HabitRow] { habits.filter(\.isActive) }
 }
@@ -125,6 +129,9 @@ struct HabitAction: Sendable, Equatable, Identifiable {
     /// Consecutive due days done, today included when done (≥ 2 is worth showing).
     let streak: Int
     var face: HabitFace = .standard
+    /// The habit's action card: its type and duration show under the title on Home.
+    var cardKind: ActionCardKind? = nil
+    var durationMin: Int? = nil
 
     var done: Bool { completionId != nil }
 }
@@ -317,7 +324,9 @@ enum HabitEngine {
                 id: habit.id, title: shown.title, detail: shown.detail, slot: habit.slotValue,
                 completionId: completionId(plan.completions, habit: habit.id, on: plan.day),
                 streak: currentStreak(habit, completions: plan.completions, today: plan.day),
-                face: shown.face
+                face: shown.face,
+                cardKind: habit.habitBankId.flatMap { plan.cards[$0]?.cardKind }.flatMap(ActionCardKind.init(rawValue:)),
+                durationMin: habit.habitBankId.flatMap { plan.cards[$0]?.durationMin }
             )
             guard let slot = action.slot else { anytime.append(action); continue }
             if slot == now { current.append(action) }

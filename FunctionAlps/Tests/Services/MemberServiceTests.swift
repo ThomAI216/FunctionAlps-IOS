@@ -101,6 +101,10 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: "2026-09-25", needsCheckin: true, offers: []) }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan { HabitPlan(day: day, header: nil, phases: [], habits: [], completions: []) }
     func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
+    func actionBank() async throws -> [ActionCardRow] { [] }
+    func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
+    func removeOwnHabit(id: String) async throws {}
+    func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}

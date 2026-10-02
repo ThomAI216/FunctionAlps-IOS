@@ -5,8 +5,8 @@ import SwiftUI
 /// in, and the items the clinician flagged as this week's focus as the priorities. Nothing is computed from
 /// health data. The whole card opens the full plan.
 ///
-/// States (rule 5): loading → a quiet line; failed → retry; no active plan → the "appears after your call"
-/// note; loaded → the plan. Shares the Habit Loop's read (`HabitsService`) with today's actions below it.
+/// States (rule 5): loading → a quiet line; failed → retry; no active plan → the plan's place blurred behind "Book your
+/// call" (or the booked call's date); loaded → the plan. Shares the Habit Loop's read (`HabitsService`) with today's actions below it.
 struct HealthPlanCard: View {
     @Environment(AppDependencies.self) private var dependencies
 
@@ -28,9 +28,12 @@ struct HealthPlanCard: View {
             }
         case .loaded(let plan):
             if plan.header == nil {
+                // No plan yet (owner, 2026-10-02): the plan's place, blurred, behind "Book your call" — or the date
+                // of the call already booked.
                 shell {
-                    Text(String(localized: "careplan.waiting", defaultValue: "Your personalised care plan appears here once your practitioner publishes it after your call."))
-                        .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                    PlanLockedArea(reason: .awaitingCall(habits.nextCall)) {
+                        PlanPlaceholderLines(lines: 3, chips: true)
+                    }
                 }
             } else {
                 NavigationLink(value: Route.carePlan) { loaded(plan) }

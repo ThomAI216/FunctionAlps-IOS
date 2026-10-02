@@ -28,7 +28,6 @@ struct CheckinMomentView: View {
         .faWall()
         .navigationTitle(slot.localizedName)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .task {
             if model == nil {
                 let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth,
@@ -53,6 +52,7 @@ private struct CheckinMomentScreen: View {
     private var canSave: Bool { model.gut.map(\.loaded) ?? true }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: FASpacing.md) {
                 VStack(alignment: .leading, spacing: FASpacing.xs) {
@@ -97,6 +97,11 @@ private struct CheckinMomentScreen: View {
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .scrollDismissesKeyboard(.interactively)
+        #if DEBUG
+        .task { await Showcase.scroll(proxy, to: "showcase.energy", on: .checkin) }
+        .task { await Showcase.scroll(proxy, to: "showcase.mood", on: .checkinMood) }
+        #endif
+        }
     }
 
     @ViewBuilder
@@ -122,7 +127,9 @@ private struct CheckinMomentScreen: View {
         case .markers:
             sectionLabel(model.markersTitle)
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
+                .id("showcase.energy")
             DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
+                .id("showcase.mood")
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
         case .digestion:
             if let gut = model.gut {
