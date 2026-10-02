@@ -30,7 +30,7 @@ final class AppDependencies {
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
-    init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore) {
+    init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore, backendOverride: (any FunctionAlpsBackend)? = nil) {
         self.environment = environment
         let state = AppState()
         self.state = state
@@ -41,7 +41,8 @@ final class AppDependencies {
         let rest = PostgRESTClient(environment: environment, requester: requester)
         let functions = EdgeFunctionClient(environment: environment, requester: requester)
         let storage = StorageClient(environment: environment, requester: requester)
-        let backend = SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions))
+        let backend: any FunctionAlpsBackend = backendOverride
+            ?? SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions))
 
         let auth = AuthService(sessions: sessions, state: state)
         self.auth = auth
@@ -69,6 +70,20 @@ final class AppDependencies {
         let environment = try AppEnvironment.fromBundle()
         return AppDependencies(environment: environment, transport: URLSessionTransport(), sessionStore: KeychainSessionStore())
     }
+
+    #if DEBUG
+    /// The showcase screenshots (Debug only): signed in as the sample member, every call answered by
+    /// `ShowcaseBackend` — no network, no CM OS. See `Showcase`.
+    static func showcase() -> AppDependencies {
+        let environment = AppEnvironment(name: .development, supabaseURL: URL(string: "https://showcase.invalid")!,
+                                         supabasePublishableKey: "showcase", apiBaseURL: nil)
+        let store = InMemorySessionStore(session: AuthSession(
+            accessToken: "showcase", refreshToken: "showcase", expiresAt: .distantFuture,
+            userId: ShowcaseData.userId, email: "marie@example.com", patientId: ShowcaseData.patientId, displayName: "Marie"
+        ))
+        return AppDependencies(environment: environment, transport: PreviewTransport(), sessionStore: store, backendOverride: ShowcaseBackend())
+    }
+    #endif
 
     /// Preview/test wiring: in-memory session, no network.
     static func preview(signedIn: Bool = true) -> AppDependencies {

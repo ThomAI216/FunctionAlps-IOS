@@ -81,6 +81,109 @@ struct HabitsBackendTests {
         #expect(plan.goals.isEmpty && plan.priorities.isEmpty)
     }
 
+    @Test func actionCardsAreReadLiveForTheHabitsThatPointAtOne() async throws {
+        let habitsWithCards = """
+        [{"id":"h-1","care_plan_item_id":"i-1","title":"Evening breathing","description":null,"frequency_rule":"FREQ=DAILY",
+          "status":"active","source":"prescribed","pillar":"sleep","slot":"evening","appears_after_habit_id":null,"easy_title":null,
+          "easy_description":null,"rev_title":null,"rev_description":null,"created_at":"2026-09-01T07:00:00+00:00","habit_bank_id":"b-1"},
+         {"id":"h-2","care_plan_item_id":"i-2","title":"Chair squats","description":null,"frequency_rule":"FREQ=DAILY",
+          "status":"active","source":"prescribed","pillar":"exercise","slot":null,"appears_after_habit_id":null,"easy_title":null,
+          "easy_description":null,"rev_title":null,"rev_description":null,"created_at":"2026-09-01T07:00:00+00:00","habit_bank_id":"b-1"}]
+        """
+        let card = #"[{"id":"b-1","pillar":"sleep","card_kind":"breath","duration_min":5,"title":"4-7-8 breathing","title_fr":"Respiration 4-7-8","how_md":"1. Sit\n2. Breathe","resources":[{"kind":"youtube","query":"478 breathing"},{"kind":"video","url":"javascript:alert(1)"}]}]"#
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: planRow)
+        transport.enqueue(status: 200, json: habitsWithCards)
+        transport.enqueue(status: 200, json: completionRows)
+        transport.enqueue(status: 200, json: phaseRows)
+        transport.enqueue(status: 200, json: "[]")
+        transport.enqueue(status: 200, json: "[]")
+        transport.enqueue(status: 200, json: card)
+        let (backend, _) = make(transport)
+
+        let plan = try await backend.habitPlan(patientId: "p-1", day: "2026-09-25", since: "2026-07-18")
+        #expect(plan.habits.map(\.habitBankId) == ["b-1", "b-1"])
+        #expect(plan.cards["b-1"]?.cardKind == "breath")
+        #expect(plan.cards["b-1"]?.titleFr == "Respiration 4-7-8")
+        #expect(ActionCardLogic.links(plan.cards["b-1"]?.resources) == [.youtube(query: "478 breathing")])
+        let last = try #require(transport.requests.last)
+        #expect(last.url.path == "/rest/v1/habit_bank")
+        // One read for both habits: the card id once.
+        #expect((last.url.query ?? "").contains("id=in.(b-1)"))
+        #expect(transport.requests[1].url.query?.contains("habit_bank_id") == true)
+        // The Home row carries the card's type and length.
+        let actions = HabitEngine.todayActions(plan, hour: 20)
+        #expect(actions.first { $0.id == "h-1" }?.cardKind == .breath)
+        #expect(actions.first { $0.id == "h-1" }?.durationMin == 5)
+    }
+
+    @Test func aFailedCardReadLeavesTheHabitsOnTheirOwnWords() async throws {
+        let habitWithCard = #"[{"id":"h-1","care_plan_item_id":"i-1","title":"Evening breathing","description":null,"frequency_rule":"FREQ=DAILY","status":"active","source":"prescribed","pillar":null,"slot":null,"appears_after_habit_id":null,"easy_title":null,"easy_description":null,"rev_title":null,"rev_description":null,"created_at":"2026-09-01T07:00:00+00:00","habit_bank_id":"b-1"}]"#
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: "[]")
+        transport.enqueue(status: 200, json: habitWithCard)
+        transport.enqueue(status: 200, json: "[]")
+        transport.enqueue(status: 500, json: #"{"message":"boom"}"#)
+        let (backend, _) = make(transport)
+        let plan = try await backend.habitPlan(patientId: "p-1", day: "2026-09-25", since: "2026-07-18")
+        #expect(plan.habits.count == 1)
+        #expect(plan.cards.isEmpty)
+    }
+
+    @Test func theBankIsPublishedFoundationCardsOnly() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: #"[{"id":"b-9","pillar":"sleep","title":"Lights down at 21:30","member_can_add":true,"default_slot":"evening"}]"#)
+        let (backend, _) = make(transport)
+        let bank = try await backend.actionBank()
+        #expect(bank.first?.defaultSlot == "evening")
+        #expect(bank.first?.memberCanAdd == true)
+        let request = try #require(transport.requests.first)
+        #expect(request.url.path == "/rest/v1/habit_bank")
+        let q = request.url.query ?? ""
+        #expect(q.contains("active=eq.true") && q.contains("member_can_add=eq.true") && q.contains("order=pillar.asc,sort_order.asc"))
+    }
+
+    @Test func addingFromTheBankIsTheMembersOwnHabit_andRemovingTouchesOwnOnly() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 201, json: #"[{"id":"h-own"}]"#)
+        transport.enqueue(status: 204, json: "")
+        let (backend, _) = make(transport)
+        var card = ActionCardRow(id: "b-9", title: "Lights down")
+        card.titleFr = "Lumières tamisées"
+        card.pillar = "sleep"
+        let insert = PlanAccess.ownHabit(from: card, patientId: "p-1", locale: "fr", slot: .evening)
+        let id = try await backend.addOwnHabit(insert)
+        #expect(id == "h-own")
+        let body = try json(transport.requests[0])
+        #expect(body["source"] as? String == "self_initiated")
+        #expect(body["habit_bank_id"] as? String == "b-9")
+        #expect(body["patient_id"] as? String == "p-1")
+        #expect(body["title"] as? String == "Lumières tamisées")
+        #expect(body["frequency_rule"] as? String == "FREQ=DAILY")
+        #expect(body["slot"] as? String == "evening")
+        #expect(body["status"] as? String == "active")
+
+        try await backend.removeOwnHabit(id: "h-own")
+        let q = transport.requests[1].url.query ?? ""
+        #expect(transport.requests[1].url.path == "/rest/v1/habits")
+        #expect(q.contains("id=eq.h-own") && q.contains("source=eq.self_initiated"))
+    }
+
+    @Test func theNextCallIsTheFirstUpcomingVisibleAppointment() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: #"[{"id":"a-1","title":"Onboarding","starts_at":"2026-10-09T12:30:00+00:00","ends_at":null,"location":null,"meeting_link":"https://meet.example/x","status":"confirmed"}]"#)
+        transport.enqueue(status: 200, json: "[]")
+        let (backend, _) = make(transport)
+        let call = try await backend.nextAppointment(after: Date(timeIntervalSince1970: 1_790_000_000))
+        #expect(call?.isVideo == true)
+        #expect(call?.start != nil)
+        let q = transport.requests[0].url.query ?? ""
+        #expect(transport.requests[0].url.path == "/rest/v1/appointments")
+        #expect(q.contains("starts_at=gte.") && q.contains("status=neq.cancelled") && q.contains("limit=1"))
+        let none = try await backend.nextAppointment(after: Date())
+        #expect(none == nil)
+    }
+
     @Test func noActivePlanMeansNoPhaseRead() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: "[]")
