@@ -28,7 +28,6 @@ struct CheckinMomentView: View {
         .faWall()
         .navigationTitle(slot.localizedName)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .task {
             if model == nil {
                 let m = CheckinMomentViewModel(slot: slot, checkins: dependencies.checkins, members: dependencies.members, auth: dependencies.auth,
@@ -100,6 +99,7 @@ private struct CheckinMomentScreen: View {
         .scrollDismissesKeyboard(.interactively)
         #if DEBUG
         .task { await Showcase.scroll(proxy, to: "showcase.energy", on: .checkin) }
+        .task { await Showcase.scroll(proxy, to: "showcase.mood", on: .checkinMood) }
         #endif
         }
     }
@@ -129,6 +129,7 @@ private struct CheckinMomentScreen: View {
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
                 .id("showcase.energy")
             DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
+                .id("showcase.mood")
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
         case .digestion:
             if let gut = model.gut {

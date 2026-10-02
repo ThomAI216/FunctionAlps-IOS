@@ -75,7 +75,7 @@ final class CheckinMomentViewModel {
                 isEditing = true
                 #if DEBUG
                 // The showcase's "check-in in progress" screenshot: answers on screen, but a first check-in.
-                if Showcase.screen == .checkin { isEditing = false }
+                if Showcase.isCheckinInProgress { isEditing = false }
                 #endif
             } else if slot == .morning, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
                 // A first morning save: last night from Apple Health on this phone, else from a wearable

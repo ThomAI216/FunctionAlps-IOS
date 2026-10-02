@@ -87,6 +87,7 @@ jobs:
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
           shoot 02-checkin checkin
+          shoot 02b-checkin-mood checkin-mood
           shoot 03-checkin-done checkin-done 12
           shoot 04-meal-log meal 12
           shoot 05-food-day food 12

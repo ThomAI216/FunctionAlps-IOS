@@ -100,7 +100,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { [] }
     func vendorDisconnect(vendor: String, erase: Bool) async throws {}
     func vendorSyncNow() async throws {}
-    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { screen == .checkin || eveningDone ? [ShowcaseData.eveningMoment()] : [] }
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { Showcase.isCheckinInProgress || eveningDone ? [ShowcaseData.eveningMoment()] : [] }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}

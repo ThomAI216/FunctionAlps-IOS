@@ -57,6 +57,7 @@ enum ShowcaseData {
         // Different reads on purpose (owner): mood good, energy in the middle, focus drained.
         m.energyBody = 52; m.energyMind = 22; m.energyStability = 45; m.energyOverall = 45
         m.moodScore = 84; m.stressScore = 40
+        m.pills = ["worst_dip": ["afternoon"], "flavour_pos": ["content", "motivated"], "drivers": ["sleep", "movement"]]
         return m
     }
 
