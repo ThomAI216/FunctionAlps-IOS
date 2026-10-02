@@ -61,6 +61,17 @@ struct FAGlassSurface: ViewModifier {
     }
 }
 
+extension View {
+    /// The card glass behind a loose line that would otherwise sit straight on the photo wall — a back link,
+    /// a section label, a text button, a hint. Same frost as the cards (owner, 2026-10-02: "otherwise we
+    /// can't read"). For a block of content, use `FACard` instead.
+    func faFrost(cornerRadius: CGFloat = 12, horizontal: CGFloat = 12, vertical: CGFloat = 6) -> some View {
+        padding(.horizontal, horizontal)
+            .padding(.vertical, vertical)
+            .modifier(FAGlassSurface(cornerRadius: cornerRadius))
+    }
+}
+
 struct FASection<Content: View>: View {
     let title: String
     var kicker: String? = nil

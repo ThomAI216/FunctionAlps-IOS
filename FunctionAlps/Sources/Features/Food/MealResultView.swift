@@ -64,7 +64,7 @@ struct ConfirmHero: View {
                     Text("· " + String(localized: "meal.ingredients.count", defaultValue: "\(itemCount) ingredients")).font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.top, 8)
         }
     }
 }
@@ -232,7 +232,7 @@ struct MealScoresRow: View {
             Text(String(localized: "meal.scores.heading", defaultValue: "How this meal scored").uppercased())
                 .font(FATypography.sans(11, .bold, relativeTo: .caption)).tracking(1.4).foregroundStyle(FAColor.inkSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 22).padding(.bottom, 12)
+                .padding(.bottom, 12)
             HStack {
                 ForEach(MealScoreKind.allCases) { kind in
                     Button { explaining = kind } label: {
@@ -250,7 +250,7 @@ struct MealScoresRow: View {
             .padding(.bottom, 18)
             Text(String(localized: "meal.scores.curious", defaultValue: "Curious what your plate is really doing? Tap a score and see exactly what's driving it."))
                 .font(FATypography.display(15, relativeTo: .subheadline)).foregroundStyle(FAColor.ink).multilineTextAlignment(.center)
-                .padding(.horizontal, 10).padding(.bottom, 14)
+                .padding(.horizontal, 10)
         }
         .sheet(item: $explaining) { kind in
             ScoreExplainerView(kind: kind, mealScore: kind.value(in: scores))

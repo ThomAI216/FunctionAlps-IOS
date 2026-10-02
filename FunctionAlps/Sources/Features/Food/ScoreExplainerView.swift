@@ -30,6 +30,7 @@ struct ScoreExplainerView: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Text(copy.label).font(FATypography.sans(13, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
+                        .faFrost(cornerRadius: 12, horizontal: 12, vertical: 7)
                     Spacer()
                     Button { dismiss() } label: {
                         Image(systemName: "xmark").font(.system(size: 13, weight: .semibold)).foregroundStyle(FAColor.charcoal)
@@ -50,6 +51,7 @@ struct ScoreExplainerView: View {
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(FAColor.forestSoft.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .modifier(FAGlassSurface(cornerRadius: 12))
                     .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft.opacity(0.28), lineWidth: 1) }
 
                 if !noticed.isEmpty {
@@ -68,6 +70,7 @@ struct ScoreExplainerView: View {
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(FAColor.forestSoft.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .modifier(FAGlassSurface(cornerRadius: 14))
                     .overlay { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(FAColor.forestSoft.opacity(0.3), lineWidth: 1) }
                 } else {
                     heading(String(localized: "scoreX.makeBetter", defaultValue: "Make it even better"))
@@ -105,6 +108,8 @@ struct ScoreExplainerView: View {
                 } else {
                     heading(String(localized: "scoreX.whatItIs", defaultValue: "What it is"))
                     Text(copy.whatItIs).font(FATypography.sans(12, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                        .padding(13).frame(maxWidth: .infinity, alignment: .leading)
+                        .modifier(FAGlassSurface(cornerRadius: 13))
                     heading(String(localized: "scoreX.whatMoves", defaultValue: "What moves it"))
                     HStack(alignment: .top, spacing: 9) {
                         movesColumn("↑ " + copy.upLabel, copy.up, tint: FAColor.scoreInflammation)
@@ -112,6 +117,8 @@ struct ScoreExplainerView: View {
                     }
                     heading(String(localized: "scoreX.theScience", defaultValue: "The science"))
                     Text(copy.science).font(FATypography.sans(12, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                        .padding(13).frame(maxWidth: .infinity, alignment: .leading)
+                        .modifier(FAGlassSurface(cornerRadius: 13))
                 }
 
                 // MANDATORY on every surface that shows a score — legal pack 07. Verbatim; do not reword.
@@ -124,6 +131,7 @@ struct ScoreExplainerView: View {
                 }
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .modifier(FAGlassSurface(cornerRadius: 14))
                 .overlay { RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1) }
                 .padding(.top, 26)
 
@@ -137,9 +145,11 @@ struct ScoreExplainerView: View {
                 } label: {
                     Text(String(localized: "scoreX.exploreAll", defaultValue: "Explore all scores →"))
                         .font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(copy.color)
-                        .frame(maxWidth: .infinity).padding(.vertical, 18)
+                        .frame(maxWidth: .infinity).padding(.vertical, 14)
+                        .modifier(FAGlassSurface(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
+                .padding(.top, 16)
             }
             .padding(.horizontal, 18)
             .padding(.bottom, 32)
@@ -204,6 +214,7 @@ struct ScoreExplainerView: View {
 
     private func heading(_ text: String) -> some View {
         Text(text).font(FATypography.sans(13.5, .bold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+            .faFrost(cornerRadius: 10, horizontal: 10, vertical: 5)
             .padding(.top, 22).padding(.bottom, 9)
     }
 
@@ -230,6 +241,7 @@ struct ScoreExplainerView: View {
         .padding(11)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(tint.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .modifier(FAGlassSurface(cornerRadius: 12))
     }
 
     private func load() async {

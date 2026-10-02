@@ -49,20 +49,30 @@ struct MealDetailView: View {
         case .loaded(let loaded):
             let meal = model.edit.display(loaded)
             ScrollView {
+                // Every block of text sits on the card glass: the photo walls behind would otherwise eat it.
                 VStack(alignment: .leading, spacing: 0) {
                     backRow(meal)
-                    hero(meal)
-                    MacroLine(kcal: meal.totalCalories, protein: meal.totalProteinG, carbs: meal.totalCarbsG, fat: meal.totalFatG)
-                        .padding(.top, 14)
+                    FACard {
+                        VStack(alignment: .leading, spacing: 14) {
+                            hero(meal)
+                            MacroLine(kcal: meal.totalCalories, protein: meal.totalProteinG, carbs: meal.totalCarbsG, fat: meal.totalFatG)
+                        }
+                    }
                     if meal.status != .complete { statusCard(meal).padding(.top, 14) }
                     if model.edit.editing {
-                        MealItemsEditor(model: model.edit).padding(.top, 18)
+                        FACard { MealItemsEditor(model: model.edit) }.padding(.top, 16)
                     } else if !meal.items.isEmpty {
-                        ingredients(meal)
-                        MealAdjustBar(model: model.edit)
+                        FACard {
+                            VStack(alignment: .leading, spacing: 0) {
+                                ingredients(meal)
+                                MealAdjustBar(model: model.edit)
+                            }
+                        }
+                        .padding(.top, 16)
                     }
-                    Button { rating = true } label: { feltSection(model.reaction) }
+                    Button { rating = true } label: { FACard { feltSection(model.reaction) } }
                         .buttonStyle(.plain)
+                        .padding(.top, 16)
                         .accessibilityHint(String(localized: "meal.felt.hint", defaultValue: "Rate how this meal felt"))
                     noteCard(meal, model).padding(.top, 16)
                     if let scores = meal.scores, !model.edit.editing { scoreCards(scores).opacity(model.edit.reanalyzing ? 0.4 : 1) }
@@ -73,6 +83,7 @@ struct MealDetailView: View {
                         }
                         .foregroundStyle(FAColor.forestSoft)
                         .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .modifier(FAGlassSurface(cornerRadius: 12))
                         .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(FAColor.forestSoft.opacity(0.4), lineWidth: 1) }
                         .contentShape(Rectangle())
                     }
@@ -81,6 +92,7 @@ struct MealDetailView: View {
                     FAButton(title: String(localized: "meal.delete", defaultValue: "Delete this meal"), style: .destructive, isLoading: model.isDeleting) {
                         confirmDelete = true
                     }
+                    .modifier(FAGlassSurface(cornerRadius: FACornerRadius.md))
                     .padding(.top, 22)
                 }
                 .padding(.horizontal, 18)
@@ -124,10 +136,10 @@ struct MealDetailView: View {
         Button { dismiss() } label: {
             Text("‹ " + (meal.mealType?.localizedName ?? String(localized: "meal.type.other", defaultValue: "Meal")))
                 .font(FATypography.sans(13, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
-                .padding(.vertical, 12)
+                .faFrost(cornerRadius: 14, horizontal: 12, vertical: 8)
         }
         .buttonStyle(.plain)
-        .padding(.top, 8)
+        .padding(.top, 12).padding(.bottom, 12)
     }
 
     /// The real photo when we have it, otherwise the meal-type illustration — the name over a soft veil.
@@ -195,7 +207,6 @@ struct MealDetailView: View {
                 }
             }
         }
-        .padding(.top, 18)
         .task(id: meal.items.map(\.name)) {
             let layer = lens ?? ProtocolLayer(protocols: dependencies.protocols, members: dependencies.members)
             lens = layer
@@ -236,7 +247,6 @@ struct MealDetailView: View {
                 }
             }
         }
-        .padding(.top, 16)
         .accessibilityElement(children: .combine)
     }
 
@@ -269,7 +279,9 @@ struct MealDetailView: View {
     /// The three scores as tappable glass cards: ring · title · verdict · Understand ›.
     private func scoreCards(_ scores: MealScores) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionLabel(String(localized: "meal.scores.heading", defaultValue: "How this meal scored")).padding(.top, 24).padding(.bottom, 2)
+            sectionLabel(String(localized: "meal.scores.heading", defaultValue: "How this meal scored"))
+                .faFrost(cornerRadius: 10, horizontal: 10, vertical: 5)
+                .padding(.top, 24).padding(.bottom, 2)
             ForEach(MealScoreKind.allCases) { kind in
                 let value = kind.value(in: scores)
                 Button { explaining = kind } label: {
@@ -290,6 +302,7 @@ struct MealDetailView: View {
             }
             Text(String(localized: "meal.scores.tapHint", defaultValue: "Tap any score to understand it ↑"))
                 .font(FATypography.sans(10.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                .faFrost(cornerRadius: 10, horizontal: 10, vertical: 5)
                 .frame(maxWidth: .infinity).padding(.top, 4)
         }
     }
