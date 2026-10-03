@@ -14,6 +14,8 @@ final class AppDependencies {
     let meals: MealService
     let checkins: CheckinService
     let library: LibraryService
+    /// "The FunctionAlps Show" in the Library (CLINICAL library API + experiment progress).
+    let shows: ShowService
     let profile: ProfileService
     let messaging: MessagingService
     let account: AccountService
@@ -41,8 +43,10 @@ final class AppDependencies {
         let rest = PostgRESTClient(environment: environment, requester: requester)
         let functions = EdgeFunctionClient(environment: environment, requester: requester)
         let storage = StorageClient(environment: environment, requester: requester)
+        let clinical = environment.clinicalAPIURL.map { ClinicalAPIClient(baseURL: $0, sessions: sessions, transport: transport) }
         let backend: any FunctionAlpsBackend = backendOverride
-            ?? SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions))
+            ?? SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions),
+                               clinical: clinical)
 
         let auth = AuthService(sessions: sessions, state: state)
         self.auth = auth
@@ -52,6 +56,7 @@ final class AppDependencies {
         self.meals = MealService(backend: backend)
         self.checkins = CheckinService(backend: backend)
         self.library = LibraryService(backend: backend)
+        self.shows = ShowService(backend: backend)
         self.profile = ProfileService(backend: backend)
         self.messaging = MessagingService(backend: backend)
         self.account = AccountService(backend: backend)

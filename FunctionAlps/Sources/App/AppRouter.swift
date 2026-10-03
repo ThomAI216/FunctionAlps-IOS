@@ -8,6 +8,8 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// One episode of "The FunctionAlps Show" (Library), by its event slug.
+    case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
     case carePlan
     /// One action of the plan (a habit), opened on its action card.
@@ -84,7 +86,7 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> ·
     ///   messages · careplan · results[/<id>] · devices · settings · home
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -110,9 +112,15 @@ final class AppRouter {
             tab = .home; homePath = []
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.action(id)) }
         case "library":
-            // library · library/<slug> — the Library, or one article in it.
+            // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
+            // (an experiment reminder lands there).
             tab = .library; libraryPath = []
-            if let slug = parts.dropFirst().first, !slug.isEmpty { libraryPath.append(.read(slug)) }
+            let rest = Array(parts.dropFirst())
+            if rest.first == "show" {
+                if rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
+            } else if let slug = rest.first, !slug.isEmpty {
+                libraryPath.append(.read(slug))
+            }
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
         case "results":
@@ -247,6 +255,7 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .episode(let slug): ShowEpisodeView(slug: slug)
         case .carePlan: CarePlanView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()

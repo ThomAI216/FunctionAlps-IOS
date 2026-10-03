@@ -9,7 +9,7 @@ import SwiftUI
 /// Launched by the `Screenshots` workflow: `-FAShowcase <screen>` (see `Screen`).
 enum Showcase {
     enum Screen: String, CaseIterable {
-        case today, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, symptoms, article, onboarding
+        case today, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, episode, symptoms, article, onboarding
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -45,6 +45,7 @@ enum Showcase {
         case .careplan: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
         case .library: "functionalps://library"
+        case .episode: "functionalps://library/show/\(ShowcaseData.showEpisodeSlug)"
         case .symptoms: "functionalps://checkin/gut"
         case .article: "functionalps://library/\(ShowcaseData.articleSlug)"
         }
