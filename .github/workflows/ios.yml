@@ -4,16 +4,21 @@ name: iOS
 # (2,000 min/month → ~200 macOS minutes): keep pushes deliberate.
 on:
   push:
-    branches: ["main", "claude/**", "feat/**", "release/testflight"]
+    branches: ["main", "claude/**", "feat/**", "release/testflight", "release/testflight-internal"]
     # No path filter: with one, GitHub skips a push whose diff is empty (e.g. a new
     # branch identical to main), which silently swallowed the release/testflight trigger.
     # Pushing to the `release/testflight` branch archives + uploads to TestFlight
+    # (members included); `release/testflight-internal` uploads for the internal testers only
     # (agent-drivable without the Run-workflow button; tags are blocked by the agent's git proxy).
   pull_request:
   workflow_dispatch:
     inputs:
       testflight:
         description: "Archive and upload to TestFlight (needs signing secrets)"
+        type: boolean
+        default: false
+      internal_only:
+        description: "TestFlight: internal testers only (do not distribute to the external BetaTesters group)"
         type: boolean
         default: false
 
@@ -53,7 +58,7 @@ jobs:
     needs: changes
     # main / feature pushes only: a release push archives instead (below), which compiles the
     # same commit again — running the simulator job as well doubled every release's macOS minutes.
-    if: needs.changes.outputs.code == 'true' && github.ref != 'refs/heads/release/testflight'
+    if: needs.changes.outputs.code == 'true' && github.ref != 'refs/heads/release/testflight' && github.ref != 'refs/heads/release/testflight-internal'
     runs-on: macos-15
     timeout-minutes: 40
     steps:
@@ -134,7 +139,7 @@ jobs:
 
   testflight:
     name: Archive + TestFlight
-    if: (github.event_name == 'workflow_dispatch' && inputs.testflight) || github.ref == 'refs/heads/release/testflight'
+    if: (github.event_name == 'workflow_dispatch' && inputs.testflight) || github.ref == 'refs/heads/release/testflight' || github.ref == 'refs/heads/release/testflight-internal'
     needs: changes
     runs-on: macos-15
     timeout-minutes: 60
@@ -170,3 +175,6 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FASTLANE_SKIP_UPDATE_CHECK: "1"
+          # Internal testers only: a push to release/testflight-internal, or a manual run with internal_only.
+          # A push to release/testflight still reaches members (BetaTesters).
+          FA_TESTFLIGHT_INTERNAL_ONLY: ${{ (github.ref == 'refs/heads/release/testflight-internal' || (github.event_name == 'workflow_dispatch' && inputs.internal_only)) && '1' || '' }}

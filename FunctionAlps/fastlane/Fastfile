@@ -55,15 +55,22 @@ platform :ios do
     # members stayed on 35. Distribution needs the PROCESSED build, hence no skip_waiting here.
     # Older builds are NOT expired automatically: if Beta App Review holds a build, expiring the one
     # members have would leave them nothing to open. Expire them in App Store Connect once this one is live.
+    # FA_TESTFLIGHT_INTERNAL_ONLY=1 (the workflow's `internal_only` input): upload and stop. The build goes only
+    # to the App Store Connect team's internal testers (their group gets new builds automatically); it is not
+    # added to the external group, so members stay on the build they have. No wait for processing either —
+    # there is nothing to distribute afterwards, and waiting would only burn macOS minutes.
+    internal_only = ENV["FA_TESTFLIGHT_INTERNAL_ONLY"] == "1"
+    UI.important("Internal testers only: not distributing to external testers") if internal_only
+
     upload_to_testflight(
       api_key: api_key,
       app_identifier: BUNDLE_ID,
-      changelog: "FunctionAlps native iOS — build #{latest + 1} (#{ENV['GITHUB_SHA'].to_s[0, 7]})",
-      skip_waiting_for_build_processing: false,
+      changelog: "FunctionAlps native iOS — build #{latest + 1} (#{ENV['GITHUB_SHA'].to_s[0, 7]})#{internal_only ? ' — internal only' : ''}",
+      skip_waiting_for_build_processing: internal_only,
       wait_processing_timeout_duration: 2400,
-      distribute_external: true,
-      groups: [ENV.fetch("FA_TESTFLIGHT_GROUP", "BetaTesters")],
-      notify_external_testers: true,
+      distribute_external: !internal_only,
+      groups: internal_only ? nil : [ENV.fetch("FA_TESTFLIGHT_GROUP", "BetaTesters")],
+      notify_external_testers: !internal_only,
       uses_non_exempt_encryption: false
     )
   end

@@ -407,6 +407,12 @@ a build reached only the internal team (automatic distribution), and members sta
 The lane now waits for processing and hands every build to BetaTesters (`distribute_external`, `groups`, override with
 `FA_TESTFLIGHT_GROUP`), notifying testers. Apple may hold a build for Beta App Review first.
 
+**Internal testers only (2026-10-03):** push to `release/testflight-internal` instead
+(`git push origin <commit>:refs/heads/release/testflight-internal`), or run the workflow by hand with `testflight` and
+`internal_only`. The lane then sets `FA_TESTFLIGHT_INTERNAL_ONLY=1`: it uploads and stops (no BetaTesters, no tester
+notification, no wait for processing), so only the App Store Connect team's internal testers get the build through
+automatic distribution, and members stay on the build they have. Use it for features still being validated on a device.
+
 Old builds are **not** expired by the lane (a build held in review would leave members nothing to open). Once a build
 is live in BetaTesters: App Store Connect → TestFlight → iOS Builds → each older build → Expire Build. An expired build
 no longer opens, so testers move to the current one.
