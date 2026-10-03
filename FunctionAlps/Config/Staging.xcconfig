@@ -4,3 +4,6 @@ FA_ENVIRONMENT_NAME = staging
 FA_SUPABASE_URL = $(FA_SCHEME)ndojytvvlvlbgtodujkf.supabase.co
 FA_SUPABASE_PUBLISHABLE_KEY = sb_publishable_LVGwAdT4rrdto0hTMHUhrw_ikue9GGM
 FA_API_BASE_URL =
+// CLINICAL's public library API — "The FunctionAlps Show" in the Library. A public URL, not a secret; the member's
+// own access token goes along per request.
+FA_CLINICAL_API_URL = $(FA_SCHEME)dashboard.functionalps.ch

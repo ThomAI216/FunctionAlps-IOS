@@ -14,6 +14,9 @@ struct AppEnvironment: Sendable, Equatable {
     let supabasePublishableKey: String
     /// Optional FunctionAlps-controlled gateway (`api.functionalps.ch`). Nil until it exists.
     let apiBaseURL: URL?
+    /// The CLINICAL web app's public library API (`FA_CLINICAL_API_URL`, https://dashboard.functionalps.ch) — where
+    /// "The FunctionAlps Show" is published. Nil = not configured: the Library simply has no show section.
+    var clinicalAPIURL: URL? = nil
 
     static func fromBundle(_ bundle: Bundle = .main) throws -> AppEnvironment {
         func string(_ key: String) -> String? {
@@ -31,7 +34,8 @@ struct AppEnvironment: Sendable, Equatable {
             throw ConfigurationError.missing("FA_SUPABASE_PUBLISHABLE_KEY")
         }
         let api = string("FA_API_BASE_URL").flatMap(URL.init(string:))
-        return AppEnvironment(name: name, supabaseURL: url, supabasePublishableKey: key, apiBaseURL: api)
+        let clinical = string("FA_CLINICAL_API_URL").flatMap(URL.init(string:)).flatMap { $0.scheme == "https" ? $0 : nil }
+        return AppEnvironment(name: name, supabaseURL: url, supabasePublishableKey: key, apiBaseURL: api, clinicalAPIURL: clinical)
     }
 
     enum ConfigurationError: Error, Equatable {

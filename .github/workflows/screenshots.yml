@@ -96,6 +96,7 @@ jobs:
           shoot 07-care-plan careplan
           shoot 07b-action-card action 10
           shoot 08-library library 14
+          shoot 08b-episode episode 14
           shoot 09-symptoms symptoms
           shoot 11-article article 10
           ls -la shots

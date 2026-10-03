@@ -36,6 +36,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow? { ShowcaseData.libraryItem(slug: slug) }
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { ShowcaseData.covers }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
+    func showLibrary() async throws -> ShowLibrary { ShowcaseData.showLibrary() }
+    func showEpisode(slug: String) async throws -> ShowEpisode? { ShowcaseData.showEpisode(slug: slug) }
+    func showProgress(patientId: String) async throws -> [ShowProgressRow] { ShowcaseData.showProgress() }
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
