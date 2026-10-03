@@ -99,8 +99,11 @@ struct ShowSectionHead: View {
         VStack(alignment: .leading, spacing: 1) {
             Text(title).font(FATypography.display(17, relativeTo: .headline)).foregroundStyle(FAColor.ink)
             if let subtitle {
+                // A loose line on the photo wall gets the card frost (owner, 2026-10-02: "otherwise we can't read").
                 Text(subtitle).font(FATypography.sans(10.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                    .faFrost(cornerRadius: 10, horizontal: 8, vertical: 4)
+                    .padding(.top, 3)
             }
         }
         .padding(.bottom, 9)

@@ -90,6 +90,9 @@ private struct ShowEpisodeScreen: View {
                 .foregroundStyle(FAColor.ink)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        // The gold kicker does not read on the photo wall without the card frost.
+        .faFrost(cornerRadius: 18, horizontal: 14, vertical: 12)
         .padding(.top, 2)
         if !episode.member && episode.research == nil && episode.article == nil && episode.guide == nil && episode.faq == nil {
             Text(String(localized: "show.membersNoteApp", defaultValue: "The research, article, experiment and FAQ open for signed-in members."))
