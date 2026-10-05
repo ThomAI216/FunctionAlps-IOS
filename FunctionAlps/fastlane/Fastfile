@@ -50,20 +50,24 @@ platform :ios do
       xcargs: "-skipMacroValidation"
     )
 
-    # Members are EXTERNAL testers: a build reaches them only once it is added to their group. Until
-    # 2026-09-28 this lane uploaded and stopped there, so builds 36–43 never left the internal team while
-    # members stayed on 35. Distribution needs the PROCESSED build, hence no skip_waiting here.
-    # Older builds are NOT expired automatically: if Beta App Review holds a build, expiring the one
-    # members have would leave them nothing to open. Expire them in App Store Connect once this one is live.
+    # INTERNAL TESTERS ONLY by default (owner, 2026-10-06: "next time you ship to TestFlight, it will be
+    # only for internal testers, not external beta testers"). Internal testers get every processed build
+    # automatically; the external group (members, "BetaTesters") is reached only when a run sets
+    # FA_TESTFLIGHT_EXTERNAL=true on purpose — never by default.
+    # History: members are EXTERNAL testers, reached once a build is added to their group (builds 36–43 never
+    # left the internal team while members stayed on 35, until 2026-09-28). Older builds are NOT expired
+    # automatically: if Beta App Review holds a build, expiring the one members have leaves them nothing.
+    external = ENV["FA_TESTFLIGHT_EXTERNAL"] == "true"
+    UI.message(external ? "TestFlight: internal team AND external group #{ENV.fetch('FA_TESTFLIGHT_GROUP', 'BetaTesters')}" : "TestFlight: internal testers only")
     upload_to_testflight(
       api_key: api_key,
       app_identifier: BUNDLE_ID,
       changelog: "FunctionAlps native iOS — build #{latest + 1} (#{ENV['GITHUB_SHA'].to_s[0, 7]})",
       skip_waiting_for_build_processing: false,
       wait_processing_timeout_duration: 2400,
-      distribute_external: true,
-      groups: [ENV.fetch("FA_TESTFLIGHT_GROUP", "BetaTesters")],
-      notify_external_testers: true,
+      distribute_external: external,
+      groups: external ? [ENV.fetch("FA_TESTFLIGHT_GROUP", "BetaTesters")] : nil,
+      notify_external_testers: external,
       uses_non_exempt_encryption: false
     )
   end

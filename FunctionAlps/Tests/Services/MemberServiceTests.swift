@@ -36,6 +36,9 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow? { nil }
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { [] }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
+    func showLibrary() async throws -> ShowLibrary { throw AppError.notFound }
+    func showEpisode(slug: String) async throws -> ShowEpisode? { nil }
+    func showProgress(patientId: String) async throws -> [ShowProgressRow] { [] }
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
@@ -104,6 +107,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func actionBank() async throws -> [ActionCardRow] { [] }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}
+    func ladderCards() async throws -> [ActionCardRow] { [] }
+    func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}

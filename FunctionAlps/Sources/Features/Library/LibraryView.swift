@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The Library tab — layout v2's order, vertical: plan header → chip rail → Priority for you →
-/// Continue → Tracks → Foundations → Supplements (mockup "Library on the Phone", 2026-08-16).
+/// The Library tab — layout v2's order, vertical: next live → plan header → chip rail → The show (this week's
+/// episodes) → Priority for you → Continue (experiments, then tracks) → Tracks → Foundations → Supplements (mockups
+/// "Library on the Phone", 2026-08-16, and "iOS app — Library tab", 2026-10-03).
 struct LibraryView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: LibraryViewModel?
@@ -18,7 +19,7 @@ struct LibraryView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             if model == nil {
-                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members)
+                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows)
                 model = m
                 await m.load()
             }
@@ -29,6 +30,7 @@ struct LibraryView: View {
 private struct LibraryScreen: View {
     @Bindable var model: LibraryViewModel
     @Environment(AppRouter.self) private var router
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -59,6 +61,9 @@ private struct LibraryScreen: View {
                 Text(String(localized: "library.sample", defaultValue: "Sample preview · sign in to see your own library"))
                     .font(FATypography.sans(11, .semibold, relativeTo: .caption))
                     .foregroundStyle(FAColor.inkSecondary)
+            }
+            if let show = model.show {
+                ShowLiveCard(snapshot: show.snapshot).padding(.top, 12)
             }
             if let plan = model.bundle.plan {
                 planCard(plan).padding(.top, 12)
@@ -103,7 +108,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if section == .priority && model.priority.isEmpty { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.show == nil) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -133,6 +138,9 @@ private struct LibraryScreen: View {
     @ViewBuilder
     private var sections: some View {
         let b = model.bundle
+        if let show = model.show {
+            showSection(show)
+        }
         if !model.priority.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
                 LibrarySectionHead(title: String(localized: "library.priority.title", defaultValue: "Priority for you"), note: String(localized: "library.priority.note", defaultValue: "chosen from your plan"))
@@ -151,11 +159,21 @@ private struct LibraryScreen: View {
             .id(LibraryViewModel.Section.priority.id)
         }
 
-        if !model.inProgress.isEmpty && b.access.tracks {
+        let experiments = model.show?.experiments ?? []
+        let tracksInProgress = b.access.tracks ? model.inProgress : []
+        if !experiments.isEmpty || !tracksInProgress.isEmpty {
+            let count = experiments.count + tracksInProgress.count
             VStack(alignment: .leading, spacing: 0) {
-                LibrarySectionHead(title: String(localized: "library.continue.title", defaultValue: "Continue"), note: String(localized: "library.continue.note", defaultValue: "\(model.inProgress.count) in progress"))
+                LibrarySectionHead(title: String(localized: "library.continue.title", defaultValue: "Continue"), note: String(localized: "library.continue.note", defaultValue: "\(count) in progress"))
                 VStack(spacing: 10) {
-                    ForEach(model.inProgress) { t in continueRow(t) }
+                    ForEach(experiments) { row in
+                        ShowExperimentRowView(row: row, covers: model.covers, marking: model.markingSlug == row.slug) {
+                            router.libraryPath.append(.episode(row.slug))
+                        } onMark: {
+                            Task { await model.markToday(row) }
+                        }
+                    }
+                    ForEach(tracksInProgress) { t in continueRow(t) }
                 }
             }
             .padding(.top, 18)
@@ -179,6 +197,52 @@ private struct LibraryScreen: View {
         if !model.supplements.isEmpty {
             resourceSection(.supplements, items: model.supplements, open: b.access.supplements, noun: String(localized: "library.noun.supplements", defaultValue: "supplements"))
         }
+    }
+
+    /// "This week's episodes" — or, while no replay of the week exists yet (before the launch, early in a week),
+    /// the week from the schedule as day tiles.
+    private func showSection(_ show: ShowLibraryState) -> some View {
+        let snap = show.snapshot
+        let hasEpisodes = !snap.thisWeek.isEmpty
+        return VStack(alignment: .leading, spacing: 0) {
+            ShowSectionHead(
+                title: snap.preLaunch && !hasEpisodes
+                    ? String(localized: "show.firstWeekTitle", defaultValue: "The first week")
+                    : String(localized: "show.thisWeekTitle", defaultValue: "This week's episodes"),
+                subtitle: hasEpisodes
+                    ? String(localized: "show.thisWeekSub", defaultValue: "Each one with its replay, research, article, one-week experiment and FAQ.")
+                    : String(localized: "show.weekEmpty", defaultValue: "Each episode lands here after it airs, with everything that goes with it.")
+            )
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 10) {
+                    if hasEpisodes {
+                        ForEach(snap.thisWeek) { ep in
+                            ShowEpisodeTile(episode: ep, isToday: ShowLogic.zonedDay(ep.startsAt, timeZone: show.library.clock.timezone) == snap.today,
+                                            covers: model.covers) {
+                                router.libraryPath.append(.episode(ep.slug))
+                            }
+                        }
+                    } else {
+                        ForEach(snap.days) { day in
+                            ShowDayTile(day: day, onPress: dayAction(day))
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+        }
+        .padding(.top, 8)
+        .id(LibraryViewModel.Section.show.id)
+    }
+
+    private func dayAction(_ day: ShowSnapshot.WeekDay) -> (() -> Void)? {
+        if let episode = day.episode {
+            return { router.libraryPath.append(.episode(episode.slug)) }
+        }
+        if day.upcoming != nil {
+            return { openURL(ShowLogic.eventsURL) }
+        }
+        return nil
     }
 
     private func resourceSection(_ section: LibraryViewModel.Section, items: [LibResource], open: Bool, noun: String) -> some View {

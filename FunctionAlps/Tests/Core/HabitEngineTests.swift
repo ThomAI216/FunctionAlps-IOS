@@ -214,8 +214,12 @@ struct HabitEngineTests {
         #expect(HabitEngine.subtitle([a, b, c], hour: 8) == "Morning · 1 of 2 done")   // the current moment's count
         #expect(HabitEngine.subtitle([a, b, c], hour: 13) == "1 of 3 done")             // midday has none: the day's
         #expect(HabitEngine.subtitle([a], hour: 8) == "All done for today ✓")
-        #expect(HabitSlot.current(hour: 10) == .morning)
-        #expect(HabitSlot.current(hour: 11) == .midday)
-        #expect(HabitSlot.current(hour: 17) == .evening)
+        // The owner's windows (2026-10-06): morning to 10:00, the day to 18:00, the evening after.
+        #expect(HabitSlot.current(hour: 5) == .morning)
+        #expect(HabitSlot.current(hour: 9) == .morning)
+        #expect(HabitSlot.current(hour: 10) == .midday)
+        #expect(HabitSlot.current(hour: 17) == .midday)
+        #expect(HabitSlot.current(hour: 18) == .evening)
+        #expect(HabitSlot.current(hour: 23) == .evening)
     }
 }

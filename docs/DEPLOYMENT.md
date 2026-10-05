@@ -1,5 +1,7 @@
 # Deployment — from a Windows desktop to TestFlight (Milestone 1)
 
+> **Owner rule (2026-10-06): TestFlight builds go to INTERNAL testers only.** The `beta` lane uploads without external distribution unless a run sets `FA_TESTFLIGHT_EXTERNAL=true`, which needs the owner's explicit go for that build. Shipping itself (a push to `release/testflight`) also needs the owner's go.
+
 You have no Mac, so "the manual path" (PRD §38) is the CI path: a GitHub macOS
 runner archives, signs (fastlane `match`) and uploads. Everything you do by hand
 happens in a browser. Sections §2–§4 describe the Mac-local equivalent for

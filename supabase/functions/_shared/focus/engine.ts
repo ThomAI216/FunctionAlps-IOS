@@ -68,6 +68,18 @@ export interface BankHabit {
   easyDescriptionFr?: string | null
   revTitleFr?: string | null
   revDescriptionFr?: string | null
+  /** habit_bank.member_can_add: a foundation card any member may be offered. False = prescription only. */
+  memberCanAdd?: boolean | null
+}
+
+/**
+ * The cards the focus may offer THIS member (owner decision 2026-10-05: respect the flag). A card marked
+ * prescription-only (member_can_add false) reaches a member only when their own plan already holds it —
+ * a habit pointing at it — so the focus never puts a cold plunge or a sprint session in front of someone
+ * a practitioner has not cleared. Foundation cards (member_can_add true) stay open to everyone.
+ */
+export function focusEligibleBank(bank: BankHabit[], prescribedCardIds: ReadonlySet<string>): BankHabit[] {
+  return bank.filter((b) => b.memberCanAdd === true || prescribedCardIds.has(b.id))
 }
 
 export interface FocusInput {

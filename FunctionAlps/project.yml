@@ -79,6 +79,7 @@ targets:
         # Environment values injected from Config/*.xcconfig at build time.
         FA_ENVIRONMENT_NAME: $(FA_ENVIRONMENT_NAME)
         FA_API_BASE_URL: $(FA_API_BASE_URL)
+        FA_CLINICAL_API_URL: $(FA_CLINICAL_API_URL)
         FA_SUPABASE_URL: $(FA_SUPABASE_URL)
         FA_SUPABASE_PUBLISHABLE_KEY: $(FA_SUPABASE_PUBLISHABLE_KEY)
     entitlements:
