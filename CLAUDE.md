@@ -25,5 +25,9 @@
 - Change the bundle id after the first App Store Connect upload.
 - Commit `.p8`, `.p12`, `.mobileprovision`, `Local.xcconfig`, `Secrets.xcconfig`.
 
+## Planned by the owner (read before touching these areas)
+- Routines (morning / day / evening), weekly priorities, evolution ladders, streaks, action caps: `docs/action-cards/routines-design.md`. Card tiers (trial / members only / prescription): `docs/action-cards/catalogue-first-pass.md`. No tables yet: the owner holds the database until the design settles.
+- Consumption tracking (hydration, caffeine, any drink, with times): `docs/IOS_MIGRATION_MAP.md` → "Planned: consumption tracking".
+
 ## Workflow
 Small vertical slices (PRD §21): real data · navigation · loading/error/empty · auth · tests · runs on a physical iPhone. Update `docs/IOS_MIGRATION_MAP.md` when a slice lands.

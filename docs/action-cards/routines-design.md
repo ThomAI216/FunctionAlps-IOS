@@ -232,3 +232,12 @@ gate: `required_n = 3`, `window_days = 7`.
 4. Level-up: offer (member accepts) or automatic?
 5. Streak grace day: yes or no?
 6. Which ladders to write first: the new cards marked above.
+
+## 9. Coming: consumption tracking (owner, 2026-10-05)
+Members will log hydration, caffeine and any drink, with times. The log can tick, or show progress on, these
+actions:
+- the water actions ("A glass of water before coffee", "Most of your water in the first ten hours");
+- the caffeine ladder ("No caffeine after 14:00" → "First coffee 30 minutes after waking" → 60–90 minutes);
+- "No alcohol in the eight hours before bed".
+
+Details: `docs/IOS_MIGRATION_MAP.md` → "Planned: consumption tracking".
