@@ -1,6 +1,8 @@
 # Action-card tracks: design (2026-10-05)
 
 ## Status
+Superseded in part by `routines-design.md` (routines, weekly priorities, evolution ladders). The tier model below still holds.
+
 Proposal. The migration `supabase/migrations/20261005_action_tracks.sql` is **not applied**. The owner wants
 the second pass on the catalogue (`catalogue-first-pass.md`) done first.
 
