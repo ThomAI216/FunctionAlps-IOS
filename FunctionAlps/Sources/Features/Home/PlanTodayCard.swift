@@ -1,7 +1,9 @@
 import SwiftUI
 
-/// "Today's actions" — the clinician's habits due today, checked off in place, right under "My health plan"
-/// (the plan's objective and phase live there now, so this card's title is simply the day's actions).
+/// The routine of the moment — the clinician's habits due today, checked off in place, right under "My health plan".
+/// Home shows ONE routine (owner, 2026-10-06): the morning routine from 6:00 to 10:00, the day's actions until 18:00,
+/// the evening routine after — up to the routine's cap (3 · 6 · 3); the plan page keeps the whole day. Every row
+/// carries a flame with its streak.
 ///
 /// The clinician decides, the software reveals: every row is a habit a practitioner authored and approved
 /// (RLS on `habits` is the boundary); the card adds nothing but arithmetic — due today, done today, the run so
@@ -28,8 +30,8 @@ struct PlanTodayCard: View {
         case .loaded(let plan):
             // The day's band is the focus service's — one server read of the day, shared by the focus and the faces.
             let readiness = dependencies.focus.focus?.readiness
-            if !plan.activeHabits.isEmpty {
-                card(plan, actions: habits.actions(band: readiness?.bandValue), hour: habits.hour, readiness: readiness)
+            if !plan.activeHabits.isEmpty, let routine = habits.routineNow(band: readiness?.bandValue) {
+                card(plan, routine: routine, readiness: readiness)
             } else {
                 // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
                 FACard {
@@ -42,17 +44,21 @@ struct PlanTodayCard: View {
         }
     }
 
-    private func card(_ plan: HabitPlan, actions: [HabitAction], hour: Int, readiness: FocusReadiness?) -> some View {
+    private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?) -> some View {
+        let actions = routine.actions
         let remaining = actions.filter { !$0.done }.count
-        let headline = String(localized: "plan.today.title", defaultValue: "Today's actions")
-        // Active habits, none due today (a weekly one on its off day): a rest day is not "all done".
+        let headline = routine.slot.routineTitle
+        let done = actions.filter(\.done).count
+        // Nothing in this routine today (a weekly action on its off day, or a routine left empty): say so plainly.
         let subtitle = actions.isEmpty
-            ? String(localized: "plan.nothingDue", defaultValue: "Nothing due today")
-            : HabitEngine.subtitle(actions, hour: hour)
+            ? routine.slot.window + " · " + String(localized: "routine.empty", defaultValue: "Nothing in this routine today")
+            : remaining == 0
+                ? routine.slot.window + " · " + String(localized: "routine.allDone", defaultValue: "All done ✓")
+                : routine.slot.window + " · " + String(localized: "routine.progress", defaultValue: "\(done) of \(actions.count) done")
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 12) {
-                    Image(systemName: "list.clipboard").font(.system(size: 19)).foregroundStyle(FAColor.accent)
+                    Image(systemName: routine.slot.symbol).font(.system(size: 19)).foregroundStyle(FAColor.accent)
                         .frame(width: 40, height: 40)
                         .background(FAColor.accent.opacity(0.14), in: Circle())
                         .accessibilityHidden(true)
@@ -79,16 +85,22 @@ struct PlanTodayCard: View {
                 }
                 if !actions.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        ForEach(actions.prefix(HabitEngine.homeActionLimit)) { HabitLine(action: $0) }
+                        ForEach(actions) { HabitLine(action: $0) }
                     }
+                }
+                if routine.more > 0 {
+                    NavigationLink(value: Route.carePlan) {
+                        Text(String(localized: "routine.more", defaultValue: "\(routine.more) more in your plan ›"))
+                            .font(FATypography.caption).foregroundStyle(FAColor.forest)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
     }
 }
 
-/// One habit of the day: the mark checks off in place, the title reads, the streak is a quiet fact on the right
-/// (from two days up — one day in a row is a day, not a streak).
+/// One habit of the day: the mark checks off in place, the title reads, the flame on the right carries the streak.
 private struct HabitLine: View {
     @Environment(AppDependencies.self) private var dependencies
     let action: HabitAction
@@ -126,14 +138,7 @@ private struct HabitLine: View {
                         }
                     }
                     Spacer(minLength: 0)
-                    if action.streak >= HabitEngine.streakBadgeMin {
-                        HStack(spacing: 3) {
-                            Image(systemName: "flame").font(.system(size: 11)).accessibilityHidden(true)
-                            Text("\(action.streak)").font(FATypography.label)
-                        }
-                        .foregroundStyle(FAColor.inkMuted)
-                        .accessibilityLabel(String(localized: "plan.a11y.streak", defaultValue: "\(action.streak)-day streak"))
-                    }
+                    StreakFlame(streak: action.streak)
                     Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkMuted)
                         .accessibilityHidden(true)
                 }
@@ -148,5 +153,24 @@ private struct HabitLine: View {
     private var meta: String? {
         let parts = [action.cardKind?.label, action.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+/// The flame beside every action (owner, 2026-10-06): filled with the number of days in a row once there is one,
+/// drawn empty before — never a "lost" streak. The number says it, not the colour (rule 10).
+struct StreakFlame: View {
+    let streak: Int
+
+    var body: some View {
+        let lit = streak >= HabitEngine.streakBadgeMin
+        HStack(spacing: 3) {
+            Image(systemName: lit ? "flame.fill" : "flame").font(.system(size: 12, weight: .semibold)).accessibilityHidden(true)
+            if lit { Text("\(streak)").font(FATypography.label).monospacedDigit() }
+        }
+        .foregroundStyle(lit ? FAColor.streak : FAColor.inkMuted)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(lit
+            ? String(localized: "plan.a11y.streak", defaultValue: "\(streak)-day streak")
+            : String(localized: "plan.a11y.noStreak", defaultValue: "No streak yet"))
     }
 }

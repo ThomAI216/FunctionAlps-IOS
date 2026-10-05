@@ -232,6 +232,13 @@ protocol FunctionAlpsBackend: Sendable {
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String
     /// Remove one of the member's OWN habits (RLS allows self_initiated only; a prescribed one never goes).
     func removeOwnHabit(id: String) async throws
+    /// Every published card the member may read (`habit_bank`, RLS = active) — the evolution ladders are walked
+    /// from these (`next_level_id`).
+    func ladderCards() async throws -> [ActionCardRow]
+    /// Move one of the member's habits to its card's next level (`member_level_up`). The server checks the rules
+    /// (3 times in 7 days, one change per routine per week, not locked, own habits never onto prescription cards)
+    /// and refuses with a validation error naming the rule.
+    func levelUp(habitId: String) async throws
     /// The member's next call with the practice — a patient-visible, not-cancelled appointment from `after` on
     /// (RLS `appointments_member_self_select`); nil when none is booked.
     func nextAppointment(after: Date) async throws -> AppointmentRow?

@@ -753,7 +753,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         ])
         let header = headers.first
         let habits: [HabitRow] = try await rest.select("habits", query: [
-            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id"),
+            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id,level_since,level_locked"),
             PG.eq("patient_id", patientId), PG.neq("status", "cancelled"), PG.order("created_at"),
         ])
         let completions: [HabitCompletionRow] = try await rest.select("habit_completions", query: [
@@ -838,6 +838,17 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func removeOwnHabit(id: String) async throws {
         try await rest.delete("habits", query: [PG.eq("id", id), PG.eq("source", "self_initiated")])
+    }
+
+    func ladderCards() async throws -> [ActionCardRow] {
+        try await rest.select("habit_bank", query: [PG.select(ActionCardRow.columns), PG.eq("active", "true")])
+    }
+
+    private struct LevelUpBody: Encodable, Sendable { let pHabit: String }
+    private struct LevelUpReply: Decodable, Sendable { let id: String }
+
+    func levelUp(habitId: String) async throws {
+        let _: LevelUpReply = try await rest.rpc("member_level_up", body: LevelUpBody(pHabit: habitId))
     }
 
     func nextAppointment(after: Date) async throws -> AppointmentRow? {

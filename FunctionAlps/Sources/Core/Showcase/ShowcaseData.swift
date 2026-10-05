@@ -219,6 +219,40 @@ enum ShowcaseData {
         walk.howMdFr = "1. Partez dans les 15 minutes qui suivent la fin du repas.\n2. Marchez à un rythme où vous pouvez encore parler.\n3. Dix minutes suffisent."
         walk.generalWhyFr = "Bouger après un repas aide votre corps à utiliser ce que vous venez de manger, et c’est le meilleur remède au coup de mou de l’après-midi."
         walk.memberCanAdd = true
+        // Its ladder (owner, 2026-10-06): the walk after lunch → a walk every half hour → a brisk 30 minutes. The
+        // two levels above are the real cards (docs/action-cards/huberman/lot-b-exercise.json).
+        walk.nextLevelId = "showcase-card-walk2"
+        var walk2 = ActionCardRow(id: "showcase-card-walk2", title: "Walk five minutes every half hour")
+        walk2.pillar = "exercise"; walk2.cardKind = "movement"; walk2.durationMin = 5; walk2.defaultSlot = "midday"
+        walk2.description = "For every 30 minutes sitting or standing still, get up and walk for at least five."
+        walk2.howMd = "1. Set a gentle reminder for every 30 minutes you spend sitting or standing still.\n2. When it goes off, get up and walk or pace for at least 5 minutes.\n3. Indoors counts: the corridor, the stairs or a few laps of the room.\n4. Turn phone calls that do not need a screen into walking calls, inside or out.\n5. Had a day of long sitting? Plan a little more walking for tomorrow.\n6. If something hurts, slow down or stop.\n7. If walking is not possible: in the study behind this card, a 3-minute bout of squats every 45 minutes worked as well as 3-minute walking breaks."
+        walk2.generalWhy = "Long stretches of sitting leave your big leg muscles idle. A few minutes of walking puts them back to work, and working muscles can help use up sugar from your meals — walking does this better than simply standing up."
+        walk2.titleFr = "Cinq minutes de marche toutes les demi-heures"
+        walk2.descriptionFr = "Pour chaque demi-heure assis ou debout sans bouger, levez-vous et marchez au moins cinq minutes."
+        walk2.howMdFr = "1. Programmez un rappel discret toutes les 30 minutes passées assis ou debout sans bouger.\n2. Quand il sonne, levez-vous et marchez ou faites les cent pas au moins 5 minutes.\n3. L’intérieur compte aussi : le couloir, les escaliers ou quelques tours de la pièce.\n4. Transformez les appels qui ne demandent pas d’écran en appels en marchant, dedans ou dehors.\n5. Une journée très assise ? Prévoyez un peu plus de marche pour le lendemain.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous.\n7. Si marcher n’est pas possible : dans l’étude dont s’inspire cette carte, 3 minutes de squats toutes les 45 minutes ont fait aussi bien que des pauses de marche de 3 minutes."
+        walk2.generalWhyFr = "Les longues périodes assises laissent les grands muscles des jambes au repos. Quelques minutes de marche les remettent au travail, et des muscles actifs peuvent aider à utiliser le sucre des repas — marcher le fait mieux que simplement se lever."
+        walk2.easyTitle = "One walking phone call"
+        walk2.easyDescription = "Just one today: take a call on your feet and keep walking until it ends."
+        walk2.easyTitleFr = "Un appel en marchant"
+        walk2.easyDescriptionFr = "Une seule fois aujourd’hui : prenez un appel debout et marchez jusqu’à la fin."
+        walk2.nextLevelId = "showcase-card-walk3"
+        var walk3 = ActionCardRow(id: "showcase-card-walk3", title: "A brisk 30-minute walk")
+        walk3.pillar = "exercise"; walk3.cardKind = "movement"; walk3.durationMin = 30; walk3.defaultSlot = "midday"
+        walk3.description = "Thirty minutes of walking at a brisk pace, outdoors when you can."
+        walk3.howMd = "1. Choose a route you can walk for 30 minutes, outdoors when possible.\n2. Walk briskly — clearly faster than a stroll, at a pace you can keep the whole way.\n3. Look ahead and around you rather than at your phone.\n4. Take the stairs rather than a lift or escalator whenever the route offers them.\n5. Over the weeks, let your pace get a little quicker.\n6. If something hurts, slow down or stop."
+        walk3.generalWhy = "Walking keeps the big leg muscles contracting again and again, which can help your body use sugar as fuel and keep your heart and blood vessels working well. Walking forward with your eyes on the scene around you, rather than on a screen, can also help you feel calmer."
+        walk3.titleFr = "Une marche d’un bon pas, 30 minutes"
+        walk3.descriptionFr = "Trente minutes de marche d’un bon pas, dehors quand c’est possible."
+        walk3.howMdFr = "1. Choisissez un parcours de 30 minutes de marche, dehors si possible.\n2. Marchez d’un bon pas — nettement plus vite qu’en flânant, à un rythme que vous tenez jusqu’au bout.\n3. Regardez devant vous et autour de vous plutôt que votre téléphone.\n4. Prenez les escaliers plutôt que l’ascenseur ou l’escalator chaque fois que le parcours en offre.\n5. Au fil des semaines, laissez votre allure s’accélérer un peu.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous."
+        walk3.generalWhyFr = "La marche fait travailler encore et encore les grands muscles des jambes, ce qui peut aider le corps à utiliser le sucre comme carburant et entretenir le cœur et les vaisseaux. Avancer en regardant le paysage autour de vous, plutôt qu’un écran, peut aussi aider à vous sentir plus calme."
+        walk3.easyTitle = "Split it in two"
+        walk3.easyDescription = "Same 30 minutes, in two shorter walks — one in the morning, one in the evening."
+        walk3.revTitle = "Go for 40 to 60 minutes"
+        walk3.revDescription = "Same brisk pace, 40 to 60 minutes in all."
+        walk3.easyTitleFr = "En deux fois"
+        walk3.easyDescriptionFr = "Les mêmes 30 minutes, en deux marches plus courtes — une le matin, une le soir."
+        walk3.revTitleFr = "Allez jusqu’à 40 à 60 minutes"
+        walk3.revDescriptionFr = "Le même bon pas, 40 à 60 minutes en tout."
         // The breathing card: the only kind with its own pacer — shown from the bank, as a member discovers it.
         var breath = ActionCardRow(id: breathCardId, title: "Slow breathing before bed")
         breath.pillar = "sleep"; breath.cardKind = "breath"; breath.durationMin = 5; breath.defaultSlot = "evening"
@@ -233,7 +267,7 @@ enum ShowcaseData {
         breath.howMdFr = "1. Allongez-vous sur le dos, une main sur le ventre.\n2. Inspirez doucement par le nez pendant que le cercle grandit.\n3. Expirez lentement pendant qu’il rétrécit.\n4. Si votre esprit s’évade, revenez au cercle."
         breath.generalWhyFr = "Un rythme de respiration lent et régulier est une façon simple de laisser partir la journée avant de dormir."
         breath.memberCanAdd = true
-        return [rhythm.id: rhythm, snack.id: snack, strength.id: strength, walk.id: walk, breath.id: breath]
+        return [rhythm.id: rhythm, snack.id: snack, strength.id: strength, walk.id: walk, walk2.id: walk2, walk3.id: walk3, breath.id: breath]
     }()
 
     private static func habit(_ id: String, _ title: String, slot: String?, card: String, pillar: String, rule: String = "FREQ=DAILY") -> HabitRow {
