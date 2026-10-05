@@ -6,14 +6,13 @@ validated with CLINICAL's own importer: 6 new and 1 update to a published card.
 
 ## State on CM OS
 
-The six new levels and "First coffee 30 minutes after waking" (from `huberman/lot-b-nutrition.json`) are in
-`habit_bank` as **drafts** (`active = false`). Members do not see them; on a ladder they show as "coming soon" until
-a lead publishes them in CLINICAL → Action cards.
+**Published 2026-10-06 (owner's go):** the six new levels, and the full "Morning stretch, five minutes" (steps,
+why, YouTube link, card type movement · 5 min, members can add it). Applied with CLINICAL's own import columns;
+the texts were checked against this file. No demonstration video chosen yet: paste the practice's video in the
+stretch card's Video field (CLINICAL → Action cards); until then the button opens the YouTube search.
 
-**"Morning stretch, five minutes" is NOT updated yet.** Its new steps, why and YouTube link reach every member at
-once, so a lead applies them: CLINICAL → Action cards → Import JSON → load `lot-c-ladders.json` → tick that one card.
-No demonstration video was chosen: paste the practice's video in the card's Video field. Until then the card offers
-the YouTube search.
+**Still a draft:** "First coffee 30 minutes after waking" (lot B). It is the middle of the caffeine ladder, so a
+member on "No caffeine after 14:00" sees the next level as "coming soon" until it is published.
 
 ## The ladders (`habit_bank.next_level_id`)
 
