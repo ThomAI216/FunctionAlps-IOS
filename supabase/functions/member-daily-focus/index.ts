@@ -29,7 +29,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createUserScopedClient } from "../_shared/supabase.ts"
 import { loadWearableInputs } from "../_shared/scoring/wearable-inputs.ts"
 import { recoveryScore } from "../member-scores/engine/health/recovery-score.ts"
-import { type BankHabit, decideFocus, type StateOffer, type StateResponse } from "../_shared/focus/engine.ts"
+import { type BankHabit, decideFocus, focusEligibleBank, type StateOffer, type StateResponse } from "../_shared/focus/engine.ts"
 import { contentLocale, dayReadiness, type DayStateRow, OFFER_COLUMNS, type OfferRow, present } from "../_shared/focus/present.ts"
 
 const CORS = {
@@ -118,7 +118,7 @@ Deno.serve(async (req: Request) => {
     // RLS returns only what this member may see: the practice-wide responses and their own care plan's.
     const [{ data: stateRows, error: sErr }, { data: bankRows, error: bErr }] = await Promise.all([
       db.from("state_responses").select("id,state_key,title,care_plan_id,offers").eq("active", true),
-      db.from("habit_bank").select("id,pillar,category,title,description,default_slot,easy_title,easy_description,rev_title,rev_description,sort_order,title_fr,description_fr,easy_title_fr,easy_description_fr,rev_title_fr,rev_description_fr").eq("active", true),
+      db.from("habit_bank").select("id,pillar,category,title,description,default_slot,easy_title,easy_description,rev_title,rev_description,sort_order,title_fr,description_fr,easy_title_fr,easy_description_fr,rev_title_fr,rev_description_fr,member_can_add").eq("active", true),
     ])
     if (sErr) throw sErr
     if (bErr) throw bErr
@@ -127,13 +127,21 @@ Deno.serve(async (req: Request) => {
       id: s.id, stateKey: s.state_key, title: s.title, carePlanId: s.care_plan_id,
       offers: Array.isArray(s.offers) ? (s.offers as StateOffer[]).filter((o) => o && typeof o.key === "string" && typeof o.title === "string") : [],
     }))
-    const bank: BankHabit[] = (bankRows ?? []).map((b) => ({
+    // Prescription-only cards are offered only to a member a practitioner prescribed them to (focusEligibleBank).
+    // Self-initiated habits do not count: a member may insert one pointing at any card, so it cannot unlock one.
+    const { data: ownHabits, error: hErr } = await db.from("habits").select("habit_bank_id")
+      .eq("patient_id", patientId).neq("status", "cancelled").neq("source", "self_initiated").not("habit_bank_id", "is", null)
+    if (hErr) throw hErr
+    const prescribed = new Set((ownHabits ?? []).map((h) => h.habit_bank_id as string))
+    const allBank: BankHabit[] = (bankRows ?? []).map((b) => ({
       id: b.id, pillar: b.pillar, category: b.category, title: b.title, description: b.description,
       defaultSlot: b.default_slot, easyTitle: b.easy_title, easyDescription: b.easy_description,
       revTitle: b.rev_title, revDescription: b.rev_description, sortOrder: b.sort_order,
       titleFr: b.title_fr, descriptionFr: b.description_fr, easyTitleFr: b.easy_title_fr,
       easyDescriptionFr: b.easy_description_fr, revTitleFr: b.rev_title_fr, revDescriptionFr: b.rev_description_fr,
+      memberCanAdd: b.member_can_add,
     }))
+    const bank = focusEligibleBank(allBank, prescribed)
 
     const sleepOverall = num(morning.sleep_overall)
     const decided = decideFocus({
