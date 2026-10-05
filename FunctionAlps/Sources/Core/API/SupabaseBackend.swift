@@ -9,12 +9,15 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private let storage: StorageClient
     /// Nil = no live channel (previews, tests): watchers poll.
     private let realtime: RealtimeClient?
+    /// The CLINICAL library API (the show); nil = not configured (`FA_CLINICAL_API_URL` empty) → no show data.
+    private let clinical: ClinicalAPIClient?
 
-    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient, realtime: RealtimeClient? = nil) {
+    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient, realtime: RealtimeClient? = nil, clinical: ClinicalAPIClient? = nil) {
         self.rest = rest
         self.functions = functions
         self.storage = storage
         self.realtime = realtime
+        self.clinical = clinical
     }
 
     // MARK: Identity
@@ -1056,6 +1059,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {
         try await rest.insertRows("member_lesson_progress", body: [ProgressBody(patientId: patientId, trackId: trackId, contentSlug: contentSlug)])
+    }
+
+    // MARK: The show (CLINICAL `/api/webinars/library`; experiment marks in member_lesson_progress)
+
+    private struct ShowProgressWire: Decodable, Sendable { let contentSlug: String; let completedAt: String? }
+
+    func showLibrary() async throws -> ShowLibrary {
+        guard let clinical else { throw AppError.configuration(detail: "FA_CLINICAL_API_URL") }
+        let response = try await clinical.get("api/webinars/library")
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        guard let library = ShowLibrary.decodeList(response.body) else { throw AppError.decoding(detail: "show library") }
+        return library
+    }
+
+    func showEpisode(slug: String) async throws -> ShowEpisode? {
+        guard let clinical else { throw AppError.configuration(detail: "FA_CLINICAL_API_URL") }
+        guard ShowLogic.isSlug(slug) else { return nil }
+        let response = try await clinical.get("api/webinars/library/\(slug)")
+        if response.status == 404 { return nil }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        guard let episode = ShowEpisode.decode(response.body) else { throw AppError.decoding(detail: "show episode") }
+        return episode
+    }
+
+    /// Same table, same RLS as the track progress — the members web reads it the same way (track_id null, `show:*`).
+    func showProgress(patientId: String) async throws -> [ShowProgressRow] {
+        let rows: [ShowProgressWire] = try await rest.select("member_lesson_progress", query: [
+            PG.select("content_slug,completed_at"), PG.eq("patient_id", patientId), PG.isNull("track_id"),
+            URLQueryItem(name: "content_slug", value: "like.\(ShowLogic.experimentPrefix)*"),
+        ])
+        return rows.map { ShowProgressRow(contentSlug: $0.contentSlug, completedAt: $0.completedAt.flatMap(ISO8601.parse)) }
     }
 
     // MARK: Meal reactions (nb_meal_reactions)

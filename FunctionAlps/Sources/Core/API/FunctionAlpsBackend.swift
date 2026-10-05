@@ -70,6 +70,17 @@ protocol FunctionAlpsBackend: Sendable {
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 
+    // MARK: The show (CLINICAL library API; experiment progress in member_lesson_progress)
+
+    /// `GET /api/webinars/library` on CLINICAL — the validated list. Throws on any failure (the caller reads that as
+    /// "no show data").
+    func showLibrary() async throws -> ShowLibrary
+    /// `GET /api/webinars/library/<slug>`; nil when CLINICAL answers 404.
+    func showEpisode(slug: String) async throws -> ShowEpisode?
+    /// The member's experiment marks: `member_lesson_progress` rows with no track whose slug starts `show:`.
+    /// Marks are WRITTEN with `insertLessonProgress(trackId: nil, contentSlug: "show:<slug>:day:<n>")`.
+    func showProgress(patientId: String) async throws -> [ShowProgressRow]
+
     // MARK: Meal reactions
 
     /// The latest felt reaction for a meal (`nb_meal_reactions`), or nil when never rated.
