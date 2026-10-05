@@ -5,7 +5,7 @@ CLINICAL import format (`functionalps/action-cards/import-v1`, guide §5.2), Eng
 
 | Lot | Files | Cards | State |
 |---|---|---|---|
-| B: new cards | `lot-b-*.json` | 50 | Written to `habit_bank` as **drafts** (`active=false`) on 2026-10-05, through the importer's own row builder. Visible in CLINICAL → Action cards; a lead clinician reviews and publishes. |
+| B: new cards | `lot-b-*.json` | 50 | 10 already in `habit_bank` as **drafts** (`active=false`, 2026-10-05). Load all six `lot-b` files in CLINICAL → Action cards → Import JSON: 40 come in as new drafts, the 10 already there show as "update draft" with identical content. A lead clinician then reviews and publishes. |
 | A: richer content for existing live cards | `lot-a-*.json` | 11 | **Not applied.** A change here is live for every member at once, so a lead applies them in CLINICAL → Action cards → Import JSON, ticking each card. |
 
 Source of each card: its `_note_clinicien` names the protocol ids (`huberman:P…`) and every choice the
