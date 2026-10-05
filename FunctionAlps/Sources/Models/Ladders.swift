@@ -54,7 +54,11 @@ enum LadderLogic {
     static func ladder(for cardId: String, in cards: [ActionCardRow]) -> ActionLadder? {
         let byId = Dictionary(cards.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         guard let card = byId[cardId] else { return nil }
-        let previous = Dictionary(cards.compactMap { c in c.nextLevelId.map { ($0, c) } }, uniquingKeysWith: { a, _ in a })
+        // Two ladders may meet on one card (the morning stretch and the walk after lunch both lead to the brisk
+        // walk): the levels below are then taken from one of them, always the same one (lowest card id), so the
+        // screen never flickers between the two.
+        let previous = Dictionary(cards.sorted { $0.id < $1.id }.compactMap { c in c.nextLevelId.map { ($0, c) } },
+                                  uniquingKeysWith: { first, _ in first })
 
         var below: [ActionCardRow] = []
         var seen: Set<String> = [card.id]

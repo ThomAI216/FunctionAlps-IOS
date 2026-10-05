@@ -107,6 +107,14 @@ struct LadderTests {
         #expect(LadderLogic.state(h, ladder: ladder!, plan: plan([h])) == .comingSoon)
     }
 
+    @Test func twoLaddersMeetingOnOneCardAlwaysShowTheSameLevelsBelow() {
+        let cards = [card("walk-lunch", next: "brisk"), card("brisk", next: "run"), card("run"), card("a-stretch", next: "brisk")]
+        let one = LadderLogic.ladder(for: "brisk", in: cards)
+        let other = LadderLogic.ladder(for: "brisk", in: cards.reversed())
+        #expect(one?.levels.map(\.id) == ["a-stretch", "brisk", "run"])
+        #expect(other?.levels.map(\.id) == one?.levels.map(\.id))
+    }
+
     @Test func aCycleInTheDataNeverLoops() {
         let cards = [card("a", next: "b"), card("b", next: "a")]
         let ladder = LadderLogic.ladder(for: "a", in: cards)

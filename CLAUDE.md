@@ -23,10 +23,11 @@
 ## Do not
 - Wrap the web app in a WebView, add Capacitor, or add the Supabase Swift SDK.
 - Change the bundle id after the first App Store Connect upload.
+- Ship to TestFlight without the owner's go, or to EXTERNAL testers at all unless the owner asks for that build (internal testers only — `fastlane/Fastfile`, `docs/DEPLOYMENT.md`).
 - Commit `.p8`, `.p12`, `.mobileprovision`, `Local.xcconfig`, `Secrets.xcconfig`.
 
 ## Planned by the owner (read before touching these areas)
-- Routines (morning / day / evening), weekly priorities, evolution ladders, streaks, action caps: `docs/action-cards/routines-design.md`. Card tiers (trial / members only / prescription): `docs/action-cards/catalogue-first-pass.md`. No tables yet: the owner holds the database until the design settles.
+- Routines (morning / day / evening), weekly priorities, evolution ladders, streaks, action caps: `docs/action-cards/routines-design.md`. Card tiers (trial / members only / prescription): `docs/action-cards/catalogue-first-pass.md`. Ladders are live (`habit_bank.next_level_id`, `habits.level_since/level_locked`, RPC `member_level_up` — migration `20261006_action_ladders.sql`); tracks, weekly-priority cycles and sub-routines have no tables yet — the owner holds those until the design settles.
 - Consumption tracking (hydration, caffeine, any drink, with times): `docs/IOS_MIGRATION_MAP.md` → "Planned: consumption tracking".
 
 ## Workflow

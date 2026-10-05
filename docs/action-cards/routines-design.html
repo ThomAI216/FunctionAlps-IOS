@@ -304,7 +304,7 @@ td.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: 
 
   <section class="sec" aria-labelledby="h-member">
     <header><span class="eyebrow">Member side · app</span><h2 id="h-member">Today, the action sheet, and progress</h2>
-      <p>Home shows one routine at a time: the morning's from 6:00 to 10:00, the day's until 18:00, the evening's after. Switch the time above the phone. Tap a circle to tick an action, tap its name for its ladder; tap "Towards next level" to see the level ahead. The data is an example member.</p></header>
+      <p>Home opens on "My health plan" (the care plan's priorities), then one routine at a time: the morning's from 6:00 to 10:00, the day's until 18:00, the evening's after. Switch the time above the phone. Tap a circle to tick an action; tap its name for its video, step-by-step and ladder; tap "Towards next level" to see the level ahead. The data is an example member.</p></header>
     <div class="member">
       <div class="phone-wrap">
       <div class="when" role="group" aria-label="Time of day on the phone">
@@ -328,7 +328,7 @@ td.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: 
       </div>
       <div class="explain">
         <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.3 6.7 19.2l1.2-5.9L3.4 9.2l6-.7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          <div><h3>Priorities on top</h3><p>This cycle's one to three priorities come first, starred, with how many days they held this week. Everything else is the routines the member already runs.</p></div></div>
+          <div><h3>The care plan on top</h3><p>Home opens on "My health plan": the plan's objective, the week, and the priorities the clinician set. The routine of the moment follows, and nothing else.</p></div></div>
         <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <div><h3>Routines as stacks</h3><p>Morning, the day routines that apply today, evening. "Start routine" walks through one action at a time. A full routine says so and offers a swap rather than a fourth action.</p></div></div>
         <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V14M12 20V9M19 20V4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -518,14 +518,28 @@ td.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: 
   const flame = (n) => n > 0 ? `<span class="streak" aria-label="${n}-day streak">${FLAME}${n}</span>` : `<span class="streak cold" aria-label="No streak yet">${FLAME_OFF}</span>`;
   const $ = (id) => document.getElementById(id);
   const all = () => ROUTINES.flatMap((r) => r.acts);
+  // The care plan's priorities, as the clinician wrote them (the "My health plan" card on Home).
+  const PLAN_PRIOS = ['Same bedtime on weekdays', 'No caffeine after 14:00', 'Screens off 30 minutes before bed'];
+  // Each card's how-to, as the action card shows it. The stretch is the card's real new steps (lot C).
+  const HOW = {
+    move: ['Stand tall, feet hip-width apart, and take three slow breaths.', 'Neck: slowly tilt one ear towards its shoulder, hold for a few breaths, then the other side.',
+      'Shoulders: roll them backwards ten times, then reach both arms overhead and stretch tall.', 'Sides: one arm overhead, lean gently to the other side for a few breaths, then swap.',
+      'Hips: hands on your hips, make five slow circles each way.', 'Back of the legs: soften your knees, fold forward and let your arms hang, then roll up slowly, one vertebra at a time.',
+      'Calves: step one foot back, heel on the floor, and lean into the front knee for a few breaths; swap legs.', 'Move slowly and never bounce. If something hurts, ease off or skip that stretch.'],
+    scr: ['Set your screens-off time: at the very least 30 minutes before bed — a full hour is better.', 'At that time, stop reading, watching and scrolling on your phone, laptop, tablet and TV.',
+      'Leave screens outside the bedroom for the night.', 'If you really need a screen, turn the brightness down and switch on its warm or red display mode.',
+      'Fill the time with something calm on paper, such as a printed book under a dim lamp.'],
+    light: ['Within an hour of waking, go outside — behind a window does not count.', 'Stay out for about 10 minutes; longer on a cloudy day.', 'Take off sunglasses; your usual glasses are fine.', 'Never stare at the sun.'],
+  };
+  const VIDEO = { move: '5-minute gentle morning stretch', light: 'morning sunlight walk' };
   const ready = (a) => { const l = a.lad && L[a.lad]; return !!l && l.done >= 3 && !l.lock && !l.wait && l.at < l.levels.length - 1; };
 
   function today() {
-    const prios = all().filter((a) => a.star);
     return `
-      <div class="glass"><span class="p-meta">Monday 13 October · cycle 3, week 2</span><span class="p-title">${WHEN[when][1]}</span></div>
-      <div class="glass prio"><span class="p-meta">This cycle's priorities</span>
-        ${prios.map((a) => `<div><i aria-hidden="true">★</i>${a.t}<em>${a.streak} days</em></div>`).join('')}</div>
+      <div class="glass prio"><span class="p-meta">My health plan · week 4 of 10</span>
+        <span class="p-title" style="font-size:22px">Get your energy and deep sleep back</span>
+        <span class="p-meta" style="margin-top:4px">Priorities</span>
+        ${PLAN_PRIOS.map((t) => `<div><i aria-hidden="true">★</i>${t}</div>`).join('')}</div>
       ${ROUTINES.filter((r) => r.key === when).map((r) => {
         const n = r.acts.filter((a) => done.has(a.id)).length;
         let lastSub = null;
@@ -575,6 +589,8 @@ td.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: 
       ${showNext ? `<div class="nextp"><span class="p-meta">Next level</span><b>${lad.levels[lad.at + 1][0]}</b>${lad.levels[lad.at + 1][2] ? `<p>${lad.levels[lad.at + 1][2]}</p>` : ''}</div>` : ''}` : ''}
       <span class="p-meta">Today's version</span>
       <div class="flex3"><span>Gentle</span><span class="on">Standard</span><span>Further</span></div>
+      ${VIDEO[a.id] ? `<button type="button" class="run" style="background:#1a1a16;color:#fff;display:flex;gap:8px;justify-content:center;align-items:center" data-video aria-label="Watch the video: ${a.t}">▶ Watch the video</button>` : ''}
+      ${HOW[a.id] ? `<span class="p-meta">How to do it</span><ol class="tl" style="list-style:none">${HOW[a.id].map((st, i) => `<li><time>${i + 1}</time><span>${st}</span></li>`).join('')}</ol>` : ''}
       ${lad ? `<span class="p-meta">Evolution</span><ol class="ladder">${lad.levels.map(([t, when], i) => {
         const cls = i < lad.at ? 'done' : i === lad.at ? 'now' : '';
         const last = lad.at === lad.levels.length - 1;
