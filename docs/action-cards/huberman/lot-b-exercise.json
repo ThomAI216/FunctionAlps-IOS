@@ -1,0 +1,387 @@
+[
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 30,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
+  "member_can_add": true,
+  "sort_order": 100,
+  "title": "A brisk 30-minute walk",
+  "title_fr": "Une marche d’un bon pas, 30 minutes",
+  "description": "Thirty minutes of walking at a brisk pace, outdoors when you can.",
+  "description_fr": "Trente minutes de marche d’un bon pas, dehors quand c’est possible.",
+  "easy_title": "Split it in two",
+  "easy_title_fr": "En deux fois",
+  "easy_description": "Same 30 minutes, in two shorter walks — one in the morning, one in the evening.",
+  "easy_description_fr": "Les mêmes 30 minutes, en deux marches plus courtes — une le matin, une le soir.",
+  "rev_title": "Go for 40 to 60 minutes",
+  "rev_title_fr": "Allez jusqu’à 40 à 60 minutes",
+  "rev_description": "Same brisk pace, 40 to 60 minutes in all.",
+  "rev_description_fr": "Le même bon pas, 40 à 60 minutes en tout.",
+  "how_md": "1. Choose a route you can walk for 30 minutes, outdoors when possible.\n2. Walk briskly — clearly faster than a stroll, at a pace you can keep the whole way.\n3. Look ahead and around you rather than at your phone.\n4. Take the stairs rather than a lift or escalator whenever the route offers them.\n5. Over the weeks, let your pace get a little quicker.\n6. If something hurts, slow down or stop.",
+  "how_md_fr": "1. Choisissez un parcours de 30 minutes de marche, dehors si possible.\n2. Marchez d’un bon pas — nettement plus vite qu’en flânant, à un rythme que vous tenez jusqu’au bout.\n3. Regardez devant vous et autour de vous plutôt que votre téléphone.\n4. Prenez les escaliers plutôt que l’ascenseur ou l’escalator chaque fois que le parcours en offre.\n5. Au fil des semaines, laissez votre allure s’accélérer un peu.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
+  "general_why": "Walking keeps the big leg muscles contracting again and again, which can help your body use sugar as fuel and keep your heart and blood vessels working well. Walking forward with your eyes on the scene around you, rather than on a screen, can also help you feel calmer.",
+  "general_why_fr": "La marche fait travailler encore et encore les grands muscles des jambes, ce qui peut aider le corps à utiliser le sucre comme carburant et entretenir le cœur et les vaisseaux. Avancer en regardant le paysage autour de vous, plutôt qu’un écran, peut aussi aider à vous sentir plus calme.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "brisk walking technique"
+   },
+   {
+    "kind": "article",
+    "slug": "build-your-aerobic-base",
+    "title": "Build Your Aerobic Base"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P025 (+ volet marche quotidienne de huberman:P042/P023). Chiffres du record : au moins 30 min de marche rapide par jour, idéalement 40–60 min, au moins cinq jours par semaine ; 7 000–10 000 pas/jour (objectif de pas laissé hors de la carte : un objectif chiffré quotidien n’est pas un geste « en une fois » ; peut aller dans le care plan). Fréquence : le record dit « tous les jours, ou au moins cinq jours par semaine » → jours de semaine LU–VE proposés ; passer à RRULE:FREQ=DAILY si souhaité. Version douce : « les pas n’ont pas besoin d’être faits d’un coup » + l’auteur fait deux marches matin et soir (P025). Version plus loin : 40–60 min (« idéalement »). Affirmations à valider : la contraction répétée des muscles aide à utiliser le sucre (AMPK dans le record, mot absent de la carte) ; le « flux optique » de la marche vers l’avant aide à se sentir plus calme (mécanisme amygdale cité par le livre). Pas d’effort maximal : « d’un bon pas » seulement. Proche d’idée de l’annexe B (« Marche d’un bon pas, 20 minutes ») : ici 30 min, chiffre du record. Distincte de « A 10-minute walk after lunch » et « Evening walk » (marche rapide à part entière, pas après un repas). member_can_add proposé à true. Idée d’image : un chemin de campagne le matin, une personne de dos en pleine marche."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 5,
+  "default_slot": "midday",
+  "frequency_rule": "RRULE:FREQ=DAILY",
+  "member_can_add": true,
+  "sort_order": 110,
+  "title": "Walk five minutes every half hour",
+  "title_fr": "Cinq minutes de marche toutes les demi-heures",
+  "description": "For every 30 minutes sitting or standing still, get up and walk for at least five.",
+  "description_fr": "Pour chaque demi-heure assis ou debout sans bouger, levez-vous et marchez au moins cinq minutes.",
+  "easy_title": "One walking phone call",
+  "easy_title_fr": "Un appel en marchant",
+  "easy_description": "Just one today: take a call on your feet and keep walking until it ends.",
+  "easy_description_fr": "Une seule fois aujourd’hui : prenez un appel debout et marchez jusqu’à la fin.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Set a gentle reminder for every 30 minutes you spend sitting or standing still.\n2. When it goes off, get up and walk or pace for at least 5 minutes.\n3. Indoors counts: the corridor, the stairs or a few laps of the room.\n4. Turn phone calls that do not need a screen into walking calls, inside or out.\n5. Had a day of long sitting? Plan a little more walking for tomorrow.\n6. If something hurts, slow down or stop.\n7. If walking is not possible: in the study behind this card, a 3-minute bout of squats every 45 minutes worked as well as 3-minute walking breaks.",
+  "how_md_fr": "1. Programmez un rappel discret toutes les 30 minutes passées assis ou debout sans bouger.\n2. Quand il sonne, levez-vous et marchez ou faites les cent pas au moins 5 minutes.\n3. L’intérieur compte aussi : le couloir, les escaliers ou quelques tours de la pièce.\n4. Transformez les appels qui ne demandent pas d’écran en appels en marchant, dedans ou dehors.\n5. Une journée très assise ? Prévoyez un peu plus de marche pour le lendemain.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous.\n7. Si marcher n’est pas possible : dans l’étude dont s’inspire cette carte, 3 minutes de squats toutes les 45 minutes ont fait aussi bien que des pauses de marche de 3 minutes.",
+  "general_why": "Long stretches of sitting leave your big leg muscles idle. A few minutes of walking puts them back to work, and working muscles can help use up sugar from your meals — walking does this better than simply standing up.",
+  "general_why_fr": "Les longues périodes assises laissent les grands muscles des jambes au repos. Quelques minutes de marche les remettent au travail, et des muscles actifs peuvent aider à utiliser le sucre des repas — marcher le fait mieux que simplement se lever.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "walking breaks at work desk"
+   },
+   {
+    "kind": "article",
+    "slug": "exercise-snacks-small-signals-that-add-up",
+    "title": "Exercise Snacks — Small Signals That Add Up"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P027 + huberman:P029 (étape 7, ancienne carte « A three-minute squat break » supprimée et fusionnée ici). Chiffre du record : au moins 5 minutes de marche pour chaque tranche de 30 minutes assis ou debout. Non repris : bureau assis-debout ou tapis de marche sous le bureau (matériel, achat). Le record ne donne pas de fréquence : quotidienne proposée (le moment « midi » est indicatif, l’action se répète toute la journée de travail). Version douce = l’appel en marchant (étape 3 du record), un seul dans la journée. Affirmation à valider : « marcher aide davantage que se tenir debout à utiliser le sucre des repas » (le record : la marche abaisse la glycémie plus efficacement que la station debout seule). Distinct de « A two-minute pause between tasks » et « Stairs instead of lifts » (vraie marche de 5 min, rythmée par le temps assis). Recoupe l’idée de l’annexe B « Se lever toutes les heures » : n’en garder qu’une. member_can_add proposé à true. Idée d’image : un couloir de bureau, une personne qui marche téléphone à l’oreille, de dos. Étape 7 : « 3 minutes de squats toutes les 45 minutes » = chiffre de l’article cité (doi 10.1111/sms.14628 : aussi bien que des pauses de marche de 3 min, glycémie), pas celui du livre (« dix squats à vide ») — règle du propriétaire « prendre le chiffre de l’article » ; mention d’étude voulue par la responsable (guide §3.4 à arbitrer)."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": null,
+  "default_slot": "midday",
+  "frequency_rule": "RRULE:FREQ=DAILY",
+  "member_can_add": true,
+  "sort_order": 120,
+  "title": "Seated calf raises under the desk",
+  "title_fr": "Montées de talons assis, sous le bureau",
+  "description": "Stuck in a chair? Lift and lower your heels again and again to keep your calves working.",
+  "description_fr": "De longues heures sur une chaise ? Levez et reposez les talons, encore et encore, pour faire travailler vos mollets.",
+  "easy_title": null,
+  "easy_title_fr": null,
+  "easy_description": null,
+  "easy_description_fr": null,
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Sit towards the front of your chair with both feet flat on the floor.\n2. Lift both heels as high as you can, keeping the balls of your feet on the floor.\n3. Lower your heels again and keep repeating at a steady rhythm, breathing freely.\n4. Use it during meetings, at your desk or on a long flight.\n5. It stands in for walking but does not replace it: walk when you get the chance.\n6. If your calves cramp or it hurts, stop.",
+  "how_md_fr": "1. Asseyez-vous vers l’avant de la chaise, les deux pieds à plat au sol.\n2. Levez les deux talons aussi haut que possible, l’avant du pied restant au sol.\n3. Reposez les talons et recommencez à un rythme régulier, sans bloquer le souffle.\n4. Faites-le en réunion, à votre bureau ou pendant un long vol.\n5. C’est un relais de la marche, pas un remplacement : marchez dès que l’occasion se présente.\n6. Si un mollet crampe ou si cela fait mal, arrêtez-vous.",
+  "general_why": "Deep in your calf sits a small muscle that can keep working for a long time. Lifting your heels again and again while seated keeps it busy, which can help your body use the sugar from your meals when you cannot get up and walk.",
+  "general_why_fr": "Au fond du mollet se trouve un petit muscle capable de travailler longtemps. Lever les talons encore et encore en restant assis le garde actif, ce qui peut aider le corps à utiliser le sucre des repas quand vous ne pouvez pas vous lever pour marcher.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "seated soleus push up how to"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P028. Le record ne donne AUCUN chiffre (ni répétitions, ni durée) : duration_min = null (action non chronométrée) et aucune version douce ou plus loin, pour ne rien inventer. La clinicienne peut ajouter une durée (par exemple dans l’élément du care plan). Affirmation à valider : « le soléaire, environ 1 % de la musculature, a un effet disproportionné sur la régulation du glucose quand on le contracte de façon répétée » (formulé « peut aider à utiliser le sucre des repas »). Le nom du muscle (soléaire) est retiré du pourquoi (jargon, guide §3.1) ; il reste dans la recherche YouTube. Catégorie « movement » (le but est de rompre l’immobilité, pas de renforcer). member_can_add proposé à true (geste assis, sans charge). Idée d’image : des pieds sous un bureau, talons levés, chaussures de ville."
+ },
+ {
+  "pillar": "exercise",
+  "category": "strength",
+  "card_kind": "movement",
+  "duration_min": 60,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=MO",
+  "member_can_add": false,
+  "sort_order": 130,
+  "title": "Strength session: legs",
+  "title_fr": "Séance de force : jambes",
+  "description": "About an hour of short, hard sets for the front and back of the thighs and the calves.",
+  "description_fr": "Environ une heure de séries courtes et exigeantes pour l’avant et l’arrière des cuisses et les mollets.",
+  "easy_title": "Fewer sets on a tough day",
+  "easy_title_fr": "Moins de séries un jour difficile",
+  "easy_description": "Short on sleep, stressed or pressed for time? Same session at the low end: 4 work sets per muscle group, keeping the multi-joint lifts.",
+  "easy_description_fr": "Nuit courte, stress ou peu de temps ? La même séance au bas de la fourchette : 4 séries de travail par groupe musculaire, en gardant les exercices à plusieurs articulations.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. New to lifting? For the first 1–3 weeks, use light weights for 10–12 reps, stopping about 5 reps short of failure, to learn the movements.\n3. Warm up your whole body for about 5 minutes (bike, brisk walk or elliptical), then do 1–3 light warm-up sets, never close to failure.\n4. Today: front of the thighs, back of the thighs and calves — 2–3 exercises each, at least one multi-joint lift such as a squat.\n5. Do 2–3 work sets per exercise, to failure or very close, in good form over a full, controlled range: a weight you can lift 6–10 times on multi-joint lifts, 8–15 times on single-joint ones.\n6. Rest 3–5 minutes after multi-joint sets and 90 seconds to 3 minutes after single-joint ones; once you reach 10 reps on a multi-joint lift (10–15 on a single-joint one), add weight next time.\n7. Log sets, reps and weights; stop any exercise that causes joint pain, skip the session if you are ill, and keep it to about 60 minutes.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Vous débutez en musculation ? Les 1 à 3 premières semaines, prenez des charges légères pour 10 à 12 répétitions, en vous arrêtant environ 5 répétitions avant l’échec, pour apprendre les mouvements.\n3. Échauffez tout le corps pendant environ 5 minutes (vélo, marche rapide ou elliptique), puis faites 1 à 3 séries d’échauffement légères, sans jamais approcher l’échec.\n4. Aujourd’hui : avant des cuisses, arrière des cuisses et mollets — 2 à 3 exercices chacun, dont au moins un qui sollicite plusieurs articulations, comme le squat.\n5. Faites 2 à 3 séries de travail par exercice, jusqu’à l’échec ou presque, proprement et sur toute l’amplitude : une charge que vous soulevez 6 à 10 fois sur les exercices à plusieurs articulations, 8 à 15 fois sur ceux à une seule.\n6. Reposez-vous 3 à 5 minutes après les séries à plusieurs articulations et 90 secondes à 3 minutes après les autres ; dès 10 répétitions sur un exercice à plusieurs articulations (10 à 15 sur les autres), augmentez la charge la fois suivante.\n7. Notez séries, répétitions et charges ; arrêtez tout exercice qui fait mal à une articulation, renoncez à la séance si vous êtes malade, et tenez-vous à environ 60 minutes.",
+  "general_why": "Muscles change in the days after a session, mostly during rest and sleep, not during the workout itself. A few short, hard sets in good form, with a little more weight or reps over time, can help keep giving your body a reason to adapt without long sessions.",
+  "general_why_fr": "Les muscles se transforment dans les jours qui suivent la séance, surtout pendant le repos et le sommeil, et non pendant l’effort lui-même. Quelques séries courtes et exigeantes, bien exécutées, avec un peu plus de charge ou de répétitions au fil du temps, peuvent aider à donner au corps une raison de s’adapter, sans séances interminables.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "squat and romanian deadlift form beginner"
+   },
+   {
+    "kind": "article",
+    "slug": "training-split-optimisation",
+    "title": "Training Split Optimisation"
+   }
+  ],
+  "_note_clinicien": "Sources : huberman:P030 (jour 2 : quadriceps, ischio-jambiers, mollets ; fessiers, tronc et bas du dos indirectement) + huberman:P042 + huberman:P022 + huberman:P031 + huberman:P032 + huberman:P033. Record : ne pas sauter la séance jambes ; pas d’intervalles intenses le lendemain. Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add. Étape 2 = rodage débutant (P022 : 1–3 semaines, 10–12 rép., ~5 en réserve ; P030 : « break-in »). Chiffres à vérifier : échauffement ~5 min ; 1–3 séries d’échauffement (40/65/75 %, hors carte) ; 4–9 séries par groupe (viser ~6) ; 2–3 exercices par groupe ; 2–3 séries par exercice ; 6–10 rép. sur les exercices à plusieurs articulations et 8–15 sur ceux à une seule (P031, préféré aux 6–12 de P022, cohérent avec la progression 10 / 10–15 de P033) ; repos 3–5 min / 90 s–3 min ; séance 60 ± 20 min, pas au-delà de ~80. Douce = bas de fourchette les jours de fatigue (P031). Non repris : séries forcées, 3–5 s après l’échec, 1RM, cou. member_can_add = false : entraînement lourd à l’échec, à prescrire. Jours : modèle P042 avec jour 1 = dimanche (cardio long DI, jambes LU, tronc ME, cardio modéré JE, intervalles VE, épaules/bras SA), choix de l’auteur. Article choisi sur son titre. À valider : adaptations dans les 2–4 jours, surtout pendant le sommeil. Image : salle lumineuse, mains sur une barre."
+ },
+ {
+  "pillar": "exercise",
+  "category": "strength",
+  "card_kind": "movement",
+  "duration_min": 60,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=WE",
+  "member_can_add": false,
+  "sort_order": 140,
+  "title": "Strength session: chest, back, core",
+  "title_fr": "Séance de force : poitrine, dos, tronc",
+  "description": "About an hour of short, hard sets for the chest, the back and the core.",
+  "description_fr": "Environ une heure de séries courtes et exigeantes pour la poitrine, le dos et le tronc.",
+  "easy_title": "Fewer sets on a tough day",
+  "easy_title_fr": "Moins de séries un jour difficile",
+  "easy_description": "Short on sleep, stressed or pressed for time? Same session at the low end: 4 work sets per muscle group, keeping the multi-joint lifts.",
+  "easy_description_fr": "Nuit courte, stress ou peu de temps ? La même séance au bas de la fourchette : 4 séries de travail par groupe musculaire, en gardant les exercices à plusieurs articulations.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. New to lifting? For the first 1–3 weeks, use light weights for 10–12 reps, stopping about 5 reps short of failure, to learn the movements.\n3. Warm up your whole body for about 5 minutes (bike, brisk walk or elliptical), then do 1–3 light warm-up sets, never close to failure.\n4. Today: chest, back and core — 2–3 exercises each, at least one multi-joint lift such as a press or a row.\n5. Do 2–3 work sets per exercise, to failure or very close, in good form over a full, controlled range: a weight you can lift 6–10 times on multi-joint lifts, 8–15 times on single-joint ones.\n6. Rest 3–5 minutes after multi-joint sets and 90 seconds to 3 minutes after single-joint ones; once you reach 10 reps on a multi-joint lift (10–15 on a single-joint one), add weight next time.\n7. Log sets, reps and weights; stop any exercise that causes joint pain, skip the session if you are ill, and keep it to about 60 minutes.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Vous débutez en musculation ? Les 1 à 3 premières semaines, prenez des charges légères pour 10 à 12 répétitions, en vous arrêtant environ 5 répétitions avant l’échec, pour apprendre les mouvements.\n3. Échauffez tout le corps pendant environ 5 minutes (vélo, marche rapide ou elliptique), puis faites 1 à 3 séries d’échauffement légères, sans jamais approcher l’échec.\n4. Aujourd’hui : poitrine, dos et tronc — 2 à 3 exercices chacun, dont au moins un qui sollicite plusieurs articulations, comme un développé ou un tirage.\n5. Faites 2 à 3 séries de travail par exercice, jusqu’à l’échec ou presque, proprement et sur toute l’amplitude : une charge que vous soulevez 6 à 10 fois sur les exercices à plusieurs articulations, 8 à 15 fois sur ceux à une seule.\n6. Reposez-vous 3 à 5 minutes après les séries à plusieurs articulations et 90 secondes à 3 minutes après les autres ; dès 10 répétitions sur un exercice à plusieurs articulations (10 à 15 sur les autres), augmentez la charge la fois suivante.\n7. Notez séries, répétitions et charges ; arrêtez tout exercice qui fait mal à une articulation, renoncez à la séance si vous êtes malade, et tenez-vous à environ 60 minutes.",
+  "general_why": "Muscles change in the days after a session, mostly during rest and sleep, not during the workout itself. A few short, hard sets in good form, with a little more weight or reps over time, can help keep giving your body a reason to adapt without long sessions.",
+  "general_why_fr": "Les muscles se transforment dans les jours qui suivent la séance, surtout pendant le repos et le sommeil, et non pendant l’effort lui-même. Quelques séries courtes et exigeantes, bien exécutées, avec un peu plus de charge ou de répétitions au fil du temps, peuvent aider à donner au corps une raison de s’adapter, sans séances interminables.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "bench press and dumbbell row form beginner"
+   },
+   {
+    "kind": "article",
+    "slug": "training-split-optimisation",
+    "title": "Training Split Optimisation"
+   }
+  ],
+  "_note_clinicien": "Sources : huberman:P030 (jour 4 : poitrine, dos, abdominaux/tronc ; cou optionnel, non repris) + huberman:P042 + huberman:P022 + huberman:P031 + huberman:P032 + huberman:P033 ; tronc 1–2 fois par semaine (huberman:P038, add-ons non repris). Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add. Étape 2 = rodage débutant (P022 : 1–3 semaines, 10–12 rép., ~5 en réserve ; P030 : « break-in »). Chiffres à vérifier : échauffement ~5 min ; 1–3 séries d’échauffement (40/65/75 %, hors carte) ; 4–9 séries par groupe (viser ~6) ; 2–3 exercices par groupe ; 2–3 séries par exercice ; 6–10 rép. sur les exercices à plusieurs articulations et 8–15 sur ceux à une seule (P031, préféré aux 6–12 de P022, cohérent avec la progression 10 / 10–15 de P033) ; repos 3–5 min / 90 s–3 min ; séance 60 ± 20 min, pas au-delà de ~80. Douce = bas de fourchette les jours de fatigue (P031). Non repris : séries forcées, 3–5 s après l’échec, 1RM, cou. member_can_add = false : entraînement lourd à l’échec, à prescrire. Jours : modèle P042 avec jour 1 = dimanche (cardio long DI, jambes LU, tronc ME, cardio modéré JE, intervalles VE, épaules/bras SA), choix de l’auteur. Article choisi sur son titre. À valider : adaptations dans les 2–4 jours, surtout pendant le sommeil. Image : salle lumineuse, mains sur une barre."
+ },
+ {
+  "pillar": "exercise",
+  "category": "strength",
+  "card_kind": "movement",
+  "duration_min": 60,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=SA",
+  "member_can_add": false,
+  "sort_order": 150,
+  "title": "Strength session: shoulders and arms",
+  "title_fr": "Séance de force : épaules et bras",
+  "description": "About an hour of short, hard sets for the shoulders, biceps, triceps and core.",
+  "description_fr": "Environ une heure de séries courtes et exigeantes pour les épaules, les biceps, les triceps et le tronc.",
+  "easy_title": "Fewer sets on a tough day",
+  "easy_title_fr": "Moins de séries un jour difficile",
+  "easy_description": "Short on sleep, stressed or pressed for time? Same session at the low end: 4 work sets per muscle group, keeping the multi-joint lifts.",
+  "easy_description_fr": "Nuit courte, stress ou peu de temps ? La même séance au bas de la fourchette : 4 séries de travail par groupe musculaire, en gardant les exercices à plusieurs articulations.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. New to lifting? For the first 1–3 weeks, use light weights for 10–12 reps, stopping about 5 reps short of failure, to learn the movements.\n3. Warm up your whole body for about 5 minutes (bike, brisk walk or elliptical), then do 1–3 light warm-up sets, never close to failure.\n4. Today: shoulders, biceps, triceps and core — 2–3 exercises each, at least one multi-joint lift such as an overhead press.\n5. Do 2–3 work sets per exercise, to failure or very close, in good form over a full, controlled range: a weight you can lift 6–10 times on multi-joint lifts, 8–15 times on single-joint ones.\n6. Rest 3–5 minutes after multi-joint sets and 90 seconds to 3 minutes after single-joint ones; once you reach 10 reps on a multi-joint lift (10–15 on a single-joint one), add weight next time.\n7. Log sets, reps and weights; stop any exercise that causes joint pain, skip the session if you are ill, and keep it to about 60 minutes.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Vous débutez en musculation ? Les 1 à 3 premières semaines, prenez des charges légères pour 10 à 12 répétitions, en vous arrêtant environ 5 répétitions avant l’échec, pour apprendre les mouvements.\n3. Échauffez tout le corps pendant environ 5 minutes (vélo, marche rapide ou elliptique), puis faites 1 à 3 séries d’échauffement légères, sans jamais approcher l’échec.\n4. Aujourd’hui : épaules, biceps, triceps et tronc — 2 à 3 exercices chacun, dont au moins un qui sollicite plusieurs articulations, comme le développé militaire.\n5. Faites 2 à 3 séries de travail par exercice, jusqu’à l’échec ou presque, proprement et sur toute l’amplitude : une charge que vous soulevez 6 à 10 fois sur les exercices à plusieurs articulations, 8 à 15 fois sur ceux à une seule.\n6. Reposez-vous 3 à 5 minutes après les séries à plusieurs articulations et 90 secondes à 3 minutes après les autres ; dès 10 répétitions sur un exercice à plusieurs articulations (10 à 15 sur les autres), augmentez la charge la fois suivante.\n7. Notez séries, répétitions et charges ; arrêtez tout exercice qui fait mal à une articulation, renoncez à la séance si vous êtes malade, et tenez-vous à environ 60 minutes.",
+  "general_why": "Muscles change in the days after a session, mostly during rest and sleep, not during the workout itself. A few short, hard sets in good form, with a little more weight or reps over time, can help keep giving your body a reason to adapt without long sessions.",
+  "general_why_fr": "Les muscles se transforment dans les jours qui suivent la séance, surtout pendant le repos et le sommeil, et non pendant l’effort lui-même. Quelques séries courtes et exigeantes, bien exécutées, avec un peu plus de charge ou de répétitions au fil du temps, peuvent aider à donner au corps une raison de s’adapter, sans séances interminables.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "overhead press and curl form beginner"
+   },
+   {
+    "kind": "article",
+    "slug": "training-split-optimisation",
+    "title": "Training Split Optimisation"
+   }
+  ],
+  "_note_clinicien": "Sources : huberman:P030 (jour 7 : épaules, biceps, triceps, abdominaux/tronc ; avant-bras et cou optionnels, non repris) + huberman:P042 + huberman:P022 + huberman:P031 + huberman:P032 + huberman:P033 ; face pulls (huberman:P038, non repris). Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add. Étape 2 = rodage débutant (P022 : 1–3 semaines, 10–12 rép., ~5 en réserve ; P030 : « break-in »). Chiffres à vérifier : échauffement ~5 min ; 1–3 séries d’échauffement (40/65/75 %, hors carte) ; 4–9 séries par groupe (viser ~6) ; 2–3 exercices par groupe ; 2–3 séries par exercice ; 6–10 rép. sur les exercices à plusieurs articulations et 8–15 sur ceux à une seule (P031, préféré aux 6–12 de P022, cohérent avec la progression 10 / 10–15 de P033) ; repos 3–5 min / 90 s–3 min ; séance 60 ± 20 min, pas au-delà de ~80. Douce = bas de fourchette les jours de fatigue (P031). Non repris : séries forcées, 3–5 s après l’échec, 1RM, cou. member_can_add = false : entraînement lourd à l’échec, à prescrire. Jours : modèle P042 avec jour 1 = dimanche (cardio long DI, jambes LU, tronc ME, cardio modéré JE, intervalles VE, épaules/bras SA), choix de l’auteur. Article choisi sur son titre. À valider : adaptations dans les 2–4 jours, surtout pendant le sommeil. Image : salle lumineuse, mains sur une barre."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 45,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=SU",
+  "member_can_add": false,
+  "sort_order": 160,
+  "title": "Long, easy cardio: 45–75 minutes",
+  "title_fr": "Cardio long et tranquille : 45 à 75 minutes",
+  "description": "One long, steady session at a pace where you can just barely hold a conversation.",
+  "description_fr": "Une longue séance régulière, à une allure où vous pouvez tout juste tenir une conversation.",
+  "easy_title": "Start with 15–20 minutes",
+  "easy_title_fr": "Commencez par 15 à 20 minutes",
+  "easy_description": "New to cardio or out of shape? Same pace, 15–20 minutes, adding a few minutes each week.",
+  "easy_description_fr": "Vous débutez ou reprenez le cardio ? Même allure, 15 à 20 minutes, en ajoutant quelques minutes chaque semaine.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. Choose an activity that is kind to your joints: a hike, cycling, running, the elliptical, a stair climber or swimming.\n3. Go outdoors when you can.\n4. Find a pace where you can just barely hold a conversation.\n5. Another check: go as hard as you can while still breathing only through your nose.\n6. Keep moving continuously for 45–75 minutes, pausing only for water or a red light.\n7. If something hurts or you feel unwell, slow down or stop.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Choisissez une activité qui ménage vos articulations : randonnée, vélo, course, elliptique, simulateur d’escaliers ou natation.\n3. Sortez dehors quand c’est possible.\n4. Trouvez une allure où vous pouvez tout juste tenir une conversation.\n5. Autre repère : allez aussi fort que possible en respirant uniquement par le nez.\n6. Bougez sans interruption pendant 45 à 75 minutes, en ne vous arrêtant que pour boire ou à un feu rouge.\n7. Si quelque chose fait mal ou si vous ne vous sentez pas bien, ralentissez ou arrêtez-vous.",
+  "general_why": "Long, steady effort can help your heart pump more blood with each beat, so it needs fewer beats at rest, and it trains your muscles to use fat as fuel. Combined with shorter, harder sessions in the week, these long days can feel easier over time.",
+  "general_why_fr": "Un effort long et régulier peut aider le cœur à pomper plus de sang à chaque battement, si bien qu’il a besoin de moins de battements au repos, et il apprend aux muscles à utiliser les graisses comme carburant. Associées à des séances plus courtes et plus intenses dans la semaine, ces longues sorties peuvent devenir plus faciles avec le temps.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "zone 2 cardio nasal breathing"
+   },
+   {
+    "kind": "article",
+    "slug": "zone-2-cardio",
+    "title": "Zone 2 Cardio"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P039 (+ jour 1 du modèle hebdomadaire huberman:P042). Chiffres du record : 45–75 min en continu ; débutants 15–20 min puis quelques minutes de plus chaque semaine (version douce) ; 60–70 % de la FC max, idéalement près de 70 % (FC max estimée 220 – âge, ou hommes 208 – 0,7 × âge, femmes 206 – 0,88 × âge) — formules et pourcentages laissés HORS de la carte (calcul, interprétation de montre : guide §3.5) ; la carte garde les repères simples du record (tout juste parler / respiration nasale). duration_min = 45 (borne basse de la fourchette 45–75). Activités : liste du record, « randonnée lestée » ramenée à « randonnée » (pas de charge). Jour : dimanche (jour 1 du modèle, veille de la séance jambes) — choix de l’auteur de la carte. Affirmations à valider : volume d’éjection systolique, baisse de la FC de repos, utilisation des graisses ; la synergie avec les séances intenses. member_can_add = false proposé : séance longue (45–75 min) d’un programme d’entraînement, à prescrire ; la version douce pourrait devenir une carte de base. Idée d’image : un chemin forestier, un cycliste ou un coureur de dos. Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 30,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=TH",
+  "member_can_add": false,
+  "sort_order": 170,
+  "title": "Steady hard cardio: 25–30 minutes",
+  "title_fr": "Cardio soutenu : 25 à 30 minutes",
+  "description": "After an easy warm-up, 25–30 minutes at a pace that has you breathing hard but not gasping.",
+  "description_fr": "Après un échauffement tranquille, 25 à 30 minutes à une allure qui vous fait souffler fort, sans être à bout de souffle.",
+  "easy_title": null,
+  "easy_title_fr": null,
+  "easy_description": null,
+  "easy_description_fr": null,
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. Choose an activity that is kind to your joints: running, cycling, the elliptical, a stair climber or swimming.\n3. Warm up for 5 minutes at an easy pace.\n4. Then work for 25–30 minutes at a pace that has you breathing hard but not gasping.\n5. Drifting a little above or below that pace is fine, for example on hills.\n6. Never sprint: this is a steady effort, not a race.\n7. If something hurts or you feel unwell, slow down or stop.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Choisissez une activité qui ménage vos articulations : course, vélo, elliptique, simulateur d’escaliers ou natation.\n3. Échauffez-vous 5 minutes à allure tranquille.\n4. Puis travaillez 25 à 30 minutes à une allure qui vous fait souffler fort, sans être à bout de souffle.\n5. Monter ou descendre un peu autour de cette allure, par exemple en côte, c’est très bien.\n6. Ne sprintez jamais : c’est un effort régulier, pas une course.\n7. Si quelque chose fait mal ou si vous ne vous sentez pas bien, ralentissez ou arrêtez-vous.",
+  "general_why": "A steady, fairly hard effort can help your heart and muscles get better at delivering and using oxygen, and help build the small blood vessels that feed your muscles. Many people also find they feel more energetic and focused afterwards.",
+  "general_why_fr": "Un effort régulier et assez soutenu peut aider le cœur et les muscles à mieux apporter et utiliser l’oxygène, et à développer les petits vaisseaux qui nourrissent les muscles. Beaucoup de personnes se sentent aussi plus énergiques et concentrées après la séance.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "tempo run steady state cardio"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P040 (+ jour 5 du modèle hebdomadaire huberman:P042, trois jours après la séance jambes). Chiffres du record : échauffement 5 min, puis 25–30 min à 75–85 % de la FC max (« zone 3 haute / zone 4 basse ») — pourcentage laissé hors de la carte, remplacé par le repère du record « souffler fort sans être à bout de souffle ». duration_min = 30 (total réel 30–35 min avec l’échauffement). Liste d’activités reprise de huberman:P039 (P040 n’en donne pas). Jour : jeudi — choix de l’auteur de la carte. member_can_add = false : zone cardio élevée (guide §3.6), réservée à une prescription. Affirmations à valider : croissance des capillaires et adaptations des mitochondries ; « énergique et concentré après » (formulé « beaucoup de personnes »). Pas d’article : aucun titre du catalogue ne correspond clairement (« Build Your Engine » ou « Stamina & Capacity Building » possibles après lecture). Idée d’image : une course sur une route en légère montée, de dos. Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 25,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=FR",
+  "member_can_add": false,
+  "sort_order": 180,
+  "title": "Hard intervals: 30 seconds on, 60 off",
+  "title_fr": "Intervalles : 30 secondes fort, 60 tranquille",
+  "description": "After a warm-up, 6–12 rounds of 30 seconds near all-out and 60 seconds easy.",
+  "description_fr": "Après un échauffement, 6 à 12 cycles de 30 secondes presque à fond et 60 secondes tranquilles.",
+  "easy_title": null,
+  "easy_title_fr": null,
+  "easy_description": null,
+  "easy_description_fr": null,
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. Never do this the day after a hard leg session to failure.\n3. Choose an activity where you can push hard without injury: a stationary bike, rowing, swimming or sprints.\n4. Warm up for 5–10 minutes at an easy to moderate pace.\n5. Go near all-out for 30 seconds — make it truly hard — then rest or move easily for the full 60 seconds, so the next one can be hard too.\n6. Repeat for 6–12 rounds, about 25 minutes including the warm-up.\n7. If you feel dizzy, unwell or anything hurts, stop.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Ne le faites jamais le lendemain d’une séance jambes poussée jusqu’à l’échec.\n3. Choisissez une activité où vous pouvez forcer sans vous blesser : vélo d’appartement, rameur, natation ou sprints.\n4. Échauffez-vous 5 à 10 minutes à allure tranquille à modérée.\n5. Donnez-vous presque à fond pendant 30 secondes — un effort vraiment intense — puis reposez-vous ou bougez tranquillement pendant les 60 secondes complètes, pour que le suivant le soit aussi.\n6. Répétez 6 à 12 cycles, soit environ 25 minutes échauffement compris.\n7. Si la tête vous tourne, si vous ne vous sentez pas bien ou si quelque chose fait mal, arrêtez-vous.",
+  "general_why": "Short, very hard efforts push your heart and lungs close to their limit, which can help raise that limit over time. They can also make your longer, easier sessions feel easier.",
+  "general_why_fr": "Des efforts courts et très intenses poussent le cœur et les poumons près de leur limite, ce qui peut aider à repousser cette limite avec le temps. Ils peuvent aussi rendre vos séances longues et tranquilles plus faciles.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "30 60 interval training bike"
+   },
+   {
+    "kind": "article",
+    "slug": "hiit",
+    "title": "HIIT"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P041 (+ jour 6 du modèle hebdomadaire huberman:P042, quatre jours après la séance jambes). CARTE HORS BANQUE DE BASE : intervalles intenses (guide §3.6, annexe B) — member_can_add = false, à n’attacher que par prescription après évaluation. Format retenu : 30/60 (30 s quasi à fond, 60 s repos ou facile, 6–12 cycles, ~25 min avec l’échauffement), chiffres du record. Autres formats du record non repris (un seul geste par carte) : effort total 6–16 min à 90–95 % FC max ; test progressif ; test de Cooper 12 min ; meilleur mile ; 4×4 norvégien (4 min fort / 4 min facile × 4). Aucune version douce/plus loin : le record ne donne que la fourchette 6–12 cycles. Précaution du record en étape 2 (jamais le lendemain d’une séance jambes à l’échec). Carte « Eight 30-second sprints » (huberman:P082) supprimée comme doublon : son format 8 × (30 s presque à fond + 30 s de repos), après 5–10 min d’échauffement, peut remplacer le 30/60 sur prescription. Étape de sécurité finale ajoutée (vertige, malaise) : à valider. Jour : vendredi — choix de l’auteur. Affirmations à valider : amélioration de la VO2 max et de la FC max ; synergie avec les séances longues. Idée d’image : un vélo d’appartement dans une pièce lumineuse, sans visage. Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add."
+ },
+ {
+  "pillar": "exercise",
+  "category": "mobility",
+  "card_kind": "movement",
+  "duration_min": 10,
+  "default_slot": null,
+  "frequency_rule": "RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR",
+  "member_can_add": false,
+  "sort_order": 190,
+  "title": "Ten-minute mobility routine",
+  "title_fr": "Routine de mobilité, dix minutes",
+  "description": "A short sequence for hips, back, shoulders and wrists — at the end of a workout or any time of day.",
+  "description_fr": "Une courte séquence pour les hanches, le dos, les épaules et les poignets — après une séance ou à tout moment.",
+  "easy_title": "Just the standing hip hinge",
+  "easy_title_fr": "Seulement la charnière de hanche debout",
+  "easy_description": "Short on time? Do only the last movement, the standing hip hinge with arms raised, once or twice.",
+  "easy_description_fr": "Peu de temps ? Faites seulement le dernier mouvement, la charnière de hanche debout bras levés, une ou deux fois.",
+  "rev_title": null,
+  "rev_title_fr": null,
+  "rev_description": null,
+  "rev_description_fr": null,
+  "how_md": "1. Only if your practice has cleared you for this.\n2. Sumo squat twist: feet wider than shoulders, squat deep, elbows inside knees; raise one arm, look at it 3–10 seconds; 3 times each side.\n3. Hip flexor stretch: in a lunge, gently extend the back leg and hold 10–30 seconds while breathing out; 3 times each side.\n4. Reverse tabletop: sit, knees bent, hands by your hips; lift your hips to a flat tabletop and hold 10 seconds, or as long as you can.\n5. Shoulder opener: legs straight, hands flat behind you, fingers pointing back; slide your hips forward until the shoulders stretch.\n6. Standing hip hinge: feet wide, heels down, hinge your hips a third of the way, chest up, arms raised, thumbs out; hold, then 5 seconds more.\n7. Keep every movement painless and progress slowly, over months; if a movement hurts, stop it.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Squat sumo avec rotation : pieds plus larges que les épaules, squat profond, coudes à l’intérieur des genoux ; levez un bras, regardez-le 3 à 10 secondes ; 3 fois de chaque côté.\n3. Étirement des fléchisseurs de hanche : en fente, allongez doucement la jambe arrière et tenez 10 à 30 secondes en expirant ; 3 fois de chaque côté.\n4. Table inversée : assis, genoux pliés, mains près des hanches ; montez le bassin à plat comme une table et tenez 10 secondes, ou aussi longtemps que possible.\n5. Ouverture des épaules : jambes tendues, mains à plat derrière vous, doigts vers l’arrière ; avancez le bassin jusqu’à sentir l’étirement des épaules.\n6. Charnière de hanche debout : pieds écartés, talons ancrés, hanches fléchies d’un tiers, poitrine haute, bras levés, pouces vers l’extérieur ; tenez, puis 5 secondes de plus.\n7. Gardez chaque mouvement indolore et progressez lentement, sur des mois ; si un mouvement fait mal, arrêtez-le.",
+  "general_why": "Long hours of sitting and looking down at screens can stiffen the front of the hips and limit how far your arms reach behind you. Moving these areas through their range a few times a week, gently and without pain, can help keep them supple.",
+  "general_why_fr": "De longues heures assis, le regard baissé sur un écran, peuvent raidir l’avant des hanches et limiter la capacité à amener les bras vers l’arrière. Faire travailler ces zones dans toute leur amplitude quelques fois par semaine, en douceur et sans douleur, peut aider à les garder souples.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "standing hip hinge arms overhead"
+   }
+  ],
+  "_note_clinicien": "Source : huberman:P043 (+ volet mobilité de huberman:P042/P023). Étape 1 « Seulement si votre cabinet vous l’a conseillé » ajoutée (décision de la responsable) : le focus du jour peut proposer toute carte publiée, quel que soit member_can_add. Chiffres du record : ~10 min, 2–4 fois par semaine ; squat sumo : regarder le doigt 3–10 s, revenir mains jointes 3–10 s, 3 fois par côté ; fente : 10–30 s en expirant, 3 fois par côté (variante à genou non reprise) ; table inversée : 10 s, sinon 3 séries aussi longtemps que possible ; charnière de hanche debout, bras levés : tenir puis « 5 secondes de plus », 1–2 fois. Le livre l’appelle « Founder » (exercice phare d’un programme commercial) : nom de marque remplacé par une description du geste. Étapes condensées : à relire avec une démonstration. Fréquence : 2–4 fois par semaine → LU, ME, VE. Douce = la seule charnière de hanche (« tous les jours ou quelques fois par semaine »). Pas d’article (« ROM & Loaded Mobility » parle de charge). Distincte de « Morning stretch, five minutes ». member_can_add = false : mouvements techniques (squat profond, appui sur les poignets) et public du record « à risque de blessure du dos, des épaules, des hanches, des genoux ou des poignets ». À valider : position assise prolongée et extension de hanche/épaule ; la prévention des blessures (opinion de l’auteur) n’est pas reprise. Image : un tapis au salon, squat profond mains jointes, sans visage."
+ }
+]
