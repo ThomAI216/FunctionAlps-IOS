@@ -1,9 +1,18 @@
-# The 14-day track — content source of truth
+# The Foundation Track — content source of truth
 
 Status: **agreed with Thomas 2026-10-06, EN text for review; FR to follow once the EN is locked.**
-Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/migrations/20261006_trial14_track.sql`).
+Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/migrations/20261006_foundation_track.sql`, **applied on CM OS 2026-10-06**; track code `foundation_v1`, launched 2026-10-06).
 
 ## Decisions (Thomas, 2026-10-05/06)
+
+- **It is the Foundation Track, not a trial.** Every newcomer from 2026-10-06 runs it (free or paying), enrolled at
+  their first app open. Members who were already in are launched by Thomas with a button in CLINICAL; their 14 days
+  start at their next app open.
+- **Calls inside the app.** Newcomers: day 3 · 15 min, optional; day 14 · 30-min review, unlocked by the review rule
+  (or by Thomas). Existing members launched by Thomas: day 3, day 7 and day 14 · 20 min each, optional, with Thomas.
+  Stored per member in `member_track_enrollment.calls`.
+- **Day 7:** Thomas receives an email with the member's 7-day figures (how much they did) and answers yes or no;
+  only on yes does the member get their summary (`track_summary.status = approved`).
 
 - **Fixed and automatic.** The free trial is the same for everyone; real personalisation is for paying members. A
   "mini personalisation" picks variants by rule (below), never by hand. Every NEW member, paying or not, starts this
@@ -41,7 +50,7 @@ Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/
 
 `*` = prefilled from an earlier answer or the record and shown as "Still right?".
 
-### Day 1 · You, today (~3 min) — `trial14_d1_you_today`
+### Day 1 · You, today (~3 min) — `foundation_d1_you_today`
 Intro: "This first week is about understanding you. Don't change anything yet: the more real your answers, the more useful the next steps."
 
 Page 1 — Your body
@@ -68,7 +77,7 @@ Page 6 — Turn on your reminders: "Each day we'll send a short reminder at the 
 
 Done: "Today: photograph everything you eat. Tomorrow: how you eat."
 
-### Day 2 · How you eat (~2 min) — `trial14_d2_how_you_eat`
+### Day 2 · How you eat (~2 min) — `foundation_d2_how_you_eat`
 Intro: "Not what a perfect diet looks like: how you really eat. Keep photographing your meals as usual."
 
 Page 1 — Your meals
@@ -91,7 +100,7 @@ Page 4 — Drinks
     - `last_caffeine_time` (if ≥ 1) When is your last one, usually? — Before noon · 12–14h · 14–17h · After 17h
 11. `alcohol_drinks_week` Alcoholic drinks in a usual week? — None · 1–3 · 4–7 · 8–14 · More than 14
 
-### Day 3 · How you move (~2 min) — `trial14_d3_how_you_move`
+### Day 3 · How you move (~2 min) — `foundation_d3_how_you_move`
 Intro: "How your body moves now, and how it moved before. This sets the right starting point instead of the same workout for everyone."
 
 Page 1 — Now
@@ -116,7 +125,7 @@ Page 4 — What you enjoy
    - exercise days 0–3: "How sure are you that you can move a bit more over the next 2 weeks?"
    - exercise days 4+: "You already move a lot. How sure are you that you can keep it up over the next 2 weeks, with the daily actions on top?"
 
-### Day 4 · How you sleep (~2 min) — `trial14_d4_how_you_sleep`
+### Day 4 · How you sleep (~2 min) — `foundation_d4_how_you_sleep`
 Intro: "Sleep shapes your energy, appetite, mood and recovery. Today: your usual pattern, not last night."
 
 Page 1 — Your usual night
@@ -134,7 +143,7 @@ Page 3 — Mornings and evenings
 7. `screens_before_bed` In the hour before bed, are you usually on a screen? — Rarely · Some nights · Most nights
 8. `holiday_sleep` Do you sleep differently on holiday? — Better · About the same · Worse
 
-### Day 5 · Stress and recovery (~2 min) — `trial14_d5_stress_recovery`
+### Day 5 · Stress and recovery (~2 min) — `foundation_d5_stress_recovery`
 Intro: "Stress changes sleep, eating, energy and digestion. Today: where your load comes from, and what helps you recover."
 
 Page 1 — Your load
@@ -152,7 +161,7 @@ Page 3 — Mood and recovery
 
 Team note: a mood answer of 0–2 shows on the Trial board; nothing changes for the member.
 
-### Day 6 · Your first week (~1 min) — `trial14_d6_first_week` (does not count toward the review)
+### Day 6 · Your first week (~1 min) — `foundation_d6_first_week` (does not count toward the review)
 Page 1 — "Here's what you told us" (built from the answers by fixed sentences, not AI), e.g.:
 > You'd like more energy and better sleep. You usually eat 3 meals, lunch around 12:30. You exercise 2 days a week and sit 6–8 hours on workdays. You fall asleep in 15–30 minutes and wake once or twice. Stress: 6/10, mostly work.
 
@@ -163,7 +172,7 @@ Page 2
 
 Page 3 — Next week: "Week two is about action: simple, classic habits that work for almost everybody. Try them, and notice how you feel. Your check-ins will show it."
 
-### Day 14 · Your two weeks (~2 min) — `trial14_d14_two_weeks` (does not count toward the review)
+### Day 14 · Your two weeks (~2 min) — `foundation_d14_two_weeks` (does not count toward the review)
 Page 1 — "Fourteen days ago you started. Here's where you were, and where you are now." Check-in comparison, first 3 days vs last 3 days: energy, focus, mood, calm, how refreshed you wake (their own values, no score).
 
 Page 2

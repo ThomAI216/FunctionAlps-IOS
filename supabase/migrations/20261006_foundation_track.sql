@@ -1,27 +1,29 @@
--- The 14-day app track (the free trial, and the soft start every new member gets).
--- Thomas, 2026-10-06. ADDITIVE ONLY: seven new tables, two member RPCs, nothing existing altered.
+-- The Foundation Track: the 14-day start every member gets in the app. Thomas, 2026-10-06.
+-- ADDITIVE ONLY: seven new tables, two member RPCs, nothing existing altered.
+--
+-- Who runs it:
+--   * every NEW member, free or paying: enrolled automatically at their first app open
+--     (member_start_track), provided their patients row is newer than app_track.launched_at;
+--   * an EXISTING member, when Thomas launches them from CLINICAL (a staff insert with
+--     started_at NULL): their 14 days start at their next app open.
 --
 -- What it models:
---   app_track                    one row per track. launched_at is the cut-off: members whose
---                                patients row is older are never enrolled ("keep the current
---                                members on what they have"). NULL = not launched, nobody enrols.
---   member_track_enrollment      the trial clock: started_at = the member's first app open.
---                                Tier-agnostic (a paying new member runs the same track).
---                                outcome/* is the team's day-15 decision; review_call_override
---                                lets Thomas open the review call to anyone.
+--   app_track                    one row per track; launched_at is the auto-enrolment cut-off.
+--   member_track_enrollment      the clock (started_at), the calls this member is offered,
+--                                the team's day-15 outcome, and Thomas's review-call override.
 --   track_day                    the fixed content of each day: focus, video (EN/FR), short read,
 --                                actions (habit_bank ids + moment + face), push texts.
 --   track_questionnaire          the question bank, as data: one row per daily module…
 --   track_question               …and one row per question (EN/FR, options, show_if, prefill).
---                                iOS and the web both render from these rows.
 --   track_questionnaire_response one row per member per module; answers keyed by question_key,
---                                so later questionnaires (and the deep ones) can prefill.
---   track_summary                the day-7 summary: AI-drafted, staff-approved, and only an
---                                approved row is member-readable.
+--                                so later modules and the deep questionnaires prefill from them.
+--   track_summary                the day-7 summary: AI-drafted; Thomas gets an email with the
+--                                member's 7-day figures and decides; only an approved row is
+--                                member-readable.
 --
 -- Calculations stay server-side (iOS CLAUDE.md rule 9): member_track_status() returns the day,
--- module completion, expected vs logged meals, whether the review call is unlocked, and the
--- energy / protein ranges. The app only formats.
+-- module completion, expected vs logged meals, which calls are open, and the energy / protein
+-- ranges. The app only formats.
 
 -- 1 ─ tracks ─────────────────────────────────────────────────────────────────────────────────
 create table public.app_track (
@@ -33,17 +35,24 @@ create table public.app_track (
   created_at   timestamptz not null default now()
 );
 comment on table public.app_track is
-  'A fixed app track (the 14-day trial). launched_at is the enrolment cut-off: a member whose patients row predates it is never enrolled. NULL = not launched.';
+  'A fixed app track. launched_at is the AUTO-enrolment cut-off: a member whose patients row predates it is enrolled only when staff launch them. NULL = not launched.';
 
--- 2 ─ enrolment (the trial clock) ────────────────────────────────────────────────────────────
+-- 2 ─ enrolment (the clock) ─────────────────────────────────────────────────────────────────
 create table public.member_track_enrollment (
   id                    uuid primary key default gen_random_uuid(),
   patient_id            uuid not null references public.patients(id) on delete cascade,
   track_code            text not null references public.app_track(code),
-  started_at            timestamptz not null default now(),
+  started_at            timestamptz,                    -- NULL = launched by staff, starts at next app open
   timezone              text not null default 'Europe/Zurich',
   source                text not null default 'ios_first_open'
                           check (source in ('ios_first_open', 'web_first_open', 'staff')),
+  invited_at            timestamptz,
+  invited_by            uuid references public.users(id),
+  -- the calls offered inside the app on this track:
+  --   newcomers (default):        day 3 · 15 min, optional; day 14 · 30 min, unlocked by the review rule
+  --   existing members (staff):   day 3, 7 and 14 · 20 min each, optional
+  calls                 jsonb not null default
+                          '[{"day": 3, "minutes": 15, "gated": false}, {"day": 14, "minutes": 30, "gated": true}]'::jsonb,
   review_call_override  boolean not null default false,
   outcome               text check (outcome in ('converted', 'extended', 'ended', 'no_response')),
   outcome_note          text,
@@ -51,10 +60,11 @@ create table public.member_track_enrollment (
   outcome_set_at        timestamptz,
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now(),
-  unique (patient_id, track_code)
+  unique (patient_id, track_code),
+  check (started_at is not null or source = 'staff')
 );
 comment on table public.member_track_enrollment is
-  'The trial clock: started_at = first app open. Written only by member_start_track() (or staff). Day N = Zurich calendar days since started_at + 1.';
+  'The Foundation Track clock: started_at = first app open (or the next app open after a staff launch). Day N = Zurich calendar days since started_at + 1. calls = the in-app calls this member is offered.';
 create trigger trg_member_track_enrollment_updated_at before update on public.member_track_enrollment
   for each row execute function public.set_updated_at();
 
@@ -83,7 +93,7 @@ create trigger trg_track_day_updated_at before update on public.track_day
 
 -- 4 ─ the question bank ─────────────────────────────────────────────────────────────────────
 create table public.track_questionnaire (
-  id           text primary key,                      -- e.g. 'trial14_d1_you_today'
+  id           text primary key,                      -- e.g. 'foundation_d1_you_today'
   track_code   text not null references public.app_track(code) on delete cascade,
   day          int  not null check (day >= 1),
   version      int  not null default 1,
@@ -152,22 +162,25 @@ create trigger trg_track_questionnaire_response_updated_at before update on publ
 
 -- 6 ─ the day-7 summary ─────────────────────────────────────────────────────────────────────
 create table public.track_summary (
-  id            uuid primary key default gen_random_uuid(),
-  patient_id    uuid not null references public.patients(id) on delete cascade,
-  track_code    text not null references public.app_track(code),
-  day           int  not null default 7,
-  content       jsonb not null,                       -- the fixed-format summary
-  model         text,
-  status        text not null default 'draft' check (status in ('draft', 'approved', 'rejected')),
-  approved_by   uuid references public.users(id),
-  approved_at   timestamptz,
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now(),
+  id                  uuid primary key default gen_random_uuid(),
+  patient_id          uuid not null references public.patients(id) on delete cascade,
+  track_code          text not null references public.app_track(code),
+  day                 int  not null default 7,
+  content             jsonb not null,                 -- the fixed-format summary
+  stats               jsonb,                          -- the 7-day figures Thomas's email shows
+  model               text,
+  status              text not null default 'draft' check (status in ('draft', 'approved', 'rejected')),
+  staff_notified_at   timestamptz,                    -- Thomas's email went out
+  approved_by         uuid references public.users(id),
+  approved_at         timestamptz,
+  member_notified_at  timestamptz,                    -- the member's email / push went out
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now(),
   unique (patient_id, track_code, day),
   check ((status = 'approved') = (approved_at is not null))
 );
 comment on table public.track_summary is
-  'Day-7 summary. AI-drafted on the sovereign tier, approved by a practitioner. A member can read ONLY an approved row.';
+  'Day-7 summary. AI-drafted on the sovereign tier; Thomas receives the 7-day figures by email and approves or holds it. A member can read ONLY an approved row.';
 create trigger trg_track_summary_updated_at before update on public.track_summary
   for each row execute function public.set_updated_at();
 
@@ -183,7 +196,7 @@ alter table public.track_question               enable row level security;
 alter table public.track_questionnaire_response enable row level security;
 alter table public.track_summary                enable row level security;
 
--- staff: everything
+-- staff: everything (this is also how an existing member is launched)
 create policy staff_all_app_track on public.app_track for all to authenticated
   using (public.is_nutritionist_or_above()) with check (public.is_nutritionist_or_above());
 create policy staff_all_member_track_enrollment on public.member_track_enrollment for all to authenticated
@@ -224,9 +237,12 @@ create policy member_read_approved_track_summary on public.track_summary for sel
 
 -- 8 ─ member RPCs ───────────────────────────────────────────────────────────────────────────
 
--- Called by the app on every launch; idempotent. Starts the clock on the FIRST call only, and
--- only for a member created after the track launched. Returns the enrolment, or NULL.
-create or replace function public.member_start_track(p_track_code text default 'trial14_v1', p_via text default 'ios')
+-- Called by the app on every launch; idempotent.
+--   * already running → returned as is;
+--   * launched by staff, not yet started → the clock starts now (this is their next app open);
+--   * not enrolled → enrolled now, only if the member is newer than the track's launch.
+-- Returns the enrolment, or NULL.
+create or replace function public.member_start_track(p_track_code text default 'foundation_v1', p_via text default 'ios')
 returns public.member_track_enrollment
 language plpgsql security definer set search_path = ''
 as $$
@@ -239,7 +255,14 @@ begin
   if v_pid is null then return null; end if;
 
   select * into v_row from public.member_track_enrollment where patient_id = v_pid and track_code = p_track_code;
-  if found then return v_row; end if;
+  if found then
+    if v_row.started_at is null then
+      update public.member_track_enrollment set started_at = now()
+       where id = v_row.id and started_at is null
+       returning * into v_row;
+    end if;
+    return v_row;
+  end if;
 
   select launched_at into v_launched from public.app_track where code = p_track_code and active;
   if v_launched is null then return null; end if;
@@ -247,23 +270,25 @@ begin
   select created_at into v_created from public.patients where id = v_pid;
   if v_created is null or v_created < v_launched then return null; end if;
 
-  insert into public.member_track_enrollment (patient_id, track_code, source)
-  values (v_pid, p_track_code, case when p_via = 'web' then 'web_first_open' else 'ios_first_open' end)
+  insert into public.member_track_enrollment (patient_id, track_code, source, started_at)
+  values (v_pid, p_track_code, case when p_via = 'web' then 'web_first_open' else 'ios_first_open' end, now())
   on conflict (patient_id, track_code) do nothing;
 
   select * into v_row from public.member_track_enrollment where patient_id = v_pid and track_code = p_track_code;
   return v_row;
 end $$;
 
--- Everything the app shows about the track, computed here. NULL when not enrolled.
+-- Everything the app shows about the track, computed here. NULL when not enrolled;
+-- { status: 'invited' } when launched by staff and not opened yet.
 --   day                 1-based Zurich calendar day (can exceed the track length; the app shows "done")
 --   modules_done        submitted modules that count toward the review (days 1–5)
 --   meals_expected      meals_per_day (day-2 answer; 3 until answered) × days elapsed, capped at the track length
 --   meals_logged        nb_meal_logs rows since started_at, within the track window
 --   review_unlocked     (all counted modules done AND logged ≥ 80 % of expected) OR the staff override
+--   calls               the enrolment's calls, each with "open": day reached AND (not gated OR review_unlocked)
 --   energy_kcal_low/high  tdee_kcal ± 5 %, rounded to 50 kcal (Thomas, 2026-10-06)
 --   protein_g_low/high    weight × 1.3–1.7 g/kg (female) or 1.6–2.0 g/kg (male) (Thomas, 2026-10-06)
-create or replace function public.member_track_status(p_track_code text default 'trial14_v1')
+create or replace function public.member_track_status(p_track_code text default 'foundation_v1')
 returns jsonb
 language plpgsql stable security definer set search_path = ''
 as $$
@@ -278,6 +303,7 @@ declare
   v_mpd        int;
   v_expected   int;
   v_logged     int;
+  v_unlocked   boolean;
   v_sex        text;
   v_weight     numeric;
   v_tdee       numeric;
@@ -285,6 +311,9 @@ begin
   if v_pid is null then return null; end if;
   select * into v_enr from public.member_track_enrollment where patient_id = v_pid and track_code = p_track_code;
   if not found then return null; end if;
+  if v_enr.started_at is null then
+    return jsonb_build_object('track_code', p_track_code, 'status', 'invited');
+  end if;
 
   select days into v_days from public.app_track where code = p_track_code;
   v_day := ((now() at time zone v_enr.timezone)::date - (v_enr.started_at at time zone v_enr.timezone)::date) + 1;
@@ -311,11 +340,15 @@ begin
      and m.created_at >= v_enr.started_at
      and m.created_at <  v_enr.started_at + make_interval(days => v_days);
 
+  v_unlocked := v_enr.review_call_override
+             or (v_modules_n > 0 and v_modules >= v_modules_n and v_expected > 0 and v_logged >= 0.8 * v_expected);
+
   select app_sex, app_weight_kg, tdee_kcal into v_sex, v_weight, v_tdee
     from public.nb_patient_app_profiles where patient_id = v_pid;
 
   return jsonb_build_object(
     'track_code',       p_track_code,
+    'status',           'active',
     'started_at',       v_enr.started_at,
     'day',              v_day,
     'days',             v_days,
@@ -324,8 +357,13 @@ begin
     'meals_expected',   v_expected,
     'meals_logged',     v_logged,
     'meals_pct',        case when v_expected > 0 then round(100.0 * v_logged / v_expected) end,
-    'review_unlocked',  v_enr.review_call_override
-                          or (v_modules_n > 0 and v_modules >= v_modules_n and v_expected > 0 and v_logged >= 0.8 * v_expected),
+    'review_unlocked',  v_unlocked,
+    'calls',            coalesce((
+                          select jsonb_agg(c || jsonb_build_object('open',
+                                   v_day >= (c ->> 'day')::int
+                                   and (not coalesce((c ->> 'gated')::boolean, false) or v_unlocked))
+                                 order by (c ->> 'day')::int)
+                            from jsonb_array_elements(v_enr.calls) c), '[]'::jsonb),
     'energy_kcal_low',  case when v_tdee > 0 then round(v_tdee * 0.95 / 50) * 50 end,
     'energy_kcal_high', case when v_tdee > 0 then round(v_tdee * 1.05 / 50) * 50 end,
     'protein_g_low',    case when v_weight > 0 and v_sex in ('female', 'male')
@@ -340,5 +378,7 @@ revoke all on function public.member_track_status(text) from public, anon;
 grant execute on function public.member_start_track(text, text) to authenticated;
 grant execute on function public.member_track_status(text) to authenticated;
 
--- 9 ─ the track itself (not launched: launched_at stays NULL until Thomas says go) ──────────
-insert into public.app_track (code, title, days, launched_at) values ('trial14_v1', 'The 14-day start', 14, null);
+-- 9 ─ the track. Launched now (Thomas, 2026-10-06: "available to newcomers from now on"):
+-- members registered from this moment are enrolled at their first app open once the app
+-- ships the track; everyone registered before is launched by hand from CLINICAL.
+insert into public.app_track (code, title, days, launched_at) values ('foundation_v1', 'The Foundation Track', 14, now());
