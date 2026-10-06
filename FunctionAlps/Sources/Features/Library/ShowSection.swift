@@ -82,7 +82,7 @@ struct ShowLiveCard: View {
     private func subtitle(_ live: ShowSnapshot.Live) -> String {
         if snapshot.preLaunch {
             let time = ShowFormat.clock(live.start)
-            return String(localized: "show.startsSub", defaultValue: "It opens with a live at \(time), then a new episode every day from Tuesday to Friday.")
+            return String(localized: "show.startsSub", defaultValue: "Lives on Wednesday and Saturday at \(time), and a new episode every day from Tuesday to Friday.")
         }
         return live.slug != nil
             ? String(localized: "show.remindTap", defaultValue: "Tap to get a reminder")
@@ -277,60 +277,31 @@ struct ShowExperimentRowView: View {
     }
 }
 
-/// The show while it is coming soon (`ShowFeature`): its three parts — the next-live card, two episode cards, an
-/// experiment row — as wordless shapes, blurred by `PlanLockedArea`. No dates, no titles, nothing real.
-struct ShowComingSoonPreview: View {
-    private func bar(_ width: CGFloat?, _ height: CGFloat = 9, _ opacity: Double = 0.14) -> some View {
-        RoundedRectangle(cornerRadius: 4).fill(FAColor.ink.opacity(opacity))
-            .frame(maxWidth: width ?? .infinity, minHeight: height, maxHeight: height)
-    }
-
+/// The show while it is coming soon (`ShowFeature`; owner, 2026-10-06: "the show doesn't need to take that much
+/// space. Just keep the Coming Soon card."): one compact glass card — eyebrow, "Coming soon", one line. Nothing opens.
+struct ShowComingSoonCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            FACard(padded: false) {
-                HStack(spacing: 14) {
-                    Circle().fill(FAColor.forest).frame(width: 50, height: 50)
-                    VStack(alignment: .leading, spacing: 7) {
-                        Capsule().fill(FALibraryColor.gold.opacity(0.6)).frame(width: 110, height: 8)
-                        bar(200, 13, 0.22)
-                        bar(150)
-                    }
-                    Spacer(minLength: 0)
+        FACard(padded: false) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 16, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    .frame(width: 38, height: 38)
+                    .background(FAColor.forest.opacity(0.1), in: Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "show.navGroup", defaultValue: "The show").uppercased())
+                        .font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1)
+                        .foregroundStyle(FALibraryColor.gold)
+                    Text(String(localized: "lock.comingSoon", defaultValue: "Coming soon"))
+                        .font(FATypography.display(16, relativeTo: .headline)).foregroundStyle(FAColor.ink)
+                    Text(String(localized: "show.comingSoon", defaultValue: "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."))
+                        .font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(14)
+                Spacer(minLength: 0)
             }
-            HStack(spacing: 10) {
-                ForEach([ShowTrack.movement, ShowTrack.sleep], id: \.self) { track in
-                    FACard(padded: false) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            PillarCover(pillar: ShowLogic.trackTopic(track), height: 84)
-                            VStack(alignment: .leading, spacing: 6) {
-                                Capsule().fill(FALibraryColor.gold.opacity(0.6)).frame(width: 80, height: 7)
-                                bar(nil, 11, 0.22)
-                                bar(70, 8)
-                            }
-                            .padding(10)
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
-                    }
-                }
-            }
-            FACard(padded: false) {
-                HStack(spacing: 12) {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(FAColor.forestSoft.opacity(0.3)).frame(width: 54, height: 54)
-                    VStack(alignment: .leading, spacing: 6) {
-                        bar(120, 8)
-                        bar(170, 11, 0.22)
-                        HStack(spacing: 3) {
-                            ForEach(0..<7, id: \.self) { i in
-                                Capsule().fill(i < 2 ? FAColor.forest : Color.black.opacity(0.1)).frame(height: 5)
-                            }
-                        }
-                    }
-                    Circle().fill(FAColor.forest).frame(width: 34, height: 34)
-                }
-                .padding(12)
-            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
         }
+        .accessibilityElement(children: .combine)
     }
 }

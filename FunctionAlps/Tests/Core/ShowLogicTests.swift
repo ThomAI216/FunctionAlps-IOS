@@ -28,11 +28,12 @@ struct ShowLogicTests {
         #expect(ShowLogic.zonedDay(utc("2026-10-07T21:30:00Z")) == "2026-10-07")
     }
 
-    @Test func nextLiveBeforeTheLaunchIsTheLaunchMonday() throws {
+    @Test func nextLiveBeforeTheLaunchIsTheFirstWednesday() throws {
+        // Lives are Wednesday and Saturday (owner, 2026-10-06): the first one is Wednesday 7 Oct.
         let occ = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2026-10-03T08:00:00Z")))
-        #expect(occ.day == "2026-10-05")
-        #expect(occ.start == utc("2026-10-05T10:30:00Z"))
-        #expect(occ.end == utc("2026-10-05T11:15:00Z"))
+        #expect(occ.day == "2026-10-07")
+        #expect(occ.start == utc("2026-10-07T10:30:00Z"))
+        #expect(occ.end == utc("2026-10-07T11:15:00Z"))
         #expect(occ.slot.kind == .live)
     }
 
@@ -40,33 +41,34 @@ struct ShowLogicTests {
         // Friday 23 Oct (summer time) → Saturday 24 Oct 12:30 CEST = 10:30Z.
         let before = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2026-10-23T12:00:00Z")))
         #expect(before.start == utc("2026-10-24T10:30:00Z"))
-        // Sunday 25 Oct, after the switch → Monday 26 Oct 12:30 CET = 11:30Z.
+        // Sunday 25 Oct, after the switch → Wednesday 28 Oct 12:30 CET = 11:30Z.
         let after = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2026-10-25T10:00:00Z")))
-        #expect(after.day == "2026-10-26")
-        #expect(after.start == utc("2026-10-26T11:30:00Z"))
+        #expect(after.day == "2026-10-28")
+        #expect(after.start == utc("2026-10-28T11:30:00Z"))
     }
 
     @Test func nextLiveAcrossTheSpringDSTSwitch() throws {
-        // Saturday 27 Mar 2027, after its live (CET) → Monday 29 Mar 12:30 CEST = 10:30Z.
+        // Saturday 27 Mar 2027, after its live (CET) → Wednesday 31 Mar 12:30 CEST = 10:30Z.
         let occ = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2027-03-27T13:00:00Z")))
-        #expect(occ.day == "2027-03-29")
-        #expect(occ.start == utc("2027-03-29T10:30:00Z"))
+        #expect(occ.day == "2027-03-31")
+        #expect(occ.start == utc("2027-03-31T10:30:00Z"))
     }
 
     @Test func aRunningLiveIsStillTheNextOne() throws {
         let running = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2026-10-10T10:45:00Z")))
         #expect(running.day == "2026-10-10")
         let ended = try #require(ShowLogic.nextLive(clock: .standard, now: utc("2026-10-10T11:16:00Z")))
-        #expect(ended.day == "2026-10-12")
+        #expect(ended.day == "2026-10-14")
     }
 
     @Test func theWeekBeforeTheLaunchIsTheLaunchWeek() {
         let week = ShowLogic.week(clock: .standard, now: utc("2026-10-03T08:00:00Z"))
         #expect(week.preLaunch)
         #expect(week.monday == "2026-10-05")
-        #expect(week.days.count == 6)
-        #expect(week.days.first?.slot.kind == .live)
-        #expect(week.days.map(\.slot.track) == [.cross, .movement, .nutrition, .sleep, .mental, .cross])
+        #expect(week.days.count == 5)
+        #expect(week.days.map(\.slot.kind) == [.episode, .live, .episode, .episode, .live])
+        #expect(week.days.map(\.slot.track) == [.movement, .cross, .sleep, .mental, .cross])
+        #expect(week.days.map(\.day) == ["2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10"])
         let later = ShowLogic.week(clock: .standard, now: utc("2026-10-14T08:00:00Z"))
         #expect(!later.preLaunch)
         #expect(later.monday == "2026-10-12")
@@ -79,14 +81,15 @@ struct ShowLogicTests {
         let snap = ShowSnapshot.build(lib, marks: [:], now: utc("2026-10-03T08:00:00Z"))
         #expect(snap.preLaunch)
         #expect(snap.thisWeek.isEmpty)
-        #expect(snap.days.count == 6)
+        #expect(snap.days.count == 5)
         #expect(snap.lives.count == 4)
+        #expect(snap.lives.map { ShowLogic.zonedDay($0.start) } == ["2026-10-07", "2026-10-10", "2026-10-14", "2026-10-17"])
         let live = try #require(snap.nextLive)
-        #expect(live.start == utc("2026-10-05T10:30:00Z"))
+        #expect(live.start == utc("2026-10-07T10:30:00Z"))
         #expect(live.slug == nil)
         #expect(live.when == .later)
         // The day before, it reads "tomorrow".
-        let eve = ShowSnapshot.build(lib, marks: [:], now: utc("2026-10-04T10:00:00Z"))
+        let eve = ShowSnapshot.build(lib, marks: [:], now: utc("2026-10-06T10:00:00Z"))
         #expect(eve.nextLive?.when == .tomorrow)
     }
 
