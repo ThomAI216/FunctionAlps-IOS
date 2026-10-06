@@ -50,6 +50,7 @@ create table public.member_track_enrollment (
   invited_by            uuid references public.users(id),
   -- the calls offered inside the app on this track:
   --   newcomers (default):        day 3 · 15 min, optional; day 14 · 30 min, unlocked by the review rule
+  --                               (both 20 min since 20261006_foundation_track_calls_20.sql)
   --   existing members (staff):   day 3, 7 and 14 · 20 min each, optional
   calls                 jsonb not null default
                           '[{"day": 3, "minutes": 15, "gated": false}, {"day": 14, "minutes": 30, "gated": true}]'::jsonb,
@@ -283,6 +284,7 @@ end $$;
 --   day                 1-based Zurich calendar day (can exceed the track length; the app shows "done")
 --   modules_done        submitted modules that count toward the review (days 1–5)
 --   meals_expected      meals_per_day (day-2 answer; 3 until answered) × days elapsed, capped at the track length
+--                       (from day 2 since 20261006_foundation_track_calls_20.sql)
 --   meals_logged        nb_meal_logs rows since started_at, within the track window
 --   review_unlocked     (all counted modules done AND logged ≥ 80 % of expected) OR the staff override
 --   calls               the enrolment's calls, each with "open": day reached AND (not gated OR review_unlocked)

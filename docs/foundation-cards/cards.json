@@ -1,20 +1,20 @@
 {
- "series_style": "One series, fourteen images. Flat vector illustration, calm and friendly; simple rounded figures, no detailed faces. Palette: forest green #2E5438 and soft green #4A8A5C on cream #F5F0E8, charcoal #1A1A16 for text, one warm accent (gold #D4A84E) reserved for the day's NEW action so it stands out the same way on every card. Portrait 4:5 (1080 × 1350 px) so it fits the app card and social posts. One idea per image, generous white space, short labels (max 4 words each), EN and FR versions. A small 'Day N' tag in the top-left corner of every image. A faint Alpine ridge line along the bottom edge ties the series together.",
+ "series_style": "One series, seven images (days 8–14; days 1–7 have none). Flat vector illustration, calm and friendly; simple rounded figures, no detailed faces. Palette: forest green #2E5438 and soft green #4A8A5C on cream #F5F0E8, charcoal #1A1A16 for text, one warm accent (gold #D4A84E) reserved for the day's NEW action so it stands out the same way on every card. Portrait 4:5 (1080 × 1350 px) so it fits the app card, the library and social posts. One idea per image, generous white space, short labels (max 4 words each), EN and FR versions. A small 'Day N' tag in the top-left corner. A faint Alpine ridge line along the bottom edge ties the series together.",
  "actions": {
-  "meal_photos": [
-   "day",
-   "Photograph every meal",
-   "Before you eat. Snacks too."
-  ],
-  "hydrate": [
+  "water_waking": [
    "morning",
-   "Hydrate on waking",
-   "A glass of water when you wake up, even before your coffee."
+   "A glass of water on waking",
+   "Before your coffee. Keep a glass by your bed."
   ],
-  "breaths_move": [
+  "breaths_3": [
    "morning",
-   "3 deep breaths + 1 minute of gentle movement",
-   "Roll your shoulders, swing your arms, shake out your legs."
+   "3 slow breaths at the window",
+   "In through the nose, a long breath out. Look outside, at the light."
+  ],
+  "move_1min": [
+   "morning",
+   "1 minute of gentle movement",
+   "Roll your shoulders, circle your hips, a few slow squats."
   ],
   "morning_flow_5": [
    "morning",
@@ -29,17 +29,42 @@
   "daylight": [
    "morning",
    "5 minutes of daylight",
-   "Step outside, or stand by an open window."
+   "Outside, or at an open window."
   ],
   "protein_breakfast": [
    "morning",
    "Protein at breakfast",
-   "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. Ideas come from what you eat."
+   "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm."
   ],
   "walk_after_breakfast": [
    "morning",
    "A 10-minute walk after breakfast",
    "Outside if you can, so it counts as daylight too."
+  ],
+  "meal_photos": [
+   "day",
+   "Photograph everything you eat",
+   "Every meal and snack, before the first bite."
+  ],
+  "exercise_snack": [
+   "day",
+   "Optional: an exercise snack",
+   "10 squats, a minute up the stairs, or 10 wall push-ups. Whenever you like."
+  ],
+  "exercise_snack_daily": [
+   "day",
+   "One exercise snack a day",
+   "10 squats, a minute up the stairs, or 10 wall push-ups."
+  ],
+  "easy_strength": [
+   "day",
+   "5-minute easy strength routine",
+   "Thomas shows every move in today's video. At home, no equipment."
+  ],
+  "movement_breaks": [
+   "day",
+   "Move 2 minutes every hour or two",
+   "Stand up, take the stairs, walk while you're on the phone."
   ],
   "walk_after_lunch_5": [
    "midday",
@@ -49,492 +74,822 @@
   "walk_after_lunch_10": [
    "midday",
    "A 10-minute walk after lunch",
-   "Your after-lunch walk grows."
+   "The most important habit of the week."
   ],
   "lunch_plate": [
    "midday",
    "A lunch that holds you",
-   "Half the plate vegetables, a good portion of protein, fewer fast carbs."
+   "Half vegetables, a palm of protein, a quarter complex carbs."
   ],
   "coffee_before_14": [
    "midday",
    "Last coffee before 14:00",
    "So it doesn't follow you into the night."
   ],
-  "sit_to_stands": [
-   "day",
-   "10 sit-to-stands",
-   "Sit on a chair, stand up, sit down again. Slowly."
-  ],
-  "wall_pushups": [
-   "day",
-   "1 set of wall push-ups",
-   "As many as feel comfortable. Stop if anything hurts."
-  ],
-  "movement_breaks": [
-   "day",
-   "Move 2 minutes every hour or two",
-   "Stand up, take the stairs, walk while you're on the phone."
+  "stretch_evening": [
+   "evening",
+   "2 minutes of gentle stretching before bed",
+   "Slow and easy: neck, shoulders, back, hips."
   ],
   "phone_out": [
    "evening",
-   "Phone out of the bedroom",
-   "Charge it in another room."
+   "Your phone sleeps outside the bedroom",
+   "Charge it in another room. A simple alarm clock helps."
   ],
   "box_breathing": [
    "evening",
-   "Box breathing, 2 minutes before bed",
+   "Box breathing, 2 minutes in bed",
    "In 4 · hold 4 · out 4 · hold 4. The app guides you."
   ],
-  "dim_lights": [
+  "one_good_thing": [
    "evening",
-   "Dim the lights after 21:00",
-   "Softer light tells your body the day is ending."
+   "One good thing",
+   "Before sleep, name one thing that went well today."
   ],
-  "screens_off": [
+  "last_meal": [
    "evening",
-   "Screens off 30 minutes before bed",
-   "No phone, no laptop."
+   "Last meal 2–3 hours before bed",
+   "Leave space between dinner and sleep."
   ],
-  "last_meal_2h": [
+  "screens_off_60": [
    "evening",
-   "Last meal about 2 hours before bed",
-   "Leave a little space between dinner and sleep."
+   "Screens off, lights low: 60 minutes before bed",
+   "No phone, no laptop. Softer light tells your body the day is ending."
+  ],
+  "book": [
+   "evening",
+   "A book instead of a screen",
+   "Paper, on the sofa or in bed."
+  ],
+  "wind_down_10": [
+   "evening",
+   "10 minutes to wind down",
+   "Choose one: slow breathing, NSDR (non-sleep deep rest) or gentle yoga."
   ]
  },
+ "schedule": [
+  [
+   "water_waking",
+   1,
+   null
+  ],
+  [
+   "breaths_3",
+   1,
+   6
+  ],
+  [
+   "meal_photos",
+   2,
+   null
+  ],
+  [
+   "move_1min",
+   3,
+   6
+  ],
+  [
+   "exercise_snack",
+   3,
+   6
+  ],
+  [
+   "stretch_evening",
+   3,
+   10
+  ],
+  [
+   "daylight",
+   4,
+   null
+  ],
+  [
+   "phone_out",
+   4,
+   null
+  ],
+  [
+   "box_breathing",
+   5,
+   10
+  ],
+  [
+   "one_good_thing",
+   5,
+   null
+  ],
+  [
+   "walk_after_lunch_5",
+   6,
+   8
+  ],
+  [
+   "morning_flow_5",
+   7,
+   11
+  ],
+  [
+   "exercise_snack_daily",
+   7,
+   9
+  ],
+  [
+   "protein_breakfast",
+   8,
+   null
+  ],
+  [
+   "walk_after_breakfast",
+   8,
+   null
+  ],
+  [
+   "lunch_plate",
+   9,
+   null
+  ],
+  [
+   "walk_after_lunch_10",
+   9,
+   null
+  ],
+  [
+   "coffee_before_14",
+   9,
+   null
+  ],
+  [
+   "easy_strength",
+   10,
+   null
+  ],
+  [
+   "last_meal",
+   11,
+   null
+  ],
+  [
+   "screens_off_60",
+   11,
+   null
+  ],
+  [
+   "book",
+   11,
+   null
+  ],
+  [
+   "wind_down_10",
+   11,
+   null
+  ],
+  [
+   "morning_flow_10",
+   12,
+   null
+  ],
+  [
+   "movement_breaks",
+   12,
+   null
+  ]
+ ],
  "days": [
   {
    "day": 1,
-   "title": "You, today",
-   "today": "Welcome to your Foundation Track. For 14 days you get one card a day: a 1-minute video, one small action and a short read. This first week is about understanding you, so don't change how you eat yet. Just photograph every meal: that's your real starting point.",
-   "new": [
-    "meal_photos"
+   "week": 1,
+   "title": "Your starting point",
+   "pillar": "Where you are, where you're going",
+   "today": [
+    [
+     "What it is",
+     "Your Foundation Track: 14 days, one card a day. Week 1 helps us understand you, one pillar a day. Week 2 is about action."
+    ],
+    [
+     "Why it matters",
+     "Lasting change starts from where you really are, not from a perfect plan. Knowing your starting point and where you want to go lets everything after fit you."
+    ],
+    [
+     "How we use it",
+     "Your answers and check-ins shape your week-2 actions, your first-week summary on day 7 and your review call with Thomas on day 14."
+    ]
    ],
-   "kept": [],
    "questionnaire": [
     "You, today",
-    3
+    3,
+    "Your goals, your usual week and your rhythm. This is your starting point: everything after builds on it, so there are no wrong answers. Don't change anything yet."
    ],
    "extras": [
     "Connect Apple Health",
     "Turn on your reminders"
    ],
-   "read": "Why we start with your baseline",
-   "image_title": "Your 14 days at a glance",
-   "image": [
+   "try_label": "First thing to try · a mini morning routine",
+   "tip": "Put a glass of water by your bed tonight, so tomorrow's first step is already waiting.",
+   "evolve": [
     [
-     "Composition",
-     "A winding mountain path climbing left to right from a small cabin (day 1) to a summit flag (day 14), with 14 small stepping stones."
+     "Tomorrow",
+     "Photograph what you eat. That habit runs all 14 days."
     ],
     [
-     "Elements & labels",
-     "Stones 1–6 under the word 'Understand' with five icons along them: a person (you), a plate (food), a walking figure (movement), a moon (sleep), a wave (stress). A pennant at stone 7: 'Your first week'. Stones 8–14 under the word 'Act', each with a tiny action icon (glass, sun, plate, chair, lamp). A phone icon at stone 3: 'Optional call'. The summit flag at 14: 'Review with Thomas'."
+     "Day 3",
+     "1 minute of movement joins your morning, and your evening routine begins."
     ],
     [
-     "One message",
-     "Two weeks: first we understand you, then you act. Small steps, one a day."
+     "Day 7",
+     "Your full day: a 5-minute morning flow and a daily exercise snack."
     ]
-   ]
+   ],
+   "read": "Why we start with where you are",
+   "script": "Hi, I'm Thomas. Welcome to your Foundation Track.\n\nFor the next fourteen days you'll get one short card a day: a video like this one, one small thing to try, and a short read.\n\nWhy fourteen days? Because lasting change doesn't start with a perfect plan. It starts with understanding where you are today, and where you want to go.\n\nSo this first week is about you. Each day we look at one pillar of your health: nutrition, movement, sleep, and your mental and emotional health. I explain why it matters and how we use it, and you answer a few short questions. Don't change anything yet: the more real your answers, the more useful everything after.\n\nToday's questions are about your starting point: your goals, your usual week, your rhythm. Three minutes.\n\nAnd your first thing to try is a mini morning routine: a glass of water when you wake up, then three slow breaths at the window. That's it.\n\nSmall steps, one a day. Let's start.",
+   "new": [
+    "water_waking",
+    "breaths_3"
+   ],
+   "kept": []
   },
   {
    "day": 2,
-   "title": "How you eat",
-   "today": "Today we look at food as it really is, not at a perfect diet. Your meal photos already show a lot: when you eat, how much, how much protein, how varied. And your first action is the simplest one of the whole track.",
-   "new": [
-    "hydrate"
-   ],
-   "kept": [
-    "meal_photos"
+   "week": 1,
+   "title": "Nutrition",
+   "pillar": "Pillar 1 · Nutrition",
+   "today": [
+    [
+     "What it is",
+     "What you eat, when, and how much: the material your body builds and repairs with, and the fuel for your energy."
+    ],
+    [
+     "Why it matters",
+     "Food shapes your energy, hunger, mood, sleep and recovery. Small changes in what and when you eat often make a big difference."
+    ],
+    [
+     "How we use it",
+     "Your answers and your meal photos show your real pattern. From them we choose the changes that will help you most, with ideas from foods you already eat."
+    ]
    ],
    "questionnaire": [
-    "How you eat",
-    2
+    "Your nutrition",
+    2,
+    "How many meals, when, who cooks, which proteins you like, what you drink. It shows your real pattern before we change anything, and which ideas fit your kitchen."
    ],
    "extras": [],
-   "read": "What your meal photos tell us",
-   "image_title": "Water first, then your real plate",
-   "image": [
+   "try_label": "First thing to try · one habit for all 14 days",
+   "tip": "Photograph before the first bite, drinks and snacks included. A quick photo beats a perfect one.",
+   "evolve": [
     [
-     "Composition",
-     "Two stacked panels. Top: a morning sequence left to right. Bottom: a phone photographing a plate."
+     "Tomorrow",
+     "Your morning grows with 1 minute of movement, and your evening routine begins."
     ],
     [
-     "Elements & labels",
-     "Top: a sunrise and alarm clock, then a glass of water (gold accent, label '1st: water'), then a coffee cup (label 'then coffee'). Bottom: a phone framing a simple plate, with four small tags around it: 'time', 'portion', 'protein', 'variety'."
+     "Day 4",
+     "Daylight in the morning, your phone out of the bedroom."
     ],
     [
-     "One message",
-     "Start the day with water. Photograph what you really eat."
+     "Days 8–9",
+     "Breakfast and lunch become the focus, built from your photos."
     ]
+   ],
+   "read": "What your meal photos tell us",
+   "script": "Today: nutrition, the first pillar.\n\nFood is more than calories. It's the material your body uses to build and repair, the fuel for your energy, and a signal that shapes your hunger, your mood and your sleep.\n\nBut to help you, we don't start with a diet. We start with how you really eat. That's why today's questions ask how many meals you have, when you eat, who cooks, and which proteins you like. Together they show your real pattern, and where one small change would help you most.\n\nAnd that's why today's one habit matters so much: photograph everything you eat. Every meal, every snack, before the first bite. Not to judge. A photo shows what memory forgets: timing, portions, protein, variety. Your photos are how we understand your nutrition, and they count toward your review call on day fourteen.\n\nSo today: your nutrition questions, two minutes, and a photo before each meal.\n\nTomorrow: movement.",
+   "new": [
+    "meal_photos"
+   ],
+   "kept": [
+    "water_waking",
+    "breaths_3"
    ]
   },
   {
    "day": 3,
-   "title": "How you move",
-   "today": "Today: how your body moves now, and how it moved before. We add two small movements to your day, nothing sporty. From today you can also book a short call with Thomas if you'd like.",
-   "new": [
-    "breaths_move",
-    "walk_after_lunch_5"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate"
+   "week": 1,
+   "title": "Movement",
+   "pillar": "Pillar 2 · Movement",
+   "today": [
+    [
+     "What it is",
+     "Not sport: your functional capacity. How easily your body does what your life asks of it: getting up, carrying, climbing stairs, hiking."
+    ],
+    [
+     "Why it matters",
+     "Capacity is built or lost by what you do every day. Long hours of sitting slowly take it away; small, regular movement keeps it and builds it."
+    ],
+    [
+     "How we use it",
+     "Your answers set the right starting level for you and keep every movement we suggest safe. We start with little and often."
+    ]
    ],
    "questionnaire": [
-    "How you move",
-    2
+    "Your movement",
+    2,
+    "How you move now, how you moved before, and whether anything hurts. It sets the right starting level for you, instead of the same workout for everyone, and keeps it safe."
    ],
    "extras": [
-    "Book your call with Thomas (optional): 15 min, or 20 min if Thomas launched your track"
+    "Book a call with Thomas · 20 min (optional, from today)"
+   ],
+   "try_label": "First thing to try · your morning grows, your evening begins",
+   "tip": "No time for an exercise snack? Take the stairs once. That counts.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "5 minutes of daylight; your phone sleeps outside the bedroom."
+    ],
+    [
+     "Day 7",
+     "Your minute of movement becomes a 5-minute flow, and the exercise snack becomes daily."
+    ],
+    [
+     "Days 10–12",
+     "Easy strength, then a 10-minute morning flow."
+    ]
+   ],
+   "library": [
+    [
+     "Lesson",
+     "Exercise snacks: small signals that add up",
+     "in the library"
+    ]
    ],
    "read": "Little and often",
-   "image_title": "Two small movements",
-   "image": [
-    [
-     "Composition",
-     "A day drawn as a sun arc from left (morning) to right (afternoon), with two moments marked on it."
-    ],
-    [
-     "Elements & labels",
-     "Morning: a figure standing tall with three small breath curls ('3 breaths') and arms swinging ('1 min'), both in gold. After lunch: the same figure walking outside past a tree ('5 min outside'), in gold. Small grey icons for what is already in place: a glass of water and a camera on the plate."
-    ],
-    [
-     "One message",
-     "A few minutes, twice a day. Little and often."
-    ]
+   "script": "Today: movement, the second pillar.\n\nWhen I talk about movement, I don't mean sport. I mean functional capacity: how easily your body does what your life asks of it. Getting up from the floor. Carrying the shopping. Climbing the stairs. Hiking in the mountains when you're seventy.\n\nThat capacity is built, or lost, by what you do every day. Sitting most of the day slowly takes it away. Small, regular movement keeps it, and builds it. That's why we start with little and often, not with a hard workout.\n\nToday's questions ask how you move now, how you moved before, and whether anything hurts. That way everything we suggest starts at the right level for you, and stays safe.\n\nYour morning routine grows: after your water and your breaths, one minute of gentle movement. If you want more, try an exercise snack during the day: ten squats, or a minute up the stairs. And tonight your evening routine begins: two minutes of gentle stretching before bed.\n\nFrom today you can also book a free twenty-minute call with me, right in the app.\n\nTomorrow: sleep.",
+   "new": [
+    "move_1min",
+    "exercise_snack",
+    "stretch_evening"
+   ],
+   "kept": [
+    "water_waking",
+    "breaths_3",
+    "meal_photos"
    ]
   },
   {
    "day": 4,
-   "title": "How you sleep",
-   "today": "Sleep shapes your energy, appetite, mood and recovery. Today we add light in the morning and make the bedroom a place without your phone. Your morning check-in already records each night; today's questionnaire asks about your usual pattern.",
+   "week": 1,
+   "title": "Sleep",
+   "pillar": "Pillar 3 · Sleep",
+   "today": [
+    [
+     "What it is",
+     "The time your body repairs, your brain sorts the day and your rhythm resets."
+    ],
+    [
+     "Why it matters",
+     "After a poor night, hunger is louder, cravings stronger, mood shorter and effort harder. Regular times and light set your body clock."
+    ],
+    [
+     "How we use it",
+     "Your usual pattern tells us where to start, and your times decide when your reminders arrive. Your morning check-in records each night."
+    ]
+   ],
+   "questionnaire": [
+    "Your sleep",
+    2,
+    "Your usual nights, not last night: bedtime, how long you take to fall asleep, what wakes you, how rested you feel. Your times also set when your reminders arrive."
+   ],
+   "extras": [],
+   "try_label": "First thing to try · one for the morning, one for the night",
+   "tip": "No time to go outside? Have your coffee at the brightest window.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Box breathing and one good thing join your evening."
+    ],
+    [
+     "Day 11",
+     "Your full evening routine: last meal earlier, screens off, a book, 10 minutes to wind down."
+    ]
+   ],
+   "read": "Light sets your body clock",
+   "script": "Today: sleep, the third pillar.\n\nSleep is when your body repairs, your brain sorts the day, and your rhythm resets. After a poor night, hunger is louder, cravings are stronger, your mood is shorter and every effort feels harder. Sleep quietly shapes every other pillar.\n\nTwo things matter a lot: regular times, and light. Your body clock is set by light, especially morning daylight, and pushed back by bright screens late in the evening.\n\nToday's questions are about your usual pattern, not last night: when you go to bed, how long you take to fall asleep, what wakes you, how rested you feel. Your times also tell us when to send your reminders.\n\nTwo small things join your routine. In the morning: five minutes of daylight, outside or at an open window. In the evening: your phone sleeps outside the bedroom. A simple alarm clock helps.\n\nTomorrow: your mental and emotional health.",
    "new": [
     "daylight",
     "phone_out"
    ],
    "kept": [
+    "water_waking",
+    "breaths_3",
     "meal_photos",
-    "hydrate",
-    "breaths_move",
-    "walk_after_lunch_5"
-   ],
-   "questionnaire": [
-    "How you sleep",
-    2
-   ],
-   "extras": [],
-   "read": "Light sets your body clock",
-   "image_title": "Light in, phone out",
-   "image": [
-    [
-     "Composition",
-     "Split image: left half morning, right half night, joined by a thin 24-hour ring."
-    ],
-    [
-     "Elements & labels",
-     "Left: a person at an open window with sun rays (gold), label '5 min of daylight'. Right: a calm bedroom at night, the phone charging on a shelf outside the door (gold), label 'Phone sleeps outside'. The ring between them marks 'morning' and 'night'."
-    ],
-    [
-     "One message",
-     "Morning light and a phone-free bedroom help set your rhythm."
-    ]
+    "move_1min",
+    "exercise_snack",
+    "stretch_evening"
    ]
   },
   {
    "day": 5,
-   "title": "Stress and recovery",
-   "today": "Stress shows up everywhere: in your sleep, your appetite, your energy, your digestion. Today we look at where your load comes from, and you get a 2-minute tool to switch off at night. It's the last of the five questionnaires.",
-   "new": [
-    "box_breathing"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "breaths_move",
-    "daylight",
-    "walk_after_lunch_5",
-    "phone_out"
+   "week": 1,
+   "title": "Mental and emotional health",
+   "pillar": "Pillar 4 · Mental and emotional health",
+   "today": [
+    [
+     "What it is",
+     "The load you carry, from work, family, health or big changes, and how well you recover from it."
+    ],
+    [
+     "Why it matters",
+     "When the load stays high, it shows up in your sleep, appetite, energy, digestion and mood. Recovery is what brings your body back to calm."
+    ],
+    [
+     "How we use it",
+     "Knowing where your load comes from and what already helps you lets us suggest tools that fit your life, instead of adding pressure."
+    ]
    ],
    "questionnaire": [
-    "Stress and recovery",
-    2
+    "Your mental and emotional health",
+    2,
+    "How stressed you've felt, where it comes from, your mood and what helps you switch off. Answer only what you're comfortable with: it helps us suggest tools that fit your life."
    ],
    "extras": [],
-   "read": "The 2-minute downshift",
-   "image_title": "Box breathing",
-   "image": [
+   "try_label": "First thing to try · your evening grows",
+   "tip": "If four counts feel long, breathe in threes. The rhythm matters more than the number.",
+   "evolve": [
     [
-     "Composition",
-     "A large rounded square in the centre, a small dot travelling around it, a moon in the top-right corner."
+     "Tomorrow",
+     "A short walk after lunch: your routine now covers the whole day."
     ],
     [
-     "Elements & labels",
-     "Each side of the square labelled in order: 'Breathe in · 4', 'Hold · 4', 'Breathe out · 4', 'Hold · 4'. The dot and arrows in gold. Under the square: '2 minutes before bed'."
-    ],
-    [
-     "One message",
-     "Four counts, four sides, two minutes. An easy way to switch off."
+     "Day 11",
+     "Your 2 minutes of breathing grow into 10 minutes: breathing, NSDR or gentle yoga."
     ]
+   ],
+   "read": "The 2-minute downshift",
+   "script": "Today: the fourth pillar, your mental and emotional health.\n\nStress isn't only in your head. When the load stays high, it shows up everywhere: in your sleep, your appetite, your energy, your digestion, your patience. And recovery isn't only rest. It's what brings your body back to calm after effort.\n\nWe all carry a load: work, family, health, money, big changes. What matters is the balance between that load and how well you recover from it.\n\nToday's questions ask how stressed you've felt lately, where it comes from, how your mood has been, and what already helps you switch off. Answer only what you're comfortable with. It helps us suggest tools that fit your life, instead of adding pressure.\n\nYour evening routine grows with two things. In bed: two minutes of box breathing. In for four, hold for four, out for four, hold for four. Then think of one good thing from your day.\n\nThat was the last questionnaire. Tomorrow: your first week, on one page.",
+   "new": [
+    "box_breathing",
+    "one_good_thing"
+   ],
+   "kept": [
+    "water_waking",
+    "breaths_3",
+    "meal_photos",
+    "move_1min",
+    "exercise_snack",
+    "stretch_evening",
+    "daylight",
+    "phone_out"
    ]
   },
   {
    "day": 6,
+   "week": 1,
    "title": "Your first week",
-   "today": "You've told us a lot: your goals, how you eat, move, sleep and handle stress. Today there's no new action. Look at your recap, check your goals are still right, and keep what you've started. Next week is about action.",
-   "new": [],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "breaths_move",
-    "daylight",
-    "walk_after_lunch_5",
-    "phone_out",
-    "box_breathing"
-   ],
+   "pillar": "Recap",
+   "today": "Six days, four pillars: nutrition, movement, sleep, and your mental and emotional health. You've told us where you are and where you want to go, and you've built a small routine without really noticing. Here it is, in the four moments of your day. One new moment today: after lunch.",
    "questionnaire": [
     "Your first week",
-    1
+    1,
+    "Check your goals are still right and tell us how the week felt."
    ],
    "extras": [],
-   "read": "Simple actions, repeated",
-   "image_title": "What you told us",
-   "image": [
+   "try_label": "New today · after lunch",
+   "tip": "Put your walking shoes by the door before lunch.",
+   "evolve": [
     [
-     "Composition",
-     "Five tiles in a soft grid, each with a check mark, and an arrow leading to a door marked 'Week 2'."
+     "Tomorrow",
+     "A 5-minute morning flow and one exercise snack a day."
     ],
     [
-     "Elements & labels",
-     "Tiles: 'You' (person), 'Food' (plate), 'Movement' (walker), 'Sleep' (moon), 'Stress' (wave), each ticked in forest green. The arrow and the 'Week 2: action' door in gold."
+     "Week 2",
+     "One focus a day: breakfast, lunch, strength, evening, morning."
     ],
     [
-     "One message",
-     "Week one done: we know your starting point. Now we act."
+     "Day 13",
+     "You choose what you keep."
     ]
+   ],
+   "read": "Simple actions, repeated",
+   "script": "Six days. Look at what you've already done.\n\nYou've told us where you are and where you want to go. We've looked at the four pillars: nutrition, movement, sleep, and your mental and emotional health. And you've built a small routine without really noticing.\n\nOn your card today you'll see it in the four moments of your day. In the morning: water, three breaths, a minute of movement, and daylight. During the day: your meal photos, and an exercise snack if you like. In the evening: a short stretch, your phone outside the bedroom, two minutes of breathing, and one good thing.\n\nAnd one new moment today: after lunch, five minutes outside. A short walk, nothing sporty.\n\nTake one minute for today's questions: check your goals are still right, and tell me how the week felt.\n\nTomorrow, everything comes together in one full day.",
+   "new": [
+    "walk_after_lunch_5"
+   ],
+   "kept": [
+    "water_waking",
+    "breaths_3",
+    "meal_photos",
+    "move_1min",
+    "exercise_snack",
+    "stretch_evening",
+    "daylight",
+    "phone_out",
+    "box_breathing",
+    "one_good_thing"
    ]
   },
   {
    "day": 7,
+   "week": 1,
    "title": "Your full day",
-   "today": "One week. Today everything comes together in one simple day, and your morning becomes a 5-minute flow inspired by qi gong. Your first-week summary arrives as soon as Thomas has reviewed it.",
-   "new": [
-    "morning_flow_5"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "daylight",
-    "walk_after_lunch_5",
-    "phone_out",
-    "box_breathing"
-   ],
+   "pillar": "Everything together",
+   "today": "One week. Today everything comes together in one full day, with a little more movement: your minute in the morning becomes a 5-minute flow inspired by qi gong, and the exercise snack becomes daily. Thomas is reviewing your first week; your summary appears here once he has read it.",
    "questionnaire": null,
    "extras": [
     "Your first-week summary (once Thomas has reviewed it)",
-    "Book your day-7 call (if Thomas launched your track)"
+    "Book a call with Thomas · 20 min (if Thomas launched your track)"
+   ],
+   "try_label": "New today · a little more movement",
+   "tip": "Link the new to the old: your flow right after your glass of water.",
+   "evolve": [
+    [
+     "Day 8",
+     "Breakfast: protein first."
+    ],
+    [
+     "Day 9",
+     "Lunch, and a 10-minute walk after it."
+    ],
+    [
+     "Day 10",
+     "Your exercise snack becomes a strength routine."
+    ],
+    [
+     "Days 11–12",
+     "Your full evening, then a longer morning flow."
+    ]
    ],
    "read": "Your day, on one page",
-   "image_title": "Your day on one page",
-   "image": [
-    [
-     "Composition",
-     "A vertical timeline down the middle, split into Morning, After lunch and Evening, with small icons on each side."
-    ],
-    [
-     "Elements & labels",
-     "Morning: glass of water, 3 breath curls, a soft-armed figure in a flowing pose (gold, '5-min flow'), a sun. After lunch: a walking figure ('walk'). Evening: a phone outside the door, the breathing square. Title at the top: 'Your base routine'."
-    ],
-    [
-     "One message",
-     "Your whole routine fits in one day, and it's simple."
-    ]
+   "script": "One week. Today everything comes together in one full day.\n\nIn the morning, your minute of movement becomes a five-minute flow inspired by qi gong: slow breathing with the arms, gentle twists, then shake it out. It wakes the body up without rushing it.\n\nDuring the day, your exercise snack is no longer optional: one a day. Ten squats, a minute up the stairs, or ten wall push-ups. Short bursts like these add up, and they're one of the simplest ways to build capacity.\n\nAfter lunch: your five minutes outside. In the evening: stretch, phone out, breathe, one good thing.\n\nThat's your base, and it fits in a normal day.\n\nI'm also reviewing your first week. You'll find your summary here as soon as I've read it: what we learned, your goals, and what week two brings.\n\nWeek two is about action, one focus a day. See you tomorrow, with breakfast.",
+   "new": [
+    "morning_flow_5",
+    "exercise_snack_daily"
+   ],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "stretch_evening",
+    "daylight",
+    "phone_out",
+    "box_breathing",
+    "one_good_thing",
+    "walk_after_lunch_5"
    ]
   },
   {
    "day": 8,
+   "week": 2,
    "title": "Protein first",
-   "today": "Week two starts with breakfast. Many people find that protein in the morning keeps them full for longer. The ideas in the app come from what you told us you eat. After breakfast, walk for ten minutes.",
+   "pillar": null,
+   "today": "Protein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly across the day, and more as we age to keep our muscle. Many people eat little in the morning and most at night. Today, protein moves to breakfast.",
+   "questionnaire": null,
+   "extras": [],
+   "try_label": "New today",
+   "tip": "Boil a few eggs for the week, or keep Greek yogurt in the fridge: breakfast protein in one minute.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Lunch: protein, vegetables, complex carbs, and your after-lunch walk doubles to 10 minutes."
+    ],
+    [
+     "Day 10",
+     "Easy strength."
+    ]
+   ],
+   "library": [
+    [
+     "Infographic",
+     "Protein through the day",
+     "to create: today's image, also filed in the library"
+    ]
+   ],
+   "read": "Why protein matters",
+   "script": "Week two starts with breakfast, and with protein.\n\nProtein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly, across the day. And as we get older we need a little more of it to keep our muscle.\n\nMany people eat very little protein in the morning and most of it at night. Moving some of it to breakfast is a simple change, and many people find it keeps them full for longer and steadies their energy through the morning.\n\nSo today: put protein on your breakfast plate. Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About the size of your palm. The ideas in the app come from what you told us you eat.\n\nThen, if you can, a ten-minute walk after breakfast. Outside, so it counts as daylight too.\n\nTomorrow: lunch.",
+   "image_title": "Protein through the day",
+   "image": [
+    [
+     "Composition",
+     "Top two thirds: one breakfast plate in the centre with five small protein options around it. Bottom third: a day strip (breakfast · lunch · dinner) with a walking figure."
+    ],
+    [
+     "Elements & labels",
+     "Around the plate: 'eggs', 'Greek yogurt', 'cottage cheese', 'smoked salmon', 'tofu'. A palm icon next to the plate: 'about a palm'. The day strip shows three equal protein blocks, the breakfast one in gold: 'spread across the day'. A walking figure in gold: '+10 min walk'."
+    ],
+    [
+     "One message",
+     "Protein at every meal, starting with breakfast. Then a short walk."
+    ]
+   ],
    "new": [
     "protein_breakfast",
     "walk_after_breakfast"
    ],
    "kept": [
+    "water_waking",
     "meal_photos",
-    "hydrate",
-    "morning_flow_5",
+    "stretch_evening",
     "daylight",
-    "walk_after_lunch_5",
     "phone_out",
-    "box_breathing"
-   ],
-   "questionnaire": null,
-   "extras": [],
-   "read": "Why protein first",
-   "image_title": "A breakfast with protein",
-   "image": [
-    [
-     "Composition",
-     "One breakfast plate in the centre, surrounded by five small protein options, with a walking figure at the bottom."
-    ],
-    [
-     "Elements & labels",
-     "Around the plate: 'eggs', 'Greek yogurt', 'cottage cheese', 'smoked salmon', 'tofu'. A palm icon next to the plate: 'about a palm of protein'. At the bottom, a walking figure in gold: '+10 min walk'."
-    ],
-    [
-     "One message",
-     "Put protein on your breakfast plate, then take a short walk."
-    ]
+    "box_breathing",
+    "one_good_thing",
+    "walk_after_lunch_5",
+    "morning_flow_5",
+    "exercise_snack_daily"
    ]
   },
   {
    "day": 9,
+   "week": 2,
    "title": "A lunch that holds you",
-   "today": "Lunch shapes your afternoon. Build your plate with half vegetables, a good portion of protein and fewer fast carbs. Then walk ten minutes, and keep your last coffee before two in the afternoon.",
-   "new": [
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "morning_flow_5",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "phone_out",
-    "box_breathing"
-   ],
+   "pillar": null,
+   "today": "Lunch decides your afternoon. Fast carbs (white bread, white pasta, sweet drinks) often mean a quick rise and a dip around three. Build your plate in three parts: half vegetables, a palm of protein, a quarter complex carbs. Complex carbs come with fibre, so they give steadier energy. Then the most important part: a 10-minute walk.",
    "questionnaire": null,
    "extras": [],
-   "read": "The afternoon dip",
-   "image_title": "The plate that holds your afternoon",
+   "try_label": "New today",
+   "tip": "Lunch out? Ask for extra vegetables and choose the whole-grain side.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Your exercise snack becomes a 5-minute strength routine."
+    ],
+    [
+     "Day 11",
+     "Your full evening routine."
+    ]
+   ],
+   "library": [
+    [
+     "Infographic",
+     "The plate that holds you",
+     "to create: today's image, also filed in the library"
+    ]
+   ],
+   "thomas_note": "Short read 'Complex carbs, simply': to write, and file in the library next to the infographic.",
+   "read": "Complex carbs, simply",
+   "script": "Today: lunch, and the walk after it.\n\nLunch decides your afternoon. A plate of fast carbs, like white bread, white pasta or a sweet drink, often means a quick rise in energy and then a dip around three o'clock.\n\nSo build your plate in three parts. Half vegetables. A good portion of protein, about a palm. And a quarter of complex carbs: oats, wholegrain bread, legumes, quinoa, brown rice. Complex carbs come with their fibre, so they're digested more slowly and give you steadier energy. You'll find the plate and the complex-carbs principle in your library.\n\nAnd the most important part comes after: a ten-minute walk. Moving right after a meal helps your muscles use the energy from it, and it's one of the easiest habits to keep.\n\nLast thing: your last coffee before two in the afternoon, so it doesn't follow you into the night.\n\nTomorrow: easy strength.",
+   "image_title": "The plate that holds you",
    "image": [
     [
      "Composition",
-     "A large plate diagram on the left; on the right, a clock and a walking figure stacked."
+     "Left: a large plate diagram. Right, stacked: two small energy curves, then a walking figure, then a small clock."
     ],
     [
      "Elements & labels",
-     "Plate: half 'vegetables' (soft green), a quarter 'protein' (forest), a quarter 'slow carbs' (cream). Under it, small grey text: 'fewer: white bread, white pasta, sweet drinks'. Right: a clock at 14:00 with a coffee cup ('last coffee'), and a walker in gold ('10 min after lunch')."
+     "Plate: half 'vegetables' (soft green), a quarter 'protein' (forest), a quarter 'complex carbs' (cream) with tiny icons for oats, wholegrain bread, lentils, quinoa. Curves: 'fast carbs' (spike, then dip) next to 'complex carbs' (gentle wave). The walker in gold, the largest element on the right: '10-min walk after lunch'. Small clock at 14:00 with a cup: 'last coffee'."
     ],
     [
      "One message",
-     "Half vegetables, enough protein, a short walk, coffee before 2 pm."
+     "Half vegetables, a palm of protein, complex carbs, then walk."
     ]
+   ],
+   "new": [
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14"
+   ],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "stretch_evening",
+    "daylight",
+    "phone_out",
+    "box_breathing",
+    "one_good_thing",
+    "morning_flow_5",
+    "exercise_snack_daily",
+    "protein_breakfast",
+    "walk_after_breakfast"
    ]
   },
   {
    "day": 10,
+   "week": 2,
    "title": "Easy strength",
-   "today": "Muscle is a long-term investment, and it starts very simply. Two moves you can do anywhere, at any moment today. If something hurts, stop: easier is fine.",
-   "new": [
-    "sit_to_stands",
-    "wall_pushups"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "morning_flow_5",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14",
-    "phone_out",
-    "box_breathing"
-   ],
+   "pillar": null,
+   "today": "Muscle is one of the best long-term investments you can make: it holds you up, protects your joints, helps your body handle sugar and keeps you independent as you age. Your exercise snack becomes a 5-minute routine, at home, no equipment. Go slowly and stop if anything hurts: easier is always fine.",
    "questionnaire": null,
    "extras": [],
+   "try_label": "New today",
+   "tip": "Do your routine while the kettle boils or the coffee runs.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Your full evening routine."
+    ],
+    [
+     "Day 12",
+     "Your morning flow grows to 10 minutes."
+    ]
+   ],
+   "thomas_note": "The routine itself: Thomas develops it (moves, reps, easier and harder versions), then films it for today's video. Until then the card says 'Thomas shows every move in today's video'.",
    "read": "Muscle is a long-term account",
-   "image_title": "Two moves, anywhere",
+   "script": "Today: easy strength.\n\nMuscle is one of the best long-term investments you can make. It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you get older. And it starts very simply.\n\nYour daily exercise snack becomes a five-minute strength routine you can do at home, in your clothes, with no equipment. I'll show you every move.\n\n[Thomas: your routine here: each move, how many, the easier version.]\n\nGo slowly, breathe, and stop if anything hurts. Easier is always fine. What matters is doing it often, not doing it hard.\n\nTomorrow: your evening.",
+   "image_title": "Five minutes, anywhere",
    "image": [
     [
      "Composition",
-     "Two step-by-step pairs side by side, each with a 'before' and 'after' pose and an arrow between."
+     "Placeholder until Thomas's routine is set: the moves drawn as small poses around a circle, '5 min' in the centre."
     ],
     [
      "Elements & labels",
-     "Left pair: seated on a chair, then standing ('10 sit-to-stands, slowly'). Right pair: leaning into a wall, then pushing back ('wall push-ups, as many as comfortable'). Gold arrows show the movement. A small clock icon: 'any time today'."
+     "One pose per move, each labelled with the move and its count (from Thomas's routine). Gold arrows between poses. Under the circle: 'at home · no equipment · in your clothes'."
     ],
     [
      "One message",
-     "Strength starts with two simple moves you can do anywhere."
+     "Strength starts with a few simple moves, five minutes, anywhere."
     ]
+   ],
+   "new": [
+    "easy_strength"
+   ],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "stretch_evening",
+    "daylight",
+    "phone_out",
+    "box_breathing",
+    "one_good_thing",
+    "morning_flow_5",
+    "protein_breakfast",
+    "walk_after_breakfast",
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14"
    ]
   },
   {
    "day": 11,
+   "week": 2,
    "title": "Your evening downshift",
-   "today": "How your evening goes often shapes how your night goes. Three changes tonight: dim the lights after nine, screens off thirty minutes before bed, and a last meal about two hours before you sleep. Then your two minutes of breathing.",
-   "new": [
-    "dim_lights",
-    "screens_off",
-    "last_meal_2h"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "morning_flow_5",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14",
-    "sit_to_stands",
-    "wall_pushups",
-    "phone_out",
-    "box_breathing"
-   ],
+   "pillar": null,
+   "today": "Tonight your evening routine is complete. Last meal 2–3 hours before bed, so your body can rest rather than digest. An hour before bed: screens off, lights low, a book instead of the phone. Then 10 minutes to wind down: slow breathing, NSDR or gentle yoga. Your stretch and box breathing grow into this.",
    "questionnaire": null,
    "extras": [],
+   "try_label": "New today · the full routine",
+   "tip": "Set an alarm for 'screens off', and choose tonight's book now.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Your morning flow grows to 10 minutes, with short movement breaks."
+    ],
+    [
+     "Day 13",
+     "You choose what you keep."
+    ]
+   ],
+   "library": [
+    [
+     "Audio",
+     "10-minute NSDR",
+     "to record"
+    ]
+   ],
    "read": "Your evening routine",
+   "script": "Tonight: your full evening routine.\n\nYou've already started: a stretch, your phone outside the bedroom, two minutes of breathing, one good thing. Tonight we complete it.\n\nTwo to three hours before bed, finish your last meal. Your body can then focus on rest rather than digestion.\n\nOne hour before bed: screens off, lights low. Bright screens tell your brain it's still daytime. Swap the phone for a book.\n\nThen, before sleep, ten minutes to wind down. Choose what suits you: slow breathing, a guided NSDR, which means non-sleep deep rest, or gentle yoga. Your stretch and your box breathing grow into this.\n\nAnd keep your one good thing, last thing before sleep.\n\nYou don't need everything every night. Start with what's easiest, and add the rest.\n\nTomorrow: more morning movement.",
    "image_title": "Winding down, step by step",
    "image": [
     [
      "Composition",
-     "A horizontal evening timeline from dinner to bed, its background shifting from warm to dark."
+     "A horizontal evening timeline from dinner to sleep, its background shifting from warm to dark."
     ],
     [
      "Elements & labels",
-     "Markers along it: a plate at '−2 h' ('last meal'), a lamp dimming at '21:00', a phone switching off at '−30 min', the breathing square at 'bed'. The three new markers in gold."
+     "Markers: a plate at '−3 h to −2 h' ('last meal'), a phone switching off and a lamp dimming at '−60 min' ('screens off, lights low'), an open book ('read'), a figure lying down at '−10 min' ('breathe · NSDR · yoga'), a small star at 'sleep' ('one good thing'). The phone charging outside the bedroom door in grey (already in place). The four new markers in gold."
     ],
     [
      "One message",
-     "Lower the lights, the screens and the food before bed."
+     "Earlier dinner, screens off, a book, ten calm minutes."
     ]
+   ],
+   "new": [
+    "last_meal",
+    "screens_off_60",
+    "book",
+    "wind_down_10"
+   ],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "daylight",
+    "phone_out",
+    "one_good_thing",
+    "morning_flow_5",
+    "protein_breakfast",
+    "walk_after_breakfast",
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14",
+    "easy_strength"
    ]
   },
   {
    "day": 12,
+   "week": 2,
    "title": "More morning movement",
-   "today": "Your morning flow grows from five to ten minutes. The same movements, a little longer. And during the day, if you sit for long, stand up every hour or two and move for two minutes.",
-   "new": [
-    "morning_flow_10",
-    "movement_breaks"
-   ],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14",
-    "sit_to_stands",
-    "wall_pushups",
-    "phone_out",
-    "box_breathing",
-    "dim_lights",
-    "screens_off",
-    "last_meal_2h"
-   ],
+   "pillar": null,
+   "today": "Moving early wakes your body, gets your circulation going and, outside, gives you daylight for your body clock. And what's done first thing gets done. Your flow grows from five to ten minutes. During the day, if you sit for long, stand up every hour or two and move for two minutes.",
    "questionnaire": null,
    "extras": [],
+   "try_label": "New today",
+   "tip": "Stand up whenever you take a call.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Nothing new: you choose what you keep."
+    ],
+    [
+     "Day 14",
+     "Your two weeks, and your 20-minute review call."
+    ]
+   ],
    "read": "Sitting less",
+   "script": "Today your morning flow grows from five to ten minutes.\n\nWhy the morning? Moving early wakes your body up, gets your circulation going and, if you're outside, gives you daylight for your body clock. And a routine done first thing gets done, before the day takes over.\n\nSame movements, a little longer: breathe, move, twist, shake out. Ten minutes is enough to feel looser, warmer and more awake.\n\nAnd during the day: if you sit for long periods, stand up every hour or two and move for two minutes. Take the stairs, walk while you're on the phone, refill your water. Long sitting is one of the things that slowly takes your capacity away, and short breaks are the simplest answer.\n\nTomorrow: you choose what you keep.",
    "image_title": "Ten minutes, then little breaks",
    "image": [
     [
@@ -549,85 +904,113 @@
      "One message",
      "A longer morning flow, and two minutes of movement every hour or two."
     ]
+   ],
+   "new": [
+    "morning_flow_10",
+    "movement_breaks"
+   ],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "daylight",
+    "phone_out",
+    "one_good_thing",
+    "protein_breakfast",
+    "walk_after_breakfast",
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14",
+    "easy_strength",
+    "last_meal",
+    "screens_off_60",
+    "book",
+    "wind_down_10"
    ]
   },
   {
    "day": 13,
+   "week": 2,
    "title": "Make it yours",
-   "today": "Look at what you've built. There's no new action today: choose the actions you want to keep after these two weeks. They stay in your app. A few habits you keep are worth more than ten you try once.",
-   "new": [],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "morning_flow_10",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14",
-    "sit_to_stands",
-    "wall_pushups",
-    "movement_breaks",
-    "phone_out",
-    "box_breathing",
-    "dim_lights",
-    "screens_off",
-    "last_meal_2h"
-   ],
+   "pillar": null,
+   "today": "Look at what you've built in twelve days. There's nothing new today: choose the actions you want to keep after these two weeks. They stay in your app. A few habits you keep are worth more than ten you try once.",
    "questionnaire": null,
    "extras": [
     "Choose the actions you keep"
    ],
+   "try_label": "New today",
+   "tip": "Keep the ones you'd miss, not the ones you think you should.",
+   "evolve": [
+    [
+     "Tomorrow",
+     "Your two weeks: before and after, and your review call."
+    ],
+    [
+     "After day 14",
+     "The actions you keep stay in your app."
+    ]
+   ],
    "read": "Habits that last",
+   "script": "Look at what you've built in twelve days. A morning routine, a walk after lunch, protein at breakfast, a lunch that holds you, strength, an evening that helps you sleep.\n\nYou don't need to keep everything. A few habits you keep are worth more than ten you try once.\n\nToday there's nothing new. Look at your whole routine, and choose the actions you want to keep after these two weeks. They stay in your app.\n\nChoose the ones that felt good and fit your life. You can always add more later.\n\nTomorrow: your two weeks, and what comes next.",
    "image_title": "Choose what you keep",
    "image": [
     [
      "Composition",
-     "Three rows of small action cards (Morning, After lunch, Evening), some highlighted, some faded."
+     "Four rows of small action cards (Morning, After lunch, Evening, During the day), some lifted forward, some faded."
     ],
     [
      "Elements & labels",
-     "About ten mini cards with icons (water, flow, daylight, protein, walk, plate, chair, lamp, phone, square). Four of them lifted forward with a gold check: 'I keep'. The rest faded. Caption: 'Pick what fits your life'."
+     "About twelve mini cards with icons (water, flow, daylight, protein, walk, plate, strength, book, moon, phone, star, stairs). Four of them lifted forward with a gold check: 'I keep'. The rest faded. Caption: 'Pick what fits your life'."
     ],
     [
      "One message",
      "You don't need everything. Keep what works for you."
     ]
+   ],
+   "new": [],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "daylight",
+    "phone_out",
+    "one_good_thing",
+    "protein_breakfast",
+    "walk_after_breakfast",
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14",
+    "easy_strength",
+    "last_meal",
+    "screens_off_60",
+    "book",
+    "wind_down_10",
+    "morning_flow_10",
+    "movement_breaks"
    ]
   },
   {
    "day": 14,
+   "week": 2,
    "title": "Your two weeks",
-   "today": "Two weeks ago you started. Today you see your check-ins from your first days next to your last days, tell us how it was, and book your review call with Thomas if it's open to you.",
-   "new": [],
-   "kept": [
-    "meal_photos",
-    "hydrate",
-    "morning_flow_10",
-    "daylight",
-    "protein_breakfast",
-    "walk_after_breakfast",
-    "walk_after_lunch_10",
-    "lunch_plate",
-    "coffee_before_14",
-    "sit_to_stands",
-    "wall_pushups",
-    "movement_breaks",
-    "phone_out",
-    "box_breathing",
-    "dim_lights",
-    "screens_off",
-    "last_meal_2h"
-   ],
+   "pillar": null,
+   "today": "Two weeks ago you started. Today you see your check-ins from your first days next to your last days, tell us how it was, and book your 20-minute review call with Thomas once it's open to you.",
    "questionnaire": [
     "Your two weeks",
-    2
+    2,
+    "What helped, what was hard, and what you'd like next. Thomas reads it before your call."
    ],
    "extras": [
-    "Book your review call with Thomas: 30 min, or 20 min if Thomas launched your track"
+    "Book your review call with Thomas · 20 min"
+   ],
+   "try_label": "New today",
+   "tip": "Write down one question for Thomas before your call.",
+   "evolve": [
+    [
+     "Next",
+     "Keep going with the app, or go deeper with a personal programme. You decide together on your call."
+    ]
    ],
    "read": "What a personal programme adds",
+   "script": "Fourteen days. Thank you.\n\nToday you'll see your check-ins from your first days next to your last days: energy, focus, mood, sleep. Look at what changed, and what didn't. Both tell us something.\n\nThen tell us how it was, in two minutes: what helped, what was hard, and what you'd like next.\n\nIf you completed your questionnaires and photographed your meals, you can now book your twenty-minute review call with me. We'll look at your results together, answer your questions, and talk about what's next: keep going with the app, or go deeper with a personal programme built for you.\n\nThank you for these two weeks. See you on the call.",
    "image_title": "From day 1 to day 14",
    "image": [
     [
@@ -636,12 +1019,32 @@
     ],
     [
      "Elements & labels",
-     "Bars labelled 'energy', 'focus', 'mood', 'sleep', each pair marked 'first days' and 'last days' (illustrative shapes, no numbers). The fork at the bottom: 'Keep going with the app' and 'Go deeper with a personal programme', with a small phone icon 'Review with Thomas' in gold."
+     "Bars labelled 'energy', 'focus', 'mood', 'sleep', each pair marked 'first days' and 'last days' (illustrative shapes, no numbers). The fork: 'Keep going with the app' and 'Go deeper with a personal programme', with a small phone icon in gold: 'Review with Thomas · 20 min'."
     ],
     [
      "One message",
      "See how far you've come, then choose what's next with Thomas."
     ]
+   ],
+   "new": [],
+   "kept": [
+    "water_waking",
+    "meal_photos",
+    "daylight",
+    "phone_out",
+    "one_good_thing",
+    "protein_breakfast",
+    "walk_after_breakfast",
+    "lunch_plate",
+    "walk_after_lunch_10",
+    "coffee_before_14",
+    "easy_strength",
+    "last_meal",
+    "screens_off_60",
+    "book",
+    "wind_down_10",
+    "morning_flow_10",
+    "movement_breaks"
    ]
   }
  ]

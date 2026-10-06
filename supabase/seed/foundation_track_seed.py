@@ -3,20 +3,38 @@
 (docs/FOUNDATION_TRACK.md, Thomas 2026-10-06). EN only for now; *_fr stays NULL until the
 English is locked. Re-run after editing the content, then apply the SQL (it upserts).
 
+The day titles, the actions (title, one-line how-to, first and last day) and each questionnaire's
+title and "why we ask" text come from docs/foundation-cards/build.py, the source of the card
+mockups Thomas reviews, so the app and the mockups cannot drift. The card's own text (Today,
+mini tip, how it will evolve) goes to supabase/migrations/20261006_foundation_track_day_card_content.sql,
+applied after the day-card columns exist.
+
 Shapes the iOS / web renderers read:
   options   [{"value": "...", "label_en": "...", "free_text": true?}]  or  {"source": "track_actions"}
   show_if   {"key": "...", "in": [...]} | {"key": "...", "not_in": [...]} | {"health_connected": false}
   prefill   {"from": "answer", "key": "..."} | {"from": "profile", "fields": [...]} | {"from": "health", "metric": "bedtime"}
   variants  [{"when": <show_if>, "prompt_en": "..."}]
   actions   [{"key", "moment": morning|midday|evening|day, "habit_bank_id"?, "face": easy|standard|further,
-              "title_en"? (overrides the card title, or names an action with no card), "new": bool}]
+              "title_en" (overrides the card title, or names an action with no card), "how_en", "new": bool}]
+  card_en   {"pillar"?, "today": "..." | [{"label", "text"}], "try_label", "tip", "evolve": [{"when", "text"}],
+             "library": [{"kind", "title"}]}
   push      {"morning"|"midday"|"evening": {"en": "...", "only_if"?: "review_unlocked"}}
             placeholders: {modules} {modules_total} {pct}
 """
+import importlib.util
 import json
 import pathlib
+import sys
+
+sys.dont_write_bytecode = True  # importing the card source must not leave a __pycache__ in docs/
 
 TRACK = "foundation_v1"
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+_spec = importlib.util.spec_from_file_location("cards", ROOT / "docs" / "foundation-cards" / "build.py")
+cards = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(cards)
+CARD = {d["day"]: d for d in cards.DAYS}
 
 
 def opts(*pairs):
@@ -47,9 +65,8 @@ def q(key, screen, pos, kind, prompt, **kw):
 
 QUESTIONNAIRES = [
     dict(id="foundation_d1_you_today", day=1, est_minutes=3, counts_toward_review=True,
-         title_en="You, today",
-         intro_en="This first week is about understanding you. Don't change anything yet: the more real your answers, the more useful the next steps.",
-         done_en="Today: photograph everything you eat. Tomorrow: how you eat.",
+         title_en=CARD[1]["questionnaire"][0], intro_en=CARD[1]["questionnaire"][2],
+         done_en="Thank you. Tomorrow: nutrition, the first pillar.",
          questions=[
              q("baseline_confirm", 1, 1, "confirm", "From your FunctionAlps record: {baseline}. Still right?",
                options=YES_UPDATE, required=True,
@@ -82,9 +99,8 @@ QUESTIONNAIRES = [
                help_en="Each day we'll send a short reminder at the right moment: in the morning, after lunch and in the evening. Nothing else. You can change this any time."),
          ]),
     dict(id="foundation_d2_how_you_eat", day=2, est_minutes=2, counts_toward_review=True,
-         title_en="How you eat",
-         intro_en="Not what a perfect diet looks like: how you really eat. Keep photographing your meals as usual.",
-         done_en="Thank you. Keep photographing your meals. Tomorrow: how you move.",
+         title_en=CARD[2]["questionnaire"][0], intro_en=CARD[2]["questionnaire"][2],
+         done_en="Thank you. Keep photographing your meals. Tomorrow: movement.",
          questions=[
              q("meals_per_day", 1, 1, "single", "How many meals do you usually eat a day?", required=True,
                options=opts(("1", "1"), ("2", "2"), ("3", "3"), ("4_plus", "4 or more"))),
@@ -117,9 +133,8 @@ QUESTIONNAIRES = [
                options=opts(("none", "None"), ("1_3", "1–3"), ("4_7", "4–7"), ("8_14", "8–14"), ("gt_14", "More than 14"))),
          ]),
     dict(id="foundation_d3_how_you_move", day=3, est_minutes=2, counts_toward_review=True,
-         title_en="How you move",
-         intro_en="How your body moves now, and how it moved before. This sets the right starting point instead of the same workout for everyone.",
-         done_en="Thank you. After lunch today: five minutes outside. Tomorrow: how you sleep.",
+         title_en=CARD[3]["questionnaire"][0], intro_en=CARD[3]["questionnaire"][2],
+         done_en="Thank you. Tonight: two minutes of gentle stretching before bed. Tomorrow: sleep.",
          questions=[
              q("exercise_days_week", 1, 1, "single", "On how many days a week do you exercise on purpose?", required=True,
                options=opts(("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5_plus", "5 or more"))),
@@ -162,9 +177,8 @@ QUESTIONNAIRES = [
                           "prompt_en": "You already move a lot. How sure are you that you can keep it up over the next 2 weeks, with the daily actions on top?"}]),
          ]),
     dict(id="foundation_d4_how_you_sleep", day=4, est_minutes=2, counts_toward_review=True,
-         title_en="How you sleep",
-         intro_en="Sleep shapes your energy, appetite, mood and recovery. Today: your usual pattern, not last night.",
-         done_en="Thank you. Tonight: your phone sleeps outside the bedroom. Tomorrow: stress and recovery.",
+         title_en=CARD[4]["questionnaire"][0], intro_en=CARD[4]["questionnaire"][2],
+         done_en="Thank you. Tonight: your phone sleeps outside the bedroom. Tomorrow: mental and emotional health.",
          questions=[
              q("bedtime_workdays", 1, 1, "time", "What time do you usually go to bed on a workday?", required=True,
                prefill={"from": "health", "metric": "bedtime"}),
@@ -190,9 +204,8 @@ QUESTIONNAIRES = [
                options=opts(("better", "Better"), ("same", "About the same"), ("worse", "Worse"))),
          ]),
     dict(id="foundation_d5_stress_recovery", day=5, est_minutes=2, counts_toward_review=True,
-         title_en="Stress and recovery",
-         intro_en="Stress changes sleep, eating, energy and digestion. Today: where your load comes from, and what helps you recover.",
-         done_en="Thank you: that was the last of the five. Before bed tonight: two minutes of box breathing.",
+         title_en=CARD[5]["questionnaire"][0], intro_en=CARD[5]["questionnaire"][2],
+         done_en="Thank you: that was the last of the five. In bed tonight: two minutes of box breathing, then one good thing.",
          questions=[
              q("stress_level", 1, 1, "slider", "Overall, how stressed have you felt lately?", min_value=0, max_value=10, step=1,
                required=True),
@@ -217,8 +230,7 @@ QUESTIONNAIRES = [
                             ("30_60", "30–60 min"), ("gt_60", "More than an hour"))),
          ]),
     dict(id="foundation_d6_first_week", day=6, est_minutes=1, counts_toward_review=False,
-         title_en="Your first week",
-         intro_en="You've given us the context. Here's what you told us.",
+         title_en=CARD[6]["questionnaire"][0], intro_en=CARD[6]["questionnaire"][2],
          done_en="See you tomorrow for day seven: everything comes together.",
          questions=[
              q("week1_recap", 1, 1, "info", "Here's what you told us"),
@@ -234,8 +246,7 @@ QUESTIONNAIRES = [
                "Week two is about action: simple, classic habits that work for almost everybody. Try them, and notice how you feel. Your check-ins will show it."),
          ]),
     dict(id="foundation_d14_two_weeks", day=14, est_minutes=2, counts_toward_review=False,
-         title_en="Your two weeks",
-         intro_en="Fourteen days ago you started. Here's where you were, and where you are now.",
+         title_en=CARD[14]["questionnaire"][0], intro_en=CARD[14]["questionnaire"][2],
          done_en="Thank you for these two weeks.",
          questions=[
              q("two_weeks_compare", 1, 1, "info", "Your check-ins: your first days next to your last days"),
@@ -259,111 +270,117 @@ QUESTIONNAIRES = [
 # ── actions (habit_bank ids verified on CM OS 2026-10-06) ──────────────────────────────────
 WALK_LUNCH = "7e6ee768-30fe-4781-ba62-52669aeab7c3"
 DAYLIGHT = "afa499c9-5033-43d3-bf0c-81f2b8e70819"
-SCREENS = "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+SCREENS_30 = "d76c26e1-2e7c-42f8-8ea1-204413c96916"   # easy face: "Phone out of the bedroom"
+SCREENS_60 = "47613f35-cb86-4122-b168-ea3135a7a208"
 BOX = "3ca4a693-d097-4a1b-92a2-95343120d2db"
+GOOD_THINGS = "4e0ec835-daa1-423f-b51a-8229a55b4f82"  # easy face: "One good thing"
 PROTEIN = "8ba3035e-a61f-4458-b078-9918624b8b18"
 VEG = "b6cabb08-565b-4f13-8350-7bbc981fa232"
 COFFEE = "fc544c65-5f4b-4c36-960a-e49b2aa16377"
-SIT = "c8ccfdf5-ea3a-4282-b987-f231d6bdbf73"
-PUSH = "30032ec5-201b-49a7-bcb1-8caa536c6e0e"
-DIM = "fa9e38a7-dedc-4a81-87f4-87fa6f045f6d"
-KITCHEN = "7dede76d-132c-4274-9812-3edba28dfb62"
+KITCHEN = "7dede76d-132c-4274-9812-3edba28dfb62"     # "Kitchen closed 3 hours before bed"
 
-# key → (first day, last day or None, moment, card id, face, title override)
-ACTIONS = [
-    ("meal_photos", 1, None, "day", None, "standard", "Photograph every meal"),
-    ("hydrate", 2, None, "morning", None, "standard", "Hydrate: a glass of water when you wake up, even before your coffee"),
-    ("breaths_move", 3, 6, "morning", None, "standard", "3 deep breaths + 1 minute of gentle movement"),
-    ("morning_flow_5", 7, 11, "morning", None, "standard", "5-minute morning flow (qi-gong style)"),
-    ("morning_flow_10", 12, None, "morning", None, "standard", "10-minute morning flow (qi-gong style)"),
-    ("daylight", 4, None, "morning", DAYLIGHT, "standard", None),
-    ("protein_breakfast", 8, None, "morning", PROTEIN, "standard", None),
-    ("walk_after_breakfast", 8, None, "morning", None, "standard", "A 10-minute walk after breakfast"),
-    ("walk_after_lunch_5", 3, 8, "midday", WALK_LUNCH, "easy", None),
-    ("walk_after_lunch_10", 9, None, "midday", WALK_LUNCH, "standard", None),
-    ("lunch_plate", 9, None, "midday", VEG, "standard", "Lunch: vegetables on half the plate, protein, fewer fast carbs"),
-    ("coffee_before_14", 9, None, "midday", COFFEE, "standard", "Last coffee before 14:00"),
-    ("sit_to_stands", 10, None, "day", SIT, "standard", None),
-    ("wall_pushups", 10, None, "day", PUSH, "standard", "One set of wall push-ups"),
-    ("movement_breaks", 12, None, "day", None, "standard", "2 minutes of movement every hour or two of sitting"),
-    ("phone_out", 4, None, "evening", SCREENS, "easy", None),
-    ("box_breathing", 5, None, "evening", BOX, "standard", "Box breathing, 2 minutes before bed"),
-    ("dim_lights", 11, None, "evening", DIM, "standard", None),
-    ("screens_off", 11, None, "evening", SCREENS, "standard", None),
-    ("last_meal_2h", 11, None, "evening", KITCHEN, "easy", "Last meal 2 hours before bed"),
-]
-
-DAYS = {
-    1: ("You, today", "Welcome: how the 14 days work. Photograph every meal, connect Apple Health, turn on your reminders.", "foundation_d1_you_today"),
-    2: ("How you eat", "Food as it really is, and your first action: hydrate.", "foundation_d2_how_you_eat"),
-    3: ("How you move", "Movement now and before; breaths and a minute of moving; five minutes outside after lunch.", "foundation_d3_how_you_move"),
-    4: ("How you sleep", "Your usual nights; morning daylight; the phone sleeps outside the bedroom.", "foundation_d4_how_you_sleep"),
-    5: ("Stress and recovery", "Where your load comes from; two minutes of box breathing before bed.", "foundation_d5_stress_recovery"),
-    6: ("Your first week", "A recap of what you told us, and what week two is.", "foundation_d6_first_week"),
-    7: ("Your full day", "Everything in one day, with a 5-minute morning flow. Your week-1 summary is on its way.", None),
-    8: ("Protein first", "Protein at breakfast, then a 10-minute walk.", None),
-    9: ("A lunch that holds you", "Vegetables, protein, fewer fast carbs; a 10-minute walk; last coffee before 14:00.", None),
-    10: ("Easy strength", "Ten sit-to-stands and a set of wall push-ups.", None),
-    11: ("Your evening downshift", "Dim the lights, screens off 30 minutes before bed, an earlier last meal.", None),
-    12: ("More morning movement", "Your morning flow grows to 10 minutes; move a little every hour or two.", None),
-    13: ("Make it yours", "Your whole routine on one page: choose what you keep.", None),
-    14: ("Your two weeks", "Where you started, where you are, and what comes next.", "foundation_d14_two_weeks"),
+# key → (habit_bank card, face). Moment, title, how-to and first/last day come from the card source.
+CARDS = {
+    "daylight": (DAYLIGHT, "standard"),
+    "protein_breakfast": (PROTEIN, "standard"),
+    "walk_after_lunch_5": (WALK_LUNCH, "easy"),
+    "walk_after_lunch_10": (WALK_LUNCH, "standard"),
+    "lunch_plate": (VEG, "standard"),
+    "coffee_before_14": (COFFEE, "standard"),
+    "phone_out": (SCREENS_30, "easy"),
+    "box_breathing": (BOX, "standard"),
+    "one_good_thing": (GOOD_THINGS, "easy"),
+    "last_meal": (KITCHEN, "easy"),
+    "screens_off_60": (SCREENS_60, "standard"),
 }
+assert set(CARDS) <= set(cards.ACTIONS)
+
+# the line under the day's title on the card (and on the CLINICAL board)
+FOCUS = {
+    1: "Why these 14 days, and where you are today. A mini morning routine: water and 3 slow breaths.",
+    2: "The nutrition pillar, and why we ask. Photograph everything you eat.",
+    3: "Functional capacity. 1 minute of movement, an optional exercise snack, and your evening routine begins.",
+    4: "The sleep pillar. Morning daylight; your phone sleeps outside the bedroom.",
+    5: "Load and recovery. Box breathing and one good thing before sleep.",
+    6: "Your routine in four moments, and a short walk after lunch.",
+    7: "A 5-minute morning flow and a daily exercise snack. Your first-week summary is on its way.",
+    8: "Why protein matters. Protein at breakfast, then a 10-minute walk.",
+    9: "Vegetables, protein and complex carbs; a 10-minute walk after lunch; last coffee before 14:00.",
+    10: "Your exercise snack becomes a 5-minute strength routine.",
+    11: "Last meal 2–3 hours before bed, screens off, a book, 10 minutes to wind down.",
+    12: "A 10-minute morning flow; move 2 minutes every hour or two.",
+    13: "Your whole routine on one page: choose what you keep.",
+    14: "Where you started, where you are, and your 20-minute review call.",
+}
+QUESTIONNAIRE_OF_DAY = {1: "foundation_d1_you_today", 2: "foundation_d2_how_you_eat", 3: "foundation_d3_how_you_move",
+                        4: "foundation_d4_how_you_sleep", 5: "foundation_d5_stress_recovery", 6: "foundation_d6_first_week",
+                        14: "foundation_d14_two_weeks"}
 
 PUSH_TEXT = {
-    1: {"evening": "First day done? Snap your dinner, then your evening check-in."},
-    2: {"morning": "Day 2 · Before coffee: a big glass of water. Today's video is ready.",
-        "midday": "Snap your lunch. That's all we need.",
-        "evening": "Today's questionnaire: how you eat. 2 minutes, then your check-in."},
-    3: {"morning": "Day 3 · Water, 3 deep breaths, 1 minute of moving.",
-        "midday": "5 minutes outside, now.",
-        "evening": "Today's questionnaire: how you move. Your 15-min call with Thomas is open to book."},
-    4: {"morning": "Day 4 · Your morning: water, breaths, move, then 5 minutes of daylight.",
-        "midday": "5 minutes outside after lunch.",
-        "evening": "Phone out of the bedroom tonight. Today's questionnaire: how you sleep."},
-    5: {"morning": "Day 5 · Water, breaths, move, daylight.",
-        "midday": "5 minutes outside after lunch.",
-        "evening": "Before bed: 2 minutes of box breathing. Last questionnaire: stress and recovery."},
-    6: {"morning": "Day 6 · Your first week, on one screen. Have a look.",
-        "midday": "Your walk after lunch.",
-        "evening": "Phone out, 2 minutes of breathing, then your check-in."},
-    7: {"morning": "Day 7 · Today it all comes together: your 5-minute morning flow.",
-        "midday": "Your walk after lunch.",
-        "evening": "Phone out, breathing, check-in. Your week-1 summary is on its way."},
+    1: {"evening": "First day done? Your 3-minute questionnaire, if not yet, then your evening check-in."},
+    2: {"morning": "Day 2 · Nutrition. Water, 3 slow breaths, then today's video.",
+        "midday": "Snap your lunch before the first bite.",
+        "evening": "Snap your dinner. Then your nutrition questions: 2 minutes."},
+    3: {"morning": "Day 3 · Movement. Water, 3 breaths, 1 minute of moving.",
+        "midday": "Feel like an exercise snack? 10 squats, or a minute up the stairs.",
+        "evening": "Your movement questions, then 2 minutes of stretching before bed."},
+    4: {"morning": "Day 4 · Sleep. Your morning routine, then 5 minutes of daylight.",
+        "midday": "Snap your lunch.",
+        "evening": "Your phone sleeps outside the bedroom tonight. Your sleep questions: 2 minutes."},
+    5: {"morning": "Day 5 · Mental and emotional health. Water, breaths, move, daylight.",
+        "midday": "Snap your lunch.",
+        "evening": "In bed: 2 minutes of box breathing, then one good thing. Last questionnaire today."},
+    6: {"morning": "Day 6 · Your first week, on one page.",
+        "midday": "New today: 5 minutes outside after lunch.",
+        "evening": "Stretch, phone out, breathe, one good thing."},
+    7: {"morning": "Day 7 · Your full day starts with a 5-minute morning flow.",
+        "midday": "Your walk after lunch. And today's exercise snack?",
+        "evening": "Stretch, phone out, breathe, one good thing. Your week-1 summary is on its way."},
     8: {"morning": "Day 8 · Protein at breakfast, then a 10-minute walk.",
         "midday": "Your walk after lunch.",
-        "evening": "Phone out, breathing, check-in."},
-    9: {"morning": "Day 9 · Today's focus is lunch: protein, vegetables, fewer fast carbs.",
-        "midday": "10 minutes outside. Last coffee before 14:00.",
-        "evening": "Phone out, breathing, check-in."},
-    10: {"morning": "Day 10 · Easy strength today: 10 sit-to-stands and a few wall push-ups.",
-         "midday": "Walk, then your sit-to-stands if not done yet.",
-         "evening": "Phone out, breathing, check-in."},
-    11: {"morning": "Day 11 · Tonight: your evening downshift.",
+        "evening": "Your evening routine, then your check-in."},
+    9: {"morning": "Day 9 · Today's focus is lunch: vegetables, protein, complex carbs.",
+        "midday": "10 minutes of walking, now. Last coffee before 14:00.",
+        "evening": "Your evening routine, then your check-in."},
+    10: {"morning": "Day 10 · Easy strength: your 5-minute routine is in today's video.",
+         "midday": "Walk after lunch. Strength routine done yet?",
+         "evening": "Your evening routine, then your check-in."},
+    11: {"morning": "Day 11 · Tonight: your full evening routine.",
          "midday": "Your walk after lunch.",
-         "evening": "Lights down, screens off 30 minutes before bed, then 2 minutes of breathing."},
-    12: {"morning": "Day 12 · Your morning flow goes to 10 minutes.",
+         "evening": "Screens off, lights low. A book, then 10 minutes to wind down."},
+    12: {"morning": "Day 12 · Your morning flow grows to 10 minutes.",
          "midday": "Walk after lunch. Every hour or two: stand up and move for 2 minutes.",
          "evening": "Where you stand: {modules}/{modules_total} questionnaires, {pct}% of meals. 2 days to go."},
     13: {"morning": "Day 13 · Your whole routine, on one page. Which actions will you keep?",
          "midday": "Your walk after lunch.",
-         "evening": "Phone out, breathing, check-in."},
+         "evening": "Your evening routine, then your check-in."},
     14: {"morning": "Day 14 · Two weeks. See how far you've come, and tell us how it was.",
-         "evening": {"en": "Your review call with Thomas is ready to book.", "only_if": "review_unlocked"}},
+         "evening": {"en": "Your 20-minute review call with Thomas is ready to book.", "only_if": "review_unlocked"}},
 }
 
 
 def day_actions(day):
     out = []
-    for key, first, last, moment, card, face, title in ACTIONS:
+    for key, first, last in cards.SCHEDULE:
         if day < first or (last is not None and day > last):
             continue
-        a = {"key": key, "moment": moment, "face": face, "new": day == first}
+        moment, title, how = cards.ACTIONS[key]
+        card, face = CARDS.get(key, (None, "standard"))
+        a = {"key": key, "moment": moment, "face": face, "new": day == first, "title_en": title, "how_en": how}
         if card:
             a["habit_bank_id"] = card
-        if title:
-            a["title_en"] = title
         out.append(a)
+    return out
+
+
+def day_card(day):
+    d = CARD[day]
+    today = d["today"] if isinstance(d["today"], str) else [{"label": k, "text": v} for k, v in d["today"]]
+    out = {"today": today, "try_label": d["try_label"], "tip": d["tip"],
+           "evolve": [{"when": w, "text": t} for w, t in d["evolve"]],
+           "library": [{"kind": k, "title": t} for k, t, _ in d.get("library", [])]}
+    if d.get("pillar"):
+        out["pillar"] = d["pillar"]
     return out
 
 
@@ -386,8 +403,11 @@ def main():
     for qn in QUESTIONNAIRES:
         for qq in qn["questions"]:
             questions.append({"questionnaire_id": qn["id"], "required": False, "voice": False} | qq)
-    days = [{"track_code": TRACK, "day": d, "title_en": t, "focus_en": f, "questionnaire_id": qid,
-             "actions": day_actions(d), "push": day_push(d)} for d, (t, f, qid) in DAYS.items()]
+    days = [{"track_code": TRACK, "day": d, "title_en": CARD[d]["title"], "focus_en": FOCUS[d],
+             "questionnaire_id": QUESTIONNAIRE_OF_DAY.get(d), "actions": day_actions(d), "push": day_push(d)}
+            for d in sorted(CARD)]
+    assert len(days) == 14 and all(PUSH_TEXT.get(d["day"]) for d in days)
+    assert {q["id"] for q in QUESTIONNAIRES} == set(QUESTIONNAIRE_OF_DAY.values())
 
     lines = [
         "-- GENERATED by supabase/seed/foundation_track_seed.py from docs/FOUNDATION_TRACK.md. Do not edit by hand.",
@@ -422,9 +442,23 @@ def main():
         "  questionnaire_id = excluded.questionnaire_id, actions = excluded.actions, push = excluded.push;",
         "",
     ]
-    out = pathlib.Path(__file__).resolve().parents[1] / "migrations" / "20261006_foundation_track_seed.sql"
+    out = ROOT / "supabase" / "migrations" / "20261006_foundation_track_seed.sql"
     out.write_text("\n".join(lines))
     print(out, len(questionnaires), "questionnaires,", len(questions), "questions,", len(days), "days")
+
+    card_rows = [{"track_code": TRACK, "day": d, "card_en": day_card(d)} for d in sorted(CARD)]
+    card_sql = [
+        "-- GENERATED by supabase/seed/foundation_track_seed.py from docs/foundation-cards/build.py. Do not edit by hand.",
+        "-- The day card's own text, EN. Needs 20261006_foundation_track_day_card.sql applied first. Safe to re-apply.",
+        "",
+        "update public.track_day t set card_en = x.card_en",
+        f"  from jsonb_to_recordset({sql_json(card_rows)}) as x(track_code text, day int, card_en jsonb)",
+        " where t.track_code = x.track_code and t.day = x.day;",
+        "",
+    ]
+    out2 = ROOT / "supabase" / "migrations" / "20261006_foundation_track_day_card_content.sql"
+    out2.write_text("\n".join(card_sql))
+    print(out2, len(card_rows), "cards")
 
 
 if __name__ == "__main__":

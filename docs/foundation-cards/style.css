@@ -1,4 +1,4 @@
-/* Layout: one row per day — the phone mockup as the app shows it, the infographic brief beside it; two week sections. */
+/* Layout: one row per day — the phone mockup as the app shows it, the script (and image brief) beside it; two week sections. */
 :root {
   --wall: #F5F0E8;      /* the app's cream wall */
   --wall2: #EDE8DE;
@@ -69,6 +69,22 @@ h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(
 .ig-k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--leaf); font-weight: 600; }
 .ig-t { font-family: var(--display); font-size: 20px; color: var(--forest); text-wrap: balance; }
 .sec { margin: 4px 0 -4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.sec.gold { color: var(--gold); }
+.pill { margin: 0 0 -4px; justify-self: start; font-size: 11.5px; font-weight: 600; color: var(--forest); background: var(--glow); border-radius: 999px; padding: 3px 10px; }
+.tri { margin: 0; display: grid; gap: 8px; background: var(--surface); border-radius: 14px; padding: 11px 12px; }
+.tri div { display: grid; gap: 1px; }
+.tri dt { font-size: 11.5px; font-weight: 700; color: var(--forest); }
+.tri dd { margin: 0; font-size: 13.5px; line-height: 1.5; }
+.qbox { display: grid; gap: 8px; }
+.why { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); background: var(--surface); border-radius: 12px; padding: 9px 11px; }
+.why b { color: var(--ink); font-weight: 600; margin-right: 4px; }
+.tip { background: var(--glow); border-radius: 14px; padding: 9px 12px; display: grid; gap: 2px; }
+.tip-k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); font-weight: 700; }
+.tip p { margin: 0; font-size: 13px; line-height: 1.45; }
+.evolve { list-style: none; margin: 0; padding: 4px 12px; background: var(--surface); border-radius: 14px; display: grid; }
+.evolve li { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.45; }
+.evolve li:first-child { border-top: 0; }
+.ev-w { font-weight: 700; color: var(--forest); font-size: 12px; padding-top: 1px; }
 .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .act { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: start; background: var(--surface); border-radius: 14px; padding: 11px 12px; }
 .act.new { box-shadow: inset 0 0 0 1.5px var(--gold); background: var(--gold-bg); }
@@ -82,6 +98,7 @@ h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(
 .grp-l { margin: 0; font-size: 11.5px; color: var(--muted); font-weight: 600; }
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; background: var(--glow); color: var(--forest); }
+.chip.new { background: var(--gold-bg); color: var(--ink); box-shadow: inset 0 0 0 1px var(--gold); }
 .btns { display: grid; gap: 8px; }
 .btn { display: block; text-align: center; padding: 11px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600; border: 1.5px solid var(--forest); color: var(--forest); }
 .btn.primary { background: var(--forest); color: var(--wall); }
@@ -108,6 +125,10 @@ dd { margin: 0; font-size: 14.5px; line-height: 1.55; max-width: 62ch; }
 .copy-src { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .copy-src.show { position: static; left: auto; width: 100%; height: 160px; opacity: 1; font: 12.5px/1.45 var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
 
+.script { display: grid; gap: 8px; font-size: 14.5px; line-height: 1.6; max-width: 62ch; }
+.script p { margin: 0; }
+.todo { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; }
+.brief .b-k { margin-top: 12px; }
 .foot { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 html { scroll-behavior: smooth; }
