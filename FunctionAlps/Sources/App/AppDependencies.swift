@@ -27,6 +27,9 @@ final class AppDependencies {
     let labs: LabResultsService
     /// The clinician's habits for today, with the check-off.
     let habits: HabitsService
+    /// The Foundation Track (the 14-day start): status, days, questionnaires, answers and ticks — shared by Home's
+    /// card, the questionnaire flow and the reminder plan.
+    let track: TrackService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -62,6 +65,7 @@ final class AppDependencies {
         self.focus = FocusService(backend: backend, auth: auth)
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.habits = HabitsService(backend: backend, auth: auth)
+        self.track = TrackService(backend: backend, auth: auth)
         self.backend = backend
     }
 

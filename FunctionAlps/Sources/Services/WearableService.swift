@@ -135,6 +135,15 @@ final class WearableService {
         return night
     }
 
+    /// The member's usual bedtime from the last two weeks of Apple Health nights (`HH:mm`) — the Foundation Track's
+    /// day-4 prefill. Nil when the phone is not connected or fewer than three nights were recorded.
+    func typicalBedtime(now: Date = Date()) async -> String? {
+        guard isConnected, Self.isAvailable else { return nil }
+        let from = calendar.date(byAdding: .day, value: -15, to: now) ?? now
+        guard let samples = try? await reader.sleepSamples(from: from, to: now) else { return nil }
+        return TrackLogic.typicalBedtime(starts: SleepAssembler.nights(from: samples, calendar: calendar).map(\.start), calendar: calendar)
+    }
+
     func lastNightSleepHours(now: Date = Date()) async -> Double? {
         await lastNight(now: now).map { $0.asleepSeconds / 3600 }
     }

@@ -85,12 +85,27 @@ final class NotificationService {
 
     // MARK: The local plan
 
+    /// The Foundation Track's reminder plan (nil off the track) — set by Home whenever the track's status changes.
+    private(set) var track: TrackReminderPlan?
+    /// The last Today the plan was built from, so a track-only change re-plans without dropping it.
+    private var lastSnapshot: TodaySnapshot?
+
+    /// The track moved (a new day, a submitted module, the review unlocked): re-plan with it.
+    func updateTrack(_ plan: TrackReminderPlan?, wearables: WearableService?) async {
+        guard plan != track else { return }
+        track = plan
+        await replan(snapshot: nil, wearables: wearables)
+    }
+
     /// Rebuilds the pending set from today's state. `snapshot` nil = keep the last known state (e.g. before load).
     /// Reactions for the recent meals are read here (one small PostgREST call) so a rated meal never gets its 2.5 h nudge.
     func replan(snapshot: TodaySnapshot?, wearables: WearableService?) async {
         guard authorization == .authorized || authorization == .provisional else { return }
         var state = NotificationPlanner.State(now: Date())
-        if let snapshot {
+        state.track = track
+        if let fresh = snapshot { lastSnapshot = fresh }
+        // A kept Today counts only while it is still today (an app left open overnight must not carry yesterday's ticks).
+        if let snapshot = snapshot ?? lastSnapshot.flatMap({ $0.day == ISO8601.dayString(Date()) ? $0 : nil }) {
             state.momentsDone = Set(snapshot.moments.map(\.slot))
             state.mealsToday = snapshot.meals.map(\.loggedAt)
             let cutoff = Date().addingTimeInterval(-4 * 3600)
