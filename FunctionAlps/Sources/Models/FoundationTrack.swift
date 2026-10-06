@@ -212,6 +212,106 @@ struct TrackResponseWrite: Sendable, Equatable {
     let at: Date
 }
 
+/// The day-7 summary as a member may read it: approved by a practitioner (RLS returns no other row).
+struct TrackSummary: Sendable, Equatable, Identifiable {
+    let id: String
+    let day: Int
+    var approvedAt: Date?
+    let content: TrackSummaryContent
+}
+
+/// `track_summary.content` v1 — the fixed format CLINICAL writes (`lib/foundation-track/summary-content.ts`,
+/// `SummaryContentV1`): what we learned (five sections, the only part a model drafts, approved by a human before
+/// a member can read it), the goals, the actions new in week 2 and the two ranges. The app renders it as written;
+/// `provenance` and `ai_derived` are the practice's bookkeeping and are never read.
+struct TrackSummaryContent: Sendable, Equatable {
+    struct Learned: Sendable, Equatable, Identifiable {
+        /// `context` · `food` · `movement` · `sleep` · `stress`.
+        let key: String
+        let text: String
+        var id: String { key }
+    }
+
+    struct Goal: Sendable, Equatable, Identifiable {
+        let value: String
+        let label: String
+        var id: String { value }
+    }
+
+    struct WeekTwoAction: Sendable, Equatable, Identifiable {
+        let key: String
+        let day: Int
+        let moment: TrackMoment?
+        let title: String
+        var id: String { "\(day).\(key)" }
+    }
+
+    struct Range: Sendable, Equatable {
+        let low: Int
+        let high: Int
+    }
+
+    /// The sections in the order the practice writes them.
+    static let learnedOrder = ["context", "food", "movement", "sleep", "stress"]
+
+    var language: String?
+    var learned: [Learned] = []
+    /// `day1` or `day6` (the re-pick).
+    var goalsSource: String?
+    var goals: [Goal] = []
+    /// By day, then moment.
+    var weekTwoActions: [WeekTwoAction] = []
+    var energyKcal: Range?
+    var proteinG: Range?
+
+    var isEmpty: Bool { learned.isEmpty && goals.isEmpty && weekTwoActions.isEmpty && energyKcal == nil && proteinG == nil }
+
+    /// Version 1 for a member, or nothing: another version, another audience or another shape is not guessed at —
+    /// the app then shows no summary rather than half of one. Inside v1, a missing or malformed part is left out.
+    static func decode(_ value: JSONValue?) -> TrackSummaryContent? {
+        guard case .object(let o)? = value, o["version"]?.doubleValue == 1 else { return nil }
+        if let audience = o["audience"]?.stringValue, audience != "member" { return nil }
+        var c = TrackSummaryContent()
+        c.language = o["language"]?.stringValue
+        if case .object(let learned)? = o["learned"] {
+            c.learned = learnedOrder.compactMap { key -> Learned? in
+                guard let text = learned[key]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+                return Learned(key: key, text: text)
+            }
+        }
+        if case .object(let goals)? = o["goals"] {
+            c.goalsSource = goals["source"]?.stringValue
+            if case .array(let items)? = goals["items"] {
+                c.goals = items.compactMap { item -> Goal? in
+                    guard case .object(let g) = item, let label = g["label"]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines),
+                          !label.isEmpty else { return nil }
+                    return Goal(value: g["value"]?.scalarText ?? label, label: label)
+                }
+            }
+        }
+        if case .array(let actions)? = o["week2_actions"] {
+            let parsed = actions.compactMap { item -> WeekTwoAction? in
+                guard case .object(let a) = item, let key = a["key"]?.stringValue, let day = a["day"]?.doubleValue,
+                      let title = a["title"]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { return nil }
+                return WeekTwoAction(key: key, day: Int(day), moment: a["moment"]?.stringValue.flatMap(TrackMoment.init(rawValue:)), title: title)
+            }
+            func rank(_ m: TrackMoment?) -> Int { m.flatMap { TrackMoment.order.firstIndex(of: $0) } ?? TrackMoment.order.count }
+            c.weekTwoActions = parsed.enumerated()
+                .sorted { ($0.element.day, rank($0.element.moment), $0.offset) < ($1.element.day, rank($1.element.moment), $1.offset) }
+                .map(\.element)
+        }
+        c.energyKcal = range(o["energy_kcal"])
+        c.proteinG = range(o["protein_g"])
+        return c
+    }
+
+    private static func range(_ value: JSONValue?) -> Range? {
+        guard case .object(let r)? = value, let low = r["low"]?.doubleValue, let high = r["high"]?.doubleValue,
+              low > 0, high >= low else { return nil }
+        return Range(low: Int(low.rounded()), high: Int(high.rounded()))
+    }
+}
+
 // MARK: - JSON (keys verbatim)
 
 extension JSONValue: Decodable {

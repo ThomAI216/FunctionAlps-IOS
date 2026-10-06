@@ -1745,4 +1745,21 @@ struct SupabaseBackend: FunctionAlpsBackend {
         guard !ids.isEmpty else { return [] }
         return try await rest.select("habit_bank", query: [PG.select(ActionCardRow.columns), PG.inList("id", ids)])
     }
+
+    /// The member's approved summary for that day (RLS `member_read_approved_track_summary` returns approved rows only;
+    /// the status filter says so explicitly). Only the columns the app renders — never `stats` or `model`.
+    func trackSummary(code: String, day: Int) async throws -> TrackSummary? {
+        let data = try await rest.selectRaw("track_summary", query: [
+            PG.select(TrackSummaryWire.columns), PG.eq("track_code", code), PG.eq("day", String(day)), PG.eq("status", "approved"),
+            PG.order("approved_at", descending: true), PG.limit(1),
+        ])
+        return try TrackJSON.decode([TrackSummaryWire].self, from: data).first?.summary
+    }
+
+    // MARK: Notification rows (patient_notifications — content-free pointers, the member's own rows)
+
+    func notificationData(id: String) async throws -> JSONValue? {
+        let data = try await rest.selectRaw("patient_notifications", query: [PG.select("data_json"), PG.eq("id", id), PG.limit(1)])
+        return try TrackJSON.decode([NotificationDataWire].self, from: data).first?.data
+    }
 }

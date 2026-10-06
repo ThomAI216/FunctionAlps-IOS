@@ -268,6 +268,12 @@ protocol FunctionAlpsBackend: Sendable {
     func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws
     /// Published action cards by id — the track's actions point at them for their titles and how-to.
     func actionCards(ids: [String]) async throws -> [ActionCardRow]
+    /// The member's approved summary for a track day (day 7); nil when none is approved yet, or its content is a
+    /// version this build does not read.
+    func trackSummary(code: String, day: Int) async throws -> TrackSummary?
+
+    /// One notification row's content-free pointers (`data_json`) — where a tap on a push without a route belongs.
+    func notificationData(id: String) async throws -> JSONValue?
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.

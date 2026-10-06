@@ -127,6 +127,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func actionCards(ids: [String]) async throws -> [ActionCardRow] { [] }
+    func trackSummary(code: String, day: Int) async throws -> TrackSummary? { nil }
+    func notificationData(id: String) async throws -> JSONValue? { nil }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }

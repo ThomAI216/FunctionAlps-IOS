@@ -159,4 +159,11 @@ final class NotificationService {
     }
 
     func clearBadge() { local.clearBadge() }
+
+    /// Where a tapped push with no route belongs: its notification row's pointers decide (`NotificationRouting`).
+    /// Nil when the row cannot be read or names nothing the app has a page for.
+    func route(forNotification id: String) async -> URL? {
+        guard let data = try? await backend.notificationData(id: id) else { return nil }
+        return NotificationRouting.route(data: data)
+    }
 }

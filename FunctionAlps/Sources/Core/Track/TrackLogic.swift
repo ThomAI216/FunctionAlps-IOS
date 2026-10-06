@@ -136,6 +136,8 @@ enum TrackLogic {
 
     /// The "where you stand" row appears from day 7.
     static let progressFromDay = 7
+    /// The day whose summary a practitioner approves (`track_summary.day`).
+    static let summaryDay = 7
 
     /// `~2,250–2,450` — the server's two numbers, grouped the member's way.
     static func range(_ low: Int?, _ high: Int?, locale: Locale = .current) -> (String, String)? {

@@ -32,6 +32,15 @@ final class TrackService {
     /// The track's content could not be read while the member IS on it — the card says so, with a retry.
     private(set) var contentError: String?
 
+    enum SummaryPhase: Equatable {
+        case idle, loading, loaded
+        case failed(String)
+    }
+
+    /// The approved day-7 summary (nil: none approved yet, or a content version this build does not read).
+    private(set) var summary: TrackSummary?
+    private(set) var summaryPhase: SummaryPhase = .idle
+
     private let backend: any FunctionAlpsBackend
     private let auth: AuthService
     private let now: @Sendable () -> Date
@@ -121,6 +130,20 @@ final class TrackService {
         if !ids.isEmpty, let rows = try? await backend.actionCards(ids: ids) {
             for row in rows { cards[row.id] = row }
         }
+        if let day = status?.day, day >= TrackLogic.summaryDay { await loadSummary() }
+    }
+
+    /// The approved day-7 summary. Only an approved row is readable (RLS), so "none" is the usual answer before
+    /// the practitioner has looked at it.
+    func loadSummary() async {
+        if summary == nil { summaryPhase = .loading }
+        do {
+            summary = try await backend.trackSummary(code: TrackLogic.trackCode, day: TrackLogic.summaryDay)
+            summaryPhase = .loaded
+        } catch {
+            report(error, context: "track.summary")
+            if summary == nil { summaryPhase = .failed((error as? AppError)?.userMessage ?? String(describing: error)) }
+        }
     }
 
     /// The status alone (after a submit: the modules and the review rule moved).
@@ -139,6 +162,8 @@ final class TrackService {
         responses = []
         activity = []
         contentError = nil
+        summary = nil
+        summaryPhase = .idle
     }
 
     // MARK: - Ticks

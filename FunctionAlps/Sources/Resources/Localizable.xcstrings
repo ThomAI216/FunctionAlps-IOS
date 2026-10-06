@@ -38130,6 +38130,230 @@
         }
       }
     },
+    "track.summary.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It appears here once your practitioner has reviewed it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il apparaîtra ici dès que votre praticien l'aura relu."
+          }
+        }
+      }
+    },
+    "track.summary.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your summary isn't ready yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre résumé n'est pas encore prêt"
+          }
+        }
+      }
+    },
+    "track.summary.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your summary"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger votre résumé"
+          }
+        }
+      }
+    },
+    "track.summary.goals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos objectifs"
+          }
+        }
+      }
+    },
+    "track.summary.learned": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What we learned"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que nous avons appris"
+          }
+        }
+      }
+    },
+    "track.summary.ranges": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your daily ranges"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos repères quotidiens"
+          }
+        }
+      }
+    },
+    "track.summary.row": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your week-1 summary is ready"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le résumé de votre première semaine est prêt"
+          }
+        }
+      }
+    },
+    "track.summary.section.context": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your context"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre contexte"
+          }
+        }
+      }
+    },
+    "track.summary.section.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation"
+          }
+        }
+      }
+    },
+    "track.summary.section.movement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouvement"
+          }
+        }
+      }
+    },
+    "track.summary.section.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
+          }
+        }
+      }
+    },
+    "track.summary.section.stress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress and recovery"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stress et récupération"
+          }
+        }
+      }
+    },
+    "track.summary.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your first week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre première semaine"
+          }
+        }
+      }
+    },
+    "track.summary.weekTwo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your week-2 actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos actions de la deuxième semaine"
+          }
+        }
+      }
+    },
     "track.text.optional": {
       "localizations": {
         "en": {

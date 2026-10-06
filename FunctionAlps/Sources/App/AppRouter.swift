@@ -17,6 +17,8 @@ enum Route: Hashable {
     case bankCard(String)
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
+    /// The Foundation Track's approved day-7 summary.
+    case trackSummary
     case baseline
     case feedback
     case guide
@@ -87,7 +89,8 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] ·
-    ///   messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home)
+    ///   messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   foundation/summary (the approved day-7 summary)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -124,7 +127,10 @@ final class AppRouter {
         case "devices": tab = .profile; profilePath = [.settings, .wearables]
         case "settings": tab = .profile; profilePath = [.settings]
         case "notifications": tab = .profile; profilePath = [.settings, .notifications]
-        case "home", "foundation": tab = .home; homePath = []
+        case "home": tab = .home; homePath = []
+        case "foundation":
+            tab = .home
+            homePath = parts.dropFirst().first == "summary" ? [.trackSummary] : []
         case "health": tab = .home; homePath = [.health]
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }
@@ -226,6 +232,13 @@ struct MainTabView: View {
                     await Task.yield()
                     router.open(url)
                 }
+            } else if let id = AppDelegate.pendingNotificationId {
+                // A cold start from a push without a route: its row says where it belongs.
+                AppDelegate.pendingNotificationId = nil
+                let notifications = dependencies.notifications
+                Task { @MainActor in
+                    if let url = await notifications.route(forNotification: id) { router.open(url) }
+                }
             }
             dependencies.notifications.clearBadge()
             // The member gate is through (this view only exists at `.ready`): start the Foundation Track's clock
@@ -260,6 +273,7 @@ struct MainTabView: View {
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
+        case .trackSummary: TrackSummaryView()
         case .baseline: BaselineEditView()
         case .feedback: FeedbackView()
         case .guide: GuideView()

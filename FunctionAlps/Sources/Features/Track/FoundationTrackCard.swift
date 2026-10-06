@@ -54,6 +54,7 @@ struct FoundationTrackCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 TrackCardHeader(eyebrow: String(localized: "track.title", defaultValue: "Foundation Track"),
                                 title: String(localized: "track.finished.title", defaultValue: "Your two weeks are done"))
+                if dependencies.track.summary != nil { TrackSummaryRow() }
                 if let last {
                     TrackQuestionnaireRow(questionnaire: last, isToday: true, inProgress: dependencies.track.response(for: last.id) != nil) { onOpen(last.id) }
                 }
@@ -90,6 +91,7 @@ private struct TrackTodayCard: View {
                     if !day.actions.isEmpty { TrackActionsList(groups: TrackLogic.grouped(day.actions)) }
                     if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
                 }
+                if track.summary != nil { TrackSummaryRow() }
                 if !open.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(open) { q in

@@ -137,6 +137,8 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func actionCards(ids: [String]) async throws -> [ActionCardRow] { [] }
+    func trackSummary(code: String, day: Int) async throws -> TrackSummary? { nil }
+    func notificationData(id: String) async throws -> JSONValue? { nil }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

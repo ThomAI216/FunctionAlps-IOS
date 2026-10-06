@@ -263,3 +263,28 @@ struct TrackActivityWire: Decodable, Sendable {
         item = TrackActivityItem(day: day, kind: kind, itemKey: key)
     }
 }
+
+// MARK: - track_summary · patient_notifications
+
+/// One approved day-7 summary; nil when its `content` is not a version this build reads.
+struct TrackSummaryWire: Decodable, Sendable {
+    let summary: TrackSummary?
+
+    static let columns = "id,day,content,approved_at"
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: TrackKey.self)
+        guard let id = c.string("id"), let content = TrackSummaryContent.decode(c.json("content")) else { summary = nil; return }
+        summary = TrackSummary(id: id, day: c.int("day") ?? 7, approvedAt: c.string("approved_at").flatMap(ISO8601.parse), content: content)
+    }
+}
+
+/// A notification row's content-free pointers (`data_json`: `route`, or `items[{kind, …}]`).
+struct NotificationDataWire: Decodable, Sendable {
+    let data: JSONValue?
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: TrackKey.self)
+        data = c.json("data_json")
+    }
+}
