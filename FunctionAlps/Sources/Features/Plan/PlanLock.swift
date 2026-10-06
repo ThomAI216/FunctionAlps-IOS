@@ -13,6 +13,8 @@ struct PlanLockedArea<Placeholder: View>: View {
         case notDefinedYet
         /// No actions yet: pick a foundation action meanwhile.
         case noActions
+        /// A part of the app that is not published yet ("Coming soon" + one line saying what it will be).
+        case comingSoon(String)
     }
 
     let reason: Reason
@@ -70,6 +72,14 @@ struct PlanLockedArea<Placeholder: View>: View {
                 Text(String(localized: "lock.notDefined", defaultValue: "Your practitioner fills this in with you"))
                     .font(FATypography.sans(13, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                     .multilineTextAlignment(.center)
+            case .comingSoon(let message):
+                Image(systemName: "sparkles").font(.system(size: 18, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    .accessibilityHidden(true)
+                Text(String(localized: "lock.comingSoon", defaultValue: "Coming soon"))
+                    .font(FATypography.headline).foregroundStyle(FAColor.ink).multilineTextAlignment(.center)
+                Text(message)
+                    .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             case .noActions:
                 Text(String(localized: "lock.actions.title", defaultValue: "Your daily actions appear here"))
                     .font(FATypography.headline).foregroundStyle(FAColor.ink).multilineTextAlignment(.center)

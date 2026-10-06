@@ -20,10 +20,14 @@ struct ShowService: Sendable {
 
     private let backend: any FunctionAlpsBackend
     private let clock: @Sendable () -> Date
+    /// `ShowFeature.comingSoon`: the service goes inert — no CLINICAL call, no progress read, no write.
+    let comingSoon: Bool
 
-    init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { ShowService.defaultNow() }) {
+    init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { ShowService.defaultNow() },
+         comingSoon: Bool = ShowFeature.comingSoon) {
         self.backend = backend
         self.clock = now
+        self.comingSoon = comingSoon
     }
 
     /// The real clock — except in the Debug showcase, which is set in the show's first week (Friday 9 Oct 2026).
@@ -41,6 +45,7 @@ struct ShowService: Sendable {
     // MARK: Reads
 
     func library() async -> ShowLibrary? {
+        guard !comingSoon else { return nil }
         do { return try await backend.showLibrary() } catch {
             Log.data.error("show.library: \(String(describing: error), privacy: .public)")
             return nil
@@ -48,7 +53,7 @@ struct ShowService: Sendable {
     }
 
     func episode(slug: String) async -> EpisodeResult {
-        guard ShowLogic.isSlug(slug) else { return .notFound }
+        guard !comingSoon, ShowLogic.isSlug(slug) else { return .notFound }
         do {
             guard let episode = try await backend.showEpisode(slug: slug) else { return .notFound }
             return .ok(episode)
@@ -64,6 +69,7 @@ struct ShowService: Sendable {
     }
 
     private func strictMarks(patientId: String) async throws -> [String: [ShowLogic.ExperimentMark]] {
+        guard !comingSoon else { return [:] }
         ShowLogic.marks(from: try await backend.showProgress(patientId: patientId))
     }
 
@@ -109,7 +115,7 @@ struct ShowService: Sendable {
     /// guide, days go in order, one per Zurich calendar day. Re-reads the marks first (another device may have
     /// marked since the screen loaded). A duplicate row (unique index, 23505) already means done.
     func markDay(patientId: String, slug: String, day: Int, dayNumbers: [Int]) async -> MarkOutcome {
-        guard ShowLogic.isSlug(slug), dayNumbers.contains(day) else { return .notAllowed }
+        guard !comingSoon, ShowLogic.isSlug(slug), dayNumbers.contains(day) else { return .notAllowed }
         let current: [ShowLogic.ExperimentMark]
         do { current = try await strictMarks(patientId: patientId)[slug] ?? [] } catch {
             Log.data.error("show.mark.read: \(String(describing: error), privacy: .public)")
