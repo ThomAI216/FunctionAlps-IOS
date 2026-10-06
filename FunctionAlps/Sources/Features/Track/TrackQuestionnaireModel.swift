@@ -39,7 +39,7 @@ final class TrackQuestionnaireModel {
     private let members: MemberService
     private let wearables: WearableService
     private let notifications: NotificationService
-    private var prefilledScreens: Set<Int> = []
+    @ObservationIgnored private var prefilledScreens: Set<Int> = []
 
     init(questionnaire: TrackQuestionnaire, track: TrackService, members: MemberService, wearables: WearableService, notifications: NotificationService) {
         self.questionnaire = questionnaire
@@ -121,6 +121,7 @@ final class TrackQuestionnaireModel {
 
     func back() {
         guard let current = page else { return }
+        Task { await save() }   // a page change saves too; the member does not wait for it
         if let previous = pages.last(where: { $0.screen < current.screen }) { enter(previous) } else { step = .intro }
     }
 
@@ -235,6 +236,8 @@ final class TrackQuestionnaireModel {
         await notifications.askIfNeeded()
         let on = notifications.authorization == .authorized || notifications.authorization == .provisional
         answers[question.key] = .string(on ? "enabled" : "declined")
+        // Allowed just now: the track's reminders (and the usual ones) are scheduled at once, not at the next open.
+        if on { await notifications.replan(snapshot: nil, wearables: wearables) }
     }
 
     // MARK: - Saving
@@ -250,7 +253,21 @@ final class TrackQuestionnaireModel {
         return out.filter { TrackLogic.isAnswered($0.value) }
     }
 
+    /// Saves run one after the other, each with the answers as they are when it starts — a quick Back then
+    /// Continue can never land an older set of answers last.
+    @ObservationIgnored private var lastSave: Task<Void, Never>?
+
     private func save() async {
+        let previous = lastSave
+        let task = Task { [weak self] in
+            await previous?.value
+            await self?.persist()
+        }
+        lastSave = task
+        await task.value
+    }
+
+    private func persist() async {
         do {
             try await track.save(questionnaire, answers: cleaned(), submit: false)
             saveFailed = false
@@ -261,6 +278,7 @@ final class TrackQuestionnaireModel {
 
     private func send() async {
         sending = .sending
+        await lastSave?.value
         do {
             try await track.save(questionnaire, answers: cleaned(), submit: true)
             sending = .sent

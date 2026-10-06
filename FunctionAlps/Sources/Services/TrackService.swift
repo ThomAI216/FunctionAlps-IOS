@@ -179,6 +179,18 @@ final class TrackService {
         }
     }
 
+    /// The day's short read was opened: recorded once, best effort.
+    func readOpened(day: Int) async {
+        let item = TrackActivityItem(day: day, kind: .read, itemKey: "day")
+        guard !activity.contains(item), let patientId else { return }
+        activity.insert(item)
+        do {
+            try await backend.addTrackActivity(patientId: patientId, code: TrackLogic.trackCode, item: item)
+        } catch {
+            report(error, context: "track.read")
+        }
+    }
+
     // MARK: - Answers
 
     /// Saves one questionnaire's answers (in progress), or submits them. The local copy follows the stored row;

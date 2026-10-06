@@ -88,6 +88,7 @@ private struct TrackTodayCard: View {
                     TrackVideoView(url: videoURL) { Task { await track.videoPlayed(day: day.day) } }
                         .id(day.day)
                     if !day.actions.isEmpty { TrackActionsList(groups: TrackLogic.grouped(day.actions)) }
+                    if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
                 }
                 if !open.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
@@ -216,6 +217,38 @@ private struct TrackActionLine: View {
             }
             Spacer(minLength: 0)
         }
+    }
+}
+
+/// The day's short read, in the library's reader.
+private struct TrackReadRow: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
+    let slug: String
+    let day: Int
+
+    var body: some View {
+        Button {
+            let track = dependencies.track
+            Task { await track.readOpened(day: day) }
+            router.push(.read(slug))
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "book").font(.system(size: 16, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    .frame(width: 40, height: 40)
+                    .background(FAColor.forestSoft.opacity(0.18), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityHidden(true)
+                Text(String(localized: "track.read.title", defaultValue: "Today's short read"))
+                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+                    .accessibilityHidden(true)
+            }
+            .padding(12)
+            .modifier(FAGlassSurface(cornerRadius: 16, inset: true))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

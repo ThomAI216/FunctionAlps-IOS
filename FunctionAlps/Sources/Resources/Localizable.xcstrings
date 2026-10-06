@@ -37858,6 +37858,22 @@
         }
       }
     },
+    "track.read.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's short read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La lecture du jour"
+          }
+        }
+      }
+    },
     "track.recap.empty": {
       "localizations": {
         "en": {
