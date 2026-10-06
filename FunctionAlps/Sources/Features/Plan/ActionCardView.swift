@@ -13,6 +13,9 @@ struct ActionCardView: View {
     enum Source: Hashable {
         case habit(String)
         case bankCard(String)
+        /// From the Foundation Track's day: the card read with the track (`TrackService.cards`), on the day's
+        /// version, nothing to add or tick here — the tick lives on the day's card.
+        case trackCard(String, face: String)
     }
 
     @Environment(AppDependencies.self) private var dependencies
@@ -31,30 +34,36 @@ struct ActionCardView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
                 backRow
-                switch habits.phase {
-                case .idle, .loading:
-                    FALoadingState()
-                case .failed(let message):
-                    FACard {
-                        FAErrorState(title: String(localized: "plan.error.title", defaultValue: "Couldn't load your plan"), message: message) {
-                            Task { await habits.retry() }
+                if case .trackCard(let cardId, let trackFace) = source {
+                    trackPage(cardId: cardId, face: trackFace)
+                } else {
+                    switch habits.phase {
+                    case .idle, .loading:
+                        FALoadingState()
+                    case .failed(let message):
+                        FACard {
+                            FAErrorState(title: String(localized: "plan.error.title", defaultValue: "Couldn't load your plan"), message: message) {
+                                Task { await habits.retry() }
+                            }
                         }
-                    }
-                case .loaded(let plan):
-                    switch source {
-                    case .habit(let habitId):
-                        if let habit = plan.habits.first(where: { $0.id == habitId }) {
-                            habitPage(plan: plan, habit: habit)
-                        } else {
-                            missing
-                        }
-                    case .bankCard(let cardId):
-                        if let card = bankCard(cardId, plan: plan) {
-                            bankPage(plan: plan, card: card)
-                        } else if case .loading = habits.bank {
-                            FALoadingState()
-                        } else {
-                            missing
+                    case .loaded(let plan):
+                        switch source {
+                        case .habit(let habitId):
+                            if let habit = plan.habits.first(where: { $0.id == habitId }) {
+                                habitPage(plan: plan, habit: habit)
+                            } else {
+                                missing
+                            }
+                        case .bankCard(let cardId):
+                            if let card = bankCard(cardId, plan: plan) {
+                                bankPage(plan: plan, card: card)
+                            } else if case .loading = habits.bank {
+                                FALoadingState()
+                            } else {
+                                missing
+                            }
+                        case .trackCard:
+                            EmptyView()
                         }
                     }
                 }
@@ -81,6 +90,16 @@ struct ActionCardView: View {
         }
     }
 
+    @ViewBuilder
+    private func trackPage(cardId: String, face trackFace: String) -> some View {
+        if let card = dependencies.track.cards[cardId] {
+            let content = ActionCardLogic.content(card: card, habit: nil, locale: TodayFocus.locale())
+            cardBody(content, slot: card.defaultSlot.flatMap(HabitSlot.init(rawValue:)), face: face ?? TrackLogic.habitFace(trackFace))
+        } else {
+            missing
+        }
+    }
+
     private func bankCard(_ id: String, plan: HabitPlan) -> ActionCardRow? {
         if case .loaded(let cards) = dependencies.habits.bank, let card = cards.first(where: { $0.id == id }) { return card }
         return plan.cards[id]
@@ -88,7 +107,9 @@ struct ActionCardView: View {
 
     private var backRow: some View {
         Button { dismiss() } label: {
-            Text("‹ " + (source.isBank
+            Text("‹ " + (source.isTrack
+                         ? String(localized: "track.title", defaultValue: "Foundation Track")
+                         : source.isBank
                          ? String(localized: "bank.title", defaultValue: "Foundation actions")
                          : String(localized: "plan.today.title", defaultValue: "Today's actions")))
                 .font(FATypography.sans(13, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
@@ -417,4 +438,5 @@ private struct BreathPacer: View {
 
 private extension ActionCardView.Source {
     var isBank: Bool { if case .bankCard = self { return true } else { return false } }
+    var isTrack: Bool { if case .trackCard = self { return true } else { return false } }
 }

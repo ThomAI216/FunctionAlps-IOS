@@ -15,6 +15,8 @@ enum Route: Hashable {
     /// The bank of foundation actions a member may add themselves, and one card of it.
     case actionBank
     case bankCard(String)
+    /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
+    case trackCard(String, face: String)
     case baseline
     case feedback
     case guide
@@ -85,7 +87,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] ·
-    ///   messages · careplan · results[/<id>] · devices · settings · home
+    ///   messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -122,7 +124,7 @@ final class AppRouter {
         case "devices": tab = .profile; profilePath = [.settings, .wearables]
         case "settings": tab = .profile; profilePath = [.settings]
         case "notifications": tab = .profile; profilePath = [.settings, .notifications]
-        case "home": tab = .home; homePath = []
+        case "home", "foundation": tab = .home; homePath = []
         case "health": tab = .home; homePath = [.health]
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }
@@ -226,11 +228,17 @@ struct MainTabView: View {
                 }
             }
             dependencies.notifications.clearBadge()
+            // The member gate is through (this view only exists at `.ready`): start the Foundation Track's clock
+            // (idempotent server-side) and read where the member stands — once per foreground.
+            let track = dependencies.track
+            Task { await track.foreground() }
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             dependencies.notifications.clearBadge()
             Task { await dependencies.notifications.refreshAuthorization() }
+            let track = dependencies.track
+            Task { await track.foreground() }
         }
     }
 
@@ -251,6 +259,7 @@ struct MainTabView: View {
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
+        case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .baseline: BaselineEditView()
         case .feedback: FeedbackView()
         case .guide: GuideView()

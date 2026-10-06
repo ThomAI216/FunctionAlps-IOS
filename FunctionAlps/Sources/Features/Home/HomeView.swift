@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Home (owner's layout, 2026-09-30): "My health plan" (objective, phase, goals, priorities) → today's actions
+/// Home (owner's layout, 2026-09-30): the Foundation Track's day while the member is on it (2026-10-06) →
+/// "My health plan" (objective, phase, goals, priorities) → today's actions
 /// → the two squares (log a meal · the evening check-in) → the doctor signpost when raised → "Worth a look
 /// together" → messages. A place to understand and act, not a scoreboard: the scores and Apple Health's charts
 /// live in Trends. One check-in a day, in the evening, with digestion inside it.
@@ -8,6 +9,9 @@ struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
+    /// The Foundation Track questionnaire on screen — owned here, above the card, so a submit that changes or hides
+    /// the card never tears the flow down.
+    @State private var questionnaire: TrackQuestionnaireRef?
 
     var body: some View {
         ZStack {
@@ -18,6 +22,12 @@ struct HomeView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .mealCaptureHost(capture) { Task { await model?.load(refresh: true) } }
+        .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
+        .onChange(of: dependencies.track.reminders, initial: true) { _, plan in
+            // The track moved (a new day, a module sent, the review unlocked): the day's reminders follow.
+            let notifications = dependencies.notifications, wearables = dependencies.wearables
+            Task { await notifications.updateTrack(plan, wearables: wearables) }
+        }
         .task {
             if model == nil {
                 let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth)
@@ -62,6 +72,7 @@ struct HomeView: View {
         case .loaded(let content):
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
+                    FoundationTrackCard { questionnaire = TrackQuestionnaireRef(id: $0) }
                     HealthPlanCard()
                     PlanTodayCard()
 
@@ -88,7 +99,10 @@ struct HomeView: View {
                 .padding(.top, 38)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
-            .refreshable { await model.load(refresh: true) }
+            .refreshable {
+                await model.load(refresh: true)
+                await dependencies.track.load()
+            }
         }
     }
 }
