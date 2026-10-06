@@ -1,0 +1,270 @@
+#!/usr/bin/env python3
+"""Builds the Foundation Track day-card mockups page (cards.html) and cards.json from one source."""
+import html
+import json
+import pathlib
+
+HERE = pathlib.Path(__file__).parent  # docs/foundation-cards
+
+ACTIONS = {
+    "meal_photos": ("day", "Photograph every meal", "Before you eat. Snacks too."),
+    "hydrate": ("morning", "Hydrate on waking", "A glass of water when you wake up, even before your coffee."),
+    "breaths_move": ("morning", "3 deep breaths + 1 minute of gentle movement", "Roll your shoulders, swing your arms, shake out your legs."),
+    "morning_flow_5": ("morning", "5-minute morning flow", "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong."),
+    "morning_flow_10": ("morning", "10-minute morning flow", "The same movements, a little longer."),
+    "daylight": ("morning", "5 minutes of daylight", "Step outside, or stand by an open window."),
+    "protein_breakfast": ("morning", "Protein at breakfast", "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. Ideas come from what you eat."),
+    "walk_after_breakfast": ("morning", "A 10-minute walk after breakfast", "Outside if you can, so it counts as daylight too."),
+    "walk_after_lunch_5": ("midday", "5 minutes outside after lunch", "A short walk. Nothing sporty."),
+    "walk_after_lunch_10": ("midday", "A 10-minute walk after lunch", "Your after-lunch walk grows."),
+    "lunch_plate": ("midday", "A lunch that holds you", "Half the plate vegetables, a good portion of protein, fewer fast carbs."),
+    "coffee_before_14": ("midday", "Last coffee before 14:00", "So it doesn't follow you into the night."),
+    "sit_to_stands": ("day", "10 sit-to-stands", "Sit on a chair, stand up, sit down again. Slowly."),
+    "wall_pushups": ("day", "1 set of wall push-ups", "As many as feel comfortable. Stop if anything hurts."),
+    "movement_breaks": ("day", "Move 2 minutes every hour or two", "Stand up, take the stairs, walk while you're on the phone."),
+    "phone_out": ("evening", "Phone out of the bedroom", "Charge it in another room."),
+    "box_breathing": ("evening", "Box breathing, 2 minutes before bed", "In 4 · hold 4 · out 4 · hold 4. The app guides you."),
+    "dim_lights": ("evening", "Dim the lights after 21:00", "Softer light tells your body the day is ending."),
+    "screens_off": ("evening", "Screens off 30 minutes before bed", "No phone, no laptop."),
+    "last_meal_2h": ("evening", "Last meal about 2 hours before bed", "Leave a little space between dinner and sleep."),
+}
+
+# key, first day, last day (None = to the end)
+SCHEDULE = [
+    ("meal_photos", 1, None), ("hydrate", 2, None), ("breaths_move", 3, 6), ("morning_flow_5", 7, 11),
+    ("morning_flow_10", 12, None), ("daylight", 4, None), ("protein_breakfast", 8, None),
+    ("walk_after_breakfast", 8, None), ("walk_after_lunch_5", 3, 8), ("walk_after_lunch_10", 9, None),
+    ("lunch_plate", 9, None), ("coffee_before_14", 9, None), ("sit_to_stands", 10, None),
+    ("wall_pushups", 10, None), ("movement_breaks", 12, None), ("phone_out", 4, None),
+    ("box_breathing", 5, None), ("dim_lights", 11, None), ("screens_off", 11, None), ("last_meal_2h", 11, None),
+]
+
+MOMENT_ORDER = ["morning", "midday", "evening", "day"]
+MOMENT_LABEL = {"morning": "Morning", "midday": "After lunch", "evening": "Evening", "day": "During the day"}
+
+SERIES_STYLE = (
+    "One series, fourteen images. Flat vector illustration, calm and friendly; simple rounded figures, no detailed faces. "
+    "Palette: forest green #2E5438 and soft green #4A8A5C on cream #F5F0E8, charcoal #1A1A16 for text, one warm accent "
+    "(gold #D4A84E) reserved for the day's NEW action so it stands out the same way on every card. Portrait 4:5 "
+    "(1080 × 1350 px) so it fits the app card and social posts. One idea per image, generous white space, short labels "
+    "(max 4 words each), EN and FR versions. A small 'Day N' tag in the top-left corner of every image. A faint Alpine "
+    "ridge line along the bottom edge ties the series together."
+)
+
+DAYS = [
+    dict(day=1, title="You, today", week=1,
+         today="Welcome to your Foundation Track. For 14 days you get one card a day: a 1-minute video, one small action and a short read. This first week is about understanding you, so don't change how you eat yet. Just photograph every meal: that's your real starting point.",
+         questionnaire=("You, today", 3), extras=["Connect Apple Health", "Turn on your reminders"], read="Why we start with your baseline",
+         image_title="Your 14 days at a glance",
+         image=[("Composition", "A winding mountain path climbing left to right from a small cabin (day 1) to a summit flag (day 14), with 14 small stepping stones."),
+                ("Elements & labels", "Stones 1–6 under the word 'Understand' with five icons along them: a person (you), a plate (food), a walking figure (movement), a moon (sleep), a wave (stress). A pennant at stone 7: 'Your first week'. Stones 8–14 under the word 'Act', each with a tiny action icon (glass, sun, plate, chair, lamp). A phone icon at stone 3: 'Optional call'. The summit flag at 14: 'Review with Thomas'."),
+                ("One message", "Two weeks: first we understand you, then you act. Small steps, one a day.")]),
+    dict(day=2, title="How you eat", week=1,
+         today="Today we look at food as it really is, not at a perfect diet. Your meal photos already show a lot: when you eat, how much, how much protein, how varied. And your first action is the simplest one of the whole track.",
+         questionnaire=("How you eat", 2), extras=[], read="What your meal photos tell us",
+         image_title="Water first, then your real plate",
+         image=[("Composition", "Two stacked panels. Top: a morning sequence left to right. Bottom: a phone photographing a plate."),
+                ("Elements & labels", "Top: a sunrise and alarm clock, then a glass of water (gold accent, label '1st: water'), then a coffee cup (label 'then coffee'). Bottom: a phone framing a simple plate, with four small tags around it: 'time', 'portion', 'protein', 'variety'."),
+                ("One message", "Start the day with water. Photograph what you really eat.")]),
+    dict(day=3, title="How you move", week=1,
+         today="Today: how your body moves now, and how it moved before. We add two small movements to your day, nothing sporty. From today you can also book a short call with Thomas if you'd like.",
+         questionnaire=("How you move", 2), extras=["Book your call with Thomas (optional): 15 min, or 20 min if Thomas launched your track"], read="Little and often",
+         image_title="Two small movements",
+         image=[("Composition", "A day drawn as a sun arc from left (morning) to right (afternoon), with two moments marked on it."),
+                ("Elements & labels", "Morning: a figure standing tall with three small breath curls ('3 breaths') and arms swinging ('1 min'), both in gold. After lunch: the same figure walking outside past a tree ('5 min outside'), in gold. Small grey icons for what is already in place: a glass of water and a camera on the plate."),
+                ("One message", "A few minutes, twice a day. Little and often.")]),
+    dict(day=4, title="How you sleep", week=1,
+         today="Sleep shapes your energy, appetite, mood and recovery. Today we add light in the morning and make the bedroom a place without your phone. Your morning check-in already records each night; today's questionnaire asks about your usual pattern.",
+         questionnaire=("How you sleep", 2), extras=[], read="Light sets your body clock",
+         image_title="Light in, phone out",
+         image=[("Composition", "Split image: left half morning, right half night, joined by a thin 24-hour ring."),
+                ("Elements & labels", "Left: a person at an open window with sun rays (gold), label '5 min of daylight'. Right: a calm bedroom at night, the phone charging on a shelf outside the door (gold), label 'Phone sleeps outside'. The ring between them marks 'morning' and 'night'."),
+                ("One message", "Morning light and a phone-free bedroom help set your rhythm.")]),
+    dict(day=5, title="Stress and recovery", week=1,
+         today="Stress shows up everywhere: in your sleep, your appetite, your energy, your digestion. Today we look at where your load comes from, and you get a 2-minute tool to switch off at night. It's the last of the five questionnaires.",
+         questionnaire=("Stress and recovery", 2), extras=[], read="The 2-minute downshift",
+         image_title="Box breathing",
+         image=[("Composition", "A large rounded square in the centre, a small dot travelling around it, a moon in the top-right corner."),
+                ("Elements & labels", "Each side of the square labelled in order: 'Breathe in · 4', 'Hold · 4', 'Breathe out · 4', 'Hold · 4'. The dot and arrows in gold. Under the square: '2 minutes before bed'."),
+                ("One message", "Four counts, four sides, two minutes. An easy way to switch off.")]),
+    dict(day=6, title="Your first week", week=1,
+         today="You've told us a lot: your goals, how you eat, move, sleep and handle stress. Today there's no new action. Look at your recap, check your goals are still right, and keep what you've started. Next week is about action.",
+         questionnaire=("Your first week", 1), extras=[], read="Simple actions, repeated",
+         image_title="What you told us",
+         image=[("Composition", "Five tiles in a soft grid, each with a check mark, and an arrow leading to a door marked 'Week 2'."),
+                ("Elements & labels", "Tiles: 'You' (person), 'Food' (plate), 'Movement' (walker), 'Sleep' (moon), 'Stress' (wave), each ticked in forest green. The arrow and the 'Week 2: action' door in gold."),
+                ("One message", "Week one done: we know your starting point. Now we act.")]),
+    dict(day=7, title="Your full day", week=1,
+         today="One week. Today everything comes together in one simple day, and your morning becomes a 5-minute flow inspired by qi gong. Your first-week summary arrives as soon as Thomas has reviewed it.",
+         questionnaire=None, extras=["Your first-week summary (once Thomas has reviewed it)", "Book your day-7 call (if Thomas launched your track)"], read="Your day, on one page",
+         image_title="Your day on one page",
+         image=[("Composition", "A vertical timeline down the middle, split into Morning, After lunch and Evening, with small icons on each side."),
+                ("Elements & labels", "Morning: glass of water, 3 breath curls, a soft-armed figure in a flowing pose (gold, '5-min flow'), a sun. After lunch: a walking figure ('walk'). Evening: a phone outside the door, the breathing square. Title at the top: 'Your base routine'."),
+                ("One message", "Your whole routine fits in one day, and it's simple.")]),
+    dict(day=8, title="Protein first", week=2,
+         today="Week two starts with breakfast. Many people find that protein in the morning keeps them full for longer. The ideas in the app come from what you told us you eat. After breakfast, walk for ten minutes.",
+         questionnaire=None, extras=[], read="Why protein first",
+         image_title="A breakfast with protein",
+         image=[("Composition", "One breakfast plate in the centre, surrounded by five small protein options, with a walking figure at the bottom."),
+                ("Elements & labels", "Around the plate: 'eggs', 'Greek yogurt', 'cottage cheese', 'smoked salmon', 'tofu'. A palm icon next to the plate: 'about a palm of protein'. At the bottom, a walking figure in gold: '+10 min walk'."),
+                ("One message", "Put protein on your breakfast plate, then take a short walk.")]),
+    dict(day=9, title="A lunch that holds you", week=2,
+         today="Lunch shapes your afternoon. Build your plate with half vegetables, a good portion of protein and fewer fast carbs. Then walk ten minutes, and keep your last coffee before two in the afternoon.",
+         questionnaire=None, extras=[], read="The afternoon dip",
+         image_title="The plate that holds your afternoon",
+         image=[("Composition", "A large plate diagram on the left; on the right, a clock and a walking figure stacked."),
+                ("Elements & labels", "Plate: half 'vegetables' (soft green), a quarter 'protein' (forest), a quarter 'slow carbs' (cream). Under it, small grey text: 'fewer: white bread, white pasta, sweet drinks'. Right: a clock at 14:00 with a coffee cup ('last coffee'), and a walker in gold ('10 min after lunch')."),
+                ("One message", "Half vegetables, enough protein, a short walk, coffee before 2 pm.")]),
+    dict(day=10, title="Easy strength", week=2,
+         today="Muscle is a long-term investment, and it starts very simply. Two moves you can do anywhere, at any moment today. If something hurts, stop: easier is fine.",
+         questionnaire=None, extras=[], read="Muscle is a long-term account",
+         image_title="Two moves, anywhere",
+         image=[("Composition", "Two step-by-step pairs side by side, each with a 'before' and 'after' pose and an arrow between."),
+                ("Elements & labels", "Left pair: seated on a chair, then standing ('10 sit-to-stands, slowly'). Right pair: leaning into a wall, then pushing back ('wall push-ups, as many as comfortable'). Gold arrows show the movement. A small clock icon: 'any time today'."),
+                ("One message", "Strength starts with two simple moves you can do anywhere.")]),
+    dict(day=11, title="Your evening downshift", week=2,
+         today="How your evening goes often shapes how your night goes. Three changes tonight: dim the lights after nine, screens off thirty minutes before bed, and a last meal about two hours before you sleep. Then your two minutes of breathing.",
+         questionnaire=None, extras=[], read="Your evening routine",
+         image_title="Winding down, step by step",
+         image=[("Composition", "A horizontal evening timeline from dinner to bed, its background shifting from warm to dark."),
+                ("Elements & labels", "Markers along it: a plate at '−2 h' ('last meal'), a lamp dimming at '21:00', a phone switching off at '−30 min', the breathing square at 'bed'. The three new markers in gold."),
+                ("One message", "Lower the lights, the screens and the food before bed.")]),
+    dict(day=12, title="More morning movement", week=2,
+         today="Your morning flow grows from five to ten minutes. The same movements, a little longer. And during the day, if you sit for long, stand up every hour or two and move for two minutes.",
+         questionnaire=None, extras=[], read="Sitting less",
+         image_title="Ten minutes, then little breaks",
+         image=[("Composition", "Left: a short sequence of four flow poses. Right: a workday timeline with small break markers."),
+                ("Elements & labels", "Flow poses labelled 'breathe', 'move', 'twist', 'shake out', with '10 min' above them in gold. The workday line runs 9:00 to 18:00 with small gold markers every one to two hours: 'stand', 'stairs', 'walk on a call'."),
+                ("One message", "A longer morning flow, and two minutes of movement every hour or two.")]),
+    dict(day=13, title="Make it yours", week=2,
+         today="Look at what you've built. There's no new action today: choose the actions you want to keep after these two weeks. They stay in your app. A few habits you keep are worth more than ten you try once.",
+         questionnaire=None, extras=["Choose the actions you keep"], read="Habits that last",
+         image_title="Choose what you keep",
+         image=[("Composition", "Three rows of small action cards (Morning, After lunch, Evening), some highlighted, some faded."),
+                ("Elements & labels", "About ten mini cards with icons (water, flow, daylight, protein, walk, plate, chair, lamp, phone, square). Four of them lifted forward with a gold check: 'I keep'. The rest faded. Caption: 'Pick what fits your life'."),
+                ("One message", "You don't need everything. Keep what works for you.")]),
+    dict(day=14, title="Your two weeks", week=2,
+         today="Two weeks ago you started. Today you see your check-ins from your first days next to your last days, tell us how it was, and book your review call with Thomas if it's open to you.",
+         questionnaire=("Your two weeks", 2), extras=["Book your review call with Thomas: 30 min, or 20 min if Thomas launched your track"], read="What a personal programme adds",
+         image_title="From day 1 to day 14",
+         image=[("Composition", "A calendar strip of 14 ticked days at the top; below, four pairs of simple bars; at the bottom, a fork in the path."),
+                ("Elements & labels", "Bars labelled 'energy', 'focus', 'mood', 'sleep', each pair marked 'first days' and 'last days' (illustrative shapes, no numbers). The fork at the bottom: 'Keep going with the app' and 'Go deeper with a personal programme', with a small phone icon 'Review with Thomas' in gold."),
+                ("One message", "See how far you've come, then choose what's next with Thomas.")]),
+]
+
+
+def actions_for(day):
+    new, kept = [], []
+    for key, first, last in SCHEDULE:
+        if day < first or (last is not None and day > last):
+            continue
+        (new if day == first else kept).append(key)
+    # a replaced action (breaths_move → flow 5 → flow 10; walk 5 → walk 10) is "new" by key already
+    return new, kept
+
+
+def brief_text(d):
+    lines = [f"Day {d['day']} · {d['title']} — infographic: {d['image_title']}"]
+    for k, v in d["image"]:
+        lines.append(f"{k}: {v}")
+    lines.append(f"Series style: {SERIES_STYLE}")
+    return "\n".join(lines)
+
+
+def esc(s):
+    return html.escape(s, quote=True)
+
+
+def card_html(d):
+    new, kept = actions_for(d["day"])
+    dots = "".join(f'<i class="dot{" on" if i <= d["day"] else ""}"></i>' for i in range(1, 15))
+    new_rows = "".join(
+        f'<li class="act new"><span class="tick" aria-hidden="true"></span><div><p class="act-t">{esc(ACTIONS[k][1])}</p>'
+        f'<p class="act-h">{esc(ACTIONS[k][2])}</p></div><span class="moment">{esc(MOMENT_LABEL[ACTIONS[k][0]])}</span></li>'
+        for k in new)
+    if not new_rows:
+        new_rows = '<li class="act none"><p class="act-h">No new action today. Keep what you\'ve started.</p></li>'
+    groups = []
+    for m in MOMENT_ORDER:
+        items = [k for k in kept if ACTIONS[k][0] == m]
+        if items:
+            chips = "".join(f'<span class="chip">{esc(ACTIONS[k][1])}</span>' for k in items)
+            groups.append(f'<div class="grp"><p class="grp-l">{esc(MOMENT_LABEL[m])}</p><div class="chips">{chips}</div></div>')
+    routine = "".join(groups) if groups else '<p class="act-h">Your routine starts tomorrow.</p>'
+    buttons = []
+    if d["questionnaire"]:
+        name, mins = d["questionnaire"]
+        buttons.append(f'<span class="btn primary">Questionnaire · {esc(name)} · {mins} min</span>')
+    for x in d["extras"]:
+        buttons.append(f'<span class="btn">{esc(x)}</span>')
+    btns = f'<div class="btns">{"".join(buttons)}</div>' if buttons else ""
+    brief_rows = "".join(f'<div class="b-row"><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>' for k, v in d["image"])
+    week = "Week 1 · Understand" if d["week"] == 1 else "Week 2 · Act"
+    return f'''
+<article class="day" id="day{d["day"]}">
+  <div class="phone" aria-label="Mockup of the day {d["day"]} card">
+    <div class="screen">
+      <div class="sbar"><span>9:41</span><span class="sb-r">Home</span></div>
+      <p class="eyebrow">Foundation Track · Day {d["day"]} of 14</p>
+      <div class="dots" aria-hidden="true">{dots}</div>
+      <h3 class="d-title">{esc(d["title"])}</h3>
+      <div class="video" role="img" aria-label="Video placeholder"><span class="play" aria-hidden="true"></span><span class="v-l">1-minute video with Thomas</span></div>
+      <p class="today">{esc(d["today"])}</p>
+      <div class="ig" role="img" aria-label="Infographic slot: {esc(d["image_title"])}"><span class="ig-k">Infographic</span><span class="ig-t">{esc(d["image_title"])}</span></div>
+      <p class="sec">New today</p>
+      <ul class="acts">{new_rows}</ul>
+      <p class="sec">Your routine so far</p>
+      <div class="routine">{routine}</div>
+      {btns}
+      <div class="read"><span class="read-k">Short read</span><span class="read-t">{esc(d["read"])}</span><span class="chev" aria-hidden="true">›</span></div>
+    </div>
+  </div>
+  <aside class="brief">
+    <p class="b-week">{esc(week)}</p>
+    <h3 class="b-day">Day {d["day"]} · {esc(d["title"])}</h3>
+    <p class="b-k">Image brief</p>
+    <p class="b-title">{esc(d["image_title"])}</p>
+    <dl>{brief_rows}</dl>
+    <button class="copy" type="button" id="copy{d["day"]}" data-day="{d["day"]}">Copy image brief</button>
+    <textarea class="copy-src" id="src{d["day"]}" readonly aria-hidden="true" tabindex="-1">{esc(brief_text(d))}</textarea>
+  </aside>
+</article>'''
+
+
+def page():
+    w1 = "".join(card_html(d) for d in DAYS if d["week"] == 1)
+    w2 = "".join(card_html(d) for d in DAYS if d["week"] == 2)
+    nav = "".join(f'<a href="#day{d["day"]}">{d["day"]}</a>' for d in DAYS)
+    css = (HERE / "style.css").read_text()
+    js = (HERE / "script.js").read_text()
+    return f'''<title>Foundation Track Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap">
+<style>{css}</style>
+<main class="wrap">
+  <header class="head">
+    <p class="kicker">FunctionAlps · Foundation Track</p>
+    <h1>The 14 day cards</h1>
+    <p class="lede">What a member sees on Home each day, in the app's own look. Each card has the 1-minute video, the day's text, a slot for your infographic, the new action, the routine built so far, the day's questionnaire or call, and a short read. Next to each card: the brief for its infographic.</p>
+    <nav class="jump" aria-label="Jump to a day">{nav}</nav>
+    <div class="style-note"><p class="b-k">Series style for all 14 images</p><p>{esc(SERIES_STYLE)}</p></div>
+  </header>
+  <section class="week"><h2>Week 1 · Understand you</h2><p class="w-sub">A questionnaire a day, small actions, and your meals photographed as they are.</p>{w1}</section>
+  <section class="week"><h2>Week 2 · Act and notice</h2><p class="w-sub">Classic actions that work for almost everybody, one step at a time.</p>{w2}</section>
+  <footer class="foot">Text in English; French follows once the English is locked. Actions marked as new are highlighted in gold, the same accent the infographics use.</footer>
+</main>
+<script>{js}</script>
+'''
+
+
+if __name__ == "__main__":
+    (HERE / "cards.html").write_text(page())
+    data = []
+    for d in DAYS:
+        new, kept = actions_for(d["day"])
+        data.append({"day": d["day"], "title": d["title"], "today": d["today"], "new": new, "kept": kept,
+                     "questionnaire": d["questionnaire"], "extras": d["extras"], "read": d["read"],
+                     "image_title": d["image_title"], "image": d["image"]})
+    (HERE / "cards.json").write_text(json.dumps({"series_style": SERIES_STYLE, "actions": ACTIONS, "days": data}, ensure_ascii=False, indent=1))
+    print("ok")
