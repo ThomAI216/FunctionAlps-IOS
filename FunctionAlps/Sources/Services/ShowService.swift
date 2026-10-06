@@ -70,7 +70,7 @@ struct ShowService: Sendable {
 
     private func strictMarks(patientId: String) async throws -> [String: [ShowLogic.ExperimentMark]] {
         guard !comingSoon else { return [:] }
-        ShowLogic.marks(from: try await backend.showProgress(patientId: patientId))
+        return ShowLogic.marks(from: try await backend.showProgress(patientId: patientId))
     }
 
     /// The Library's show section in one go; nil = no show data.
