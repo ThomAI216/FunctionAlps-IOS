@@ -6,7 +6,7 @@ import Foundation
 // without a value) is dropped, never fails the day or the questionnaire.
 
 /// Explicit snake_case keys: the rows are decoded without a key strategy.
-private struct Key: CodingKey {
+private struct TrackKey: CodingKey {
     var stringValue: String
     var intValue: Int? { nil }
     init(_ s: String) { stringValue = s }
@@ -14,26 +14,26 @@ private struct Key: CodingKey {
     init?(intValue: Int) { return nil }
 }
 
-private extension KeyedDecodingContainer where K == Key {
+private extension KeyedDecodingContainer where K == TrackKey {
     func string(_ k: String) -> String? {
-        guard let s = try? decodeIfPresent(String.self, forKey: Key(k)) else { return nil }
+        guard let s = try? decodeIfPresent(String.self, forKey: TrackKey(k)) else { return nil }
         let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : s
     }
     func int(_ k: String) -> Int? {
-        if let i = try? decodeIfPresent(Int.self, forKey: Key(k)) { return i }
-        if let d = try? decodeIfPresent(Double.self, forKey: Key(k)) { return Int(d.rounded()) }
-        if let s = try? decodeIfPresent(String.self, forKey: Key(k)), let d = Double(s) { return Int(d.rounded()) }
+        if let i = try? decodeIfPresent(Int.self, forKey: TrackKey(k)) { return i }
+        if let d = try? decodeIfPresent(Double.self, forKey: TrackKey(k)) { return Int(d.rounded()) }
+        if let s = try? decodeIfPresent(String.self, forKey: TrackKey(k)), let d = Double(s) { return Int(d.rounded()) }
         return nil
     }
     func double(_ k: String) -> Double? {
-        if let d = try? decodeIfPresent(Double.self, forKey: Key(k)) { return d }
-        if let s = try? decodeIfPresent(String.self, forKey: Key(k)) { return Double(s) }
+        if let d = try? decodeIfPresent(Double.self, forKey: TrackKey(k)) { return d }
+        if let s = try? decodeIfPresent(String.self, forKey: TrackKey(k)) { return Double(s) }
         return nil
     }
-    func bool(_ k: String) -> Bool? { try? decodeIfPresent(Bool.self, forKey: Key(k)) }
+    func bool(_ k: String) -> Bool? { try? decodeIfPresent(Bool.self, forKey: TrackKey(k)) }
     func json(_ k: String) -> JSONValue? {
-        guard let v = try? decodeIfPresent(JSONValue.self, forKey: Key(k)), v != .null else { return nil }
+        guard let v = try? decodeIfPresent(JSONValue.self, forKey: TrackKey(k)), v != .null else { return nil }
         return v
     }
 }
@@ -44,7 +44,7 @@ struct TrackStatusWire: Decodable, Sendable {
     let status: TrackStatus?
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let raw = c.string("status"), let state = TrackStatus.State(rawValue: raw) else { status = nil; return }
         var s = TrackStatus(state: state)
         s.day = c.int("day") ?? 0
@@ -81,7 +81,7 @@ struct TrackDayWire: Decodable, Sendable {
     static let columns = "day,title_en,title_fr,focus_en,focus_fr,video_url_en,video_url_fr,read_slug,questionnaire_id,actions,push"
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let n = c.int("day") else { throw AppError.decoding(detail: "track_day without day") }
         var d = TrackDay(day: n, titleEn: c.string("title_en") ?? "")
         d.titleFr = c.string("title_fr")
@@ -132,7 +132,7 @@ struct TrackQuestionnaireWire: Decodable, Sendable {
     static let columns = "id,day,version,title_en,title_fr,intro_en,intro_fr,done_en,done_fr,est_minutes,counts_toward_review"
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let id = c.string("id"), let day = c.int("day") else { throw AppError.decoding(detail: "track_questionnaire without id") }
         var q = TrackQuestionnaire(id: id, day: day, titleEn: c.string("title_en") ?? "")
         q.version = c.int("version") ?? 1
@@ -155,7 +155,7 @@ struct TrackQuestionWire: Decodable, Sendable {
         + "min_value,max_value,step,unit,required,voice,show_if,prefill,variants"
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let id = c.string("id"), let qid = c.string("questionnaire_id"), let key = c.string("question_key"), let screen = c.int("screen") else {
             throw AppError.decoding(detail: "track_question without id/key/screen")
         }
@@ -184,7 +184,7 @@ struct TrackQuestionWire: Decodable, Sendable {
         case .object(let o):
             return o["source"]?.stringValue == "track_actions" ? .trackActions : nil
         case .array(let items):
-            return .list(items.compactMap { item in
+            return .list(items.compactMap { item -> TrackOption? in
                 guard case .object(let o) = item, let v = o["value"]?.scalarText else { return nil }
                 var option = TrackOption(value: v, labelEn: o["label_en"]?.stringValue ?? v)
                 option.labelFr = o["label_fr"]?.stringValue
@@ -238,7 +238,7 @@ struct TrackResponseWire: Decodable, Sendable {
     static let columns = "id,questionnaire_id,answers,status,submitted_at,updated_at"
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let id = c.string("id"), let qid = c.string("questionnaire_id") else { throw AppError.decoding(detail: "track response without id") }
         var answers: [String: JSONValue] = [:]
         if case .object(let o)? = c.json("answers") { answers = o }
@@ -255,7 +255,7 @@ struct TrackActivityWire: Decodable, Sendable {
     static let columns = "day,kind,item_key"
 
     init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: Key.self)
+        let c = try decoder.container(keyedBy: TrackKey.self)
         guard let day = c.int("day"), let kind = c.string("kind").flatMap(TrackActivityItem.Kind.init(rawValue:)), let key = c.string("item_key") else {
             item = nil
             return
