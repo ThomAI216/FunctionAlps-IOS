@@ -99,7 +99,7 @@ final class ShowEpisodeViewModel {
     /// "Remind me every day": asks for notifications once (the app's own permission flow), then plans one reminder
     /// per remaining day at 09:00 on the phone's clock. Off removes them.
     func setReminder(_ on: Bool) async {
-        guard on else {
+        guard on, !shows.comingSoon else {
             await reminders.disable(slug: slug)
             reminderOn = false
             return
@@ -121,7 +121,7 @@ final class ShowEpisodeViewModel {
         let title = guide?.experiment.title.nonBlankOr(String(localized: "show.experimentTitle", defaultValue: "Your one-week experiment"))
             ?? String(localized: "show.experimentTitle", defaultValue: "Your one-week experiment")
         let actions = Dictionary(days.map { ($0.day, $0.action) }, uniquingKeysWith: { first, _ in first })
-        let items = ShowLogic.reminderPlan(days: days.map(\.day), state: state, now: shows.now, calendar: .current).map { (plan) -> ShowReminders.Item in
+        let items = ShowFeature.reminderPlan(comingSoon: shows.comingSoon, days: days.map(\.day), state: state, now: shows.now, calendar: .current).map { (plan) -> ShowReminders.Item in
             let label = String(localized: "show.dayN", defaultValue: "Day \(plan.day)")
             return ShowReminders.Item(day: plan.day, fireAt: plan.fireAt, title: title, body: "\(label) · \(actions[plan.day] ?? "")")
         }

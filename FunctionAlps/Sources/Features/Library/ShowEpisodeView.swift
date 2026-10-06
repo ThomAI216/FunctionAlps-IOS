@@ -11,7 +11,22 @@ struct ShowEpisodeView: View {
 
     var body: some View {
         ZStack {
-            if let model {
+            if dependencies.shows.comingSoon {
+                // Not reachable while the show is coming soon; if a stale link ever lands here, say so and go back.
+                VStack(spacing: 16) {
+                    PlanLockedArea(reason: .comingSoon(String(localized: "show.comingSoon",
+                                                              defaultValue: "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."))) {
+                        ShowComingSoonPreview()
+                    }
+                    Button { dismiss() } label: {
+                        Text(String(localized: "show.backToLibrary", defaultValue: "Back to the Library"))
+                            .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.forest)
+                            .faFrost(cornerRadius: 14, horizontal: 14, vertical: 8)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(16)
+            } else if let model {
                 ShowEpisodeScreen(model: model) { dismiss() }
             } else {
                 FALoadingState()
@@ -20,7 +35,7 @@ struct ShowEpisodeView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .task(id: slug) {
-            guard model == nil else { return }
+            guard model == nil, !dependencies.shows.comingSoon else { return }
             let m = ShowEpisodeViewModel(slug: slug, shows: dependencies.shows, members: dependencies.members,
                                          library: dependencies.library, notifications: dependencies.notifications)
             model = m

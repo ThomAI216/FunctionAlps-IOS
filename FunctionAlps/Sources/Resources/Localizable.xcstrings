@@ -15954,6 +15954,22 @@
         }
       }
     },
+    "lock.comingSoon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bientôt"
+          }
+        }
+      }
+    },
     "lock.notDefined": {
       "localizations": {
         "en": {
@@ -33182,6 +33198,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chapitres"
+          }
+        }
+      }
+    },
+    "show.comingSoon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The FunctionAlps Show arrive bientôt : épisodes, directs et expériences d'une semaine."
           }
         }
       }
