@@ -121,7 +121,8 @@ final class AppRouter {
             tab = .library; libraryPath = []
             let rest = Array(parts.dropFirst())
             if rest.first == "show" {
-                if rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
+                // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
+                if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
                 libraryPath.append(.read(slug))
             }
@@ -228,6 +229,8 @@ struct MainTabView: View {
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
         .onOpenURL { router.open($0) }
         .onAppear {
+            // The show is coming soon: drop any experiment reminder an internal tester scheduled on build 55.
+            if ShowFeature.comingSoon { Task { await ShowReminders().cancelAll() } }
             AppDelegate.router = router
             AppDelegate.notifications = dependencies.notifications
             if let url = AppDelegate.pendingRoute {

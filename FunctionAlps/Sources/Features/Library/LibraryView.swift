@@ -108,7 +108,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.show == nil) { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.showPresentation == .hidden) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -140,6 +140,17 @@ private struct LibraryScreen: View {
         let b = model.bundle
         if let show = model.show {
             showSection(show)
+        } else if model.showPresentation == .comingSoon {
+            // Owner, 2026-10-06: the show is blurred and "Coming soon" — a wordless preview, nothing to open.
+            VStack(alignment: .leading, spacing: 0) {
+                ShowSectionHead(title: String(localized: "show.navGroup", defaultValue: "The show"), subtitle: nil)
+                PlanLockedArea(reason: .comingSoon(String(localized: "show.comingSoon",
+                                                          defaultValue: "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."))) {
+                    ShowComingSoonPreview()
+                }
+            }
+            .padding(.top, 8)
+            .id(LibraryViewModel.Section.show.id)
         }
         if !model.priority.isEmpty {
             VStack(alignment: .leading, spacing: 0) {

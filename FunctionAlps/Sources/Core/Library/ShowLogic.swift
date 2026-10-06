@@ -180,6 +180,8 @@ enum ShowLogic {
     // MARK: Experiment progress (member_lesson_progress, `show:<slug>:day:<n>`, track_id null)
 
     static let experimentPrefix = "show:"
+    /// Every local reminder of a show experiment has an id starting with this (`ShowReminders`).
+    static let reminderPrefix = "show.exp."
 
     struct ExperimentMark: Sendable, Equatable {
         let day: Int

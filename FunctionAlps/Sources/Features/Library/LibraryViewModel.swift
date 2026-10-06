@@ -42,10 +42,17 @@ final class LibraryViewModel {
     func load() async {
         defer {
             loaded = true
-            if show == nil && active == .show { active = .priority }
+            if showPresentation == .hidden && active == .show { active = .priority }
         }
         guard let member = try? await members.currentMember() else { bundle = LibraryDemo.bundle; show = nil; return }
         patientId = member.patientId
+        // Coming soon (owner, 2026-10-06): the show is a blurred preview — nothing is read from CLINICAL.
+        if shows.comingSoon {
+            show = nil
+            bundle = await library.bundle(patientId: member.patientId) ?? LibraryDemo.bundle
+            covers = await library.topicCovers()
+            return
+        }
         // The show reads in parallel and fails on its own: the catalog never waits on CLINICAL.
         let shows = self.shows, pid = member.patientId
         async let showState = shows.libraryState(patientId: pid)
@@ -56,7 +63,7 @@ final class LibraryViewModel {
 
     /// The Continue row's check: today's experiment day, under the same rules as the episode page.
     func markToday(_ row: ShowExperimentRow) async {
-        guard let patientId, row.canMarkToday, let day = row.state.nextDay, markingSlug == nil else { return }
+        guard !shows.comingSoon, let patientId, row.canMarkToday, let day = row.state.nextDay, markingSlug == nil else { return }
         markingSlug = row.slug
         defer { markingSlug = nil }
         _ = await shows.markDay(patientId: patientId, slug: row.slug, day: day, dayNumbers: row.days.map(\.day))
@@ -67,12 +74,17 @@ final class LibraryViewModel {
         let updated = show?.experiments.first { $0.slug == row.slug }
         let actions = Dictionary((updated?.days ?? []).map { ($0.day, $0.action) }, uniquingKeysWith: { first, _ in first })
         let title = String(localized: "show.experimentTitle", defaultValue: "Your one-week experiment")
-        let plan = updated.map { ShowLogic.reminderPlan(days: $0.days.map(\.day), state: $0.state, now: shows.now, calendar: .current) } ?? []
+        let plan = updated.map { ShowFeature.reminderPlan(comingSoon: shows.comingSoon, days: $0.days.map(\.day), state: $0.state, now: shows.now, calendar: .current) } ?? []
         let items = plan.map { p in
             ShowReminders.Item(day: p.day, fireAt: p.fireAt, title: title,
                                body: "\(String(localized: "show.dayN", defaultValue: "Day \(p.day)")) · \(actions[p.day] ?? "")")
         }
         await reminders.apply(slug: row.slug, items: items)
+    }
+
+    /// Live, hidden (no data), or the coming-soon preview (`ShowFeature`).
+    var showPresentation: ShowFeature.Presentation {
+        ShowFeature.presentation(comingSoon: shows.comingSoon, hasData: show != nil)
     }
 
     func toggle(_ section: Section) {
@@ -93,7 +105,7 @@ final class LibraryViewModel {
         case .tracks: bundle.tracks.count
         case .foundations: foundations.count
         case .supplements: supplements.count
-        case .show: show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count }
+        case .show: showPresentation == .live ? show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count } : nil
         case .priority: nil
         }
     }
