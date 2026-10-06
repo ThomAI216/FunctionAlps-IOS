@@ -9,11 +9,13 @@ import Foundation
 enum ShowLogic {
     // MARK: The default week (owner, 2026-10-03)
 
-    /// Live Monday and Saturday (45 min), one pillar a day Tuesday to Friday (30 min).
+    /// Lives Wednesday and Saturday (45 min; owner, 2026-10-06 — Monday is no longer a live), one pillar a day
+    /// Tuesday to Friday (30 min).
+    /// TODO(owner): the schedule holds one slot per weekday, so Wednesday is the live here — but Wednesday also has
+    /// the Nutrition episode. Owner to confirm the two times (and whether the slot model needs two per day).
     static let defaultSchedule: [ShowSlot] = [
-        ShowSlot(weekday: 1, kind: .live, track: .cross, minutes: 45),
         ShowSlot(weekday: 2, kind: .episode, track: .movement, minutes: 30),
-        ShowSlot(weekday: 3, kind: .episode, track: .nutrition, minutes: 30),
+        ShowSlot(weekday: 3, kind: .live, track: .cross, minutes: 45),
         ShowSlot(weekday: 4, kind: .episode, track: .sleep, minutes: 30),
         ShowSlot(weekday: 5, kind: .episode, track: .mental, minutes: 30),
         ShowSlot(weekday: 6, kind: .live, track: .cross, minutes: 45),

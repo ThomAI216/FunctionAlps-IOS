@@ -14,10 +14,7 @@ struct ShowEpisodeView: View {
             if dependencies.shows.comingSoon {
                 // Not reachable while the show is coming soon; if a stale link ever lands here, say so and go back.
                 VStack(spacing: 16) {
-                    PlanLockedArea(reason: .comingSoon(String(localized: "show.comingSoon",
-                                                              defaultValue: "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."))) {
-                        ShowComingSoonPreview()
-                    }
+                    ShowComingSoonCard()
                     Button { dismiss() } label: {
                         Text(String(localized: "show.backToLibrary", defaultValue: "Back to the Library"))
                             .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.forest)

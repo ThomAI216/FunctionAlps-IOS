@@ -33943,13 +33943,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It opens with a live at %@, then a new episode every day from Tuesday to Friday."
+            "value": "Lives on Wednesday and Saturday at %@, and a new episode every day from Tuesday to Friday."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elle s'ouvre par un direct à %@, puis un nouvel épisode chaque jour du mardi au vendredi."
+            "value": "Des directs le mercredi et le samedi à %@, et un nouvel épisode chaque jour du mardi au vendredi."
           }
         }
       }

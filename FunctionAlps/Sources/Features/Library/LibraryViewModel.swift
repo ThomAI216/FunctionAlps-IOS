@@ -42,7 +42,7 @@ final class LibraryViewModel {
     func load() async {
         defer {
             loaded = true
-            if showPresentation == .hidden && active == .show { active = .priority }
+            if showPresentation != .live && active == .show { active = .priority }
         }
         guard let member = try? await members.currentMember() else { bundle = LibraryDemo.bundle; show = nil; return }
         patientId = member.patientId
