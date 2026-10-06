@@ -124,6 +124,19 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { [] }
     func vendorDisconnect(vendor: String, erase: Bool) async throws {}
     func vendorSyncNow() async throws {}
+    func startTrack(code: String) async throws {}
+    func trackStatus(code: String) async throws -> TrackStatus? { nil }
+    func trackDays(code: String) async throws -> [TrackDay] { [] }
+    func trackQuestionnaires(code: String) async throws -> [TrackQuestionnaire] { [] }
+    func trackResponses(patientId: String) async throws -> [TrackResponse] { [] }
+    func saveTrackResponse(_ write: TrackResponseWrite) async throws -> TrackResponse {
+        TrackResponse(id: "r-1", questionnaireId: write.questionnaireId, answers: write.answers, submitted: write.submit,
+                      submittedAt: write.submit ? write.at : nil, updatedAt: write.at)
+    }
+    func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem] { [] }
+    func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
+    func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
+    func actionCards(ids: [String]) async throws -> [ActionCardRow] { [] }
     var moments: [CheckinMoment] = []
     var carry: DailyCheckinCarry?
     private(set) var lastMoment: CheckinMoment?

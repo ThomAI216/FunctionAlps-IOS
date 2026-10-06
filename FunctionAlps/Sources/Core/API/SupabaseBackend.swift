@@ -1649,4 +1649,100 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func vendorSyncNow() async throws {
         let _: OkBody = try await functions.invoke("wearable-vendor-sync", body: EmptyBody())
     }
+
+    // MARK: Foundation Track (member_start_track · member_track_status · track_day · track_questionnaire ·
+    // track_question · track_questionnaire_response · track_activity — migrations 20261006_foundation_track*.sql)
+    //
+    // Every track row is read RAW and decoded with its keys verbatim (`TrackRows.swift`): answers and the jsonb
+    // shapes carry keys like `success_3_months` that the shared snake-case decoder would rewrite.
+
+    private struct TrackCodeBody: Encodable, Sendable { let pTrackCode: String }
+    private struct StartTrackBody: Encodable, Sendable { let pTrackCode: String; let pVia: String }
+
+    func startTrack(code: String) async throws {
+        _ = try await rest.rpcRaw("member_start_track", body: StartTrackBody(pTrackCode: code, pVia: "ios"))
+    }
+
+    func trackStatus(code: String) async throws -> TrackStatus? {
+        let data = try await rest.rpcRaw("member_track_status", body: TrackCodeBody(pTrackCode: code))
+        let text = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.isEmpty || text == "null" { return nil }
+        return try TrackJSON.decode(TrackStatusWire.self, from: data).status
+    }
+
+    func trackDays(code: String) async throws -> [TrackDay] {
+        let data = try await rest.selectRaw("track_day", query: [PG.select(TrackDayWire.columns), PG.eq("track_code", code), PG.order("day")])
+        return try TrackJSON.decode([TrackDayWire].self, from: data).map(\.day)
+    }
+
+    func trackQuestionnaires(code: String) async throws -> [TrackQuestionnaire] {
+        let data = try await rest.selectRaw("track_questionnaire", query: [
+            PG.select(TrackQuestionnaireWire.columns), PG.eq("track_code", code), PG.eq("active", "true"), PG.order("day"),
+        ])
+        var questionnaires = try TrackJSON.decode([TrackQuestionnaireWire].self, from: data).map(\.questionnaire)
+        guard !questionnaires.isEmpty else { return [] }
+        let rows = try await rest.selectRaw("track_question", query: [
+            PG.select(TrackQuestionWire.columns), PG.inList("questionnaire_id", questionnaires.map(\.id)),
+            URLQueryItem(name: "order", value: "screen.asc,position.asc"),
+        ])
+        let questions = try TrackJSON.decode([TrackQuestionWire].self, from: rows)
+        for i in questionnaires.indices {
+            questionnaires[i].questions = questions.filter { $0.questionnaireId == questionnaires[i].id }.map(\.question)
+        }
+        return questionnaires
+    }
+
+    func trackResponses(patientId: String) async throws -> [TrackResponse] {
+        let data = try await rest.selectRaw("track_questionnaire_response", query: [
+            PG.select(TrackResponseWire.columns), PG.eq("patient_id", patientId), PG.order("updated_at", descending: true),
+        ])
+        return try TrackJSON.decode([TrackResponseWire].self, from: data).map(\.response)
+    }
+
+    /// One row per member per module (UNIQUE patient · questionnaire): an upsert while in progress; the submit sets
+    /// `status` and `submitted_at` in the same write (the table's check ties them). A submitted row is frozen by RLS.
+    func saveTrackResponse(_ write: TrackResponseWrite) async throws -> TrackResponse {
+        let row: ColumnPatch = [
+            "patient_id": .string(write.patientId),
+            "questionnaire_id": .string(write.questionnaireId),
+            "version": .int(write.version),
+            "answers": .json(.object(write.answers)),
+            "status": .string(write.submit ? "submitted" : "in_progress"),
+            "submitted_at": write.submit ? .string(ISO8601.string(write.at)) : .null,
+            "logged_via": .string("ios"),
+        ]
+        let data = try await rest.upsertReturningRaw("track_questionnaire_response", onConflict: "patient_id,questionnaire_id", body: [row], snakeCase: false)
+        guard let stored = try TrackJSON.decode([TrackResponseWire].self, from: data).first?.response else {
+            throw AppError.decoding(detail: "track response upsert returned no row")
+        }
+        return stored
+    }
+
+    func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem] {
+        let data = try await rest.selectRaw("track_activity", query: [
+            PG.select(TrackActivityWire.columns), PG.eq("patient_id", patientId), PG.eq("track_code", code),
+        ])
+        return try TrackJSON.decode([TrackActivityWire].self, from: data).compactMap(\.item)
+    }
+
+    /// One row per (member, day, kind, item): a repeat is a no-op (`ON CONFLICT DO NOTHING`).
+    func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {
+        let row: ColumnPatch = [
+            "patient_id": .string(patientId), "track_code": .string(code), "day": .int(item.day),
+            "kind": .string(item.kind.rawValue), "item_key": .string(item.itemKey),
+        ]
+        try await rest.insertIgnoringDuplicates("track_activity", onConflict: "patient_id,track_code,day,kind,item_key", body: [row], snakeCase: false)
+    }
+
+    func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {
+        try await rest.delete("track_activity", query: [
+            PG.eq("patient_id", patientId), PG.eq("track_code", code), PG.eq("day", String(item.day)),
+            PG.eq("kind", item.kind.rawValue), PG.eq("item_key", item.itemKey),
+        ])
+    }
+
+    func actionCards(ids: [String]) async throws -> [ActionCardRow] {
+        guard !ids.isEmpty else { return [] }
+        return try await rest.select("habit_bank", query: [PG.select(ActionCardRow.columns), PG.inList("id", ids)])
+    }
 }

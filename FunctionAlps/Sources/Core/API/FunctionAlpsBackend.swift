@@ -245,6 +245,29 @@ protocol FunctionAlpsBackend: Sendable {
     /// `erase` = the delete-my-data flow: the stored readings of that vendor are deleted as well.
     func vendorDisconnect(vendor: String, erase: Bool) async throws
     func vendorSyncNow() async throws
+
+    // MARK: Foundation Track (the 14-day start; everything computed server-side)
+
+    /// Idempotent, once per foreground: starts the clock at the first open (or the next open after a staff launch).
+    func startTrack(code: String) async throws
+    /// The server's whole answer for the track — nil when the member is not enrolled.
+    func trackStatus(code: String) async throws -> TrackStatus?
+    /// Every day of the track, in order (its video, actions and reminder texts).
+    func trackDays(code: String) async throws -> [TrackDay]
+    /// The active questionnaires, each with its questions in screen / position order.
+    func trackQuestionnaires(code: String) async throws -> [TrackQuestionnaire]
+    /// The member's own answers, newest first.
+    func trackResponses(patientId: String) async throws -> [TrackResponse]
+    /// Saves the answers (in progress) or submits them; returns the row as stored.
+    func saveTrackResponse(_ write: TrackResponseWrite) async throws -> TrackResponse
+    /// What the member did on the track (actions checked, videos played, reads opened).
+    func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem]
+    /// Records one item (a repeat is a no-op). Today's or yesterday's track day only (RLS).
+    func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws
+    /// Un-checks an action.
+    func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws
+    /// Published action cards by id — the track's actions point at them for their titles and how-to.
+    func actionCards(ids: [String]) async throws -> [ActionCardRow]
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.

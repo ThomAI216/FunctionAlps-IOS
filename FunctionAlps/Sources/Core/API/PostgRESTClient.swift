@@ -64,6 +64,29 @@ struct PostgRESTClient: Sendable {
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
     }
 
+    /// `POST /rest/v1/{table}?on_conflict=…` with `resolution=merge-duplicates`, returning the stored rows as raw
+    /// JSON (the caller decodes them with keys verbatim — a jsonb column's keys must not be rewritten).
+    func upsertReturningRaw<Body: Encodable & Sendable>(_ table: String, onConflict: String, body: Body, snakeCase: Bool = true) async throws -> Data {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "resolution=merge-duplicates,return=representation"
+            return try HTTPRequest.json(.post, url(table, query: [URLQueryItem(name: "on_conflict", value: onConflict)]), headers: h, body: body, snakeCase: snakeCase)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        return response.body
+    }
+
+    /// `POST /rest/v1/{table}?on_conflict=…` with `resolution=ignore-duplicates` (`ON CONFLICT DO NOTHING`): writing
+    /// a row that already exists is a no-op, and only the INSERT policy is involved.
+    func insertIgnoringDuplicates<Body: Encodable & Sendable>(_ table: String, onConflict: String, body: Body, snakeCase: Bool = true) async throws {
+        let response = try await requester.send { token in
+            var h = headers(token)
+            h["Prefer"] = "resolution=ignore-duplicates,return=minimal"
+            return try HTTPRequest.json(.post, url(table, query: [URLQueryItem(name: "on_conflict", value: onConflict)]), headers: h, body: body, snakeCase: snakeCase)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+    }
+
     /// `PATCH /rest/v1/{table}?{filter}` with a partial body.
     func update<Body: Encodable & Sendable>(_ table: String, query: [URLQueryItem], body: Body) async throws {
         let response = try await requester.send { token in
@@ -156,6 +179,16 @@ struct PostgRESTClient: Sendable {
         }
         guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
         return try JSON.decode(Result.self, from: response.body)
+    }
+
+    /// `POST /rest/v1/rpc/{function}` returning the raw body — for a function answering jsonb (or a composite)
+    /// whose keys the caller decodes verbatim. `null` comes back as the four bytes `null`.
+    func rpcRaw<Body: Encodable & Sendable>(_ function: String, body: Body) async throws -> Data {
+        let response = try await requester.send { token in
+            try HTTPRequest.json(.post, url("rpc/\(function)"), headers: headers(token), body: body)
+        }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        return response.body
     }
 
     // MARK: Helpers

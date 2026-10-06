@@ -1,6 +1,6 @@
 -- What a member DID on the Foundation Track: an action checked off, a video watched, a short read
 -- opened. Feeds Thomas's day-7 email ("how much did they do?") and the CLINICAL board.
--- ADDITIVE ONLY. Thomas, 2026-10-06 (pending explicit OK before apply).
+-- ADDITIVE ONLY. Thomas, 2026-10-06 (applied on CM OS 2026-10-06, Thomas's OK).
 --
 -- One row per (member, day, kind, item): checking an action twice is a no-op, un-checking deletes
 -- the row. A member may only touch today or yesterday (Zurich), the same window habit_completions
