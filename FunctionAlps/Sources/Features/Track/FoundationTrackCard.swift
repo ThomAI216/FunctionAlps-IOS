@@ -310,7 +310,7 @@ private struct TrackCallButton: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "phone").font(.system(size: 15, weight: .semibold)).accessibilityHidden(true)
-                Text(call.minutes >= 30
+                Text(call.gated
                      ? String(localized: "track.call.review", defaultValue: "Book your review call with Thomas · \(call.minutes) min")
                      : String(localized: "track.call.book", defaultValue: "Book a call with Thomas · \(call.minutes) min"))
                     .font(FATypography.sans(14, .semibold, relativeTo: .body))

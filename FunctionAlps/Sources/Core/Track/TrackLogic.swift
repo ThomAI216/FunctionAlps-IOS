@@ -115,16 +115,13 @@ enum TrackLogic {
 
     static let bookingBase = "https://www.functionalps.ch/book/thomas/"
 
-    /// 15 min → `foundation-call-15`, 20 min → `foundation-call-20`, the 30-min review → `foundation-review-30`.
-    static func bookingSlug(_ call: TrackCall) -> String {
-        if call.minutes >= 30 { return "foundation-review-30" }
-        if call.minutes == 20 { return "foundation-call-20" }
-        return "foundation-call-15"
-    }
+    /// Every track call is the 20-minute members call (Thomas, 2026-10-06: "Everything: 20 minutes"),
+    /// so every call books `foundation-call-20`.
+    static func bookingSlug(_ call: TrackCall) -> String { "foundation-call-20" }
 
     static func bookingURL(_ call: TrackCall) -> URL? { URL(string: bookingBase + bookingSlug(call)) }
 
-    /// The calls to show: open ones only, one button per booking page (the latest day wins).
+    /// The calls to show: open ones only, one button per booking page (the latest day wins), so one button at most.
     static func openCalls(_ calls: [TrackCall]) -> [TrackCall] {
         var bySlug: [String: TrackCall] = [:]
         for call in calls where call.open {

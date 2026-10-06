@@ -164,10 +164,10 @@ private struct TrackSummaryBody: View {
     private func sectionTitle(_ key: String) -> String {
         switch key {
         case "context": String(localized: "track.summary.section.context", defaultValue: "Your context")
-        case "food": String(localized: "track.summary.section.food", defaultValue: "Food")
+        case "food": String(localized: "track.summary.section.food", defaultValue: "Nutrition")
         case "movement": String(localized: "track.summary.section.movement", defaultValue: "Movement")
         case "sleep": String(localized: "track.summary.section.sleep", defaultValue: "Sleep")
-        case "stress": String(localized: "track.summary.section.stress", defaultValue: "Stress and recovery")
+        case "stress": String(localized: "track.summary.section.stress", defaultValue: "Mental and emotional health")
         default: key
         }
     }

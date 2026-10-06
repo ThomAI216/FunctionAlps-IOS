@@ -233,11 +233,14 @@ struct FoundationTrackTests {
         #expect(TrackLogic.openQuestionnaires(qs, today: 14, submitted: ["d1"]).map(\.id) == ["d2", "d14"])
 
         let calls = [TrackCall(day: 3, minutes: 20, gated: false, open: true), TrackCall(day: 7, minutes: 20, gated: false, open: true),
-                     TrackCall(day: 14, minutes: 30, gated: true, open: false)]
+                     TrackCall(day: 14, minutes: 20, gated: true, open: false)]
         #expect(TrackLogic.openCalls(calls) == [TrackCall(day: 7, minutes: 20, gated: false, open: true)])
-        #expect(TrackLogic.bookingURL(TrackCall(day: 3, minutes: 15, gated: false, open: true))?.absoluteString == "https://www.functionalps.ch/book/thomas/foundation-call-15")
-        #expect(TrackLogic.bookingSlug(TrackCall(day: 7, minutes: 20, gated: false, open: true)) == "foundation-call-20")
-        #expect(TrackLogic.bookingSlug(TrackCall(day: 14, minutes: 30, gated: true, open: true)) == "foundation-review-30")
+        // every call is the 20-minute members call: one booking page, so one button, the latest open day
+        let review = [TrackCall(day: 3, minutes: 20, gated: false, open: true), TrackCall(day: 14, minutes: 20, gated: true, open: true)]
+        #expect(TrackLogic.openCalls(review) == [TrackCall(day: 14, minutes: 20, gated: true, open: true)])
+        #expect(TrackLogic.bookingURL(TrackCall(day: 3, minutes: 20, gated: false, open: true))?.absoluteString == "https://www.functionalps.ch/book/thomas/foundation-call-20")
+        #expect(TrackLogic.bookingSlug(TrackCall(day: 14, minutes: 20, gated: true, open: true)) == "foundation-call-20")
+        #expect(TrackLogic.bookingSlug(TrackCall(day: 3, minutes: 15, gated: false, open: true)) == "foundation-call-20") // an older row still books the members call
 
         let range = TrackLogic.range(2250, 2450, locale: Locale(identifier: "en_US"))
         #expect(range?.0 == "2,250" && range?.1 == "2,450")
@@ -406,12 +409,12 @@ struct FoundationTrackTests {
         let status = Data("""
         {"track_code": "foundation_v1", "status": "active", "day": 7, "days": 14, "modules_done": 4, "modules_total": 5,
          "meals_expected": 21, "meals_logged": 17, "meals_pct": 81, "review_unlocked": false,
-         "calls": [{"day": 3, "minutes": 15, "gated": false, "open": true}, {"day": 14, "minutes": 30, "gated": true, "open": false}],
+         "calls": [{"day": 3, "minutes": 20, "gated": false, "open": true}, {"day": 14, "minutes": 20, "gated": true, "open": false}],
          "energy_kcal_low": 2250, "energy_kcal_high": 2450.0, "protein_g_low": null}
         """.utf8)
         let s = try #require(try TrackJSON.decode(TrackStatusWire.self, from: status).status)
         #expect(s.state == .active && s.day == 7 && s.mealsPct == 81 && s.energyKcalHigh == 2450 && s.proteinGLow == nil)
-        #expect(s.calls == [TrackCall(day: 3, minutes: 15, gated: false, open: true), TrackCall(day: 14, minutes: 30, gated: true, open: false)])
+        #expect(s.calls == [TrackCall(day: 3, minutes: 20, gated: false, open: true), TrackCall(day: 14, minutes: 20, gated: true, open: false)])
         #expect(try TrackJSON.decode(TrackStatusWire.self, from: Data(#"{"track_code":"foundation_v1","status":"invited"}"#.utf8)).status?.state == .invited)
     }
 }

@@ -38263,13 +38263,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Food"
+            "value": "Nutrition"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alimentation"
+            "value": "Nutrition"
           }
         }
       }
@@ -38311,13 +38311,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stress and recovery"
+            "value": "Mental and emotional health"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stress et récupération"
+            "value": "Santé mentale et émotionnelle"
           }
         }
       }
