@@ -18,4 +18,4 @@ English is locked.
 
 The card's own text reaches the app through `track_day.card_en` / `card_fr` and the infographic through
 `track_day.image_url` / `image_alt_*` (migration `supabase/migrations/20261006_foundation_track_day_card.sql`, then
-the generated `20261006_foundation_track_day_card_content.sql`), both pending Thomas's OK at the time of writing.
+the generated `20261006_foundation_track_day_card_content.sql`), both applied on CM OS 2026-10-08.
