@@ -77,36 +77,59 @@ private struct TrackTodayCard: View {
         let open = TrackLogic.openQuestionnaires(track.questionnaires, today: status.day, submitted: track.submitted)
         let calls = TrackLogic.openCalls(status.calls)
         FACard {
-            VStack(alignment: .leading, spacing: 14) {
-                TrackCardHeader(eyebrow: String(localized: "track.dayOf", defaultValue: "Day \(status.day) of \(status.days)"), title: title)
-                if let focus = day.flatMap({ TrackLogic.text($0.focusEn, $0.focusFr, locale: locale) }) {
-                    Text(focus).font(FATypography.callout).foregroundStyle(FAColor.inkSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                if let day {
-                    let videoURL = TrackLogic.text(day.videoUrlEn, day.videoUrlFr, locale: locale)
-                        .flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
-                    TrackVideoView(url: videoURL) { Task { await track.videoPlayed(day: day.day) } }
-                        .id(day.day)
-                    if !day.actions.isEmpty { TrackActionsList(groups: TrackLogic.grouped(day.actions)) }
-                    if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
-                }
-                if track.summary != nil { TrackSummaryRow() }
-                if !open.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(open) { q in
-                            TrackQuestionnaireRow(questionnaire: q, isToday: q.day == status.day, inProgress: track.response(for: q.id) != nil) { onOpen(q.id) }
-                        }
-                    }
-                }
-                if !calls.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(calls, id: \.self) { TrackCallButton(call: $0) }
-                    }
-                }
-                if status.day >= TrackLogic.progressFromDay { TrackProgressRow(status: status) }
+            if let day, let card = TrackLogic.card(day, locale: locale) {
+                // The day card (track_day.card_*): the mockups' order, `docs/foundation-cards/build.py`.
+                TrackDayCardLayout(status: status, day: day, card: card, title: title, open: open, calls: calls, onOpen: onOpen)
+            } else {
+                plain(track: track, title: title, open: open, calls: calls)
             }
         }
+    }
+
+    /// A day without its card text (or before the content is written): the title, the focus line, the video and
+    /// the actions — the layout the track started with.
+    private func plain(track: TrackService, title: String, open: [TrackQuestionnaire], calls: [TrackCall]) -> some View {
+        let locale = track.locale
+        return VStack(alignment: .leading, spacing: 14) {
+            TrackCardHeader(eyebrow: String(localized: "track.dayOf", defaultValue: "Day \(status.day) of \(status.days)"), title: title)
+            if let focus = day.flatMap({ TrackLogic.text($0.focusEn, $0.focusFr, locale: locale) }) {
+                Text(focus).font(FATypography.callout).foregroundStyle(FAColor.inkSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if let day {
+                TrackDayVideo(day: day)
+                if !day.actions.isEmpty { TrackActionsList(groups: TrackLogic.grouped(day.actions)) }
+                if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
+            }
+            if track.summary != nil { TrackSummaryRow() }
+            if !open.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(open) { q in
+                        TrackQuestionnaireRow(questionnaire: q, isToday: q.day == status.day, inProgress: track.response(for: q.id) != nil) { onOpen(q.id) }
+                    }
+                }
+            }
+            if !calls.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(calls, id: \.self) { TrackCallButton(call: $0) }
+                }
+            }
+            if status.day >= TrackLogic.progressFromDay { TrackProgressRow(status: status) }
+        }
+    }
+}
+
+/// The day's video, played in the card; the first play is the day's `video` activity.
+struct TrackDayVideo: View {
+    @Environment(AppDependencies.self) private var dependencies
+    let day: TrackDay
+
+    var body: some View {
+        let track = dependencies.track
+        let url = TrackLogic.text(day.videoUrlEn, day.videoUrlFr, locale: track.locale)
+            .flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
+        TrackVideoView(url: url) { Task { await track.videoPlayed(day: day.day) } }
+            .id(day.day)
     }
 }
 
@@ -135,7 +158,7 @@ private struct TrackCardHeader: View {
 }
 
 /// The day's actions by moment; each ticks in place, and opens its action card when it has one.
-private struct TrackActionsList: View {
+struct TrackActionsList: View {
     @Environment(AppDependencies.self) private var dependencies
     let groups: [TrackActionGroup]
 
@@ -162,9 +185,11 @@ private struct TrackActionsList: View {
     }
 }
 
-private struct TrackActionLine: View {
+struct TrackActionLine: View {
     @Environment(AppDependencies.self) private var dependencies
     let action: TrackAction
+    /// Under the day card's "first thing to try" heading: a short "New" tag, and the action's how-to line.
+    var underTryLabel = false
 
     var body: some View {
         let track = dependencies.track
@@ -206,13 +231,21 @@ private struct TrackActionLine: View {
 
     private func line(_ title: String, done: Bool) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(title)
-                .font(FATypography.callout)
-                .strikethrough(done)
-                .foregroundStyle(done ? FAColor.inkSecondary : FAColor.ink)
-                .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(FATypography.callout)
+                    .strikethrough(done)
+                    .foregroundStyle(done ? FAColor.inkSecondary : FAColor.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                if underTryLabel, let how = TrackLogic.text(action.howEn, action.howFr, locale: dependencies.track.locale) {
+                    Text(how).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
             if action.isNew {
-                Text(String(localized: "track.new", defaultValue: "New today"))
+                Text(underTryLabel
+                     ? String(localized: "track.card.new", defaultValue: "New")
+                     : String(localized: "track.new", defaultValue: "New today"))
                     .font(FATypography.label).foregroundStyle(FAColor.forestDark)
                     .padding(.horizontal, 7).padding(.vertical, 2)
                     .background(FAColor.forestSoft.opacity(0.18), in: Capsule())
@@ -223,7 +256,7 @@ private struct TrackActionLine: View {
 }
 
 /// The day's short read, in the library's reader.
-private struct TrackReadRow: View {
+struct TrackReadRow: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
     let slug: String
@@ -300,7 +333,7 @@ struct TrackQuestionnaireRow: View {
 }
 
 /// A call the server opened: the practice's booking page, in Safari.
-private struct TrackCallButton: View {
+struct TrackCallButton: View {
     @Environment(\.openURL) private var openURL
     let call: TrackCall
 
@@ -330,7 +363,7 @@ private struct TrackCallButton: View {
 
 /// From day 7: questionnaires sent, meals logged against expected, and the energy and protein ranges — all the
 /// server's figures, formatted here.
-private struct TrackProgressRow: View {
+struct TrackProgressRow: View {
     let status: TrackStatus
 
     var body: some View {

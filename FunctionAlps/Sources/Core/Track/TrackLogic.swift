@@ -104,6 +104,19 @@ enum TrackLogic {
         return String(words.prefix(1)).uppercased() + String(words.dropFirst())
     }
 
+    /// The day card in the app's language: the whole French card when the app is drawn in French and the day has
+    /// one, else the English card — and the other one when only that one exists (the rule `text` applies per field).
+    static func card(_ day: TrackDay, locale: String) -> TrackDayCard? {
+        locale == "fr" ? (day.cardFr ?? day.cardEn) : (day.cardEn ?? day.cardFr)
+    }
+
+    /// The infographic, https only, with what it shows for VoiceOver.
+    static func infographic(_ day: TrackDay, locale: String) -> (url: URL, alt: String?)? {
+        guard let raw = day.imageUrl?.trimmingCharacters(in: .whitespacesAndNewlines), raw.lowercased().hasPrefix("https://"),
+              let url = URL(string: raw) else { return nil }
+        return (url, text(day.imageAltEn, day.imageAltFr, locale: locale))
+    }
+
     /// The action card's version for a track action's face.
     static func habitFace(_ face: String) -> HabitFace {
         switch face {

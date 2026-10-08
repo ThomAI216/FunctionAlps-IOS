@@ -60,6 +60,9 @@ struct TrackAction: Sendable, Equatable, Identifiable {
     var titleFr: String?
     /// First day of this action: the card says "New today".
     var isNew = false
+    /// One line of how-to, shown under a new action on the day card.
+    var howEn: String?
+    var howFr: String?
 
     var id: String { key }
 }
@@ -86,8 +89,96 @@ struct TrackDay: Sendable, Equatable, Identifiable {
     var actions: [TrackAction] = []
     /// Keyed by `morning` · `midday` · `evening`.
     var push: [TrackMoment: TrackPush] = [:]
+    /// The day card's own sections, one per language (`card_en` / `card_fr`); nil when absent or unusable.
+    var cardEn: TrackDayCard?
+    var cardFr: TrackDayCard?
+    /// Thomas's infographic (4:5 portrait, days 8–14 once made) and what it shows, for VoiceOver.
+    var imageUrl: String?
+    var imageAltEn: String?
+    var imageAltFr: String?
 
     var id: Int { day }
+}
+
+/// The day card's sections (`track_day.card_*`, migration `20261006_foundation_track_day_card.sql`; the mockups in
+/// `docs/foundation-cards/build.py`). Every word is the practice's; the app lays it out.
+struct TrackDayCard: Sendable, Equatable {
+    /// Days 1–5: what it is · why it matters · how we use it. Other days: one paragraph.
+    enum Today: Sendable, Equatable {
+        case paragraph(String)
+        case parts([Part])
+    }
+
+    struct Part: Sendable, Equatable {
+        let label: String
+        let text: String
+    }
+
+    /// One step of "How it will evolve": when, and what changes.
+    struct Step: Sendable, Equatable {
+        let when: String
+        let text: String
+    }
+
+    /// A library item the card points to; only one with a slug can be opened.
+    struct LibraryItem: Sendable, Equatable {
+        let kind: String
+        let title: String
+        var slug: String?
+    }
+
+    /// The chip above the title on days 1–7 ("Pillar 2 · Movement").
+    var pillar: String?
+    var today: Today?
+    /// The heading over the day's new actions.
+    var tryLabel: String?
+    var tip: String?
+    var evolve: [Step] = []
+    var library: [LibraryItem] = []
+
+    /// The items the app can open: those with a slug (an item without one is not written yet, or locked).
+    var openableLibrary: [LibraryItem] { library.filter { $0.slug != nil } }
+
+    var isEmpty: Bool { pillar == nil && today == nil && tryLabel == nil && tip == nil && evolve.isEmpty && library.isEmpty }
+
+    /// Not an object, or nothing usable in it → nil (the day card then keeps its plain layout). Inside the object a
+    /// malformed or blank part is left out, never guessed at.
+    static func decode(_ value: JSONValue?) -> TrackDayCard? {
+        guard case .object(let o)? = value else { return nil }
+        func text(_ v: JSONValue?) -> String? {
+            guard let s = v?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty else { return nil }
+            return s
+        }
+        var card = TrackDayCard()
+        card.pillar = text(o["pillar"])
+        switch o["today"] {
+        case .string?:
+            card.today = text(o["today"]).map(Today.paragraph)
+        case .array(let items)?:
+            let parts = items.compactMap { item -> Part? in
+                guard case .object(let p) = item, let label = text(p["label"]), let body = text(p["text"]) else { return nil }
+                return Part(label: label, text: body)
+            }
+            card.today = parts.isEmpty ? nil : .parts(parts)
+        default:
+            break
+        }
+        card.tryLabel = text(o["try_label"])
+        card.tip = text(o["tip"])
+        if case .array(let steps)? = o["evolve"] {
+            card.evolve = steps.compactMap { item -> Step? in
+                guard case .object(let e) = item, let when = text(e["when"]), let body = text(e["text"]) else { return nil }
+                return Step(when: when, text: body)
+            }
+        }
+        if case .array(let items)? = o["library"] {
+            card.library = items.compactMap { item -> LibraryItem? in
+                guard case .object(let l) = item, let title = text(l["title"]) else { return nil }
+                return LibraryItem(kind: text(l["kind"]) ?? "", title: title, slug: text(l["slug"]))
+            }
+        }
+        return card.isEmpty ? nil : card
+    }
 }
 
 /// What a question renders.

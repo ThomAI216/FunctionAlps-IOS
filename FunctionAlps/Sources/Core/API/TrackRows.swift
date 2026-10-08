@@ -78,7 +78,8 @@ struct TrackStatusWire: Decodable, Sendable {
 struct TrackDayWire: Decodable, Sendable {
     let day: TrackDay
 
-    static let columns = "day,title_en,title_fr,focus_en,focus_fr,video_url_en,video_url_fr,read_slug,questionnaire_id,actions,push"
+    static let columns = "day,title_en,title_fr,focus_en,focus_fr,video_url_en,video_url_fr,read_slug,questionnaire_id,actions,push,"
+        + "card_en,card_fr,image_url,image_alt_en,image_alt_fr"
 
     init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: TrackKey.self)
@@ -98,6 +99,11 @@ struct TrackDayWire: Decodable, Sendable {
                 d.push[m] = p
             }
         }
+        d.cardEn = TrackDayCard.decode(c.json("card_en"))
+        d.cardFr = TrackDayCard.decode(c.json("card_fr"))
+        d.imageUrl = c.string("image_url")
+        d.imageAltEn = c.string("image_alt_en")
+        d.imageAltFr = c.string("image_alt_fr")
         day = d
     }
 
@@ -109,6 +115,8 @@ struct TrackDayWire: Decodable, Sendable {
         a.face = o["face"]?.stringValue ?? "standard"
         a.titleEn = o["title_en"]?.stringValue
         a.titleFr = o["title_fr"]?.stringValue
+        a.howEn = o["how_en"]?.stringValue
+        a.howFr = o["how_fr"]?.stringValue
         if case .bool(let b)? = o["new"] { a.isNew = b }
         return a
     }
