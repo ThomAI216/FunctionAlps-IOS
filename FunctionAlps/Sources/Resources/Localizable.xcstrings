@@ -914,6 +914,22 @@
         }
       }
     },
+    "action.video.openYouTube": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in YouTube ↗"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans YouTube ↗"
+          }
+        }
+      }
+    },
     "action.video.watch": {
       "localizations": {
         "en": {

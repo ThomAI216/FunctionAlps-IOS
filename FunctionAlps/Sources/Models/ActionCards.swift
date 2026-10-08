@@ -43,6 +43,15 @@ enum ActionCardLink: Sendable, Equatable {
     case article(slug: String, title: String?)
 }
 
+/// How a card's video plays (owner, 2026-10-08: the practice's demonstrations are on YouTube for now). A YouTube
+/// link plays inside the card, in YouTube's own player (its terms allow no other); any other https link opens
+/// outside the app, as before. The paid video host that comes later (HLS played in AVKit, signed for members-only
+/// cards) is one more case here — the card and its data stay as they are.
+enum ActionCardVideoSource: Sendable, Equatable {
+    case youtube(id: String, start: Int?)
+    case link(URL)
+}
+
 /// One `habit_bank` row as members may read it (published = active).
 struct ActionCardRow: Decodable, Sendable, Equatable, Identifiable {
     let id: String
@@ -169,6 +178,87 @@ enum ActionCardLogic {
         var components = URLComponents(string: "https://www.youtube.com/results")
         components?.queryItems = [URLQueryItem(name: "search_query", value: query)]
         return components?.url
+    }
+
+    /// The video link as the app plays it: a YouTube video inside the card, anything else outside the app.
+    static func videoSource(_ url: URL) -> ActionCardVideoSource {
+        if let video = youtubeVideo(url) { return .youtube(id: video.id, start: video.start) }
+        return .link(url)
+    }
+
+    /// The YouTube video a pasted link names — `watch?v=`, `youtu.be/`, `shorts/`, `embed/`, `live/` on youtube.com,
+    /// m.youtube.com or youtube-nocookie.com — and where it starts (`t` or `start`: `90`, `90s`, `1m30s`). Nil for
+    /// anything else, a channel or playlist link included.
+    static func youtubeVideo(_ url: URL) -> (id: String, start: Int?)? {
+        guard url.scheme?.lowercased() == "https",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let host = components.host?.lowercased() else { return nil }
+        let path = components.path.split(separator: "/").map(String.init)
+        let query = components.queryItems ?? []
+        let candidate: String?
+        switch host {
+        case "youtu.be":
+            candidate = path.first
+        case "youtube.com", "www.youtube.com", "m.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com":
+            if path == ["watch"] {
+                candidate = query.first { $0.name == "v" }?.value
+            } else if path.count >= 2, ["shorts", "embed", "live"].contains(path[0]) {
+                candidate = path[1]
+            } else {
+                candidate = nil
+            }
+        default:
+            candidate = nil
+        }
+        guard let id = candidate, id.range(of: #"^[A-Za-z0-9_-]{11}$"#, options: .regularExpression) != nil else { return nil }
+        let start = query.first { $0.name == "t" || $0.name == "start" }?.value.flatMap(youtubeSeconds)
+        return (id, start)
+    }
+
+    /// `90`, `90s`, `1m30s`, `1h2m3s` → seconds; nil when unreadable or zero.
+    static func youtubeSeconds(_ value: String) -> Int? {
+        let text = value.lowercased()
+        if let seconds = Int(text) { return seconds > 0 ? seconds : nil }
+        guard let match = text.wholeMatch(of: /(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/) else { return nil }
+        let seconds = (Int(match.1 ?? "0") ?? 0) * 3600 + (Int(match.2 ?? "0") ?? 0) * 60 + (Int(match.3 ?? "0") ?? 0)
+        return seconds > 0 ? seconds : nil
+    }
+
+    /// YouTube's embedded player for the video: it starts on load (the member has just tapped play), plays inside
+    /// the card, ends on the practice's own videos only (`rel=0`), with its controls and captions in the app's
+    /// language.
+    static func youtubeEmbedURL(id: String, start: Int?, locale: String) -> URL? {
+        var components = URLComponents(string: "https://www.youtube.com/embed/\(id)")
+        components?.queryItems = [
+            URLQueryItem(name: "autoplay", value: "1"),
+            URLQueryItem(name: "playsinline", value: "1"),
+            URLQueryItem(name: "rel", value: "0"),
+            URLQueryItem(name: "hl", value: locale),
+            URLQueryItem(name: "cc_lang_pref", value: locale),
+        ] + (start.map { [URLQueryItem(name: "start", value: String($0))] } ?? [])
+        return components?.url
+    }
+
+    /// Who is embedding the player, as YouTube requires of an app (the Referer): `https://` + the bundle id in lower
+    /// case. Without it the player refuses to play.
+    static func youtubeClientOrigin(bundleID: String) -> URL? {
+        URL(string: "https://\(bundleID.lowercased())")
+    }
+
+    /// The page the card's web view loads: the player filling it, on black.
+    static func youtubePlayerHTML(embed: URL, title: String) -> String {
+        let escapedTitle = title
+            .replacingOccurrences(of: "&", with: "&amp;").replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;").replacingOccurrences(of: "\"", with: "&quot;")
+        let source = embed.absoluteString.replacingOccurrences(of: "&", with: "&amp;")
+        return """
+        <!doctype html><html><head><meta charset="utf-8">\
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">\
+        <style>html,body{margin:0;padding:0;height:100%;background:#000;overflow:hidden}\
+        iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}</style></head>\
+        <body><iframe src="\(source)" title="\(escapedTitle)" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" \
+        allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></body></html>
+        """
     }
 
     /// The card in one language. `habit` supplies what the card leaves out: the habit's own title (the

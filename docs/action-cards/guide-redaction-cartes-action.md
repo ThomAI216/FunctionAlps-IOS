@@ -295,9 +295,15 @@ ordre : vidéo, puis YouTube, puis article.
 
 | Sorte | Forme exacte | Règle pour l'agent | Rendu dans l'app |
 |---|---|---|---|
-| `video` | `{"kind":"video","url":"https://…","title":"…" ou null}` ; l'URL commence par `https://` (500 caractères au plus) et le titre fait 120 caractères au plus | **Interdit à l'agent**, sauf URL fournie explicitement par le cabinet. Une vidéo doit appartenir au cabinet ou avoir été validée par lui | Vignette sombre avec ▶ et le titre (« Regarder la démonstration » par défaut) |
+| `video` | `{"kind":"video","url":"https://…","title":"…" ou null}` ; l'URL commence par `https://` (500 caractères au plus) et le titre fait 120 caractères au plus | **Interdit à l'agent**, sauf URL fournie explicitement par le cabinet. Une vidéo doit appartenir au cabinet ou avoir été validée par lui | Vignette sombre avec ▶ et le titre (« Regarder la démonstration » par défaut). Un lien **YouTube** se lit **dans la carte** (lecteur YouTube, puis « Ouvrir dans YouTube ↗ » dessous) ; tout autre lien s'ouvre hors de l'app |
 | `youtube` | `{"kind":"youtube","query":"…"}` ; de 1 à **100** caractères | **Un mot-clé de recherche**, jamais une URL. 3 à 6 mots qui trouvent une **démonstration** du geste. Par convention (le brouillon IA de CLINICAL fait pareil), la recherche est **en anglais**, parce qu'elle trouve plus de démonstrations. Une recherche en français est acceptable quand le sujet a de bonnes vidéos francophones | Lien « Chercher « *query* » sur YouTube ↗ ». La recherche s'affiche **telle quelle**, même dans l'app en français : elle doit se lire naturellement |
 | `article` | `{"kind":"article","slug":"…","title":"…"}` ; slug de 200 caractères au plus | **Seulement un slug du catalogue** (annexe C). Le titre se recopie à l'identique. Un slug inconnu est **refusé à l'enregistrement** (« That library article no longer exists ») | Carte « À lire dans la bibliothèque » + titre. Toucher ouvre l'article dans l'app |
+
+**Vidéo du cabinet sur YouTube** (en attendant l'hébergement vidéo payant, 2026-10-08) : la mettre en ligne en
+**Non répertoriée**, laisser **Autoriser l'intégration** coché, répondre « Non, elle n'est pas conçue pour les
+enfants », et éviter toute musique protégée (une revendication de droits peut bloquer la lecture dans l'app). Coller
+le lien de partage (`https://youtu.be/…`) dans le champ Video ; `?t=30` la fait démarrer à 30 secondes. Une vidéo non
+répertoriée reste visible par quiconque a le lien : pas de vidéo réservée aux membres avant l'hébergement payant.
 
 Quand mettre quoi :
 

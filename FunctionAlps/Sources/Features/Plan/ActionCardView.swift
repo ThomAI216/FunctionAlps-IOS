@@ -291,19 +291,7 @@ struct ActionCardView: View {
         FACard {
             VStack(alignment: .leading, spacing: 10) {
                 if let video = content.video {
-                    Button { openURL(video.url) } label: {
-                        ZStack(alignment: .bottomLeading) {
-                            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(FAColor.charcoal).frame(height: 150)
-                            Image(systemName: "play.fill").font(.system(size: 30)).foregroundStyle(.white)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            Text(video.title ?? String(localized: "action.video.watch", defaultValue: "Watch the demonstration"))
-                                .font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(.white.opacity(0.92))
-                                .padding(12)
-                        }
-                        .frame(height: 150)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(video.title ?? String(localized: "action.video.watch", defaultValue: "Watch the demonstration"))
+                    ActionCardVideoTile(url: video.url, title: video.title, locale: TodayFocus.locale())
                 }
                 if let query = content.youtubeQuery, let url = ActionCardLogic.youtubeSearchURL(query) {
                     Button { openURL(url) } label: {

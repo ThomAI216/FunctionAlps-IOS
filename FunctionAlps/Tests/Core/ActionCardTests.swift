@@ -64,6 +64,61 @@ struct ActionCardTests {
         #expect(ActionCardLogic.youtubeSearchURL("respiration 4-7-8")?.absoluteString == "https://www.youtube.com/results?search_query=respiration%204-7-8")
     }
 
+    @Test(arguments: [
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://youtube.com/watch?feature=share&v=dQw4w9WgXcQ",
+        "https://m.youtube.com/watch?v=dQw4w9WgXcQ",
+        "https://youtu.be/dQw4w9WgXcQ",
+        "https://youtu.be/dQw4w9WgXcQ?si=AbCdEf",
+        "https://www.youtube.com/shorts/dQw4w9WgXcQ",
+        "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+        "https://www.youtube.com/live/dQw4w9WgXcQ",
+    ])
+    func everyYouTubeVideoLinkPlaysInTheCard(_ link: String) {
+        #expect(ActionCardLogic.videoSource(URL(string: link)!) == .youtube(id: "dQw4w9WgXcQ", start: nil))
+    }
+
+    @Test(arguments: [
+        "https://vimeo.com/1",
+        "https://www.youtube.com/@functionalps",
+        "https://www.youtube.com/playlist?list=PL123",
+        "https://www.youtube.com/watch?v=short",
+        "https://youtu.be/",
+        "https://notyoutube.com/watch?v=dQw4w9WgXcQ",
+        "https://cdn.example.com/demo.m3u8",
+    ])
+    func anyOtherLinkStillOpensOutside(_ link: String) {
+        let url = URL(string: link)!
+        #expect(ActionCardLogic.videoSource(url) == .link(url))
+    }
+
+    @Test func aYouTubeLinkKeepsItsStartTime() {
+        #expect(ActionCardLogic.youtubeVideo(URL(string: "https://youtu.be/dQw4w9WgXcQ?t=90")!)?.start == 90)
+        #expect(ActionCardLogic.youtubeVideo(URL(string: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=1m30s")!)?.start == 90)
+        #expect(ActionCardLogic.youtubeVideo(URL(string: "https://www.youtube.com/embed/dQw4w9WgXcQ?start=42")!)?.start == 42)
+        #expect(ActionCardLogic.youtubeSeconds("1h2m3s") == 3723)
+        #expect(ActionCardLogic.youtubeSeconds("45s") == 45)
+        #expect(ActionCardLogic.youtubeSeconds("0") == nil)
+        #expect(ActionCardLogic.youtubeSeconds("soon") == nil)
+        #expect(ActionCardLogic.youtubeSeconds("") == nil)
+    }
+
+    @Test func theEmbeddedPlayerPlaysInlineInTheAppsLanguage() throws {
+        let embed = try #require(ActionCardLogic.youtubeEmbedURL(id: "dQw4w9WgXcQ", start: 90, locale: "fr"))
+        #expect(embed.absoluteString == "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=1&rel=0&hl=fr&cc_lang_pref=fr&start=90")
+        #expect(ActionCardLogic.youtubeEmbedURL(id: "dQw4w9WgXcQ", start: nil, locale: "en")?.absoluteString.contains("start=") == false)
+        #expect(ActionCardLogic.youtubeClientOrigin(bundleID: "com.FunctionAlps.patient")?.absoluteString == "https://com.functionalps.patient")
+    }
+
+    @Test func thePlayerPageEscapesTheTitleAndTheLink() throws {
+        let embed = try #require(ActionCardLogic.youtubeEmbedURL(id: "dQw4w9WgXcQ", start: nil, locale: "en"))
+        let html = ActionCardLogic.youtubePlayerHTML(embed: embed, title: #"Squat "slow" <demo> & more"#)
+        #expect(html.contains(#"title="Squat &quot;slow&quot; &lt;demo&gt; &amp; more""#))
+        #expect(html.contains("embed/dQw4w9WgXcQ?autoplay=1&amp;playsinline=1"))
+        #expect(html.contains("playsinline=1&rel") == false)
+    }
+
     @Test func theCardInFrench_withTheHabitsOwnTitleLeading() {
         let content = ActionCardLogic.content(card: card(), habit: habit(), locale: "fr")
         #expect(content.kind == .breath)
