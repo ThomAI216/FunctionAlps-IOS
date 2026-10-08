@@ -220,7 +220,10 @@ enum ActionCardLogic {
         let text = value.lowercased()
         if let seconds = Int(text) { return seconds > 0 ? seconds : nil }
         guard let match = text.wholeMatch(of: /(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/) else { return nil }
-        let seconds = (Int(match.1 ?? "0") ?? 0) * 3600 + (Int(match.2 ?? "0") ?? 0) * 60 + (Int(match.3 ?? "0") ?? 0)
+        let hours: Int = match.1.flatMap { Int($0) } ?? 0
+        let minutes: Int = match.2.flatMap { Int($0) } ?? 0
+        let rest: Int = match.3.flatMap { Int($0) } ?? 0
+        let seconds = hours * 3600 + minutes * 60 + rest
         return seconds > 0 ? seconds : nil
     }
 
