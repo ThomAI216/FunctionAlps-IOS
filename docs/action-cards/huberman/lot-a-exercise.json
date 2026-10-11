@@ -1,0 +1,82 @@
+[
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 10,
+  "default_slot": "midday",
+  "frequency_rule": "RRULE:FREQ=DAILY",
+  "member_can_add": true,
+  "sort_order": 1,
+  "title": "A 10-minute walk after lunch",
+  "title_fr": "Une marche de 10 minutes après le déjeuner",
+  "description": "Moves lunch along and clears the afternoon slump.",
+  "description_fr": "Aide la digestion et chasse le coup de barre de l’après-midi.",
+  "easy_title": "Five minutes outside",
+  "easy_title_fr": "Cinq minutes dehors",
+  "easy_description": "Half the walk, all the credit.",
+  "easy_description_fr": "La moitié de la marche, tout le mérite.",
+  "rev_title": "Stretch it to 20 minutes",
+  "rev_title_fr": "Allongez-la à 20 minutes",
+  "rev_description": "Same steps, 20 minutes this time.",
+  "rev_description_fr": "Mêmes étapes, 20 minutes cette fois.",
+  "how_md": "1. Head out within 30 minutes of finishing lunch — there is no need to rest first.\n2. Walk for 10 minutes at a comfortable pace, outdoors when you can.\n3. Look ahead and around you rather than at your phone.\n4. Stormy day? Walking the corridors or the stairs indoors counts too.\n5. More time today? Keep going — up to 30 minutes is even better.\n6. If something hurts, slow down or stop.",
+  "how_md_fr": "1. Sortez dans les 30 minutes qui suivent la fin du repas — inutile de vous reposer d’abord.\n2. Marchez 10 minutes à un rythme confortable, dehors si possible.\n3. Regardez devant vous et autour de vous plutôt que votre téléphone.\n4. Temps de tempête ? Marcher dans les couloirs ou les escaliers compte aussi.\n5. Plus de temps aujourd’hui ? Continuez — jusqu’à 30 minutes, c’est encore mieux.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
+  "general_why": "When you walk, your leg muscles use the sugar from your meal as fuel. A short walk started soon after eating can help your body handle the meal more smoothly, and it is easy to fit into the middle of the day.",
+  "general_why_fr": "Quand vous marchez, les muscles des jambes utilisent le sucre du repas comme carburant. Une courte marche, commencée peu après avoir mangé, peut aider le corps à mieux gérer le repas, et elle se glisse facilement au milieu de la journée.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "walking after meals"
+   },
+   {
+    "kind": "article",
+    "slug": "post-meal-walking",
+    "title": "Post-Meal Walking"
+   }
+  ],
+  "_note_clinicien": "Lot A : enrichissement de la carte existante (exercise · movement · ordre 1). Source : huberman:P026 (marche après le repas) ; étape 3 tirée de huberman:P025 (regarder devant soi plutôt que le téléphone), étape 4 de huberman:P027 (marcher à l’intérieur). Textes en ligne repris à l’identique (titre FR, description, version douce, titre plus loin) ; rev_description ajoutée (« Mêmes étapes, 20 minutes »). Chiffres du record à vérifier : départ dans les 30 minutes après le repas ; 5–10 minutes minimum, 10–30 minutes mieux (la version douce à 5 min et la plus loin à 20 min restent dans ces bornes). La description en ligne (« chasse le coup de barre ») promet un léger effet : gardée telle quelle (lot A conservateur) ; proposition plus prudente, NON appliquée : « A short walk to start the afternoon. » / « Une courte marche pour commencer l’après-midi. » Affirmation à valider : « les muscles utilisent le sucre du repas comme carburant ; une marche peu après le repas aide le corps à mieux le gérer » (le livre parle de glycémie post-prandiale, mot volontairement absent de la carte). member_can_add proposé à true (marche douce, sans risque). Idée d’image : un trottoir ou un parc à midi, une personne de dos qui marche, sans visage reconnaissable."
+ },
+ {
+  "pillar": "exercise",
+  "category": "movement",
+  "card_kind": "movement",
+  "duration_min": 10,
+  "default_slot": "evening",
+  "frequency_rule": "RRULE:FREQ=DAILY",
+  "member_can_add": true,
+  "sort_order": 5,
+  "title": "Evening walk",
+  "title_fr": "Marche du soir",
+  "description": "Movement after dinner — the strongest gentle lever on sleep.",
+  "description_fr": "Bouger après le dîner — le levier doux le plus puissant sur le sommeil.",
+  "easy_title": "Five minutes around the block",
+  "easy_title_fr": "Cinq minutes autour du pâté de maisons",
+  "easy_description": "Short is fine — out the door is the win.",
+  "easy_description_fr": "Court, c’est très bien — passer la porte, c’est déjà gagné.",
+  "rev_title": "Add ten extra minutes",
+  "rev_title_fr": "Ajoutez dix minutes",
+  "rev_description": "Same easy walk, ten minutes longer.",
+  "rev_description_fr": "La même marche tranquille, dix minutes de plus.",
+  "how_md": "1. Within 30 minutes of finishing dinner, put on your shoes and head out.\n2. Walk for 10 minutes at an easy pace — this is not a workout.\n3. Look ahead and around you rather than at your phone.\n4. Keep it gentle, so the evening can slow down once you are home.\n5. If something hurts, slow down or stop.",
+  "how_md_fr": "1. Dans les 30 minutes qui suivent la fin du dîner, mettez vos chaussures et sortez.\n2. Marchez 10 minutes à un rythme tranquille — ce n’est pas un entraînement.\n3. Regardez devant vous et autour de vous plutôt que votre téléphone.\n4. Restez en douceur, pour que la soirée puisse ralentir une fois de retour chez vous.\n5. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
+  "general_why": "When you walk, your leg muscles use the sugar from your meal as fuel, so a short walk soon after dinner can help your body handle the meal. Keeping the pace easy matters in the evening: hard exercise close to bedtime can leave you revved up, while a gentle walk can help the day wind down.",
+  "general_why_fr": "Quand vous marchez, les muscles des jambes utilisent le sucre du repas comme carburant : une courte marche peu après le dîner peut donc aider le corps à gérer le repas. Le soir, le rythme tranquille compte : un effort intense juste avant le coucher peut garder le corps en éveil, alors qu’une marche douce peut aider la journée à se terminer.",
+  "image_url": null,
+  "image_alt": null,
+  "resources": [
+   {
+    "kind": "youtube",
+    "query": "evening walk after dinner"
+   },
+   {
+    "kind": "article",
+    "slug": "post-meal-walking",
+    "title": "Post-Meal Walking"
+   }
+  ],
+  "_note_clinicien": "Lot A : enrichissement de la carte existante (exercise · movement · ordre 5). Sources : huberman:P026 (marche dans les 30 minutes après le repas, 5–10 min minimum, 10–30 min mieux) + huberman:P024 (éviter l’effort intense dans les heures avant le coucher). Description en ligne gardée à l’identique (lot A conservateur), bien qu’elle soit l’exemple d’effet santé promis cité au guide §3.1 ; proposition plus prudente, NON appliquée : « A short, easy walk after dinner — a gentle way to close the day. » / « Une courte marche tranquille après le dîner — une façon douce de clore la journée. » Versions douce et titre plus loin repris à l’identique ; rev_description ajoutée. Durée normale fixée à 10 min (borne du record « 10–30 min mieux ») ; plus loin = 20 min, douce = 5 min (minimum du record). Affirmations à valider : le sucre du repas utilisé par les muscles ; l’effort intense tard le soir garde le corps en éveil. member_can_add proposé à true. Idée d’image : une rue calme au crépuscule, lumière douce, personne de dos."
+ }
+]

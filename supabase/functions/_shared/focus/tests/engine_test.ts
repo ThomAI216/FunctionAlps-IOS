@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "jsr:@std/assert@1"
 import {
-  type BankHabit, decideFocus, detectStates, type FocusInput, leadOffer, MAX_OFFERS, pickHabit, PRIORITIES,
+  type BankHabit, decideFocus, detectStates, focusEligibleBank, type FocusInput, leadOffer, MAX_OFFERS, pickHabit, PRIORITIES,
   responseFor, sameIdea, type StateResponse, variantFor, wording,
 } from "../engine.ts"
 
@@ -270,4 +270,15 @@ Deno.test("French rides along — the same morning makes the same decisions in e
   assertEquals(bilingual.offers[0].titleFr, "Cinq minutes dehors, à la lumière du jour")
   assertEquals(bilingual.offers.find((o) => o.trigger === "prio_train")?.titleFr, "Cinq assis-debout")
   assertEquals(plain.offers[0].titleFr, null)
+})
+
+Deno.test("Prescription-only cards reach only the members they were prescribed to", () => {
+  const card = (id: string, memberCanAdd: boolean | null | undefined): BankHabit => ({ ...h(id, "movement", "strength", id, "morning", 1), memberCanAdd })
+  const bank = [card("walk", true), card("plunge", false), card("sprint", false), card("legacy", null), card("unset", undefined)]
+  // Nothing prescribed: only the foundation card. An unset flag counts as prescription-only, never as open.
+  assertEquals(focusEligibleBank(bank, new Set()).map((b) => b.id), ["walk"])
+  // A practitioner prescribed the plunge: it joins this member's bank, the sprint stays out.
+  assertEquals(focusEligibleBank(bank, new Set(["plunge"])).map((b) => b.id), ["walk", "plunge"])
+  // The filter never adds a card the bank does not hold (an inactive card stays out).
+  assertEquals(focusEligibleBank(bank, new Set(["retired"])).map((b) => b.id), ["walk"])
 })

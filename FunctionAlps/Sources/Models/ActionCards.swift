@@ -75,11 +75,13 @@ struct ActionCardRow: Decodable, Sendable, Equatable, Identifiable {
     var memberCanAdd: Bool?
     /// Kept raw: a malformed entry is dropped by `ActionCardLogic.links`, never fails the whole card.
     var resources: [RawLink]?
+    /// The next level of this action on its evolution ladder (`habit_bank.next_level_id`); nil = top of its ladder.
+    var nextLevelId: String?
 
     /// The columns the app reads — Core/API only (rule 2) uses this list.
     static let columns = "id,pillar,card_kind,duration_min,title,title_fr,description,description_fr,easy_title,easy_title_fr,"
         + "easy_description,easy_description_fr,rev_title,rev_title_fr,rev_description,rev_description_fr,how_md,how_md_fr,"
-        + "general_why,general_why_fr,image_url,image_alt,resources,default_slot,frequency_rule,member_can_add"
+        + "general_why,general_why_fr,image_url,image_alt,resources,default_slot,frequency_rule,member_can_add,next_level_id"
 
     struct RawLink: Decodable, Sendable, Equatable {
         var kind: String?

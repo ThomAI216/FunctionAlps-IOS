@@ -9,12 +9,15 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private let storage: StorageClient
     /// Nil = no live channel (previews, tests): watchers poll.
     private let realtime: RealtimeClient?
+    /// The CLINICAL library API (the show); nil = not configured (`FA_CLINICAL_API_URL` empty) → no show data.
+    private let clinical: ClinicalAPIClient?
 
-    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient, realtime: RealtimeClient? = nil) {
+    init(rest: PostgRESTClient, functions: EdgeFunctionClient, storage: StorageClient, realtime: RealtimeClient? = nil, clinical: ClinicalAPIClient? = nil) {
         self.rest = rest
         self.functions = functions
         self.storage = storage
         self.realtime = realtime
+        self.clinical = clinical
     }
 
     // MARK: Identity
@@ -753,7 +756,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         ])
         let header = headers.first
         let habits: [HabitRow] = try await rest.select("habits", query: [
-            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id"),
+            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id,level_since,level_locked"),
             PG.eq("patient_id", patientId), PG.neq("status", "cancelled"), PG.order("created_at"),
         ])
         let completions: [HabitCompletionRow] = try await rest.select("habit_completions", query: [
@@ -838,6 +841,17 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func removeOwnHabit(id: String) async throws {
         try await rest.delete("habits", query: [PG.eq("id", id), PG.eq("source", "self_initiated")])
+    }
+
+    func ladderCards() async throws -> [ActionCardRow] {
+        try await rest.select("habit_bank", query: [PG.select(ActionCardRow.columns), PG.eq("active", "true")])
+    }
+
+    private struct LevelUpBody: Encodable, Sendable { let pHabit: String }
+    private struct LevelUpReply: Decodable, Sendable { let id: String }
+
+    func levelUp(habitId: String) async throws {
+        let _: LevelUpReply = try await rest.rpc("member_level_up", body: LevelUpBody(pHabit: habitId))
     }
 
     func nextAppointment(after: Date) async throws -> AppointmentRow? {
@@ -1045,6 +1059,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {
         try await rest.insertRows("member_lesson_progress", body: [ProgressBody(patientId: patientId, trackId: trackId, contentSlug: contentSlug)])
+    }
+
+    // MARK: The show (CLINICAL `/api/webinars/library`; experiment marks in member_lesson_progress)
+
+    private struct ShowProgressWire: Decodable, Sendable { let contentSlug: String; let completedAt: String? }
+
+    func showLibrary() async throws -> ShowLibrary {
+        guard let clinical else { throw AppError.configuration(detail: "FA_CLINICAL_API_URL") }
+        let response = try await clinical.get("api/webinars/library")
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        guard let library = ShowLibrary.decodeList(response.body) else { throw AppError.decoding(detail: "show library") }
+        return library
+    }
+
+    func showEpisode(slug: String) async throws -> ShowEpisode? {
+        guard let clinical else { throw AppError.configuration(detail: "FA_CLINICAL_API_URL") }
+        guard ShowLogic.isSlug(slug) else { return nil }
+        let response = try await clinical.get("api/webinars/library/\(slug)")
+        if response.status == 404 { return nil }
+        guard response.isSuccess else { throw AppError.fromStatus(response.status, body: response.body) }
+        guard let episode = ShowEpisode.decode(response.body) else { throw AppError.decoding(detail: "show episode") }
+        return episode
+    }
+
+    /// Same table, same RLS as the track progress — the members web reads it the same way (track_id null, `show:*`).
+    func showProgress(patientId: String) async throws -> [ShowProgressRow] {
+        let rows: [ShowProgressWire] = try await rest.select("member_lesson_progress", query: [
+            PG.select("content_slug,completed_at"), PG.eq("patient_id", patientId), PG.isNull("track_id"),
+            URLQueryItem(name: "content_slug", value: "like.\(ShowLogic.experimentPrefix)*"),
+        ])
+        return rows.map { ShowProgressRow(contentSlug: $0.contentSlug, completedAt: $0.completedAt.flatMap(ISO8601.parse)) }
     }
 
     // MARK: Meal reactions (nb_meal_reactions)

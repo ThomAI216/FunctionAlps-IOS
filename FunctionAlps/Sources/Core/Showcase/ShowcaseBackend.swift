@@ -36,6 +36,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow? { ShowcaseData.libraryItem(slug: slug) }
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { ShowcaseData.covers }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
+    func showLibrary() async throws -> ShowLibrary { ShowcaseData.showLibrary() }
+    func showEpisode(slug: String) async throws -> ShowEpisode? { ShowcaseData.showEpisode(slug: slug) }
+    func showProgress(patientId: String) async throws -> [ShowProgressRow] { ShowcaseData.showProgress() }
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
     func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
@@ -87,9 +90,13 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan { ShowcaseData.habitPlan(day: day) }
     func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
-    func actionBank() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values).sorted { $0.id < $1.id } }
+    func actionBank() async throws -> [ActionCardRow] {
+        ShowcaseData.cards.values.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
+    }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}
+    func ladderCards() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values) }
+    func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
