@@ -19,6 +19,10 @@ enum NotificationPlanner {
         case mealReaction = "meal.reaction"
         case weeklySummary = "weekly"
         case wearableStale = "wearable.stale"
+        /// The Foundation Track's three daily texts (days 1–14), at the member's own times.
+        case trackMorning = "track.morning"
+        case trackMidday = "track.midday"
+        case trackEvening = "track.evening"
     }
 
     struct Planned: Sendable, Equatable, Identifiable {
@@ -41,10 +45,13 @@ enum NotificationPlanner {
         var unratedRecentMeals: [(id: String, loggedAt: Date)] = []
         var appleHealthConnected = false
         var appleHealthLastSync: Date?
+        /// The Foundation Track while the member is on it (days 1–14); nil otherwise.
+        var track: TrackReminderPlan?
 
         static func == (a: State, b: State) -> Bool {
             a.now == b.now && a.momentsDone == b.momentsDone && a.mealsToday == b.mealsToday && a.appleHealthConnected == b.appleHealthConnected
                 && a.appleHealthLastSync == b.appleHealthLastSync && a.unratedRecentMeals.map(\.id) == b.unratedRecentMeals.map(\.id)
+                && a.track == b.track
         }
     }
 
@@ -71,9 +78,28 @@ enum NotificationPlanner {
                 out.append(Planned(id: "\(kind.rawValue).\(dayKey)", kind: kind, fireAt: fireAt, title: title, body: body, route: route, threadId: kind.rawValue))
             }
 
+            // The Foundation Track (days 1–14): the day's texts at the member's own times — morning = wake + 15,
+            // midday = lunch + 45, evening = bedtime − 45 (`TrackLogic.pushMinute`), quiet hours respected
+            // (`TrackLogic.quietAdjusted`). The evening one follows the evening switch and, that day, REPLACES
+            // the evening check-in reminder (its texts end with the check-in). A tap opens Home, where the day is.
+            var trackEvening = false
+            if let track = state.track, (1...max(track.days, 1)).contains(track.today + offset), let pushes = track.pushes[track.today + offset] {
+                let moments: [(TrackMoment, Kind)] = [(.morning, .trackMorning), (.midday, .trackMidday), (.evening, .trackEvening)]
+                for (moment, kind) in moments {
+                    guard let push = pushes[moment], TrackLogic.pushApplies(push, reviewUnlocked: track.reviewUnlocked),
+                          moment != .evening || prefs.eveningEnabled,
+                          let minute = TrackLogic.pushMinute(moment, wake: track.wake, lunch: track.lunch, bedtime: track.bedtime) else { continue }
+                    if moment == .evening { trackEvening = true }
+                    let adjusted = TrackLogic.quietAdjusted(minute, moment: moment, prefs: prefs)
+                    add(kind, calendar.date(byAdding: .minute, value: adjusted, to: day),
+                        String(localized: "notif.track.title", defaultValue: "Your Foundation Track"),
+                        TrackLogic.pushBody(push, plan: track), "functionalps://foundation")
+                }
+            }
+
             // ONE check-in a day, in the evening: the day you lived, digestion included. Skipped today when
             // it is already done. Morning and midday are never planned (retired), whatever the stored prefs say.
-            if prefs.eveningEnabled, !(isToday && state.momentsDone.contains(.evening)) {
+            if prefs.eveningEnabled, !trackEvening, !(isToday && state.momentsDone.contains(.evening)) {
                 add(.eveningCheckin, at(prefs.eveningTime),
                     String(localized: "notif.evening.title", defaultValue: "Look back on your day 🌙"),
                     String(localized: "notif.evening.body", defaultValue: "Energy, focus, mood and digestion — how did the day actually go?"),
