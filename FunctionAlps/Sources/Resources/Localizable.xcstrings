@@ -38583,13 +38583,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today's video · about 1 minute"
+            "value": "Today's video"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La vidéo du jour · environ 1 minute"
+            "value": "La vidéo du jour"
           }
         }
       }

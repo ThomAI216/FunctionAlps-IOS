@@ -82,20 +82,7 @@ DAYS = [
          evolve=[("Tomorrow", "Photograph what you eat. That habit runs all 14 days."),
                  ("Day 3", "1 minute of movement joins your morning, and your evening routine begins."),
                  ("Day 7", "Your full day: a 5-minute morning flow and a daily exercise snack.")],
-         read="Why we start with where you are",
-         script="""Hi, I'm Thomas. Welcome to your Foundation Track.
-
-For the next fourteen days you'll get one short card a day: a video like this one, one small thing to try, and a short read.
-
-Why fourteen days? Because lasting change doesn't start with a perfect plan. It starts with understanding where you are today, and where you want to go.
-
-So this first week is about you. Each day we look at one pillar of your health: nutrition, movement, sleep, and your mental and emotional health. I explain why it matters and how we use it, and you answer a few short questions. Don't change anything yet: the more real your answers, the more useful everything after.
-
-Today's questions are about your starting point: your goals, your usual week, your rhythm. Three minutes.
-
-And your first thing to try is a mini morning routine: a glass of water when you wake up, then three slow breaths at the window. That's it.
-
-Small steps, one a day. Let's start."""),
+         read="Why we start with where you are",),
     dict(day=2, week=1, title="Nutrition", pillar="Pillar 1 · Nutrition",
          today=[("What it is", "What you eat, when, and how much: the material your body builds and repairs with, and the fuel for your energy."),
                 ("Why it matters", "Food shapes your energy, hunger, mood, sleep and recovery. Small changes in what and when you eat often make a big difference."),
@@ -107,18 +94,7 @@ Small steps, one a day. Let's start."""),
          evolve=[("Tomorrow", "Your morning grows with 1 minute of movement, and your evening routine begins."),
                  ("Day 4", "Daylight in the morning, your phone out of the bedroom."),
                  ("Days 8–9", "Breakfast and lunch become the focus, built from your photos.")],
-         read="What your meal photos tell us",
-         script="""Today: nutrition, the first pillar.
-
-Food is more than calories. It's the material your body uses to build and repair, the fuel for your energy, and a signal that shapes your hunger, your mood and your sleep.
-
-But to help you, we don't start with a diet. We start with how you really eat. That's why today's questions ask how many meals you have, when you eat, who cooks, and which proteins you like. Together they show your real pattern, and where one small change would help you most.
-
-And that's why today's one habit matters so much: photograph everything you eat. Every meal, every snack, before the first bite. Not to judge. A photo shows what memory forgets: timing, portions, protein, variety. Your photos are how we understand your nutrition, and they count toward your review call on day fourteen.
-
-So today: your nutrition questions, two minutes, and a photo before each meal.
-
-Tomorrow: movement."""),
+         read="What your meal photos tell us",),
     dict(day=3, week=1, title="Movement", pillar="Pillar 2 · Movement",
          today=[("What it is", "Not sport: your functional capacity. How easily your body does what your life asks of it: getting up, carrying, climbing stairs, hiking."),
                 ("Why it matters", "Capacity is built or lost by what you do every day. Long hours of sitting slowly take it away; small, regular movement keeps it and builds it."),
@@ -131,20 +107,7 @@ Tomorrow: movement."""),
                  ("Day 7", "Your minute of movement becomes a 5-minute flow, and the exercise snack becomes daily."),
                  ("Days 10–12", "Easy strength, then a 10-minute morning flow.")],
          library=[("Lesson", "Exercise snacks: small signals that add up", "in the library")],
-         read="Little and often",
-         script="""Today: movement, the second pillar.
-
-When I talk about movement, I don't mean sport. I mean functional capacity: how easily your body does what your life asks of it. Getting up from the floor. Carrying the shopping. Climbing the stairs. Hiking in the mountains when you're seventy.
-
-That capacity is built, or lost, by what you do every day. Sitting most of the day slowly takes it away. Small, regular movement keeps it, and builds it. That's why we start with little and often, not with a hard workout.
-
-Today's questions ask how you move now, how you moved before, and whether anything hurts. That way everything we suggest starts at the right level for you, and stays safe.
-
-Your morning routine grows: after your water and your breaths, one minute of gentle movement. If you want more, try an exercise snack during the day: ten squats, or a minute up the stairs. And tonight your evening routine begins: two minutes of gentle stretching before bed.
-
-From today you can also book a free twenty-minute call with me, right in the app.
-
-Tomorrow: sleep."""),
+         read="Little and often",),
     dict(day=4, week=1, title="Sleep", pillar="Pillar 3 · Sleep",
          today=[("What it is", "The time your body repairs, your brain sorts the day and your rhythm resets."),
                 ("Why it matters", "After a poor night, hunger is louder, cravings stronger, mood shorter and effort harder. Regular times and light set your body clock."),
@@ -155,18 +118,7 @@ Tomorrow: sleep."""),
          tip="No time to go outside? Have your coffee at the brightest window.",
          evolve=[("Tomorrow", "Box breathing and one good thing join your evening."),
                  ("Day 11", "Your full evening routine: last meal earlier, screens off, a book, 10 minutes to wind down.")],
-         read="Light sets your body clock",
-         script="""Today: sleep, the third pillar.
-
-Sleep is when your body repairs, your brain sorts the day, and your rhythm resets. After a poor night, hunger is louder, cravings are stronger, your mood is shorter and every effort feels harder. Sleep quietly shapes every other pillar.
-
-Two things matter a lot: regular times, and light. Your body clock is set by light, especially morning daylight, and pushed back by bright screens late in the evening.
-
-Today's questions are about your usual pattern, not last night: when you go to bed, how long you take to fall asleep, what wakes you, how rested you feel. Your times also tell us when to send your reminders.
-
-Two small things join your routine. In the morning: five minutes of daylight, outside or at an open window. In the evening: your phone sleeps outside the bedroom. A simple alarm clock helps.
-
-Tomorrow: your mental and emotional health."""),
+         read="Light sets your body clock",),
     dict(day=5, week=1, title="Mental and emotional health", pillar="Pillar 4 · Mental and emotional health",
          today=[("What it is", "The load you carry, from work, family, health or big changes, and how well you recover from it."),
                 ("Why it matters", "When the load stays high, it shows up in your sleep, appetite, energy, digestion and mood. Recovery is what brings your body back to calm."),
@@ -177,18 +129,7 @@ Tomorrow: your mental and emotional health."""),
          tip="If four counts feel long, breathe in threes. The rhythm matters more than the number.",
          evolve=[("Tomorrow", "A short walk after lunch: your routine now covers the whole day."),
                  ("Day 11", "Your 2 minutes of breathing grow into 10 minutes: breathing, NSDR or gentle yoga.")],
-         read="The 2-minute downshift",
-         script="""Today: the fourth pillar, your mental and emotional health.
-
-Stress isn't only in your head. When the load stays high, it shows up everywhere: in your sleep, your appetite, your energy, your digestion, your patience. And recovery isn't only rest. It's what brings your body back to calm after effort.
-
-We all carry a load: work, family, health, money, big changes. What matters is the balance between that load and how well you recover from it.
-
-Today's questions ask how stressed you've felt lately, where it comes from, how your mood has been, and what already helps you switch off. Answer only what you're comfortable with. It helps us suggest tools that fit your life, instead of adding pressure.
-
-Your evening routine grows with two things. In bed: two minutes of box breathing. In for four, hold for four, out for four, hold for four. Then think of one good thing from your day.
-
-That was the last questionnaire. Tomorrow: your first week, on one page."""),
+         read="The 2-minute downshift",),
     dict(day=6, week=1, title="Your first week", pillar="Recap",
          today="Six days, four pillars: nutrition, movement, sleep, and your mental and emotional health. You've told us where you are and where you want to go, and you've built a small routine without really noticing. Here it is, in the four moments of your day. One new moment today: after lunch.",
          questionnaire=("Your first week", 1, "Check your goals are still right and tell us how the week felt."),
@@ -198,18 +139,7 @@ That was the last questionnaire. Tomorrow: your first week, on one page."""),
          evolve=[("Tomorrow", "A 5-minute morning flow and one exercise snack a day."),
                  ("Week 2", "One focus a day: breakfast, lunch, strength, evening, morning."),
                  ("Day 13", "You choose what you keep.")],
-         read="Simple actions, repeated",
-         script="""Six days. Look at what you've already done.
-
-You've told us where you are and where you want to go. We've looked at the four pillars: nutrition, movement, sleep, and your mental and emotional health. And you've built a small routine without really noticing.
-
-On your card today you'll see it in the four moments of your day. In the morning: water, three breaths, a minute of movement, and daylight. During the day: your meal photos, and an exercise snack if you like. In the evening: a short stretch, your phone outside the bedroom, two minutes of breathing, and one good thing.
-
-And one new moment today: after lunch, five minutes outside. A short walk, nothing sporty.
-
-Take one minute for today's questions: check your goals are still right, and tell me how the week felt.
-
-Tomorrow, everything comes together in one full day."""),
+         read="Simple actions, repeated",),
     dict(day=7, week=1, title="Your full day", pillar="Everything together",
          today="One week. Today everything comes together in one full day, with a little more movement: your minute in the morning becomes a 5-minute flow inspired by qi gong, and the exercise snack becomes daily. Thomas is reviewing your first week; your summary appears here once he has read it.",
          questionnaire=None,
@@ -220,20 +150,7 @@ Tomorrow, everything comes together in one full day."""),
                  ("Day 9", "Lunch, and a 10-minute walk after it."),
                  ("Day 10", "Your exercise snack becomes a strength routine."),
                  ("Days 11–12", "Your full evening, then a longer morning flow.")],
-         read="Your day, on one page",
-         script="""One week. Today everything comes together in one full day.
-
-In the morning, your minute of movement becomes a five-minute flow inspired by qi gong: slow breathing with the arms, gentle twists, then shake it out. It wakes the body up without rushing it.
-
-During the day, your exercise snack is no longer optional: one a day. Ten squats, a minute up the stairs, or ten wall push-ups. Short bursts like these add up, and they're one of the simplest ways to build capacity.
-
-After lunch: your five minutes outside. In the evening: stretch, phone out, breathe, one good thing.
-
-That's your base, and it fits in a normal day.
-
-I'm also reviewing your first week. You'll find your summary here as soon as I've read it: what we learned, your goals, and what week two brings.
-
-Week two is about action, one focus a day. See you tomorrow, with breakfast."""),
+         read="Your day, on one page",),
     dict(day=8, week=2, title="Protein first", pillar=None,
          today="Protein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly across the day, and more as we age to keep our muscle. Many people eat little in the morning and most at night. Today, protein moves to breakfast.",
          questionnaire=None, extras=[],
@@ -243,17 +160,6 @@ Week two is about action, one focus a day. See you tomorrow, with breakfast.""")
                  ("Day 10", "Easy strength.")],
          library=[("Infographic", "Protein through the day", "to create: today's image, also filed in the library")],
          read="Why protein matters",
-         script="""Week two starts with breakfast, and with protein.
-
-Protein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly, across the day. And as we get older we need a little more of it to keep our muscle.
-
-Many people eat very little protein in the morning and most of it at night. Moving some of it to breakfast is a simple change, and many people find it keeps them full for longer and steadies their energy through the morning.
-
-So today: put protein on your breakfast plate. Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About the size of your palm. The ideas in the app come from what you told us you eat.
-
-Then, if you can, a ten-minute walk after breakfast. Outside, so it counts as daylight too.
-
-Tomorrow: lunch.""",
          image_title="Protein through the day",
          image=[("Composition", "Top two thirds: one breakfast plate in the centre with five small protein options around it. Bottom third: a day strip (breakfast · lunch · dinner) with a walking figure."),
                 ("Elements & labels", "Around the plate: 'eggs', 'Greek yogurt', 'cottage cheese', 'smoked salmon', 'tofu'. A palm icon next to the plate: 'about a palm'. The day strip shows three equal protein blocks, the breakfast one in gold: 'spread across the day'. A walking figure in gold: '+10 min walk'."),
@@ -268,17 +174,6 @@ Tomorrow: lunch.""",
          library=[("Infographic", "The plate that holds you", "to create: today's image, also filed in the library")],
          thomas_note="Short read 'Complex carbs, simply': to write, and file in the library next to the infographic.",
          read="Complex carbs, simply",
-         script="""Today: lunch, and the walk after it.
-
-Lunch decides your afternoon. A plate of fast carbs, like white bread, white pasta or a sweet drink, often means a quick rise in energy and then a dip around three o'clock.
-
-So build your plate in three parts. Half vegetables. A good portion of protein, about a palm. And a quarter of complex carbs: oats, wholegrain bread, legumes, quinoa, brown rice. Complex carbs come with their fibre, so they're digested more slowly and give you steadier energy. You'll find the plate and the complex-carbs principle in your library.
-
-And the most important part comes after: a ten-minute walk. Moving right after a meal helps your muscles use the energy from it, and it's one of the easiest habits to keep.
-
-Last thing: your last coffee before two in the afternoon, so it doesn't follow you into the night.
-
-Tomorrow: easy strength.""",
          image_title="The plate that holds you",
          image=[("Composition", "Left: a large plate diagram. Right, stacked: two small energy curves, then a walking figure, then a small clock."),
                 ("Elements & labels", "Plate: half 'vegetables' (soft green), a quarter 'protein' (forest), a quarter 'complex carbs' (cream) with tiny icons for oats, wholegrain bread, lentils, quinoa. Curves: 'fast carbs' (spike, then dip) next to 'complex carbs' (gentle wave). The walker in gold, the largest element on the right: '10-min walk after lunch'. Small clock at 14:00 with a cup: 'last coffee'."),
@@ -292,17 +187,6 @@ Tomorrow: easy strength.""",
                  ("Day 12", "Your morning flow grows to 10 minutes.")],
          thomas_note="The routine itself: Thomas develops it (moves, reps, easier and harder versions), then films it for today's video. Until then the card says 'Thomas shows every move in today's video'.",
          read="Muscle is a long-term account",
-         script="""Today: easy strength.
-
-Muscle is one of the best long-term investments you can make. It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you get older. And it starts very simply.
-
-Your daily exercise snack becomes a five-minute strength routine you can do at home, in your clothes, with no equipment. I'll show you every move.
-
-[Thomas: your routine here: each move, how many, the easier version.]
-
-Go slowly, breathe, and stop if anything hurts. Easier is always fine. What matters is doing it often, not doing it hard.
-
-Tomorrow: your evening.""",
          image_title="Five minutes, anywhere",
          image=[("Composition", "Placeholder until Thomas's routine is set: the moves drawn as small poses around a circle, '5 min' in the centre."),
                 ("Elements & labels", "One pose per move, each labelled with the move and its count (from Thomas's routine). Gold arrows between poses. Under the circle: 'at home · no equipment · in your clothes'."),
@@ -316,21 +200,6 @@ Tomorrow: your evening.""",
                  ("Day 13", "You choose what you keep.")],
          library=[("Audio", "10-minute NSDR", "to record")],
          read="Your evening routine",
-         script="""Tonight: your full evening routine.
-
-You've already started: a stretch, your phone outside the bedroom, two minutes of breathing, one good thing. Tonight we complete it.
-
-Two to three hours before bed, finish your last meal. Your body can then focus on rest rather than digestion.
-
-One hour before bed: screens off, lights low. Bright screens tell your brain it's still daytime. Swap the phone for a book.
-
-Then, before sleep, ten minutes to wind down. Choose what suits you: slow breathing, a guided NSDR, which means non-sleep deep rest, or gentle yoga. Your stretch and your box breathing grow into this.
-
-And keep your one good thing, last thing before sleep.
-
-You don't need everything every night. Start with what's easiest, and add the rest.
-
-Tomorrow: more morning movement.""",
          image_title="Winding down, step by step",
          image=[("Composition", "A horizontal evening timeline from dinner to sleep, its background shifting from warm to dark."),
                 ("Elements & labels", "Markers: a plate at '−3 h to −2 h' ('last meal'), a phone switching off and a lamp dimming at '−60 min' ('screens off, lights low'), an open book ('read'), a figure lying down at '−10 min' ('breathe · NSDR · yoga'), a small star at 'sleep' ('one good thing'). The phone charging outside the bedroom door in grey (already in place). The four new markers in gold."),
@@ -343,15 +212,6 @@ Tomorrow: more morning movement.""",
          evolve=[("Tomorrow", "Nothing new: you choose what you keep."),
                  ("Day 14", "Your two weeks, and your 20-minute review call.")],
          read="Sitting less",
-         script="""Today your morning flow grows from five to ten minutes.
-
-Why the morning? Moving early wakes your body up, gets your circulation going and, if you're outside, gives you daylight for your body clock. And a routine done first thing gets done, before the day takes over.
-
-Same movements, a little longer: breathe, move, twist, shake out. Ten minutes is enough to feel looser, warmer and more awake.
-
-And during the day: if you sit for long periods, stand up every hour or two and move for two minutes. Take the stairs, walk while you're on the phone, refill your water. Long sitting is one of the things that slowly takes your capacity away, and short breaks are the simplest answer.
-
-Tomorrow: you choose what you keep.""",
          image_title="Ten minutes, then little breaks",
          image=[("Composition", "Left: a short sequence of four flow poses. Right: a workday timeline with small break markers."),
                 ("Elements & labels", "Flow poses labelled 'breathe', 'move', 'twist', 'shake out', with '10 min' above them in gold. The workday line runs 9:00 to 18:00 with small gold markers every one to two hours: 'stand', 'stairs', 'walk on a call'."),
@@ -364,15 +224,6 @@ Tomorrow: you choose what you keep.""",
          evolve=[("Tomorrow", "Your two weeks: before and after, and your review call."),
                  ("After day 14", "The actions you keep stay in your app.")],
          read="Habits that last",
-         script="""Look at what you've built in twelve days. A morning routine, a walk after lunch, protein at breakfast, a lunch that holds you, strength, an evening that helps you sleep.
-
-You don't need to keep everything. A few habits you keep are worth more than ten you try once.
-
-Today there's nothing new. Look at your whole routine, and choose the actions you want to keep after these two weeks. They stay in your app.
-
-Choose the ones that felt good and fit your life. You can always add more later.
-
-Tomorrow: your two weeks, and what comes next.""",
          image_title="Choose what you keep",
          image=[("Composition", "Four rows of small action cards (Morning, After lunch, Evening, During the day), some lifted forward, some faded."),
                 ("Elements & labels", "About twelve mini cards with icons (water, flow, daylight, protein, walk, plate, strength, book, moon, phone, star, stairs). Four of them lifted forward with a gold check: 'I keep'. The rest faded. Caption: 'Pick what fits your life'."),
@@ -385,20 +236,258 @@ Tomorrow: your two weeks, and what comes next.""",
          tip="Write down one question for Thomas before your call.",
          evolve=[("Next", "Keep going with the app, or go deeper with a personal programme. You decide together on your call.")],
          read="What a personal programme adds",
-         script="""Fourteen days. Thank you.
-
-Today you'll see your check-ins from your first days next to your last days: energy, focus, mood, sleep. Look at what changed, and what didn't. Both tell us something.
-
-Then tell us how it was, in two minutes: what helped, what was hard, and what you'd like next.
-
-If you completed your questionnaires and photographed your meals, you can now book your twenty-minute review call with me. We'll look at your results together, answer your questions, and talk about what's next: keep going with the app, or go deeper with a personal programme built for you.
-
-Thank you for these two weeks. See you on the call.""",
          image_title="From day 1 to day 14",
          image=[("Composition", "A calendar strip of 14 ticked days at the top; below, four pairs of simple bars; at the bottom, a fork in the path."),
                 ("Elements & labels", "Bars labelled 'energy', 'focus', 'mood', 'sleep', each pair marked 'first days' and 'last days' (illustrative shapes, no numbers). The fork: 'Keep going with the app' and 'Go deeper with a personal programme', with a small phone icon in gold: 'Review with Thomas · 20 min'."),
                 ("One message", "See how far you've come, then choose what's next with Thomas.")]),
 ]
+
+# ── motion videos (Thomas, 2026-10-11: motion design + AI voice, 20–30 s, up to a minute if needed) ──
+# Each beat: (voiceover, on-screen text, what the animation shows). An empty voiceover is a silent end card.
+# Timing is estimated for a calm AI voice at ~145 words a minute plus a short breath between beats.
+MOTION_STYLE = (
+    "Motion design, no presenter. 16:9 master (1920 × 1080), the app's video frame; keep titles and key visuals "
+    "inside the centre square so a 1:1 or 4:5 crop works for social posts. Same look as the infographics: flat "
+    "vector, rounded figures without detailed faces, forest #2E5438 and soft green #4A8A5C on cream #F5F0E8, "
+    "charcoal #1A1A16 for text, gold #D4A84E only for the day's NEW action. The Alpine ridge line runs along the "
+    "bottom of every frame. On-screen text is short (max 6 words) and doubles as captions for muted viewing; add "
+    "full subtitles from the voiceover. Open on a small 'Day N' tag, close on a 2-second end card with the day's "
+    "title. Calm, warm AI voice (EN first, FR once the EN is locked), soft music bed, gentle eased motion, no "
+    "fast cuts."
+)
+WORDS_PER_SECOND = 145 / 60
+BREATH = 0.5      # seconds between beats
+END_CARD = 2.0    # seconds for a silent end card
+
+VIDEOS = {
+    1: [
+        ("Welcome to your Foundation Track.", "Your Foundation Track",
+         "The Alpine ridge line draws itself across the frame; the title fades in above it."),
+        ("Fourteen days. One card a day.", "14 days · 1 card a day",
+         "Fourteen small stones appear one by one along a path winding up the ridge."),
+        ("Lasting change doesn't start with a perfect plan. It starts with knowing where you are, and where you want to go.",
+         "Where you are → where you're going",
+         "A small figure stands at a trailhead; a dotted line draws from it up to a summit flag."),
+        ("This first week, we look at four pillars, one a day: nutrition, movement, sleep, and your mental and emotional health.",
+         "4 pillars · 1 a day",
+         "Four icons pop onto the path, each with its label: a plate, a walking figure, a moon, a gentle wave."),
+        ("Don't change anything yet. Just answer honestly. Your answers shape everything that follows.",
+         "No changes yet · honest answers",
+         "A short questionnaire card fills with ticks; soft lines flow from it into the path ahead."),
+        ("Your first thing to try: tomorrow morning, a glass of water, then three slow breaths at the window.",
+         "First thing to try",
+         "A window at sunrise; a glass fills with water, then three breath curls rise. Both in gold."),
+        ("Small steps. Let's begin.", "Day 1 · Your starting point",
+         "The figure takes its first step onto stone 1. End card."),
+    ],
+    2: [
+        ("Pillar one: nutrition.", "Pillar 1 · Nutrition", "The plate icon grows to the centre; the label slides in."),
+        ("Food is the material your body builds and repairs with, and the fuel for your energy.", "Build · repair · fuel",
+         "Food shapes flow into a simple body outline, which fills with a soft glow and an energy bar."),
+        ("It shapes your hunger, your mood and your sleep.", "Hunger · mood · sleep",
+         "Three small dials around the figure turn gently."),
+        ("We don't start with a diet. We start with how you really eat.", "Not a diet · your real plate",
+         "A strict diet sheet folds away; an everyday plate slides in."),
+        ("Today's questions ask how many meals, when, who cooks, and which proteins you like. Together, they show your real pattern.",
+         "Why we ask: your real pattern",
+         "Four question chips (meals, times, who cooks, protein) snap into a weekly grid."),
+        ("And one habit for all fourteen days: photograph everything you eat, before the first bite.", "Photograph every meal",
+         "A phone frames a plate; a gold shutter flash; the photo drops into a 14-day strip."),
+        ("Not to judge. To see.", "Not to judge · to see",
+         "The photos tile into a timeline with small tags: time, portion, protein, variety."),
+        ("Tomorrow: movement.", "Day 2 · Nutrition", "End card."),
+    ],
+    3: [
+        ("Pillar two: movement.", "Pillar 2 · Movement", "The walking-figure icon grows to the centre."),
+        ("Not sport. Functional capacity: how easily your body does what your life asks of it.", "Functional capacity",
+         "The figure moves through a simple day: no gym, just life."),
+        ("Getting up. Carrying the shopping. Climbing stairs. Hiking when you're seventy.", "Get up · carry · climb · hike",
+         "Four quick vignettes: rising from the floor, carrying bags, taking stairs, an older hiker on a ridge trail."),
+        ("Every day builds it, or slowly takes it away. Long sitting takes it away. Little and often builds it.",
+         "Little and often",
+         "A capacity bar drains while the figure sits at a desk, then refills with small movement icons."),
+        ("Today's questions set your starting level, and keep everything safe.", "Why we ask: your level, safely",
+         "A level slider settles at the figure's mark; a small shield icon appears."),
+        ("Your morning grows: one minute of gentle movement.", "Morning · 1 minute",
+         "Shoulder rolls, hip circles, slow squats, looping, in gold."),
+        ("If you like, an exercise snack: ten squats, or a minute of stairs.", "Optional · exercise snack",
+         "A short squat loop with '×10', then a stair icon."),
+        ("And tonight, your evening routine begins: two minutes of gentle stretching.", "Evening · 2-minute stretch",
+         "Dusk falls; the figure stretches on a mat, in gold."),
+        ("Tomorrow: sleep.", "Day 3 · Movement",
+         "End card, with a small phone icon: 'Call with Thomas · 20 min · open from today'."),
+    ],
+    4: [
+        ("Pillar three: sleep.", "Pillar 3 · Sleep", "The moon icon grows to the centre; the sky darkens."),
+        ("Sleep is when your body repairs, your brain sorts the day, and your rhythm resets.", "Repair · sort · reset",
+         "Night scene: muscles glow softly, thought bubbles file into folders, a small clock resets."),
+        ("After a poor night, hunger is louder, cravings are stronger, and everything feels harder.", "After a poor night",
+         "Next morning: the hunger bubble grows, snack icons crowd in, the figure walks more heavily."),
+        ("Two things set your body clock: regular times, and light. Morning light sets it. Bright screens at night push it back.",
+         "Regular times + light",
+         "A 24-hour ring: the morning sun sets the hand; a bright phone at night drags it later."),
+        ("Today's questions are about your usual nights, not last night. Your times also decide when your reminders arrive.",
+         "Why we ask: your usual nights",
+         "A week of moon icons; a small bell slides into place on the ring."),
+        ("Two small things. In the morning, five minutes of daylight.", "Morning · 5 min daylight",
+         "The figure at an open window, sun rays in gold."),
+        ("And tonight, your phone sleeps outside the bedroom.", "Night · phone outside",
+         "The phone charges on a shelf outside the bedroom; the door closes softly. Gold on the phone."),
+        ("Tomorrow: your mental and emotional health.", "Day 4 · Sleep", "End card."),
+    ],
+    5: [
+        ("Pillar four: your mental and emotional health.", "Pillar 4 · Mental and emotional health",
+         "The wave icon grows to the centre and settles."),
+        ("We all carry a load: work, family, health, big changes.", "The load you carry",
+         "A figure with a backpack; small icons drop into it one by one."),
+        ("When it stays high, it shows up everywhere: in your sleep, your appetite, your energy, your mood.",
+         "Sleep · appetite · energy · mood",
+         "Ripples spread from the backpack to four icons around the figure."),
+        ("What matters is the balance: the load, and how well you recover.", "Load ⇄ recovery",
+         "A balance: the backpack on one side, recovery icons (a walk, a breath, people) on the other; it levels."),
+        ("Today's questions ask where your load comes from, and what already helps you switch off. Answer only what feels comfortable.",
+         "Why we ask: tools that fit you",
+         "Question chips appear; one carries a small 'skip' mark."),
+        ("Tonight, in bed: two minutes of box breathing. In four, hold four, out four, hold four.", "Box breathing · 2 min",
+         "A dot travels around a square; each side lights with its count. Gold."),
+        ("Then, one good thing from your day.", "One good thing", "A small star lights up above the bed. Gold."),
+        ("Tomorrow: your first week, on one page.", "Day 5 · Mental and emotional health", "End card."),
+    ],
+    6: [
+        ("Six days. Four pillars. And a routine you built almost without noticing.", "Your first week",
+         "The four pillar icons slide down into one day timeline with four moments."),
+        ("In the morning: water, three breaths, a minute of movement, daylight.", "Morning",
+         "Four small icons pop into the morning segment."),
+        ("During the day: your meal photos.", "During the day", "A camera icon fills its segment."),
+        ("In the evening: stretch, phone out, breathe, one good thing.", "Evening",
+         "Four icons pop into the evening segment."),
+        ("Today, one new moment: after lunch, five minutes outside.", "New · 5 min outside after lunch",
+         "The empty after-lunch slot lights up with a walking figure in gold."),
+        ("One minute of questions to check your goals. Tomorrow, it all comes together.", "Day 6 · Your first week",
+         "The full timeline glows. End card."),
+    ],
+    7: [
+        ("One week. Today, your full day.", "Your full day", "The day timeline from day 6, now complete."),
+        ("Your minute of morning movement becomes a five-minute flow, inspired by qi gong: breathe, move, twist, shake it out.",
+         "Morning flow · 5 min",
+         "A flowing figure moves through four poses, each melting into the next. Gold."),
+        ("And one exercise snack a day: ten squats, a minute of stairs, or ten wall push-ups. Small bursts that add up.",
+         "1 exercise snack a day",
+         "Three tiny loops; a bar fills a notch with each burst. Gold."),
+        ("That's your base, and it fits in a normal day.", "Your base", "All four moments of the day light up together."),
+        ("Thomas is reviewing your first week. Your summary will be here soon.", "Day 7 · Your summary is coming",
+         "A summary card slides into a phone frame with a tick. End card."),
+    ],
+    8: [
+        ("Week two starts with breakfast.", "Week 2 · Protein first", "A breakfast table at sunrise."),
+        ("Protein is your body's building material: muscle, bones, skin, your immune system.", "Your building material",
+         "Small blocks assemble into a body outline."),
+        ("Your body can't store it the way it stores fat or sugar, so it needs some across the day, and a little more as we age.",
+         "Every meal · more with age",
+         "Three equal protein blocks line up over breakfast, lunch and dinner."),
+        ("Many people eat little in the morning. Today, move some to breakfast: eggs, Greek yogurt, cottage cheese, salmon or tofu. About a palm.",
+         "Breakfast · about a palm",
+         "The breakfast block grows, in gold; five options orbit the plate; a palm icon beside it."),
+        ("Then, a ten-minute walk.", "Day 8 · + 10-min walk",
+         "The figure leaves the table and walks into daylight. End card."),
+    ],
+    9: [
+        ("Lunch decides your afternoon.", "A lunch that holds you", "A clock moves from noon into the afternoon."),
+        ("Fast carbs often mean a quick rise, then a dip around three.", "Fast carbs: rise, then dip",
+         "An energy line spikes, then drops as the clock reaches 15:00."),
+        ("Build your plate in three parts: half vegetables, a palm of protein, and a quarter complex carbs, like oats, whole grains or legumes.",
+         "½ veg · ¼ protein · ¼ complex carbs",
+         "A plate fills section by section, with small icons in the complex-carbs quarter."),
+        ("Their fibre means steadier energy.", "Steadier energy", "The energy line softens into a gentle wave."),
+        ("Then the most important part: a ten-minute walk.", "10-min walk after lunch",
+         "A large walking figure in gold; the wave stays even."),
+        ("And your last coffee, before two.", "Day 9 · Coffee before 14:00", "A cup beside a clock at 14:00. End card."),
+    ],
+    10: [
+        ("Muscle is a long-term investment.", "Easy strength", "A single muscle icon, then a slowly rising line over years."),
+        ("It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you age.",
+         "Hold · protect · handle sugar · stay independent",
+         "One figure through the years, still carrying, climbing, getting up."),
+        ("And it starts simply. Your exercise snack becomes a five-minute routine. At home, no equipment.",
+         "5 min · at home · no equipment", "A living room; a timer ring set to 5:00."),
+        ("[Thomas's routine: one short line per move, with its count.]", "[move · count]",
+         "Each move as a looping pose with its count, one after another (from Thomas's routine)."),
+        ("Go slowly. Stop if anything hurts. Easier is always fine.", "Easier is fine",
+         "The same pose next to its easier version."),
+        ("Often beats hard.", "Day 10 · Easy strength", "End card."),
+    ],
+    11: [
+        ("Tonight, your full evening routine.", "Your evening downshift",
+         "An evening timeline from dinner to sleep, the sky shifting from warm to dark."),
+        ("Two to three hours before bed: your last meal, so your body can rest instead of digest.", "Last meal · 2–3 h before bed",
+         "A plate on the timeline at −3 h to −2 h. Gold."),
+        ("One hour before: screens off, lights low. Bright screens tell your brain it's still day.", "−60 min · screens off, lights low",
+         "A phone switches off, a lamp dims. Gold."),
+        ("Pick up a book instead.", "A book", "An open book on the sofa. Gold."),
+        ("Then, ten minutes to wind down: slow breathing, NSDR, or gentle yoga.", "10 min · breathe · NSDR · yoga",
+         "Three small choices; the figure lies down and the scene softens. Gold."),
+        ("And last thing, one good thing from your day.", "One good thing", "A small star above the bed."),
+        ("Start with what's easiest. Add the rest.", "Day 11 · Your evening downshift", "End card."),
+    ],
+    12: [
+        ("Your morning flow grows to ten minutes.", "Morning flow · 10 min", "The flow timer stretches from 5 to 10. Gold."),
+        ("Moving early wakes your body, warms you up and, outside, gives you daylight for your body clock.",
+         "Wake · warm · light", "The figure moves outside; the 24-hour ring sets at morning."),
+        ("And what's done first thing gets done.", "First thing = done", "A tick lands on the morning slot."),
+        ("Same movements, a little longer: breathe, move, twist, shake out.", "Breathe · move · twist · shake out",
+         "The four flow poses in sequence."),
+        ("During the day, if you sit for long, stand up every hour or two and move for two minutes.",
+         "Every 1–2 h · move 2 min",
+         "A workday line from 9:00 to 18:00 with small gold markers: stand, stairs, walk on a call."),
+        ("", "Day 12 · More morning movement", "End card."),
+    ],
+    13: [
+        ("Look at what you've built in twelve days.", "Make it yours",
+         "Every action icon fills the four moments of the day."),
+        ("You don't need to keep everything. A few habits you keep beat ten you try once.", "Keep a few",
+         "Most icons fade; a few stay bright."),
+        ("Today, nothing new. Choose the actions you want to keep: the ones that felt good, and fit your life.",
+         "Choose what you keep", "Gold ticks land on the chosen cards."),
+        ("They stay in your app.", "Day 13 · Make it yours", "The chosen cards fly into a phone. End card."),
+    ],
+    14: [
+        ("Fourteen days. Thank you.", "Your two weeks", "The path from day 1: all fourteen stones lit, up to the summit flag."),
+        ("Today, see your first days next to your last: energy, focus, mood, sleep.", "First days · last days",
+         "Four pairs of bars grow side by side (shapes only, no numbers)."),
+        ("What changed, and what didn't. Both tell us something.", "Both count", "The bars settle; a small magnifier passes over them."),
+        ("Tell us how it was, in two minutes.", "2-minute questionnaire", "A short questionnaire card fills."),
+        ("And if it's open to you, book your twenty-minute review call with Thomas: your results, your questions, and what comes next.",
+         "Review call with Thomas · 20 min",
+         "A phone icon in gold; the path forks: 'keep going with the app' and 'a personal programme'."),
+        ("", "Day 14 · Your two weeks", "End card."),
+    ],
+}
+
+
+def beat_seconds(vo):
+    return END_CARD if not vo else len(vo.split()) / WORDS_PER_SECOND + BREATH
+
+
+def video_timeline(day):
+    """[(start, end, vo, on_screen, visual)] with start/end in seconds, rounded to the half second."""
+    out, t = [], 0.0
+    beats = VIDEOS[day]
+    for i, (vo, screen, visual) in enumerate(beats):
+        length = beat_seconds(vo)
+        if i == len(beats) - 1:
+            length = max(length, END_CARD)  # the closing line doubles as the end card: hold it
+        end = t + length
+        out.append((round(t * 2) / 2, round(end * 2) / 2, vo, screen, visual))
+        t = end
+    return out
+
+
+def video_seconds(day):
+    return round(video_timeline(day)[-1][1])
+
+
+for _d in DAYS:
+    _d["script"] = "\n\n".join(vo for vo, _, _ in VIDEOS[_d["day"]] if vo)
 
 
 def actions_for(day):
@@ -418,8 +507,25 @@ def brief_text(d):
     return "\n".join(lines)
 
 
+def mmss(sec):
+    sec = int(round(sec))
+    return f"{sec // 60}:{sec % 60:02d}"
+
+
 def script_text(d):
-    return f"Day {d['day']} · {d['title']} — video script (EN)\n\n{d['script']}"
+    """The voiceover alone, ready to paste into the AI voice tool."""
+    return d["script"]
+
+
+def storyboard_text(d):
+    lines = [f"Day {d['day']} · {d['title']} — motion video, about {video_seconds(d['day'])} s (EN voiceover)", ""]
+    for start, end, vo, screen, visual in video_timeline(d["day"]):
+        lines.append(f"{mmss(start)}–{mmss(end)}")
+        lines.append(f"  Voice: {vo or '(none, end card)'}")
+        lines.append(f"  On screen: {screen}")
+        lines.append(f"  Animation: {visual}")
+    lines += ["", f"Series style: {MOTION_STYLE}"]
+    return "\n".join(lines)
 
 
 def words(s):
@@ -491,7 +597,12 @@ def card_html(d):
     <button class="copy" type="button" data-src="img{day}" data-label="Copy image brief">Copy image brief</button>
     <textarea class="copy-src" id="img{day}" readonly aria-hidden="true" tabindex="-1">{esc(brief_text(d))}</textarea>'''
     week = "Week 1 · Understand" if d["week"] == 1 else "Week 2 · Act"
-    secs = round(words(d["script"]) / 2.5)
+    secs = video_seconds(day)
+    beats = "".join(
+        f'<li class="beat"><span class="bt">{mmss(a)}–{mmss(b)}</span>'
+        f'<p class="bvo">{esc(vo) if vo else "<i>No voice · end card</i>"}</p>'
+        f'<p class="bs"><b>On screen</b> {esc(screen)}</p><p class="bs"><b>Animation</b> {esc(visual)}</p></li>'
+        for a, b, vo, screen, visual in video_timeline(day))
     return f'''
 <article class="day" id="day{day}">
   <div class="phone" aria-label="Mockup of the day {day} card">
@@ -501,7 +612,7 @@ def card_html(d):
       <div class="dots" aria-hidden="true">{dots}</div>
       {pillar}
       <h3 class="d-title">{esc(d["title"])}</h3>
-      <div class="video" role="img" aria-label="Video placeholder"><span class="play" aria-hidden="true"></span><span class="v-l">Video with Thomas · about 1 min</span></div>
+      <div class="video" role="img" aria-label="Video placeholder"><span class="play" aria-hidden="true"></span><span class="v-l">Today's video · about {secs} s</span></div>
       <p class="sec">Today</p>
       {today}
       {ig}
@@ -521,10 +632,15 @@ def card_html(d):
   <aside class="brief">
     <p class="b-week">{esc(week)}</p>
     <h3 class="b-day">Day {day} · {esc(d["title"])}</h3>
-    <p class="b-k">Video script · EN · about {secs // 60}:{secs % 60:02d}</p>
+    <p class="b-k">Motion video · about {secs} s · voiceover (EN)</p>
     <div class="script">{paras(d["script"])}</div>
-    <button class="copy" type="button" data-src="scr{day}" data-label="Copy script">Copy script</button>
+    <div class="cbtns">
+      <button class="copy" type="button" data-src="scr{day}" data-label="Copy voiceover">Copy voiceover</button>
+      <button class="copy" type="button" data-src="sb{day}" data-label="Copy storyboard">Copy storyboard</button>
+    </div>
     <textarea class="copy-src" id="scr{day}" readonly aria-hidden="true" tabindex="-1">{esc(script_text(d))}</textarea>
+    <textarea class="copy-src" id="sb{day}" readonly aria-hidden="true" tabindex="-1">{esc(storyboard_text(d))}</textarea>
+    <details class="sb"><summary>Storyboard · {len(VIDEOS[day])} beats</summary><ol class="beats">{beats}</ol></details>
     {todo_html}
     {brief_html}
   </aside>
@@ -546,13 +662,14 @@ def page():
   <header class="head">
     <p class="kicker">FunctionAlps · Foundation Track</p>
     <h1>The 14 day cards</h1>
-    <p class="lede">What a member sees on Home each day, in the app's look. Days 1 to 7 each explain a pillar (what it is, why it matters, how we use it), say why the day's questions matter, and end with a first thing to try. Those small things grow into a routine across the four moments of the day. Days 8 to 14 each add one focus, with an infographic. Next to each card: Thomas's video script, and for days 8 to 14 the image brief.</p>
+    <p class="lede">What a member sees on Home each day, in the app's look. Days 1 to 7 each explain a pillar (what it is, why it matters, how we use it), say why the day's questions matter, and end with a first thing to try. Those small things grow into a routine across the four moments of the day. Days 8 to 14 each add one focus, with an infographic. Next to each card: the motion video for that day (the voiceover to paste into the AI voice, and a timed storyboard with what's on screen and what moves), and for days 8 to 14 the image brief. Pillar days run about 40 seconds, the others 20 to 30.</p>
     <nav class="jump" aria-label="Jump to a day">{nav}</nav>
+    <div class="style-note"><p class="b-k">Motion videos · all 14 days</p><p>{esc(MOTION_STYLE)}</p></div>
     <div class="style-note"><p class="b-k">Series style for the seven images (days 8–14)</p><p>{esc(SERIES_STYLE)}</p></div>
   </header>
   <section class="week"><h2>Week 1 · Understand you</h2><p class="w-sub">One pillar a day, why we ask, and a first thing to try. No images this week.</p>{w1}</section>
   <section class="week"><h2>Week 2 · Act and notice</h2><p class="w-sub">One focus a day, built on the routine from week 1.</p>{w2}</section>
-  <footer class="foot">Text in English; French follows once the English is locked. Gold marks what's new today, the same accent the infographics use. Every call is the 20-minute members call.</footer>
+  <footer class="foot">Text and voiceover in English; French follows once the English is locked. Timings assume a calm voice at about 145 words a minute. Gold marks what's new today, the same accent the infographics use. Every call is the 20-minute members call.</footer>
 </main>
 <script>{js}</script>
 '''

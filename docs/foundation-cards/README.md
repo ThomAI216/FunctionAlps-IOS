@@ -8,7 +8,7 @@
   **Mini tip**, **Your routine** (every action active that day, by moment), **How it will evolve**, library links
   and the short read;
 - the actions themselves (`ACTIONS`: moment, title, one-line how-to) and when each starts and stops (`SCHEDULE`);
-- Thomas's video script for every day;
+- the motion video for every day: the voiceover (for the AI voice) and a timed storyboard (`VIDEOS`, `MOTION_STYLE`);
 - the infographic brief for days 8–14 (days 1–7 have no image) and the series style.
 
 `python3 build.py` writes `cards.html` (the phone mockups Thomas reviews, published as an artifact) and `cards.json`.

@@ -129,6 +129,16 @@ dd { margin: 0; font-size: 14.5px; line-height: 1.55; max-width: 62ch; }
 .script p { margin: 0; }
 .todo { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; }
 .brief .b-k { margin-top: 12px; }
+.cbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.sb { border-top: 1px solid var(--line); padding-top: 10px; }
+.sb summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--forest); }
+.sb summary:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; border-radius: 4px; }
+.beats { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+.beat { display: grid; gap: 3px; padding: 10px 12px; background: var(--surface); border-radius: 12px; }
+.bt { font-size: 12px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.bvo { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.bs { margin: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.bs b { color: var(--ink); font-weight: 600; margin-right: 4px; }
 .foot { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 html { scroll-behavior: smooth; }

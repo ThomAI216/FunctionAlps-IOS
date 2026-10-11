@@ -7,7 +7,7 @@ Every call is the 20-minute members call.
 
 **Where the content lives.** `docs/foundation-cards/build.py` is the source of the day titles, the actions (title,
 one-line how-to, first and last day), each card's text (Today, why we ask, first thing to try, mini tip, how it will
-evolve, library links), Thomas's video scripts and the image briefs (published as the card mockups).
+evolve, library links), the motion-video voiceovers and storyboards, and the image briefs (published as the card mockups).
 `supabase/seed/foundation_track_seed.py` reads it and adds the questions, the reminder texts, the `habit_bank` cards
 and the day's subtitle. The day tables, card text, reminders and scripts below are generated from those two files.
 Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/migrations/20261006_foundation_track.sql`, **applied on CM OS 2026-10-06**; track code `foundation_v1`, launched 2026-10-06).
@@ -365,118 +365,288 @@ replaces the usual check-in reminder during the track.
 | 13 | Day 13 · Your whole routine, on one page. Which actions will you keep? | Your walk after lunch. | Your evening routine, then your check-in. |
 | 14 | Day 14 · Two weeks. See how far you've come, and tell us how it was. | — | Your 20-minute review call with Thomas is ready to book. *(only if unlocked)* |
 
-## Video scripts (EN, about 1 minute each; FR once the EN is approved)
+## Motion videos (EN voiceover; FR once the EN is locked)
 
-### Day 1 · Your starting point
-Hi, I'm Thomas. Welcome to your Foundation Track.
-For the next fourteen days you'll get one short card a day: a video like this one, one small thing to try, and a short read.
-Why fourteen days? Because lasting change doesn't start with a perfect plan. It starts with understanding where you are today, and where you want to go.
-So this first week is about you. Each day we look at one pillar of your health: nutrition, movement, sleep, and your mental and emotional health. I explain why it matters and how we use it, and you answer a few short questions. Don't change anything yet: the more real your answers, the more useful everything after.
-Today's questions are about your starting point: your goals, your usual week, your rhythm. Three minutes.
-And your first thing to try is a mini morning routine: a glass of water when you wake up, then three slow breaths at the window. That's it.
-Small steps, one a day. Let's start.
+Thomas, 2026-10-11: motion design with an AI voice instead of filmed talking-head videos. Pillar days (1–5) run
+about 40 seconds, the other days 20 to 30. The card carries the detail, so each video keeps to one idea. The
+storyboards, with timings, are in `docs/foundation-cards/build.py` (`VIDEOS`) and on the published card mockups.
 
-### Day 2 · Nutrition
-Today: nutrition, the first pillar.
-Food is more than calories. It's the material your body uses to build and repair, the fuel for your energy, and a signal that shapes your hunger, your mood and your sleep.
-But to help you, we don't start with a diet. We start with how you really eat. That's why today's questions ask how many meals you have, when you eat, who cooks, and which proteins you like. Together they show your real pattern, and where one small change would help you most.
-And that's why today's one habit matters so much: photograph everything you eat. Every meal, every snack, before the first bite. Not to judge. A photo shows what memory forgets: timing, portions, protein, variety. Your photos are how we understand your nutrition, and they count toward your review call on day fourteen.
-So today: your nutrition questions, two minutes, and a photo before each meal.
-Tomorrow: movement.
+Series style: Motion design, no presenter. 16:9 master (1920 × 1080), the app's video frame; keep titles and key visuals inside the centre square so a 1:1 or 4:5 crop works for social posts. Same look as the infographics: flat vector, rounded figures without detailed faces, forest #2E5438 and soft green #4A8A5C on cream #F5F0E8, charcoal #1A1A16 for text, gold #D4A84E only for the day's NEW action. The Alpine ridge line runs along the bottom of every frame. On-screen text is short (max 6 words) and doubles as captions for muted viewing; add full subtitles from the voiceover. Open on a small 'Day N' tag, close on a 2-second end card with the day's title. Calm, warm AI voice (EN first, FR once the EN is locked), soft music bed, gentle eased motion, no fast cuts.
 
-### Day 3 · Movement
-Today: movement, the second pillar.
-When I talk about movement, I don't mean sport. I mean functional capacity: how easily your body does what your life asks of it. Getting up from the floor. Carrying the shopping. Climbing the stairs. Hiking in the mountains when you're seventy.
-That capacity is built, or lost, by what you do every day. Sitting most of the day slowly takes it away. Small, regular movement keeps it, and builds it. That's why we start with little and often, not with a hard workout.
-Today's questions ask how you move now, how you moved before, and whether anything hurts. That way everything we suggest starts at the right level for you, and stays safe.
-Your morning routine grows: after your water and your breaths, one minute of gentle movement. If you want more, try an exercise snack during the day: ten squats, or a minute up the stairs. And tonight your evening routine begins: two minutes of gentle stretching before bed.
-From today you can also book a free twenty-minute call with me, right in the app.
-Tomorrow: sleep.
+### Day 1 · Your starting point (about 40 s)
 
-### Day 4 · Sleep
-Today: sleep, the third pillar.
-Sleep is when your body repairs, your brain sorts the day, and your rhythm resets. After a poor night, hunger is louder, cravings are stronger, your mood is shorter and every effort feels harder. Sleep quietly shapes every other pillar.
-Two things matter a lot: regular times, and light. Your body clock is set by light, especially morning daylight, and pushed back by bright screens late in the evening.
-Today's questions are about your usual pattern, not last night: when you go to bed, how long you take to fall asleep, what wakes you, how rested you feel. Your times also tell us when to send your reminders.
-Two small things join your routine. In the morning: five minutes of daylight, outside or at an open window. In the evening: your phone sleeps outside the bedroom. A simple alarm clock helps.
-Tomorrow: your mental and emotional health.
+Voiceover:
+> Welcome to your Foundation Track.
+> Fourteen days. One card a day.
+> Lasting change doesn't start with a perfect plan. It starts with knowing where you are, and where you want to go.
+> This first week, we look at four pillars, one a day: nutrition, movement, sleep, and your mental and emotional health.
+> Don't change anything yet. Just answer honestly. Your answers shape everything that follows.
+> Your first thing to try: tomorrow morning, a glass of water, then three slow breaths at the window.
+> Small steps. Let's begin.
 
-### Day 5 · Mental and emotional health
-Today: the fourth pillar, your mental and emotional health.
-Stress isn't only in your head. When the load stays high, it shows up everywhere: in your sleep, your appetite, your energy, your digestion, your patience. And recovery isn't only rest. It's what brings your body back to calm after effort.
-We all carry a load: work, family, health, money, big changes. What matters is the balance between that load and how well you recover from it.
-Today's questions ask how stressed you've felt lately, where it comes from, how your mood has been, and what already helps you switch off. Answer only what you're comfortable with. It helps us suggest tools that fit your life, instead of adding pressure.
-Your evening routine grows with two things. In bed: two minutes of box breathing. In for four, hold for four, out for four, hold for four. Then think of one good thing from your day.
-That was the last questionnaire. Tomorrow: your first week, on one page.
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Welcome to your Foundation Track. | Your Foundation Track | The Alpine ridge line draws itself across the frame; the title fades in above it. |
+| 0:02–0:06 | Fourteen days. One card a day. | 14 days · 1 card a day | Fourteen small stones appear one by one along a path winding up the ridge. |
+| 0:06–0:14 | Lasting change doesn't start with a perfect plan. It starts with knowing where you are, and where you want to go. | Where you are → where you're going | A small figure stands at a trailhead; a dotted line draws from it up to a summit flag. |
+| 0:14–0:24 | This first week, we look at four pillars, one a day: nutrition, movement, sleep, and your mental and emotional health. | 4 pillars · 1 a day | Four icons pop onto the path, each with its label: a plate, a walking figure, a moon, a gentle wave. |
+| 0:24–0:30 | Don't change anything yet. Just answer honestly. Your answers shape everything that follows. | No changes yet · honest answers | A short questionnaire card fills with ticks; soft lines flow from it into the path ahead. |
+| 0:30–0:38 | Your first thing to try: tomorrow morning, a glass of water, then three slow breaths at the window. | First thing to try | A window at sunrise; a glass fills with water, then three breath curls rise. Both in gold. |
+| 0:38–0:40 | Small steps. Let's begin. | Day 1 · Your starting point | The figure takes its first step onto stone 1. End card. |
 
-### Day 6 · Your first week
-Six days. Look at what you've already done.
-You've told us where you are and where you want to go. We've looked at the four pillars: nutrition, movement, sleep, and your mental and emotional health. And you've built a small routine without really noticing.
-On your card today you'll see it in the four moments of your day. In the morning: water, three breaths, a minute of movement, and daylight. During the day: your meal photos, and an exercise snack if you like. In the evening: a short stretch, your phone outside the bedroom, two minutes of breathing, and one good thing.
-And one new moment today: after lunch, five minutes outside. A short walk, nothing sporty.
-Take one minute for today's questions: check your goals are still right, and tell me how the week felt.
-Tomorrow, everything comes together in one full day.
+### Day 2 · Nutrition (about 39 s)
 
-### Day 7 · Your full day
-One week. Today everything comes together in one full day.
-In the morning, your minute of movement becomes a five-minute flow inspired by qi gong: slow breathing with the arms, gentle twists, then shake it out. It wakes the body up without rushing it.
-During the day, your exercise snack is no longer optional: one a day. Ten squats, a minute up the stairs, or ten wall push-ups. Short bursts like these add up, and they're one of the simplest ways to build capacity.
-After lunch: your five minutes outside. In the evening: stretch, phone out, breathe, one good thing.
-That's your base, and it fits in a normal day.
-I'm also reviewing your first week. You'll find your summary here as soon as I've read it: what we learned, your goals, and what week two brings.
-Week two is about action, one focus a day. See you tomorrow, with breakfast.
+Voiceover:
+> Pillar one: nutrition.
+> Food is the material your body builds and repairs with, and the fuel for your energy.
+> It shapes your hunger, your mood and your sleep.
+> We don't start with a diet. We start with how you really eat.
+> Today's questions ask how many meals, when, who cooks, and which proteins you like. Together, they show your real pattern.
+> And one habit for all fourteen days: photograph everything you eat, before the first bite.
+> Not to judge. To see.
+> Tomorrow: movement.
 
-### Day 8 · Protein first
-Week two starts with breakfast, and with protein.
-Protein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly, across the day. And as we get older we need a little more of it to keep our muscle.
-Many people eat very little protein in the morning and most of it at night. Moving some of it to breakfast is a simple change, and many people find it keeps them full for longer and steadies their energy through the morning.
-So today: put protein on your breakfast plate. Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About the size of your palm. The ideas in the app come from what you told us you eat.
-Then, if you can, a ten-minute walk after breakfast. Outside, so it counts as daylight too.
-Tomorrow: lunch.
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Pillar one: nutrition. | Pillar 1 · Nutrition | The plate icon grows to the centre; the label slides in. |
+| 0:02–0:09 | Food is the material your body builds and repairs with, and the fuel for your energy. | Build · repair · fuel | Food shapes flow into a simple body outline, which fills with a soft glow and an energy bar. |
+| 0:09–0:13 | It shapes your hunger, your mood and your sleep. | Hunger · mood · sleep | Three small dials around the figure turn gently. |
+| 0:13–0:19 | We don't start with a diet. We start with how you really eat. | Not a diet · your real plate | A strict diet sheet folds away; an everyday plate slides in. |
+| 0:19–0:28 | Today's questions ask how many meals, when, who cooks, and which proteins you like. Together, they show your real pattern. | Why we ask: your real pattern | Four question chips (meals, times, who cooks, protein) snap into a weekly grid. |
+| 0:28–0:34 | And one habit for all fourteen days: photograph everything you eat, before the first bite. | Photograph every meal | A phone frames a plate; a gold shutter flash; the photo drops into a 14-day strip. |
+| 0:34–0:37 | Not to judge. To see. | Not to judge · to see | The photos tile into a timeline with small tags: time, portion, protein, variety. |
+| 0:37–0:39 | Tomorrow: movement. | Day 2 · Nutrition | End card. |
 
-### Day 9 · A lunch that holds you
-Today: lunch, and the walk after it.
-Lunch decides your afternoon. A plate of fast carbs, like white bread, white pasta or a sweet drink, often means a quick rise in energy and then a dip around three o'clock.
-So build your plate in three parts. Half vegetables. A good portion of protein, about a palm. And a quarter of complex carbs: oats, wholegrain bread, legumes, quinoa, brown rice. Complex carbs come with their fibre, so they're digested more slowly and give you steadier energy. You'll find the plate and the complex-carbs principle in your library.
-And the most important part comes after: a ten-minute walk. Moving right after a meal helps your muscles use the energy from it, and it's one of the easiest habits to keep.
-Last thing: your last coffee before two in the afternoon, so it doesn't follow you into the night.
-Tomorrow: easy strength.
+### Day 3 · Movement (about 43 s)
 
-### Day 10 · Easy strength
-Today: easy strength.
-Muscle is one of the best long-term investments you can make. It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you get older. And it starts very simply.
-Your daily exercise snack becomes a five-minute strength routine you can do at home, in your clothes, with no equipment. I'll show you every move.
-[Thomas: your routine here: each move, how many, the easier version.]
-Go slowly, breathe, and stop if anything hurts. Easier is always fine. What matters is doing it often, not doing it hard.
-Tomorrow: your evening.
+Voiceover:
+> Pillar two: movement.
+> Not sport. Functional capacity: how easily your body does what your life asks of it.
+> Getting up. Carrying the shopping. Climbing stairs. Hiking when you're seventy.
+> Every day builds it, or slowly takes it away. Long sitting takes it away. Little and often builds it.
+> Today's questions set your starting level, and keep everything safe.
+> Your morning grows: one minute of gentle movement.
+> If you like, an exercise snack: ten squats, or a minute of stairs.
+> And tonight, your evening routine begins: two minutes of gentle stretching.
+> Tomorrow: sleep.
 
-### Day 11 · Your evening downshift
-Tonight: your full evening routine.
-You've already started: a stretch, your phone outside the bedroom, two minutes of breathing, one good thing. Tonight we complete it.
-Two to three hours before bed, finish your last meal. Your body can then focus on rest rather than digestion.
-One hour before bed: screens off, lights low. Bright screens tell your brain it's still daytime. Swap the phone for a book.
-Then, before sleep, ten minutes to wind down. Choose what suits you: slow breathing, a guided NSDR, which means non-sleep deep rest, or gentle yoga. Your stretch and your box breathing grow into this.
-And keep your one good thing, last thing before sleep.
-You don't need everything every night. Start with what's easiest, and add the rest.
-Tomorrow: more morning movement.
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Pillar two: movement. | Pillar 2 · Movement | The walking-figure icon grows to the centre. |
+| 0:02–0:08 | Not sport. Functional capacity: how easily your body does what your life asks of it. | Functional capacity | The figure moves through a simple day: no gym, just life. |
+| 0:08–0:14 | Getting up. Carrying the shopping. Climbing stairs. Hiking when you're seventy. | Get up · carry · climb · hike | Four quick vignettes: rising from the floor, carrying bags, taking stairs, an older hiker on a ridge trail. |
+| 0:14–0:22 | Every day builds it, or slowly takes it away. Long sitting takes it away. Little and often builds it. | Little and often | A capacity bar drains while the figure sits at a desk, then refills with small movement icons. |
+| 0:22–0:26 | Today's questions set your starting level, and keep everything safe. | Why we ask: your level, safely | A level slider settles at the figure's mark; a small shield icon appears. |
+| 0:26–0:30 | Your morning grows: one minute of gentle movement. | Morning · 1 minute | Shoulder rolls, hip circles, slow squats, looping, in gold. |
+| 0:30–0:36 | If you like, an exercise snack: ten squats, or a minute of stairs. | Optional · exercise snack | A short squat loop with '×10', then a stair icon. |
+| 0:36–0:41 | And tonight, your evening routine begins: two minutes of gentle stretching. | Evening · 2-minute stretch | Dusk falls; the figure stretches on a mat, in gold. |
+| 0:41–0:43 | Tomorrow: sleep. | Day 3 · Movement | End card, with a small phone icon: 'Call with Thomas · 20 min · open from today'. |
 
-### Day 12 · More morning movement
-Today your morning flow grows from five to ten minutes.
-Why the morning? Moving early wakes your body up, gets your circulation going and, if you're outside, gives you daylight for your body clock. And a routine done first thing gets done, before the day takes over.
-Same movements, a little longer: breathe, move, twist, shake out. Ten minutes is enough to feel looser, warmer and more awake.
-And during the day: if you sit for long periods, stand up every hour or two and move for two minutes. Take the stairs, walk while you're on the phone, refill your water. Long sitting is one of the things that slowly takes your capacity away, and short breaks are the simplest answer.
-Tomorrow: you choose what you keep.
+### Day 4 · Sleep (about 44 s)
 
-### Day 13 · Make it yours
-Look at what you've built in twelve days. A morning routine, a walk after lunch, protein at breakfast, a lunch that holds you, strength, an evening that helps you sleep.
-You don't need to keep everything. A few habits you keep are worth more than ten you try once.
-Today there's nothing new. Look at your whole routine, and choose the actions you want to keep after these two weeks. They stay in your app.
-Choose the ones that felt good and fit your life. You can always add more later.
-Tomorrow: your two weeks, and what comes next.
+Voiceover:
+> Pillar three: sleep.
+> Sleep is when your body repairs, your brain sorts the day, and your rhythm resets.
+> After a poor night, hunger is louder, cravings are stronger, and everything feels harder.
+> Two things set your body clock: regular times, and light. Morning light sets it. Bright screens at night push it back.
+> Today's questions are about your usual nights, not last night. Your times also decide when your reminders arrive.
+> Two small things. In the morning, five minutes of daylight.
+> And tonight, your phone sleeps outside the bedroom.
+> Tomorrow: your mental and emotional health.
 
-### Day 14 · Your two weeks
-Fourteen days. Thank you.
-Today you'll see your check-ins from your first days next to your last days: energy, focus, mood, sleep. Look at what changed, and what didn't. Both tell us something.
-Then tell us how it was, in two minutes: what helped, what was hard, and what you'd like next.
-If you completed your questionnaires and photographed your meals, you can now book your twenty-minute review call with me. We'll look at your results together, answer your questions, and talk about what's next: keep going with the app, or go deeper with a personal programme built for you.
-Thank you for these two weeks. See you on the call.
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Pillar three: sleep. | Pillar 3 · Sleep | The moon icon grows to the centre; the sky darkens. |
+| 0:02–0:08 | Sleep is when your body repairs, your brain sorts the day, and your rhythm resets. | Repair · sort · reset | Night scene: muscles glow softly, thought bubbles file into folders, a small clock resets. |
+| 0:08–0:14 | After a poor night, hunger is louder, cravings are stronger, and everything feels harder. | After a poor night | Next morning: the hunger bubble grows, snack icons crowd in, the figure walks more heavily. |
+| 0:14–0:24 | Two things set your body clock: regular times, and light. Morning light sets it. Bright screens at night push it back. | Regular times + light | A 24-hour ring: the morning sun sets the hand; a bright phone at night drags it later. |
+| 0:24–0:32 | Today's questions are about your usual nights, not last night. Your times also decide when your reminders arrive. | Why we ask: your usual nights | A week of moon icons; a small bell slides into place on the ring. |
+| 0:32–0:36 | Two small things. In the morning, five minutes of daylight. | Morning · 5 min daylight | The figure at an open window, sun rays in gold. |
+| 0:36–0:40 | And tonight, your phone sleeps outside the bedroom. | Night · phone outside | The phone charges on a shelf outside the bedroom; the door closes softly. Gold on the phone. |
+| 0:40–0:44 | Tomorrow: your mental and emotional health. | Day 4 · Sleep | End card. |
+
+### Day 5 · Mental and emotional health (about 44 s)
+
+Voiceover:
+> Pillar four: your mental and emotional health.
+> We all carry a load: work, family, health, big changes.
+> When it stays high, it shows up everywhere: in your sleep, your appetite, your energy, your mood.
+> What matters is the balance: the load, and how well you recover.
+> Today's questions ask where your load comes from, and what already helps you switch off. Answer only what feels comfortable.
+> Tonight, in bed: two minutes of box breathing. In four, hold four, out four, hold four.
+> Then, one good thing from your day.
+> Tomorrow: your first week, on one page.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:04 | Pillar four: your mental and emotional health. | Pillar 4 · Mental and emotional health | The wave icon grows to the centre and settles. |
+| 0:04–0:08 | We all carry a load: work, family, health, big changes. | The load you carry | A figure with a backpack; small icons drop into it one by one. |
+| 0:08–0:16 | When it stays high, it shows up everywhere: in your sleep, your appetite, your energy, your mood. | Sleep · appetite · energy · mood | Ripples spread from the backpack to four icons around the figure. |
+| 0:16–0:21 | What matters is the balance: the load, and how well you recover. | Load ⇄ recovery | A balance: the backpack on one side, recovery icons (a walk, a breath, people) on the other; it levels. |
+| 0:21–0:30 | Today's questions ask where your load comes from, and what already helps you switch off. Answer only what feels comfortable. | Why we ask: tools that fit you | Question chips appear; one carries a small 'skip' mark. |
+| 0:30–0:37 | Tonight, in bed: two minutes of box breathing. In four, hold four, out four, hold four. | Box breathing · 2 min | A dot travels around a square; each side lights with its count. Gold. |
+| 0:37–0:40 | Then, one good thing from your day. | One good thing | A small star lights up above the bed. Gold. |
+| 0:40–0:44 | Tomorrow: your first week, on one page. | Day 5 · Mental and emotional health | End card. |
+
+### Day 6 · Your first week (about 28 s)
+
+Voiceover:
+> Six days. Four pillars. And a routine you built almost without noticing.
+> In the morning: water, three breaths, a minute of movement, daylight.
+> During the day: your meal photos.
+> In the evening: stretch, phone out, breathe, one good thing.
+> Today, one new moment: after lunch, five minutes outside.
+> One minute of questions to check your goals. Tomorrow, it all comes together.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:06 | Six days. Four pillars. And a routine you built almost without noticing. | Your first week | The four pillar icons slide down into one day timeline with four moments. |
+| 0:06–0:10 | In the morning: water, three breaths, a minute of movement, daylight. | Morning | Four small icons pop into the morning segment. |
+| 0:10–0:14 | During the day: your meal photos. | During the day | A camera icon fills its segment. |
+| 0:14–0:18 | In the evening: stretch, phone out, breathe, one good thing. | Evening | Four icons pop into the evening segment. |
+| 0:18–0:22 | Today, one new moment: after lunch, five minutes outside. | New · 5 min outside after lunch | The empty after-lunch slot lights up with a walking figure in gold. |
+| 0:22–0:28 | One minute of questions to check your goals. Tomorrow, it all comes together. | Day 6 · Your first week | The full timeline glows. End card. |
+
+### Day 7 · Your full day (about 30 s)
+
+Voiceover:
+> One week. Today, your full day.
+> Your minute of morning movement becomes a five-minute flow, inspired by qi gong: breathe, move, twist, shake it out.
+> And one exercise snack a day: ten squats, a minute of stairs, or ten wall push-ups. Small bursts that add up.
+> That's your base, and it fits in a normal day.
+> Thomas is reviewing your first week. Your summary will be here soon.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:03 | One week. Today, your full day. | Your full day | The day timeline from day 6, now complete. |
+| 0:03–0:12 | Your minute of morning movement becomes a five-minute flow, inspired by qi gong: breathe, move, twist, shake it out. | Morning flow · 5 min | A flowing figure moves through four poses, each melting into the next. Gold. |
+| 0:12–0:20 | And one exercise snack a day: ten squats, a minute of stairs, or ten wall push-ups. Small bursts that add up. | 1 exercise snack a day | Three tiny loops; a bar fills a notch with each burst. Gold. |
+| 0:20–0:25 | That's your base, and it fits in a normal day. | Your base | All four moments of the day light up together. |
+| 0:25–0:30 | Thomas is reviewing your first week. Your summary will be here soon. | Day 7 · Your summary is coming | A summary card slides into a phone frame with a tick. End card. |
+
+### Day 8 · Protein first (about 32 s)
+
+Voiceover:
+> Week two starts with breakfast.
+> Protein is your body's building material: muscle, bones, skin, your immune system.
+> Your body can't store it the way it stores fat or sugar, so it needs some across the day, and a little more as we age.
+> Many people eat little in the morning. Today, move some to breakfast: eggs, Greek yogurt, cottage cheese, salmon or tofu. About a palm.
+> Then, a ten-minute walk.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Week two starts with breakfast. | Week 2 · Protein first | A breakfast table at sunrise. |
+| 0:02–0:08 | Protein is your body's building material: muscle, bones, skin, your immune system. | Your building material | Small blocks assemble into a body outline. |
+| 0:08–0:20 | Your body can't store it the way it stores fat or sugar, so it needs some across the day, and a little more as we age. | Every meal · more with age | Three equal protein blocks line up over breakfast, lunch and dinner. |
+| 0:20–0:30 | Many people eat little in the morning. Today, move some to breakfast: eggs, Greek yogurt, cottage cheese, salmon or tofu. About a palm. | Breakfast · about a palm | The breakfast block grows, in gold; five options orbit the plate; a palm icon beside it. |
+| 0:30–0:32 | Then, a ten-minute walk. | Day 8 · + 10-min walk | The figure leaves the table and walks into daylight. End card. |
+
+### Day 9 · A lunch that holds you (about 27 s)
+
+Voiceover:
+> Lunch decides your afternoon.
+> Fast carbs often mean a quick rise, then a dip around three.
+> Build your plate in three parts: half vegetables, a palm of protein, and a quarter complex carbs, like oats, whole grains or legumes.
+> Their fibre means steadier energy.
+> Then the most important part: a ten-minute walk.
+> And your last coffee, before two.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Lunch decides your afternoon. | A lunch that holds you | A clock moves from noon into the afternoon. |
+| 0:02–0:08 | Fast carbs often mean a quick rise, then a dip around three. | Fast carbs: rise, then dip | An energy line spikes, then drops as the clock reaches 15:00. |
+| 0:08–0:18 | Build your plate in three parts: half vegetables, a palm of protein, and a quarter complex carbs, like oats, whole grains or legumes. | ½ veg · ¼ protein · ¼ complex carbs | A plate fills section by section, with small icons in the complex-carbs quarter. |
+| 0:18–0:20 | Their fibre means steadier energy. | Steadier energy | The energy line softens into a gentle wave. |
+| 0:20–0:24 | Then the most important part: a ten-minute walk. | 10-min walk after lunch | A large walking figure in gold; the wave stays even. |
+| 0:24–0:27 | And your last coffee, before two. | Day 9 · Coffee before 14:00 | A cup beside a clock at 14:00. End card. |
+
+### Day 10 · Easy strength (about 29 s)
+
+Voiceover:
+> Muscle is a long-term investment.
+> It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you age.
+> And it starts simply. Your exercise snack becomes a five-minute routine. At home, no equipment.
+> [Thomas's routine: one short line per move, with its count.]
+> Go slowly. Stop if anything hurts. Easier is always fine.
+> Often beats hard.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Muscle is a long-term investment. | Easy strength | A single muscle icon, then a slowly rising line over years. |
+| 0:02–0:11 | It holds you up, protects your joints, helps your body handle sugar, and keeps you independent as you age. | Hold · protect · handle sugar · stay independent | One figure through the years, still carrying, climbing, getting up. |
+| 0:11–0:18 | And it starts simply. Your exercise snack becomes a five-minute routine. At home, no equipment. | 5 min · at home · no equipment | A living room; a timer ring set to 5:00. |
+| 0:18–0:22 | [Thomas's routine: one short line per move, with its count.] | [move · count] | Each move as a looping pose with its count, one after another (from Thomas's routine). |
+| 0:22–0:27 | Go slowly. Stop if anything hurts. Easier is always fine. | Easier is fine | The same pose next to its easier version. |
+| 0:27–0:29 | Often beats hard. | Day 10 · Easy strength | End card. |
+
+### Day 11 · Your evening downshift (about 32 s)
+
+Voiceover:
+> Tonight, your full evening routine.
+> Two to three hours before bed: your last meal, so your body can rest instead of digest.
+> One hour before: screens off, lights low. Bright screens tell your brain it's still day.
+> Pick up a book instead.
+> Then, ten minutes to wind down: slow breathing, NSDR, or gentle yoga.
+> And last thing, one good thing from your day.
+> Start with what's easiest. Add the rest.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Tonight, your full evening routine. | Your evening downshift | An evening timeline from dinner to sleep, the sky shifting from warm to dark. |
+| 0:02–0:10 | Two to three hours before bed: your last meal, so your body can rest instead of digest. | Last meal · 2–3 h before bed | A plate on the timeline at −3 h to −2 h. Gold. |
+| 0:10–0:17 | One hour before: screens off, lights low. Bright screens tell your brain it's still day. | −60 min · screens off, lights low | A phone switches off, a lamp dims. Gold. |
+| 0:17–0:20 | Pick up a book instead. | A book | An open book on the sofa. Gold. |
+| 0:20–0:25 | Then, ten minutes to wind down: slow breathing, NSDR, or gentle yoga. | 10 min · breathe · NSDR · yoga | Three small choices; the figure lies down and the scene softens. Gold. |
+| 0:25–0:29 | And last thing, one good thing from your day. | One good thing | A small star above the bed. |
+| 0:29–0:32 | Start with what's easiest. Add the rest. | Day 11 · Your evening downshift | End card. |
+
+### Day 12 · More morning movement (about 30 s)
+
+Voiceover:
+> Your morning flow grows to ten minutes.
+> Moving early wakes your body, warms you up and, outside, gives you daylight for your body clock.
+> And what's done first thing gets done.
+> Same movements, a little longer: breathe, move, twist, shake out.
+> During the day, if you sit for long, stand up every hour or two and move for two minutes.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:04 | Your morning flow grows to ten minutes. | Morning flow · 10 min | The flow timer stretches from 5 to 10. Gold. |
+| 0:04–0:11 | Moving early wakes your body, warms you up and, outside, gives you daylight for your body clock. | Wake · warm · light | The figure moves outside; the 24-hour ring sets at morning. |
+| 0:11–0:14 | And what's done first thing gets done. | First thing = done | A tick lands on the morning slot. |
+| 0:14–0:19 | Same movements, a little longer: breathe, move, twist, shake out. | Breathe · move · twist · shake out | The four flow poses in sequence. |
+| 0:19–0:28 | During the day, if you sit for long, stand up every hour or two and move for two minutes. | Every 1–2 h · move 2 min | A workday line from 9:00 to 18:00 with small gold markers: stand, stairs, walk on a call. |
+| 0:28–0:30 | (end card) | Day 12 · More morning movement | End card. |
+
+### Day 13 · Make it yours (about 22 s)
+
+Voiceover:
+> Look at what you've built in twelve days.
+> You don't need to keep everything. A few habits you keep beat ten you try once.
+> Today, nothing new. Choose the actions you want to keep: the ones that felt good, and fit your life.
+> They stay in your app.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:04 | Look at what you've built in twelve days. | Make it yours | Every action icon fills the four moments of the day. |
+| 0:04–0:11 | You don't need to keep everything. A few habits you keep beat ten you try once. | Keep a few | Most icons fade; a few stay bright. |
+| 0:11–0:20 | Today, nothing new. Choose the actions you want to keep: the ones that felt good, and fit your life. | Choose what you keep | Gold ticks land on the chosen cards. |
+| 0:20–0:22 | They stay in your app. | Day 13 · Make it yours | The chosen cards fly into a phone. End card. |
+
+### Day 14 · Your two weeks (about 28 s)
+
+Voiceover:
+> Fourteen days. Thank you.
+> Today, see your first days next to your last: energy, focus, mood, sleep.
+> What changed, and what didn't. Both tell us something.
+> Tell us how it was, in two minutes.
+> And if it's open to you, book your twenty-minute review call with Thomas: your results, your questions, and what comes next.
+
+| Time | Voice | On screen | Animation |
+|---|---|---|---|
+| 0:00–0:02 | Fourteen days. Thank you. | Your two weeks | The path from day 1: all fourteen stones lit, up to the summit flag. |
+| 0:02–0:08 | Today, see your first days next to your last: energy, focus, mood, sleep. | First days · last days | Four pairs of bars grow side by side (shapes only, no numbers). |
+| 0:08–0:12 | What changed, and what didn't. Both tell us something. | Both count | The bars settle; a small magnifier passes over them. |
+| 0:12–0:16 | Tell us how it was, in two minutes. | 2-minute questionnaire | A short questionnaire card fills. |
+| 0:16–0:26 | And if it's open to you, book your twenty-minute review call with Thomas: your results, your questions, and what comes next. | Review call with Thomas · 20 min | A phone icon in gold; the path forks: 'keep going with the app' and 'a personal programme'. |
+| 0:26–0:28 | (end card) | Day 14 · Your two weeks | End card. |

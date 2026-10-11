@@ -1,7 +1,7 @@
 import AVKit
 import SwiftUI
 
-/// The day's ~1-minute video, played in the card (AVKit's `VideoPlayer`, no package). Nothing loads until the
+/// The day's short motion video (20–45 s), played in the card (AVKit's `VideoPlayer`, no package). Nothing loads until the
 /// member taps play — a video per day must not cost data on every Home open. The first tap reports `onPlay` (the
 /// day's `video` activity). No URL yet (Thomas records them in French and English) → a calm "coming soon" pane.
 struct TrackVideoView: View {
@@ -45,7 +45,7 @@ struct TrackVideoView: View {
             VStack(spacing: 8) {
                 Image(systemName: "play.circle.fill").font(.system(size: 44)).foregroundStyle(.white)
                     .accessibilityHidden(true)
-                Text(String(localized: "track.video.watch", defaultValue: "Today's video · about 1 minute"))
+                Text(String(localized: "track.video.watch", defaultValue: "Today's video"))
                     .font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(.white.opacity(0.92))
             }
         }
