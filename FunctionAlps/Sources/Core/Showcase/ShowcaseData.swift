@@ -9,6 +9,8 @@ enum ShowcaseData {
     static let userId = "showcase-user"
     static let heroMealId = "showcase-meal-lunch-1"
     static let actionHabitId = "showcase-h-strength"
+    static let anatomyHabitId = "showcase-h-rhythm"
+    static let breathCardId = "showcase-card-breath"
     static let articleSlug = "showcase-gut-feedback"
 
     static var calendar: Calendar { .current }
@@ -177,11 +179,22 @@ enum ShowcaseData {
         rhythm.generalWhy = "Your body clock runs your energy, focus and sleep. A regular wake time and morning light are the strongest signals you can give it."
         rhythm.resources = [.init(kind: "youtube", query: "morning sunlight circadian rhythm routine"),
                             .init(kind: "article", slug: articleSlug, title: "Listening to your body, week by week")]
+        rhythm.titleFr = "Routine circadienne du matin"
+        rhythm.descriptionFr = "Réglez votre horloge interne pour la journée : même heure de lever, lumière du jour, eau avant le café."
+        rhythm.easyTitleFr = "La lumière à la fenêtre"; rhythm.easyDescriptionFr = "Cinq minutes devant une fenêtre ouverte avec votre premier verre d’eau."
+        rhythm.revTitleFr = "Marcher dans la lumière du matin"; rhythm.revDescriptionFr = "Quinze minutes dehors avant votre premier écran."
+        rhythm.howMdFr = "1. Levez-vous à la même heure chaque jour, week-end compris.\n2. Dans les 30 minutes après le réveil, 10 minutes de lumière du jour dehors.\n3. Un grand verre d’eau avant votre premier café.\n4. Un petit-déjeuner avec des protéines dans les deux premières heures."
+        rhythm.generalWhyFr = "Votre horloge interne règle votre énergie, votre concentration et votre sommeil. Une heure de lever régulière et la lumière du matin sont les signaux les plus forts que vous puissiez lui donner."
+        rhythm.memberCanAdd = true
         var snack = ActionCardRow(id: "showcase-card-snack", title: "Protein snack mid-afternoon")
         snack.pillar = "nutrition"; snack.cardKind = "nutrition"; snack.durationMin = 5; snack.defaultSlot = "midday"
         snack.description = "A small protein snack around 4 pm, instead of something sweet."
         snack.howMd = "1. Greek yoghurt with a handful of nuts.\n2. Or a boiled egg and a piece of fruit.\n3. Or hummus with raw vegetables."
         snack.generalWhy = "A protein snack keeps your energy steadier through the late afternoon and takes the edge off the evening hunger."
+        snack.titleFr = "Collation protéinée en milieu d’après-midi"
+        snack.descriptionFr = "Une petite collation protéinée vers 16 h, à la place de quelque chose de sucré."
+        snack.howMdFr = "1. Un yaourt grec avec une poignée de noix.\n2. Ou un œuf dur et un fruit.\n3. Ou du houmous avec des légumes crus."
+        snack.generalWhyFr = "Une collation protéinée garde votre énergie plus stable en fin d’après-midi et calme la faim du soir."
         var strength = ActionCardRow(id: "showcase-card-strength", title: "Strength session")
         strength.pillar = "exercise"; strength.cardKind = "movement"; strength.durationMin = 25; strength.defaultSlot = "midday"
         strength.description = "Twice a week: four moves, three rounds, no equipment."
@@ -190,12 +203,71 @@ enum ShowcaseData {
         strength.howMd = "1. 12 squats to a chair.\n2. 10 push-ups against a table or the floor.\n3. 12 rows with a backpack.\n4. 30-second plank.\n5. Rest one minute and repeat for three rounds."
         strength.generalWhy = "Muscle is your capacity reserve. Two short sessions a week keep you strong, steady and energetic in everyday life."
         strength.resources = [.init(kind: "youtube", query: "beginner full body strength workout no equipment 20 minutes")]
+        strength.titleFr = "Séance de renforcement"
+        strength.descriptionFr = "Deux fois par semaine : quatre mouvements, trois tours, sans matériel."
+        strength.easyTitleFr = "Deux tours"; strength.easyDescriptionFr = "Les mêmes quatre mouvements, deux tours, avec des pauses plus longues."
+        strength.revTitleFr = "Quatre tours"; strength.revDescriptionFr = "Quatre tours, ou un sac à dos chargé pour les squats."
+        strength.howMdFr = "1. 12 squats jusqu’à une chaise.\n2. 10 pompes contre une table ou au sol.\n3. 12 tirages avec un sac à dos.\n4. 30 secondes de gainage.\n5. Une minute de repos, puis recommencez, trois tours en tout."
+        strength.generalWhyFr = "Le muscle est votre réserve de capacité. Deux courtes séances par semaine vous gardent fort, stable et plein d’énergie au quotidien."
         var walk = ActionCardRow(id: "showcase-card-walk", title: "10-minute walk after lunch")
         walk.pillar = "exercise"; walk.cardKind = "movement"; walk.durationMin = 10; walk.defaultSlot = "midday"
         walk.description = "An easy walk straight after lunch, outside if you can."
         walk.howMd = "1. Leave within 15 minutes of finishing lunch.\n2. Walk at a pace where you can still talk.\n3. Ten minutes is enough."
         walk.generalWhy = "Moving after a meal helps your body use what you just ate, and it is the best antidote to the afternoon dip."
-        return [rhythm.id: rhythm, snack.id: snack, strength.id: strength, walk.id: walk]
+        walk.titleFr = "Marche de 10 minutes après le déjeuner"
+        walk.descriptionFr = "Une marche tranquille juste après le déjeuner, dehors si possible."
+        walk.howMdFr = "1. Partez dans les 15 minutes qui suivent la fin du repas.\n2. Marchez à un rythme où vous pouvez encore parler.\n3. Dix minutes suffisent."
+        walk.generalWhyFr = "Bouger après un repas aide votre corps à utiliser ce que vous venez de manger, et c’est le meilleur remède au coup de mou de l’après-midi."
+        walk.memberCanAdd = true
+        // Its ladder (owner, 2026-10-06): the walk after lunch → a walk every half hour → a brisk 30 minutes. The
+        // two levels above are the real cards (docs/action-cards/huberman/lot-b-exercise.json).
+        walk.nextLevelId = "showcase-card-walk2"
+        var walk2 = ActionCardRow(id: "showcase-card-walk2", title: "Walk five minutes every half hour")
+        walk2.pillar = "exercise"; walk2.cardKind = "movement"; walk2.durationMin = 5; walk2.defaultSlot = "midday"
+        walk2.description = "For every 30 minutes sitting or standing still, get up and walk for at least five."
+        walk2.howMd = "1. Set a gentle reminder for every 30 minutes you spend sitting or standing still.\n2. When it goes off, get up and walk or pace for at least 5 minutes.\n3. Indoors counts: the corridor, the stairs or a few laps of the room.\n4. Turn phone calls that do not need a screen into walking calls, inside or out.\n5. Had a day of long sitting? Plan a little more walking for tomorrow.\n6. If something hurts, slow down or stop.\n7. If walking is not possible: in the study behind this card, a 3-minute bout of squats every 45 minutes worked as well as 3-minute walking breaks."
+        walk2.generalWhy = "Long stretches of sitting leave your big leg muscles idle. A few minutes of walking puts them back to work, and working muscles can help use up sugar from your meals — walking does this better than simply standing up."
+        walk2.titleFr = "Cinq minutes de marche toutes les demi-heures"
+        walk2.descriptionFr = "Pour chaque demi-heure assis ou debout sans bouger, levez-vous et marchez au moins cinq minutes."
+        walk2.howMdFr = "1. Programmez un rappel discret toutes les 30 minutes passées assis ou debout sans bouger.\n2. Quand il sonne, levez-vous et marchez ou faites les cent pas au moins 5 minutes.\n3. L’intérieur compte aussi : le couloir, les escaliers ou quelques tours de la pièce.\n4. Transformez les appels qui ne demandent pas d’écran en appels en marchant, dedans ou dehors.\n5. Une journée très assise ? Prévoyez un peu plus de marche pour le lendemain.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous.\n7. Si marcher n’est pas possible : dans l’étude dont s’inspire cette carte, 3 minutes de squats toutes les 45 minutes ont fait aussi bien que des pauses de marche de 3 minutes."
+        walk2.generalWhyFr = "Les longues périodes assises laissent les grands muscles des jambes au repos. Quelques minutes de marche les remettent au travail, et des muscles actifs peuvent aider à utiliser le sucre des repas — marcher le fait mieux que simplement se lever."
+        walk2.easyTitle = "One walking phone call"
+        walk2.easyDescription = "Just one today: take a call on your feet and keep walking until it ends."
+        walk2.easyTitleFr = "Un appel en marchant"
+        walk2.easyDescriptionFr = "Une seule fois aujourd’hui : prenez un appel debout et marchez jusqu’à la fin."
+        walk2.nextLevelId = "showcase-card-walk3"
+        var walk3 = ActionCardRow(id: "showcase-card-walk3", title: "A brisk 30-minute walk")
+        walk3.pillar = "exercise"; walk3.cardKind = "movement"; walk3.durationMin = 30; walk3.defaultSlot = "midday"
+        walk3.description = "Thirty minutes of walking at a brisk pace, outdoors when you can."
+        walk3.howMd = "1. Choose a route you can walk for 30 minutes, outdoors when possible.\n2. Walk briskly — clearly faster than a stroll, at a pace you can keep the whole way.\n3. Look ahead and around you rather than at your phone.\n4. Take the stairs rather than a lift or escalator whenever the route offers them.\n5. Over the weeks, let your pace get a little quicker.\n6. If something hurts, slow down or stop."
+        walk3.generalWhy = "Walking keeps the big leg muscles contracting again and again, which can help your body use sugar as fuel and keep your heart and blood vessels working well. Walking forward with your eyes on the scene around you, rather than on a screen, can also help you feel calmer."
+        walk3.titleFr = "Une marche d’un bon pas, 30 minutes"
+        walk3.descriptionFr = "Trente minutes de marche d’un bon pas, dehors quand c’est possible."
+        walk3.howMdFr = "1. Choisissez un parcours de 30 minutes de marche, dehors si possible.\n2. Marchez d’un bon pas — nettement plus vite qu’en flânant, à un rythme que vous tenez jusqu’au bout.\n3. Regardez devant vous et autour de vous plutôt que votre téléphone.\n4. Prenez les escaliers plutôt que l’ascenseur ou l’escalator chaque fois que le parcours en offre.\n5. Au fil des semaines, laissez votre allure s’accélérer un peu.\n6. Si quelque chose fait mal, ralentissez ou arrêtez-vous."
+        walk3.generalWhyFr = "La marche fait travailler encore et encore les grands muscles des jambes, ce qui peut aider le corps à utiliser le sucre comme carburant et entretenir le cœur et les vaisseaux. Avancer en regardant le paysage autour de vous, plutôt qu’un écran, peut aussi aider à vous sentir plus calme."
+        walk3.easyTitle = "Split it in two"
+        walk3.easyDescription = "Same 30 minutes, in two shorter walks — one in the morning, one in the evening."
+        walk3.revTitle = "Go for 40 to 60 minutes"
+        walk3.revDescription = "Same brisk pace, 40 to 60 minutes in all."
+        walk3.easyTitleFr = "En deux fois"
+        walk3.easyDescriptionFr = "Les mêmes 30 minutes, en deux marches plus courtes — une le matin, une le soir."
+        walk3.revTitleFr = "Allez jusqu’à 40 à 60 minutes"
+        walk3.revDescriptionFr = "Le même bon pas, 40 à 60 minutes en tout."
+        // The breathing card: the only kind with its own pacer — shown from the bank, as a member discovers it.
+        var breath = ActionCardRow(id: breathCardId, title: "Slow breathing before bed")
+        breath.pillar = "sleep"; breath.cardKind = "breath"; breath.durationMin = 5; breath.defaultSlot = "evening"
+        breath.description = "Five minutes of slow, even breathing in bed, eyes closed."
+        breath.easyTitle = "Ten slow breaths"; breath.easyDescription = "Just ten breaths with the circle, then let go."
+        breath.howMd = "1. Lie on your back, one hand on your belly.\n2. Breathe in gently through your nose as the circle grows.\n3. Breathe out slowly as it shrinks.\n4. If your mind wanders, come back to the circle."
+        breath.generalWhy = "A slow, even breathing rhythm is a simple way to let the day go before sleep."
+        breath.resources = [.init(kind: "youtube", query: "slow breathing exercise before sleep 5 minutes")]
+        breath.titleFr = "Respiration lente avant le coucher"
+        breath.descriptionFr = "Cinq minutes de respiration lente et régulière au lit, les yeux fermés."
+        breath.easyTitleFr = "Dix respirations lentes"; breath.easyDescriptionFr = "Seulement dix respirations avec le cercle, puis laissez aller."
+        breath.howMdFr = "1. Allongez-vous sur le dos, une main sur le ventre.\n2. Inspirez doucement par le nez pendant que le cercle grandit.\n3. Expirez lentement pendant qu’il rétrécit.\n4. Si votre esprit s’évade, revenez au cercle."
+        breath.generalWhyFr = "Un rythme de respiration lent et régulier est une façon simple de laisser partir la journée avant de dormir."
+        breath.memberCanAdd = true
+        return [rhythm.id: rhythm, snack.id: snack, strength.id: strength, walk.id: walk, walk2.id: walk2, walk3.id: walk3, breath.id: breath]
     }()
 
     private static func habit(_ id: String, _ title: String, slot: String?, card: String, pillar: String, rule: String = "FREQ=DAILY") -> HabitRow {
@@ -212,12 +284,17 @@ enum ShowcaseData {
     }
 
     static func habitPlan(day today: String) -> HabitPlan {
+        // A prescription's title is written in the member's language (it wins over the card's title in the app).
+        let fr = TodayFocus.locale() == "fr"
         let habits = [
-            habit("showcase-h-rhythm", "Morning circadian routine", slot: "morning", card: "showcase-card-rhythm", pillar: "sleep"),
-            habit(actionHabitId, "Strength session · twice a week", slot: "midday", card: "showcase-card-strength", pillar: "exercise",
-                  rule: twiceAWeek(including: today)),
-            habit("showcase-h-walk", "10-minute walk after lunch", slot: "midday", card: "showcase-card-walk", pillar: "exercise"),
-            habit("showcase-h-snack", "Protein snack mid-afternoon", slot: "midday", card: "showcase-card-snack", pillar: "nutrition"),
+            habit("showcase-h-rhythm", fr ? "Routine circadienne du matin" : "Morning circadian routine", slot: "morning",
+                  card: "showcase-card-rhythm", pillar: "sleep"),
+            habit(actionHabitId, fr ? "Séance de renforcement · deux fois par semaine" : "Strength session · twice a week", slot: "midday",
+                  card: "showcase-card-strength", pillar: "exercise", rule: twiceAWeek(including: today)),
+            habit("showcase-h-walk", fr ? "Marche de 10 minutes après le déjeuner" : "10-minute walk after lunch", slot: "midday",
+                  card: "showcase-card-walk", pillar: "exercise"),
+            habit("showcase-h-snack", fr ? "Collation protéinée en milieu d’après-midi" : "Protein snack mid-afternoon", slot: "midday",
+                  card: "showcase-card-snack", pillar: "nutrition"),
         ]
         var completions: [HabitCompletionRow] = []
         for ago in 1...20 {

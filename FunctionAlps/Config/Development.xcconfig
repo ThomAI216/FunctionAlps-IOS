@@ -8,3 +8,6 @@ FA_SUPABASE_PUBLISHABLE_KEY = sb_publishable_LVGwAdT4rrdto0hTMHUhrw_ikue9GGM
 // Future FunctionAlps-controlled gateway (PRD §7). Empty = talk to Supabase REST directly.
 FA_API_BASE_URL =
 PRODUCT_BUNDLE_IDENTIFIER_SUFFIX = .dev
+// CLINICAL's public library API — "The FunctionAlps Show" in the Library. A public URL, not a secret; the member's
+// own access token goes along per request.
+FA_CLINICAL_API_URL = $(FA_SCHEME)dashboard.functionalps.ch

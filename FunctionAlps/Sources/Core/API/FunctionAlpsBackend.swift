@@ -70,6 +70,17 @@ protocol FunctionAlpsBackend: Sendable {
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 
+    // MARK: The show (CLINICAL library API; experiment progress in member_lesson_progress)
+
+    /// `GET /api/webinars/library` on CLINICAL — the validated list. Throws on any failure (the caller reads that as
+    /// "no show data").
+    func showLibrary() async throws -> ShowLibrary
+    /// `GET /api/webinars/library/<slug>`; nil when CLINICAL answers 404.
+    func showEpisode(slug: String) async throws -> ShowEpisode?
+    /// The member's experiment marks: `member_lesson_progress` rows with no track whose slug starts `show:`.
+    /// Marks are WRITTEN with `insertLessonProgress(trackId: nil, contentSlug: "show:<slug>:day:<n>")`.
+    func showProgress(patientId: String) async throws -> [ShowProgressRow]
+
     // MARK: Meal reactions
 
     /// The latest felt reaction for a meal (`nb_meal_reactions`), or nil when never rated.
@@ -232,6 +243,13 @@ protocol FunctionAlpsBackend: Sendable {
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String
     /// Remove one of the member's OWN habits (RLS allows self_initiated only; a prescribed one never goes).
     func removeOwnHabit(id: String) async throws
+    /// Every published card the member may read (`habit_bank`, RLS = active) — the evolution ladders are walked
+    /// from these (`next_level_id`).
+    func ladderCards() async throws -> [ActionCardRow]
+    /// Move one of the member's habits to its card's next level (`member_level_up`). The server checks the rules
+    /// (3 times in 7 days, one change per routine per week, not locked, own habits never onto prescription cards)
+    /// and refuses with a validation error naming the rule.
+    func levelUp(habitId: String) async throws
     /// The member's next call with the practice — a patient-visible, not-cancelled appointment from `after` on
     /// (RLS `appointments_member_self_select`); nil when none is booked.
     func nextAppointment(after: Date) async throws -> AppointmentRow?

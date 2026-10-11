@@ -1,0 +1,633 @@
+<title>Routines and Evolutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a design brief in CLINICAL's warm palette. Sections run top to bottom (cycle, day, member phone,
+   ladders, rules, clinician screen, open questions); the member phone is a live mockup. */
+:root {
+  --bg: #f5f0e8; --surface: #ffffff; --surface-2: #ede8de; --ink: #1a1a16; --ink-2: #6f6d63; --line: #e4e1d8;
+  --forest: #2e5438; --forest-soft: #4a8a5c; --forest-glow: #edf4ef;
+  --gold: #c48b35; --gold-m: #f0e6d0; --amber-ink: #8a5a12;
+  --rx: #8a3f2a; --rx-m: #f6e1d9; --new: #3d4f8f; --new-m: #e2e7f6;
+  --phone-wall-1: #d8c9b2; --phone-wall-2: #efe6d6; --phone-wall-3: #c9b79c;
+  --glass: rgba(255,255,255,.62); --glass-line: rgba(255,255,255,.78);
+  --display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171712; --surface: #212119; --surface-2: #2b2a22; --ink: #f1ece2; --ink-2: #a8a597; --line: #36352c;
+  --forest: #7fbf8e; --forest-soft: #6aa97a; --forest-glow: #1f2d22; --gold: #d9a756; --gold-m: #3a301e; --amber-ink: #e3b35d;
+  --rx: #f0a58c; --rx-m: #3a221a; --new: #a9b8f0; --new-m: #232a45; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #171712; --surface: #212119; --surface-2: #2b2a22; --ink: #f1ece2; --ink-2: #a8a597; --line: #36352c;
+  --forest: #7fbf8e; --forest-soft: #6aa97a; --forest-glow: #1f2d22; --gold: #d9a756; --gold-m: #3a301e; --amber-ink: #e3b35d;
+  --rx: #f0a58c; --rx-m: #3a221a; --new: #a9b8f0; --new-m: #232a45; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--sans); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 72px; display: flex; flex-direction: column; gap: 56px; }
+:focus-visible { outline: 2px solid var(--forest-soft); outline-offset: 2px; }
+h1, h2 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+h1 { font-size: 40px; line-height: 1.08; }
+h2 { font-size: 28px; line-height: 1.15; }
+h3 { margin: 0; font: 600 16px/1.3 var(--sans); }
+p { margin: 0; }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--forest); }
+.lede { max-width: 70ch; color: var(--ink-2); font-size: 16px; }
+.sec { display: flex; flex-direction: column; gap: 18px; }
+.sec > header { display: flex; flex-direction: column; gap: 6px; max-width: 75ch; }
+.sec > header p { color: var(--ink-2); }
+.status-note { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 10px; background: var(--gold-m); color: var(--amber-ink); font-size: 13px; width: fit-content; max-width: 100%; }
+
+/* The cycle */
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; counter-reset: s; }
+.cycle li { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; counter-increment: s; position: relative; }
+.cycle li::before { content: counter(s); font: 400 26px/1 var(--display); color: var(--forest-soft); }
+.cycle li b { font-weight: 600; }
+.cycle li span { font-size: 13px; color: var(--ink-2); }
+.cycle li.loop { background: var(--forest-glow); border-color: transparent; }
+@media (max-width: 980px) { .cycle { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .cycle { grid-template-columns: minmax(0, 1fr); } }
+
+/* A day */
+.day { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 900px) { .day { grid-template-columns: minmax(0, 1fr); } }
+.moment { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.moment-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.moment-h h3 { font: 400 22px/1.1 var(--display); }
+.cap { font: 500 11px/1 var(--mono); padding: 5px 7px; border-radius: 6px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+.anchor { font-size: 12.5px; color: var(--ink-2); margin-top: -6px; }
+.slots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.slots li { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.slots .k { font: 500 10.5px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--forest); }
+.slots .v { font-size: 14px; }
+.ladder-hint { display: block; font-size: 12px; color: var(--ink-2); }
+.swaps { font-size: 12.5px; color: var(--ink-2); border-top: 1px dashed var(--line); padding-top: 10px; }
+.swaps b { color: var(--ink); font-weight: 600; }
+.subs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .subs { grid-template-columns: minmax(0, 1fr); } }
+.sub { background: var(--surface-2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sub h4 { margin: 0; font: 600 14px/1.2 var(--sans); display: flex; justify-content: space-between; gap: 6px; }
+.sub h4 small { font: 500 10.5px/1.4 var(--mono); color: var(--ink-2); font-weight: 500; }
+.sub ul { margin: 0; padding-left: 16px; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
+.tag { display: inline-block; font: 600 10px/1 var(--sans); letter-spacing: .04em; text-transform: uppercase; padding: 3px 5px; border-radius: 4px; vertical-align: 1px; margin-left: 4px; }
+.tag.rx { background: var(--rx-m); color: var(--rx); }
+.tag.new { background: var(--new-m); color: var(--new); }
+.tag.star { background: var(--gold-m); color: var(--amber-ink); }
+
+/* Member side */
+.member { display: grid; grid-template-columns: minmax(0, 426px) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 980px) { .member { grid-template-columns: minmax(0, 1fr); } .phone { margin-inline: auto; } }
+.member > * { min-width: 0; }
+.phone { width: 426px; max-width: 100%; padding: 12px; border-radius: 62px; background: #121210; box-shadow: 0 20px 50px rgba(20, 18, 12, .28); }
+.screen { position: relative; height: 820px; border-radius: 50px; overflow: hidden; color: #1a1a16;
+  background: radial-gradient(120% 80% at 20% 0%, var(--phone-wall-2), transparent 60%), linear-gradient(170deg, var(--phone-wall-2), var(--phone-wall-1) 55%, var(--phone-wall-3)); }
+@media (max-width: 460px) { .phone { padding: 0; background: none; box-shadow: none; } .screen { border-radius: 24px; } }
+.status { position: absolute; inset: 0 0 auto 0; height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; font: 600 15px/1 var(--sans); z-index: 4; color: #1a1a16; }
+.island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 122px; height: 34px; border-radius: 20px; background: #000; }
+.scroll { position: absolute; inset: 0; overflow: auto; padding: 60px 14px 110px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+.glass { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 24px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.p-meta { font: 700 10px/1.3 var(--sans); letter-spacing: .9px; color: #6f6d63; text-transform: uppercase; }
+.p-title { font: 400 28px/1.15 var(--display); color: #1a1a16; }
+.p-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.p-h b { font: 400 21px/1.1 var(--display); color: #1a1a16; }
+.p-h small { font: 600 11px/1 var(--sans); color: #6f6d63; }
+.prio { display: flex; flex-direction: column; gap: 6px; }
+.prio div { display: flex; gap: 8px; align-items: center; font: 600 13.5px/1.3 var(--sans); }
+.prio i { font-style: normal; color: #c48b35; }
+.prio em { margin-left: auto; font: 600 11px/1 var(--sans); font-style: normal; color: #6f6d63; }
+.acts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.act { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(26,26,22,.08); }
+.act:first-child { border-top: 0; }
+.tick { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #4a8a5c; background: transparent; cursor: pointer; display: grid; place-items: center; color: #fff; padding: 0; }
+.tick[aria-pressed="true"] { background: #2e5438; border-color: #2e5438; }
+.tick svg { width: 14px; height: 14px; opacity: 0; }
+.tick[aria-pressed="true"] svg { opacity: 1; }
+.act-open { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.act-open:focus-visible { outline: 2px solid #4a8a5c; outline-offset: 2px; border-radius: 6px; }
+.act-open b { font: 600 14px/1.25 var(--sans); color: #1a1a16; }
+.act-open span { font: 500 11.5px/1.2 var(--sans); color: #6f6d63; }
+.act .streak { display: inline-flex; gap: 3px; align-items: center; font: 700 13px/1 var(--sans); color: #d98a2b; white-space: nowrap; }
+.act .streak svg { width: 16px; height: 16px; }
+.act .streak.cold { color: #a8a79e; }
+.when { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.when button { font: 600 12.5px/1 var(--sans); padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.when button[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--bg); }
+.phone-wrap { display: flex; flex-direction: column; gap: 12px; align-items: center; min-width: 0; }
+.sub-l { font: 700 10px/1.3 var(--sans); letter-spacing: .9px; color: #6f6d63; text-transform: uppercase; margin-top: 6px; }
+.towards { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 7px; background: rgba(255,255,255,.75); border-radius: 14px; padding: 12px; }
+.towards:focus-visible { outline: 2px solid #4a8a5c; outline-offset: 2px; }
+.towards .row { display: flex; justify-content: space-between; align-items: baseline; font: 600 14px/1.2 var(--sans); }
+.towards .row span { font: 600 12px/1 var(--sans); color: #6f6d63; }
+.towards small { font: 500 12px/1.35 var(--sans); color: #6f6d63; }
+.nextp { border: 1px solid rgba(74,138,92,.45); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 5px; }
+.nextp b { font: 600 14.5px/1.3 var(--sans); }
+.nextp p { font: 400 13px/1.4 var(--sans); color: #2c2b25; }
+.act.done b { color: #4a6b52; }
+.run { font: 600 13px/1 var(--sans); padding: 10px; border-radius: 14px; border: 0; background: rgba(46,84,56,.12); color: #2e5438; cursor: pointer; }
+.full-note { font: 500 12px/1.35 var(--sans); color: #6f6d63; background: rgba(255,255,255,.55); border-radius: 12px; padding: 8px 10px; }
+.tabbar { position: absolute; left: 14px; right: 14px; bottom: 22px; height: 64px; border-radius: 32px; background: rgba(255,255,255,.75); border: 1px solid var(--glass-line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: flex; justify-content: space-around; align-items: center; z-index: 4; }
+.tabbar button { all: unset; cursor: pointer; font: 600 11px/1 var(--sans); color: #6f6d63; padding: 10px 14px; border-radius: 20px; }
+.tabbar button[aria-pressed="true"] { color: #2e5438; background: rgba(46,84,56,.1); }
+.homebar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 136px; height: 5px; border-radius: 3px; background: #1a1a16; z-index: 4; }
+.sheet[hidden] { display: none; }
+.sheet { position: absolute; inset: 0; z-index: 5; background: rgba(20,18,12,.25); display: flex; align-items: flex-end; }
+.sheet-in { width: 100%; max-height: 88%; overflow: auto; background: #f6f1e8; border-radius: 30px 30px 0 0; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; color: #1a1a16; }
+.sheet-in::-webkit-scrollbar { display: none; }
+.close { align-self: flex-end; font: 600 13px/1 var(--sans); padding: 8px 12px; border-radius: 12px; border: 0; background: rgba(26,26,22,.07); color: #1a1a16; cursor: pointer; }
+.stats3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stats3 div { background: #fff; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 3px; }
+.stats3 b { font: 400 24px/1 var(--display); }
+.stats3 span { font: 600 10.5px/1.2 var(--sans); color: #6f6d63; }
+.ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.lv { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; padding-bottom: 14px; position: relative; }
+.lv::before { content: ""; position: absolute; left: 12px; top: 26px; bottom: 0; width: 2px; background: rgba(46,84,56,.2); }
+.lv:last-child::before { display: none; }
+.lv .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 11px/1 var(--sans); background: rgba(26,26,22,.08); color: #6f6d63; }
+.lv.done .dot { background: #2e5438; color: #fff; }
+.lv.now .dot { background: #c48b35; color: #fff; box-shadow: 0 0 0 4px rgba(196,139,53,.25); }
+.lv b { font: 600 14px/1.3 var(--sans); display: block; }
+.lv small { font: 500 12px/1.35 var(--sans); color: #6f6d63; display: block; }
+.pips { display: flex; gap: 4px; margin-top: 5px; }
+.pips i { width: 18px; height: 6px; border-radius: 3px; background: rgba(26,26,22,.12); }
+.pips i.on { background: #c48b35; }
+.flex3 { display: flex; gap: 6px; }
+.flex3 span { flex: 1; text-align: center; font: 600 12px/1 var(--sans); padding: 9px 4px; border-radius: 12px; background: rgba(255,255,255,.8); }
+.flex3 span.on { background: #2e5438; color: #fff; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal i { aspect-ratio: 1; border-radius: 6px; background: rgba(26,26,22,.08); display: grid; place-items: center; font: 600 9px/1 var(--sans); font-style: normal; color: #6f6d63; }
+.cal i.d1 { background: rgba(74,138,92,.35); color: #1a1a16; }
+.cal i.d2 { background: #4a8a5c; color: #fff; }
+.cal i.d3 { background: #2e5438; color: #fff; }
+.cal-legend { display: flex; gap: 10px; font: 500 11px/1.2 var(--sans); color: #6f6d63; flex-wrap: wrap; }
+.tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font: 500 13px/1.35 var(--sans); }
+.tl li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; }
+.tl time { font: 600 11px/1.6 var(--sans); color: #6f6d63; }
+.ex { font: 500 11px/1.3 var(--sans); color: #6f6d63; text-align: center; }
+.explain { display: flex; flex-direction: column; gap: 16px; }
+.explain .pt { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+.explain .pt svg { width: 26px; height: 26px; color: var(--forest-soft); }
+.explain .pt p { color: var(--ink-2); font-size: 14px; }
+.explain .pt h3 { margin-bottom: 2px; }
+
+/* Ladders */
+.ladders { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 12px; }
+.lad { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lad h3 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.lad h3 small { font: 500 11px/1 var(--mono); color: var(--ink-2); font-weight: 500; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.steps li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: 14px; }
+.steps .l { font: 500 11px/1.6 var(--mono); color: var(--forest); }
+.steps .or { display: block; font-size: 12.5px; color: var(--ink-2); }
+.lad.user { border-color: var(--forest-soft); box-shadow: 0 0 0 1px var(--forest-soft) inset; }
+.lad .src { font-size: 12px; color: var(--ink-2); }
+
+/* Rules */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-top: 1px solid var(--line); }
+thead th { border-top: 0; font: 500 11px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); background: var(--surface-2); }
+td:first-child { font-weight: 600; width: 26%; }
+td.num { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: var(--forest); }
+.doctrine { font-size: 13.5px; color: var(--ink-2); max-width: 80ch; }
+.doctrine code { font: 12.5px var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+/* Clinician side */
+.cl { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.cl-top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.cl-top .who { font: 400 20px/1.1 var(--display); }
+.cl-top .who small { display: block; font: 500 12px/1.4 var(--sans); color: var(--ink-2); }
+.cycle-pill { font: 600 12px/1 var(--sans); padding: 8px 10px; border-radius: 10px; background: var(--forest-glow); color: var(--forest); }
+.cl-prio { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--line); align-items: center; }
+.cl-prio > span { font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin-right: 4px; }
+.star-chip { font: 600 13px/1 var(--sans); padding: 8px 10px; border-radius: 999px; background: var(--gold-m); color: var(--amber-ink); }
+.star-chip.add { background: transparent; border: 1px dashed var(--line); color: var(--ink-2); }
+.cl-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+@media (max-width: 900px) { .cl-cols { grid-template-columns: minmax(0, 1fr); } }
+.cl-col { padding: 14px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cl-col:first-child { border-left: 0; }
+@media (max-width: 900px) { .cl-col { border-left: 0; border-top: 1px solid var(--line); } .cl-col:first-child { border-top: 0; } }
+.cl-col h4 { margin: 0; display: flex; justify-content: space-between; font: 600 14px/1.2 var(--sans); }
+.cl-col h4 small { font: 500 11px/1.4 var(--mono); color: var(--ink-2); }
+.cl-col h5 { margin: 6px 0 0; font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+.ci { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; background: var(--bg); }
+.ci-top { display: flex; gap: 6px; align-items: baseline; justify-content: space-between; }
+.ci-top b { font: 600 13.5px/1.25 var(--sans); }
+.ci-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font: 500 11.5px/1.2 var(--sans); color: var(--ink-2); }
+.ci select { font: 600 11.5px/1 var(--sans); padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; flex: 1 1 60px; min-width: 60px; }
+.bar i { display: block; height: 100%; background: var(--forest-soft); }
+.lock { font: 600 11px/1 var(--sans); color: var(--ink-2); }
+.drop { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; font-size: 12.5px; color: var(--ink-2); text-align: center; }
+.cl-foot { padding: 12px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.screens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .screens { grid-template-columns: minmax(0, 1fr); } }
+.screens div { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.screens p { font-size: 13.5px; color: var(--ink-2); }
+
+/* Reuse + questions */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.qs { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.qs li::marker { font: 400 18px var(--display); color: var(--forest-soft); }
+@media (max-width: 560px) { h1 { font-size: 32px; } h2 { font-size: 24px; } .wrap { padding-inline: 16px; } }
+@media (prefers-reduced-motion: no-preference) { .tick, .tabbar button { transition: background-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="sec" style="gap:12px">
+    <span class="eyebrow">FunctionAlps · action cards · design proposal · 5 Oct 2026</span>
+    <h1>Routines and Evolutions</h1>
+    <p class="lede">How weekly priorities become actions, how actions live in a morning, day and evening routine, how each action evolves into the next, and the rules that stop anyone burning out. Everything uses cards we already have; the few levels still to write are tagged <span class="tag new">new</span>.</p>
+    <span class="status-note">Brainstorm. No database change until the design settles.</span>
+  </header>
+
+  <section class="sec" aria-labelledby="h-cycle">
+    <header><span class="eyebrow">The process</span><h2 id="h-cycle">One cycle, every 1 or 2 weeks</h2>
+      <p>The autopilot runs this loop for trial and free members from their track. A clinician runs it in CLINICAL for members in care.</p></header>
+    <ol class="cycle">
+      <li><b>Objective</b><span>The member picks energy, sleep, focus, brain fog, muscle, weight or stress. That picks a track; the Basic track runs for everyone.</span></li>
+      <li><b>Priorities</b><span>1 to 3 for the cycle, for example same bedtime, no caffeine after 14:00, screens off 30 min before bed.</span></li>
+      <li><b>Placement</b><span>Each priority becomes an action in the morning, day or evening routine, within the caps.</span></li>
+      <li><b>Daily</b><span>The member runs the routines. Each card still flexes gentle / standard / further with the day's readiness.</span></li>
+      <li><b>Evolution</b><span>Done enough times at its level, an action offers its next level.</span></li>
+      <li class="loop"><b>Review</b><span>Completion, streaks, level-ups, priorities kept. Then keep, level up, swap, or take the next block.</span></li>
+    </ol>
+  </section>
+
+  <section class="sec" aria-labelledby="h-day">
+    <header><span class="eyebrow">The routines</span><h2 id="h-day">What goes in a day</h2>
+      <p>Three actions in the morning, at most six spread over the day routines, three in the evening. A new member starts at two, two and two.</p></header>
+    <div class="day">
+      <article class="moment">
+        <div class="moment-h"><h3>Morning</h3><span class="cap">max 3</span></div>
+        <p class="anchor">From waking to the first work block</p>
+        <ul class="slots">
+          <li><span class="k">Hydrate</span><span class="v">A glass of water before coffee</span></li>
+          <li><span class="k">Light</span><span class="v">Morning light within an hour of waking</span></li>
+          <li><span class="k">Move</span><span class="v">Morning stretch, five minutes<span class="ladder-hint">climbs the morning-movement ladder: stretch → + circuit or 10-min walk → 20–40-min walk → easy run</span></span></li>
+        </ul>
+        <p class="swaps"><b>Swaps:</b> ten focused breaths on waking · protein at breakfast · first coffee 30 min after waking · same wake-up time, weekends too (the routine's start time)</p>
+      </article>
+      <article class="moment">
+        <div class="moment-h"><h3>During the day</h3><span class="cap">max 6 in all</span></div>
+        <p class="anchor">Routines that switch on when they apply: Sport only on training days</p>
+        <div class="subs">
+          <div class="sub"><h4>Work <small>focus blocks</small></h4><ul>
+            <li>Phone in another room while you focus</li><li>Single-task the first work hour</li>
+            <li>A two-minute pause between tasks</li><li>The same small ritual at each switch</li></ul></div>
+          <div class="sub"><h4>Energy reset <small>the dip</small></h4><ul>
+            <li>A 10-minute walk after lunch</li><li>Five minutes outside in daylight</li>
+            <li>The double-inhale sigh</li><li>Ten minutes of guided deep rest</li><li>A short nap <span class="tag rx">Rx</span></li></ul></div>
+          <div class="sub"><h4>Sport <small>training days</small></h4><ul>
+            <li>Warm-up (morning stretch)</li><li>The session: strength or cardio <span class="tag rx">Rx</span></li>
+            <li>Full attention on every rep</li><li>A proper meal after training</li><li>Hard workouts end 3–4 h before bed</li></ul></div>
+          <div class="sub"><h4>Meals <small>main meals</small></h4><ul>
+            <li>Vegetables on half the plate</li><li>Protein first, then the rest</li>
+            <li>Slow first five bites</li><li>Three slow breaths before meals</li></ul></div>
+        </div>
+      </article>
+      <article class="moment">
+        <div class="moment-h"><h3>Evening</h3><span class="cap">max 3</span></div>
+        <p class="anchor">The last one to three hours before bed</p>
+        <ul class="slots">
+          <li><span class="k">Screens</span><span class="v">Screens off 30 minutes before bed<span class="ladder-hint">ladder: phone out of the bedroom → 30 min → 60 min</span></span></li>
+          <li><span class="k">Light</span><span class="v">Dim the lights after 21:00</span></li>
+          <li><span class="k">Wind down</span><span class="v">Five minutes of cyclic sighing<span class="ladder-hint">or tomorrow's list · a mental walk at lights-out · slow eye movements</span></span></li>
+        </ul>
+        <p class="swaps"><b>Swaps:</b> a cool bedroom · a hot shower before bed · kitchen closed after 21:00 · same bedtime on weekdays (the routine's end time)</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-member">
+    <header><span class="eyebrow">Member side · app</span><h2 id="h-member">Today, the action sheet, and progress</h2>
+      <p>Home opens on "My health plan" (the care plan's priorities), then one routine at a time: the morning's from 6:00 to 10:00, the day's until 18:00, the evening's after. Switch the time above the phone. Tap a circle to tick an action; tap its name for its video, step-by-step and ladder; tap "Towards next level" to see the level ahead. The data is an example member.</p></header>
+    <div class="member">
+      <div class="phone-wrap">
+      <div class="when" role="group" aria-label="Time of day on the phone">
+        <button type="button" data-when="morning" aria-pressed="true">7:42 · Morning</button>
+        <button type="button" data-when="day" aria-pressed="false">13:10 · Day</button>
+        <button type="button" data-when="evening" aria-pressed="false">20:30 · Evening</button>
+      </div>
+      <div class="phone" aria-label="iPhone mockup">
+        <div class="screen">
+          <div class="island"></div>
+          <div class="status"><span id="clock">7:42</span><span>●●● 82%</span></div>
+          <div class="scroll" id="scr"></div>
+          <div class="tabbar" role="group" aria-label="App tabs">
+            <button type="button" data-tab="today" aria-pressed="true">Today</button>
+            <button type="button" data-tab="progress" aria-pressed="false">Progress</button>
+          </div>
+          <div class="homebar"></div>
+          <div class="sheet" id="sheet" hidden></div>
+        </div>
+      </div>
+      </div>
+      <div class="explain">
+        <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.3 6.7 19.2l1.2-5.9L3.4 9.2l6-.7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div><h3>The care plan on top</h3><p>Home opens on "My health plan": the plan's objective, the week, and the priorities the clinician set. The routine of the moment follows, and nothing else.</p></div></div>
+        <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <div><h3>Routines as stacks</h3><p>Morning, the day routines that apply today, evening. "Start routine" walks through one action at a time. A full routine says so and offers a swap rather than a fourth action.</p></div></div>
+        <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V14M12 20V9M19 20V4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div><h3>The ladder on every action</h3><p>The sheet shows each level, where the member stands, "2 of 3 to unlock the next level", and when each level was reached. Today's gentle / standard / further version is separate: it moves with the day, the level moves with the weeks.</p></div></div>
+        <div class="pt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2 4 6 5 6 10a6 6 0 01-12 0c0-3 2-4 2-7 2 1 3 2 4 4 0-3 0-5 0-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div><h3>Streaks and progress</h3><p>Days in a row per action and per routine, the best streak kept, one grace day a week, a completion calendar, and a timeline of level-ups. A missed day never shows as "lost".</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-ladders">
+    <header><span class="eyebrow">Evolutions</span><h2 id="h-ladders">Every action is a step on a ladder</h2>
+      <p>Each level is a card. A level can offer a choice ("or"). The first two ladders are yours; the others are built from the cards we have. Levels from the book keep the book's numbers.</p></header>
+    <div class="ladders">
+      <article class="lad user"><h3>Screens before bed <small>evening</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Phone out of the bedroom</span></li>
+        <li><span class="l">L2</span><span>Screens off 30 minutes before bed</span></li>
+        <li><span class="l">L3</span><span>Screens off 60 minutes before bed <span class="tag new">new</span></span></li></ol></article>
+      <article class="lad user"><h3>Morning movement <small>morning</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Morning stretch, five minutes</span></li>
+        <li><span class="l">L2</span><span>Stretch + one strength circuit <span class="tag new">new</span><span class="or">or stretch + a 10-minute walk <span class="tag new">new</span></span></span></li>
+        <li><span class="l">L3</span><span>A brisk walk, 20 → 30 → 40 minutes<span class="or">"A brisk 30-minute walk" with its gentle and further versions</span></span></li>
+        <li><span class="l">L4</span><span>Warm-up + an easy run <span class="tag new">new</span><span class="or">probably "only if your practice has cleared you"</span></span></li></ol></article>
+      <article class="lad"><h3>Walking <small>day · energy</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>A 10-minute walk after lunch</span></li>
+        <li><span class="l">L2</span><span>Walk five minutes every half hour</span></li>
+        <li><span class="l">L3</span><span>A brisk 30-minute walk</span></li>
+        <li><span class="l">L4</span><span>Long, easy cardio: 45–75 minutes <span class="tag rx">Rx</span></span></li></ol></article>
+      <article class="lad"><h3>Bodyweight strength <small>morning · sport</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Ten sit-to-stands</span></li>
+        <li><span class="l">L2</span><span>One set of push-ups</span></li>
+        <li><span class="l">L3</span><span>Stretch + one strength circuit <span class="tag new">new</span></span></li>
+        <li><span class="l">L4</span><span>Strength sessions <span class="tag rx">Rx</span></span></li></ol></article>
+      <article class="lad"><h3>Caffeine <small>morning · day</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>No caffeine after 14:00</span></li>
+        <li><span class="l">L2</span><span>First coffee 30 minutes after waking</span></li>
+        <li><span class="l">L3</span><span>First coffee 60–90 minutes after waking <span class="tag new">new</span><span class="or">the book ramps 30, then 60</span></span></li></ol></article>
+      <article class="lad"><h3>Sleep timing <small>morning · evening</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Same bedtime on weekdays</span></li>
+        <li><span class="l">L2</span><span>Same wake-up time, weekends too</span></li></ol></article>
+      <article class="lad"><h3>Light <small>morning · day</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Five minutes of daylight</span></li>
+        <li><span class="l">L2</span><span>Morning light within an hour of waking</span></li>
+        <li><span class="l">L3</span><span>+ Afternoon light before sunset</span></li></ol></article>
+      <article class="lad"><h3>Calm <small>day · evening</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>The double-inhale sigh</span></li>
+        <li><span class="l">L2</span><span>Five minutes of cyclic sighing</span></li>
+        <li><span class="l">L3</span><span>Five minutes sitting with your breath</span></li></ol></article>
+      <article class="lad"><h3>Focus <small>work</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Phone in another room while you focus</span></li>
+        <li><span class="l">L2</span><span>Single-task the first work hour</span></li>
+        <li><span class="l">L3</span><span>A two-hour focus block, then a break</span></li></ol></article>
+      <article class="lad"><h3>Plate <small>meals</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Vegetables on half the plate</span></li>
+        <li><span class="l">L2</span><span>Protein first, then the rest</span></li>
+        <li><span class="l">L3</span><span>One meal from single-ingredient foods</span></li></ol></article>
+      <article class="lad"><h3>Kitchen <small>evening</small></h3><ol class="steps">
+        <li><span class="l">L1</span><span>Kitchen closed after 21:00</span></li>
+        <li><span class="l">L2</span><span>Kitchen closed 3 hours before bed <span class="tag new">new</span><span class="or">the book says 2–3 hours</span></span></li></ol></article>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-rules">
+    <header><span class="eyebrow">The rules</span><h2 id="h-rules">Guardrails, with numbers to settle</h2>
+      <p>Every number below is a proposal. A clinician can override them for one member; the practice sets the defaults.</p></header>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Rule</th><th>Proposal</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Caps per routine</td><td class="num">3 · 6 · 3<br>new member 2 · 2 · 2</td><td>Morning, day, evening. Nobody gets twelve actions on day one.</td></tr>
+        <tr><td>Actions a member adds alone</td><td class="num">trial ≤ 3 · member ≤ 6<br>1 new per 3 days</td><td>The bank is a temptation; the limit protects the routine. Prescribed actions don't count here, but they count in the caps.</td></tr>
+        <tr><td>Level up</td><td class="num">3 done in 7 days<br>2–3×/week cards: 2 weeks</td><td>Your "two or three times first". The app offers the next level; the member accepts or stays. A clinician can lock a level or set 2.</td></tr>
+        <tr><td>One change at a time</td><td class="num">1 level-up per routine per week</td><td>A routine changes one thing at a time so it stays recognisable.</td></tr>
+        <tr><td>Stack on a stable base</td><td class="num">routine ≥ 70 % over 7 days</td><td>A new action joins a routine only when the routine already holds. Otherwise the app suggests a gentler level or a swap.</td></tr>
+        <tr><td>Step down, never punish</td><td class="num">3 misses in a row → offer</td><td>The app offers the level below or a pause. Never automatic, never "streak lost".</td></tr>
+        <tr><td>Streaks</td><td class="num">1 grace day per 7</td><td>Per action and per routine; weekly cards count weeks; the best streak is kept.</td></tr>
+        <tr><td>Priorities</td><td class="num">1–3 per cycle<br>cycle = 1 or 2 weeks</td><td>Starred, shown first, counted in the review.</td></tr>
+        <tr><td>Tiers</td><td class="num">trial · members · Rx</td><td>Trial cards in the 14-day trial, members-only cards for paying members, prescription cards placed by a clinician only.</td></tr>
+        <tr><td>Who wins</td><td class="num">clinician &gt; member</td><td>A member can pause a prescribed action for today; removing it asks the clinician.</td></tr>
+      </tbody></table></div>
+    <p class="doctrine">These rules read completions only, never health data: the doctrine of the existing habit loop (<code>lib/habit-loop/arithmetic.ts</code>: "gates read behaviour, not health"). The level-up rule is an existing gate with <code>required_n = 3</code> and <code>window_days = 7</code>; the streak arithmetic already exists too.</p>
+  </section>
+
+  <section class="sec" aria-labelledby="h-clin">
+    <header><span class="eyebrow">Clinician side · CLINICAL</span><h2 id="h-clin">Patient › Routines</h2>
+      <p>One screen per patient: this cycle's priorities, the three moments with their actions, the level each action is on, and how it is going. The patient below is an example.</p></header>
+    <div class="cl">
+      <div class="cl-top">
+        <div class="who">Example patient<small>Track: Better sleep · Basic track running · member since 14 Sep</small></div>
+        <span class="cycle-pill">Cycle 3 · 6–19 Oct · 2 weeks</span>
+      </div>
+      <div class="cl-prio"><span>Priorities</span>
+        <span class="star-chip">★ Same bedtime on weekdays</span><span class="star-chip">★ No caffeine after 14:00</span><span class="star-chip">★ Screens off 30 min before bed</span>
+      </div>
+      <div class="cl-cols">
+        <div class="cl-col"><h4>Morning <small>3 / 3</small></h4>
+          <div class="ci"><div class="ci-top"><b>A glass of water before coffee</b></div><div class="ci-meta"><span>L1 of 1</span><span class="bar"><i style="width:100%"></i></span><span>7/7</span></div></div>
+          <div class="ci"><div class="ci-top"><b>Morning light within an hour of waking</b></div><div class="ci-meta"><span>Light ladder L2</span><span class="bar"><i style="width:71%"></i></span><span>5/7</span></div></div>
+          <div class="ci"><div class="ci-top"><b>Morning stretch, five minutes</b></div><div class="ci-meta"><label>Level <select aria-label="Level of morning movement"><option>L1 Stretch</option><option>L2 + circuit / walk</option><option>L3 Brisk walk</option><option>L4 Easy run</option></select></label><span class="bar"><i style="width:86%"></i></span><span>6/7</span><span class="lock">Offer L2 ready</span></div></div>
+        </div>
+        <div class="cl-col"><h4>During the day <small>3 / 6</small></h4>
+          <h5>Work</h5>
+          <div class="ci"><div class="ci-top"><b>Phone in another room while you focus</b></div><div class="ci-meta"><span>Focus ladder L1</span><span class="bar"><i style="width:57%"></i></span><span>4/7</span></div></div>
+          <h5>Energy reset</h5>
+          <div class="ci"><div class="ci-top"><b>No caffeine after 14:00 <span class="tag star">★</span></b></div><div class="ci-meta"><span>Caffeine ladder L1</span><span class="bar"><i style="width:86%"></i></span><span>6/7</span><span class="lock">Locked at L1</span></div></div>
+          <div class="ci"><div class="ci-top"><b>A 10-minute walk after lunch</b></div><div class="ci-meta"><span>Walking ladder L1</span><span class="bar"><i style="width:43%"></i></span><span>3/7</span></div></div>
+          <div class="drop">Drop a card from the bank · Sport switches on for training days</div>
+        </div>
+        <div class="cl-col"><h4>Evening <small>3 / 3</small></h4>
+          <div class="ci"><div class="ci-top"><b>Screens off 30 min before bed <span class="tag star">★</span></b></div><div class="ci-meta"><span>Screens ladder L2</span><span class="bar"><i style="width:71%"></i></span><span>5/7</span></div></div>
+          <div class="ci"><div class="ci-top"><b>Dim the lights after 21:00</b></div><div class="ci-meta"><span>L1 of 1</span><span class="bar"><i style="width:57%"></i></span><span>4/7</span></div></div>
+          <div class="ci"><div class="ci-top"><b>Same bedtime on weekdays <span class="tag star">★</span></b></div><div class="ci-meta"><span>Sleep timing L1</span><span class="bar"><i style="width:80%"></i></span><span>4/5</span></div></div>
+        </div>
+      </div>
+      <div class="cl-foot"><span>Routine completion, 7 days: morning 86 % · day 62 % · evening 70 %</span><span>Self-added: 1 of 6</span><span>Raise a cap · lock a level · start next cycle</span></div>
+    </div>
+    <div class="screens">
+      <div><h3>Action cards › Ladders</h3><p>Chain cards into levels, with "or" choices at a level, the level-up rule per ladder, and the cards still to write.</p></div>
+      <div><h3>Action cards › Routine templates</h3><p>The default morning and evening per objective, and each track as a sequence of 2-week blocks of priorities. This is what the autopilot runs.</p></div>
+      <div><h3>Settings › Rules</h3><p>The caps, limits and thresholds above, practice-wide, with per-patient overrides on the patient's Routines screen.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-q">
+    <div class="two">
+      <div class="sec" style="gap:12px"><header><span class="eyebrow">Already built</span><h2 id="h-reuse">What this reuses</h2></header>
+        <div class="table-wrap"><table style="min-width:0"><tbody>
+          <tr><td>Priorities</td><td>Weekly-focus flag on care-plan items (the app's "My health plan" priorities)</td></tr>
+          <tr><td>Routine moment</td><td>The morning / midday / evening slot on cards and habits. Missing: the routine kind and the order.</td></tr>
+          <tr><td>Level-up</td><td>Plan gates: unlock after N completions in a window, already evaluated server-side</td></tr>
+          <tr><td>Streaks</td><td>The habit-loop arithmetic CLINICAL and the app share</td></tr>
+          <tr><td>Day-to-day flex</td><td>Gentle and further versions, chosen by the daily focus</td></tr>
+          <tr><td>Tiers</td><td>"Members can add it", entitlements (+ members-only and the 14-day trial to add)</td></tr>
+        </tbody></table></div></div>
+      <div class="sec" style="gap:12px"><header><span class="eyebrow">For you</span><h2 id="h-q2">Open questions</h2></header>
+        <ol class="qs">
+          <li>Cycle length: always 2 weeks, or the clinician picks 1 or 2?</li>
+          <li>Does the Sport routine count in the day's 6, or sit apart on training days?</li>
+          <li>"Same bedtime" and "same wake-up time": actions to tick, or the routines' end and start times?</li>
+          <li>Level-up: offered (the member accepts) or automatic?</li>
+          <li>A grace day in streaks: yes or no?</li>
+          <li>Which new levels to write first: screens 60 min, stretch + circuit, stretch + 10-min walk, easy run, coffee 60–90 min, kitchen 3 h?</li>
+        </ol></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>';
+  // Example member. Streaks are days in a row; ladder levels name real cards.
+  const L = {
+    move: { name: 'Morning movement', levels: [
+      ['Morning stretch, five minutes', 'since 14 Sep'], ['Stretch + one strength circuit, or + a 10-minute walk', '', 'Your five minutes of stretching, then one round of sit-to-stands and push-ups, or a 10-minute walk outside.'],
+      ['A brisk walk, 20 → 30 → 40 minutes', ''], ['Warm-up + an easy run', ''] ], at: 0, done: 2 },
+    screens: { name: 'Screens before bed', levels: [
+      ['Phone out of the bedroom', '14 Sep → 27 Sep'], ['Screens off 30 minutes before bed', 'since 28 Sep'],
+      ['Screens off 60 minutes before bed', '', 'The same evening, with a longer runway: every screen off an hour before bed.'] ], at: 1, done: 3 },
+    light: { name: 'Light', levels: [
+      ['Five minutes of daylight', '14 Sep → 29 Sep'], ['Morning light within an hour of waking', 'since 30 Sep'], ['+ Afternoon light before sunset', '', 'At least 10–15 minutes outdoors in the late-afternoon light, facing the setting sun if you can.'] ], at: 1, done: 2 },
+    caffeine: { name: 'Caffeine', levels: [
+      ['No caffeine after 14:00', 'since 6 Oct'], ['First coffee 30 minutes after waking', '', 'Wait 30 minutes after waking before your first coffee or tea.'], ['First coffee 60–90 minutes after waking', ''] ], at: 0, done: 3, lock: true },
+    sleep: { name: 'Sleep timing', levels: [['Same bedtime on weekdays', 'since 6 Oct'], ['Same wake-up time, weekends too', '', 'Get up within 30 minutes of the same time every morning, weekends included.']], at: 0, done: 3, wait: 'Monday 20 October' },
+    focus: { name: 'Focus', levels: [['Phone in another room while you focus', 'since 28 Sep'], ['Single-task the first work hour', '', 'One thing, done properly, before the noise starts.'], ['A two-hour focus block, then a break', '']], at: 0, done: 2 },
+  };
+  const ROUTINES = [
+    { key: 'morning', name: 'Morning routine', cap: 3, acts: [
+      { id: 'water', t: 'A glass of water before coffee', s: 'Hydrate', streak: 12, best: 12 },
+      { id: 'light', t: 'Morning light within an hour of waking', s: 'Light · level 2', streak: 5, best: 9, lad: 'light' },
+      { id: 'move', t: 'Morning stretch, five minutes', s: 'Move · level 1', streak: 6, best: 6, lad: 'move' } ] },
+    { key: 'day', name: 'During the day', cap: 6, acts: [
+      { id: 'walk', t: 'A 10-minute walk after lunch', s: 'Energy reset · walking · level 1', streak: 9, best: 9, sub: 'Energy reset' },
+      { id: 'caf', t: 'No caffeine after 14:00', s: 'Priority · level 1', streak: 6, best: 6, lad: 'caffeine', star: true, sub: 'Energy reset' },
+      { id: 'phone', t: 'Phone in another room while you focus', s: 'Focus · level 1', streak: 0, best: 4, lad: 'focus', sub: 'Work' } ] },
+    { key: 'evening', name: 'Evening routine', cap: 3, acts: [
+      { id: 'scr', t: 'Screens off 30 minutes before bed', s: 'Priority · level 2', streak: 5, best: 11, lad: 'screens', star: true },
+      { id: 'dim', t: 'Dim the lights after 21:00', s: 'Light', streak: 4, best: 8 },
+      { id: 'bed', t: 'Same bedtime on weekdays', s: 'Priority · level 1', streak: 4, best: 4, lad: 'sleep', star: true } ] },
+  ];
+  const done = new Set(['water', 'light']);
+  let tab = 'today';
+  let when = 'morning';
+  let showNext = false;
+  let openId = null;
+  const WHEN = { morning: ['7:42', 'Good morning', '6:00 – 10:00'], day: ['13:10', 'Good afternoon', '10:00 – 18:00'], evening: ['20:30', 'Good evening', 'From 18:00'] };
+  const FLAME = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c1.2 2.6 4.5 3.6 4.5 7.3A4.5 4.5 0 0 1 3.5 8.8c0-2 1.3-2.9 1.4-5 1.4.8 2 1.6 2.6 2.9.4-1.9.5-3.3.5-5.2z" fill="currentColor"/></svg>';
+  const FLAME_OFF = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c1.2 2.6 4.5 3.6 4.5 7.3A4.5 4.5 0 0 1 3.5 8.8c0-2 1.3-2.9 1.4-5 1.4.8 2 1.6 2.6 2.9.4-1.9.5-3.3.5-5.2z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
+  const flame = (n) => n > 0 ? `<span class="streak" aria-label="${n}-day streak">${FLAME}${n}</span>` : `<span class="streak cold" aria-label="No streak yet">${FLAME_OFF}</span>`;
+  const $ = (id) => document.getElementById(id);
+  const all = () => ROUTINES.flatMap((r) => r.acts);
+  // The care plan's priorities, as the clinician wrote them (the "My health plan" card on Home).
+  const PLAN_PRIOS = ['Same bedtime on weekdays', 'No caffeine after 14:00', 'Screens off 30 minutes before bed'];
+  // Each card's how-to, as the action card shows it. The stretch is the card's real new steps (lot C).
+  const HOW = {
+    move: ['Stand tall, feet hip-width apart, and take three slow breaths.', 'Neck: slowly tilt one ear towards its shoulder, hold for a few breaths, then the other side.',
+      'Shoulders: roll them backwards ten times, then reach both arms overhead and stretch tall.', 'Sides: one arm overhead, lean gently to the other side for a few breaths, then swap.',
+      'Hips: hands on your hips, make five slow circles each way.', 'Back of the legs: soften your knees, fold forward and let your arms hang, then roll up slowly, one vertebra at a time.',
+      'Calves: step one foot back, heel on the floor, and lean into the front knee for a few breaths; swap legs.', 'Move slowly and never bounce. If something hurts, ease off or skip that stretch.'],
+    scr: ['Set your screens-off time: at the very least 30 minutes before bed — a full hour is better.', 'At that time, stop reading, watching and scrolling on your phone, laptop, tablet and TV.',
+      'Leave screens outside the bedroom for the night.', 'If you really need a screen, turn the brightness down and switch on its warm or red display mode.',
+      'Fill the time with something calm on paper, such as a printed book under a dim lamp.'],
+    light: ['Within an hour of waking, go outside — behind a window does not count.', 'Stay out for about 10 minutes; longer on a cloudy day.', 'Take off sunglasses; your usual glasses are fine.', 'Never stare at the sun.'],
+  };
+  const VIDEO = { move: '5-minute gentle morning stretch', light: 'morning sunlight walk' };
+  const ready = (a) => { const l = a.lad && L[a.lad]; return !!l && l.done >= 3 && !l.lock && !l.wait && l.at < l.levels.length - 1; };
+
+  function today() {
+    return `
+      <div class="glass prio"><span class="p-meta">My health plan · week 4 of 10</span>
+        <span class="p-title" style="font-size:22px">Get your energy and deep sleep back</span>
+        <span class="p-meta" style="margin-top:4px">Priorities</span>
+        ${PLAN_PRIOS.map((t) => `<div><i aria-hidden="true">★</i>${t}</div>`).join('')}</div>
+      ${ROUTINES.filter((r) => r.key === when).map((r) => {
+        const n = r.acts.filter((a) => done.has(a.id)).length;
+        let lastSub = null;
+        return `<div class="glass"><div class="p-h"><b>${r.name}</b><small>${WHEN[when][2]} · ${n === r.acts.length ? 'all done ✓' : n + ' of ' + r.acts.length + ' done'}</small></div>
+          <ul class="acts">${r.acts.map((a) => `${a.sub && a.sub !== lastSub ? `<li class="sub-l">${(lastSub = a.sub)}</li>` : ''}<li class="act${done.has(a.id) ? ' done' : ''}">
+            <button type="button" class="tick" data-tick="${a.id}" aria-pressed="${done.has(a.id)}" aria-label="Done: ${a.t}">${CHECK}</button>
+            <button type="button" class="act-open" data-open="${a.id}"><b>${a.star ? '★ ' : ''}${a.t}</b><span>${a.s}${ready(a) ? ' · next level ready' : ''}</span></button>
+            ${flame(a.streak + (done.has(a.id) ? 1 : 0))}</li>`).join('')}</ul>
+          ${r.key === 'morning' ? '<button type="button" class="run">Start morning routine</button><p class="full-note">Your morning is full (3 of 3). To add an action, level one up or swap one.</p>' : ''}
+          ${r.key === 'evening' ? '<button type="button" class="run">Start evening routine</button>' : ''}
+        </div>`;
+      }).join('')}`;
+  }
+
+  function progress() {
+    // 28 days, example pattern: share of routines fully done that day (0–3).
+    const pat = [3,2,3,1,0,2,3, 3,3,2,3,2,1,3, 2,3,3,3,2,0,3, 3,3,2,3,3,2,1];
+    return `
+      <div class="glass"><span class="p-meta">Progress</span><span class="p-title">Four weeks in</span></div>
+      <div class="stats3"><div><b>12</b><span>best streak (water)</span></div><div><b>3</b><span>level-ups so far</span></div><div><b>78%</b><span>routines held, 28 days</span></div></div>
+      <div class="glass"><span class="p-meta">Routines completed, last 28 days</span>
+        <div class="cal">${pat.map((v, i) => `<i class="d${v}" aria-label="Day ${i + 1}: ${v} of 3 routines">${v || ''}</i>`).join('')}</div>
+        <div class="cal-legend"><span>Number = routines fully done that day (morning, day, evening)</span></div></div>
+      <div class="glass"><span class="p-meta">Level-ups</span><ul class="tl">
+        <li><time>30 Sep</time><span>Light → Morning light within an hour of waking</span></li>
+        <li><time>28 Sep</time><span>Screens → Screens off 30 minutes before bed</span></li>
+        <li><time>28 Sep</time><span>New: Phone in another room while you focus</span></li>
+        <li><time>14 Sep</time><span>Started: water, daylight, stretch, phone out of the bedroom</span></li></ul></div>
+      <div class="glass"><span class="p-meta">Cycle 2 review · 22 Sep – 5 Oct</span>
+        <p style="font:500 13.5px/1.45 var(--sans)">Priorities kept: screens 11 of 14 days, morning light 12 of 14. Next: same bedtime, no caffeine after 14:00, and screens stays a priority.</p></div>
+      <p class="ex">Example member. Numbers are illustrative.</p>`;
+  }
+
+  function sheet(id) {
+    const a = all().find((x) => x.id === id); if (!a) return;
+    const lad = a.lad ? L[a.lad] : null;
+    const streak = a.streak + (done.has(a.id) ? 1 : 0);
+    $('sheet').innerHTML = `<div class="sheet-in" role="dialog" aria-label="${a.t}">
+      <button type="button" class="close" data-close>Close</button>
+      <span class="p-meta">${lad ? lad.name + ' · level ' + (lad.at + 1) + ' of ' + lad.levels.length : 'Action'}</span>
+      <span class="p-title" style="font-size:25px">${a.t}</span>
+      <div class="stats3"><div><b>${streak}</b><span>days in a row</span></div><div><b>${Math.max(a.best, streak)}</b><span>best streak</span></div><div><b>${lad ? 'L' + (lad.at + 1) : '—'}</b><span>${lad ? 'of ' + lad.levels.length + ' levels' : 'no ladder yet'}</span></div></div>
+      ${lad && lad.at < lad.levels.length - 1 ? `<button type="button" class="towards" data-towards aria-expanded="${showNext}">
+        <span class="row">Towards next level<span>${Math.min(lad.done, 3)} of 3 ${showNext ? '▴' : '▾'}</span></span>
+        <span class="pips" aria-hidden="true">${[0,1,2].map((p) => `<i class="${p < lad.done ? 'on' : ''}"></i>`).join('')}</span>
+        <small>${lad.lock ? 'Your practitioner keeps this level for now.' : lad.done >= 3 && lad.wait ? 'Ready. One change per routine per week: from ' + lad.wait + '.' : lad.done >= 3 ? 'The next level is open.' : 'Done 3 times in 7 days opens the next level.'} Tap to see it.</small></button>
+      ${showNext ? `<div class="nextp"><span class="p-meta">Next level</span><b>${lad.levels[lad.at + 1][0]}</b>${lad.levels[lad.at + 1][2] ? `<p>${lad.levels[lad.at + 1][2]}</p>` : ''}</div>` : ''}` : ''}
+      <span class="p-meta">Today's version</span>
+      <div class="flex3"><span>Gentle</span><span class="on">Standard</span><span>Further</span></div>
+      ${VIDEO[a.id] ? `<button type="button" class="run" style="background:#1a1a16;color:#fff;display:flex;gap:8px;justify-content:center;align-items:center" data-video aria-label="Watch the video: ${a.t}">▶ Watch the video</button>` : ''}
+      ${HOW[a.id] ? `<span class="p-meta">How to do it</span><ol class="tl" style="list-style:none">${HOW[a.id].map((st, i) => `<li><time>${i + 1}</time><span>${st}</span></li>`).join('')}</ol>` : ''}
+      ${lad ? `<span class="p-meta">Evolution</span><ol class="ladder">${lad.levels.map(([t, when], i) => {
+        const cls = i < lad.at ? 'done' : i === lad.at ? 'now' : '';
+        const last = lad.at === lad.levels.length - 1;
+        const state = last ? 'Top level' : lad.lock ? 'Your practitioner keeps this level for now'
+          : lad.done >= 3 && lad.wait ? `Ready, but one change per routine per week: from ${lad.wait}`
+          : lad.done >= 3 ? 'Done 3 times in 7 days: the next level is open' : `${lad.done} of 3 done in the last 7 days`;
+        const note = i < lad.at ? when : i === lad.at ? (when ? when + ' · ' : '') + state
+          : i === lad.at + 1 ? 'Opens after 3 times in 7 days' : 'Later';
+        return `<li class="lv ${cls}"><span class="dot">${i < lad.at ? '✓' : 'L' + (i + 1)}</span><div><b>${t}</b><small>${note}</small>
+          ${i === lad.at ? `<div class="pips" aria-hidden="true">${[0,1,2].map((p) => `<i class="${p < lad.done ? 'on' : ''}"></i>`).join('')}</div>` : ''}</div></li>`;
+      }).join('')}</ol>${ready(a) ? `<button type="button" class="run" data-up="${a.id}">Try level ${lad.at + 2}: ${lad.levels[lad.at + 1][0]}</button><p class="full-note">Or stay at this level: nothing is lost either way.</p>` : ''}` : '<p class="full-note">This action has no further level yet.</p>'}
+    </div>`;
+    $('sheet').hidden = false;
+    $('sheet').querySelector('[data-close]').focus();
+  }
+
+  function render() {
+    $('clock').textContent = WHEN[when][0];
+    document.querySelectorAll('[data-when]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.when === when)));
+    $('scr').innerHTML = tab === 'today' ? today() : progress();
+    document.querySelectorAll('.tabbar button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === tab)));
+  }
+  document.querySelector('.screen').addEventListener('click', (e) => {
+    const t = e.target.closest('[data-tick]'); if (t) { const id = t.dataset.tick; done.has(id) ? done.delete(id) : done.add(id); render(); return; }
+    const u = e.target.closest('[data-up]'); if (u) { const a = all().find((x) => x.id === u.dataset.up), l = L[a.lad];
+      l.levels[l.at][1] = (l.levels[l.at][1] || '').replace('since ', '') + ' → 12 Oct'; l.at += 1; l.done = 0; l.levels[l.at][1] = 'since 13 Oct';
+      a.t = l.levels[l.at][0]; a.s = a.s.replace(/level \d+/, 'level ' + (l.at + 1)); showNext = false; render(); sheet(a.id); return; }
+    const tw = e.target.closest('[data-towards]'); if (tw) { showNext = !showNext; sheet(openId); return; }
+    const o = e.target.closest('[data-open]'); if (o) { showNext = false; openId = o.dataset.open; sheet(openId); return; }
+    if (e.target.closest('[data-close]') || e.target.id === 'sheet') { $('sheet').hidden = true; return; }
+    const b = e.target.closest('[data-tab]'); if (b) { tab = b.dataset.tab; $('scr').scrollTop = 0; render(); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('sheet').hidden = true; });
+  document.querySelector('.when').addEventListener('click', (e) => {
+    const w = e.target.closest('[data-when]'); if (!w) return;
+    when = w.dataset.when; tab = 'today'; $('sheet').hidden = true; $('scr').scrollTop = 0; render();
+  });
+  render();
+})();
+</script>

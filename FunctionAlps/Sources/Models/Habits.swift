@@ -17,11 +17,50 @@ enum HabitSlot: String, Sendable, Hashable, CaseIterable {
     static let order: [HabitSlot] = [.morning, .midday, .evening]
     var rank: Int { Self.order.firstIndex(of: self) ?? 0 }
 
-    /// Which slot "now" falls in (patient-local hour): `<11` morning, 11–16 midday, `>=17` evening.
+    /// Which routine "now" falls in (patient-local hour), the owner's windows (2026-10-06): the morning routine
+    /// 6:00–10:00, the day 10:00–18:00, the evening from 18:00 into the night. Before 6:00 is still the morning
+    /// to come: the day key is already the new day, so last night's evening is not offered again.
     static func current(hour: Int) -> HabitSlot {
-        if hour < 11 { return .morning }
-        if hour < 17 { return .midday }
+        if hour < 10 { return .morning }
+        if hour < 18 { return .midday }
         return .evening
+    }
+
+    /// The routine's name on Home ("Morning routine" · "During the day" · "Evening routine").
+    var routineTitle: String {
+        switch self {
+        case .morning: String(localized: "routine.morning", defaultValue: "Morning routine")
+        case .midday: String(localized: "routine.day", defaultValue: "During the day")
+        case .evening: String(localized: "routine.evening", defaultValue: "Evening routine")
+        }
+    }
+
+    /// The routine's symbol on Home.
+    var symbol: String {
+        switch self {
+        case .morning: "sunrise"
+        case .midday: "sun.max"
+        case .evening: "moon.stars"
+        }
+    }
+
+    /// The routine's window, as the member reads it.
+    var window: String {
+        switch self {
+        case .morning: String(localized: "routine.window.morning", defaultValue: "6:00 – 10:00")
+        case .midday: String(localized: "routine.window.day", defaultValue: "10:00 – 18:00")
+        case .evening: String(localized: "routine.window.evening", defaultValue: "From 18:00")
+        }
+    }
+
+    /// The most actions a routine holds (owner, 2026-10-06): three in the morning, six over the day, three in
+    /// the evening. A new member starts at `newMemberCap` in each (`RoutineRules`).
+    var cap: Int {
+        switch self {
+        case .morning: 3
+        case .midday: 6
+        case .evening: 3
+        }
     }
 
     var label: String {
@@ -58,6 +97,10 @@ struct HabitRow: Decodable, Sendable, Equatable, Identifiable {
     let createdAt: String
     /// The action card this habit opens (`habit_bank`, read live). Nil = the habit's own words only.
     var habitBankId: String? = nil
+    /// The member day the habit reached its current card on its ladder (`member_level_up`); nil = since created.
+    var levelSince: String? = nil
+    /// The clinician keeps this habit at its current level.
+    var levelLocked: Bool? = nil
 
     var slotValue: HabitSlot? { slot.flatMap(HabitSlot.init(rawValue:)) }
     var isActive: Bool { status == "active" }
@@ -140,10 +183,9 @@ struct HabitAction: Sendable, Equatable, Identifiable {
 enum HabitEngine {
     /// Trailing completion history fetched for streaks (the Expo `COMPLETIONS_LOOKBACK_DAYS`).
     static let completionsLookbackDays = 70
-    /// How many rows the Home card shows (the Expo `HOME_ACTION_LIMIT`).
-    static let homeActionLimit = 3
-    /// One day in a row is a day, not a streak (the Expo `STREAK_BADGE_MIN`).
-    static let streakBadgeMin = 2
+    /// The flame shows its number from the first day done (owner, 2026-10-06: a flame on every action; the Expo
+    /// app waited for two). Below it the flame is drawn empty, never as a lost streak.
+    static let streakBadgeMin = 1
     /// Hard cap on the backward walk so pathological rules stay bounded.
     static let streakWalkCapDays = 365
     /// Hard cap on the sequencing chain walk so cyclic data stays bounded.
@@ -336,6 +378,23 @@ enum HabitEngine {
         var out = current + anytime
         for slot in HabitSlot.order { out += later[slot] ?? [] }
         return out + earlierDone
+    }
+
+    // MARK: The routine of the moment (Home)
+
+    /// Home shows ONE routine: the morning's actions in the morning, the day's during the day, the evening's in the
+    /// evening (owner, 2026-10-06). Anytime actions belong to the day. Same rows, faces and order as `todayActions`,
+    /// up to the routine's cap; `more` counts the rest, which the plan page still lists.
+    struct RoutineNow: Sendable, Equatable {
+        let slot: HabitSlot
+        let actions: [HabitAction]
+        let more: Int
+    }
+
+    static func routineNow(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil) -> RoutineNow {
+        let now = HabitSlot.current(hour: hour)
+        let inRoutine = todayActions(plan, hour: hour, band: band).filter { ($0.slot ?? .midday) == now }
+        return RoutineNow(slot: now, actions: Array(inRoutine.prefix(now.cap)), more: max(0, inRoutine.count - now.cap))
     }
 
     // MARK: The line above the habits (the Expo `plan-headline.ts`)

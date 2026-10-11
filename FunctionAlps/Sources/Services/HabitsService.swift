@@ -44,6 +44,9 @@ final class HabitsService {
     /// (see `HabitEngine.todayActions`). The band is the focus service's — the server's one read of the day.
     func actions(band: ReadinessBand?) -> [HabitAction] { plan.map { HabitEngine.todayActions($0, hour: hour, band: band) } ?? [] }
 
+    /// Home's one routine: the morning's actions in the morning, the day's during the day, the evening's in the evening.
+    func routineNow(band: ReadinessBand?) -> HabitEngine.RoutineNow? { plan.map { HabitEngine.routineNow($0, hour: hour, band: band) } }
+
     func load(patientId: String, day: String) async {
         request = (patientId, day)
         // Keep what is on screen while refreshing; only a first load shows the skeleton.
@@ -150,6 +153,47 @@ final class HabitsService {
         } catch {
             report(error, context: "habits.remove")
             return false
+        }
+    }
+
+    // MARK: - Evolution ladders
+
+    /// The published cards the ladders are walked from. Loaded once per session; a failed read leaves the ladders
+    /// out (the action card still shows everything else).
+    private(set) var ladderCards: [ActionCardRow]?
+
+    func loadLadders() async {
+        guard ladderCards == nil else { return }
+        do { ladderCards = try await backend.ladderCards() } catch { report(error, context: "habits.ladders") }
+    }
+
+    /// The ladder a habit's card sits on, when it sits on one.
+    func ladder(for habit: HabitRow) -> ActionLadder? {
+        guard let cardId = habit.habitBankId, let cards = ladderCards else { return nil }
+        return LadderLogic.ladder(for: cardId, in: cards)
+    }
+
+    /// Why the server refused a level-up, in the member's words; nil = it went through.
+    enum LevelUpRefusal: Equatable { case notReady, oneChangePerWeek, locked, unavailable, failed }
+
+    /// Move a habit to its next level (`member_level_up`; the server checks the rules), then reload the day so
+    /// Home and the card show the new level at once.
+    func levelUp(_ habit: HabitRow) async -> LevelUpRefusal? {
+        guard let request else { return .failed }
+        do {
+            try await backend.levelUp(habitId: habit.id)
+            await load(patientId: request.patientId, day: request.day)
+            return nil
+        } catch let AppError.validation(message) {
+            switch message {
+            case "not_ready": return .notReady
+            case "one_change_per_week": return .oneChangePerWeek
+            case "level_locked": return .locked
+            default: return .unavailable
+            }
+        } catch {
+            report(error, context: "habits.levelUp")
+            return .failed
         }
     }
 

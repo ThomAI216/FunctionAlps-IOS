@@ -52,6 +52,8 @@ enum FAColor {
     // Signals (never the only carrier of status — pair with text/icon, PRD §50)
     static let success = forestSoft
     static let warning = Color(hex: 0xD98A2B)
+    /// The flame of a streak on an action (owner, 2026-10-06): warm, never alarming, always beside a number.
+    static let streak = Color(hex: 0xD98A2B)
     static let danger = Color(hex: 0xC0453A)
 }
 
