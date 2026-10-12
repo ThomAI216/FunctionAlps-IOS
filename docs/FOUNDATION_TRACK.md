@@ -10,13 +10,17 @@ one-line how-to, first and last day), each card's text (Today, why we ask, first
 evolve, library links), Thomas's video scripts and the image briefs (published as the card mockups).
 `supabase/seed/foundation_track_seed.py` reads it and adds the questions, the reminder texts, the `habit_bank` cards
 and the day's subtitle. The day tables, card text, reminders and scripts below are generated from those two files.
-Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/migrations/20261006_foundation_track.sql`, **applied on CM OS 2026-10-06**; track code `foundation_v1`, launched 2026-10-06).
+Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/migrations/20261006_foundation_track.sql`, **applied on CM OS 2026-10-06**; track code `foundation_v1`, launched 2026-10-06; since 2026-10-12 staff-launched only, `launched_at` NULL).
 
 ## Decisions (Thomas, 2026-10-05/06)
 
-- **It is the Foundation Track, not a trial.** Every newcomer from 2026-10-06 runs it (free or paying), enrolled at
-  their first app open. Members who were already in are launched by Thomas with a button in CLINICAL; their 14 days
-  start at their next app open.
+- **Launched member by member (Thomas, 2026-10-12, with the first external build).** Nobody joins on their own: a
+  member runs the track only once staff launch them from CLINICAL ("Launch Foundation Track"), and their 14 days start
+  at their next app open. Done on the server: `app_track.launched_at` is NULL, so `member_start_track` enrols nobody
+  without a staff row (the app needs no change; setting a date again would bring back automatic enrolment of members
+  created after it).
+- *Superseded (2026-10-06):* every newcomer from 2026-10-06 ran it, enrolled at their first app open; members who were
+  already in were launched by Thomas with a button in CLINICAL.
 - **Calls inside the app: always the 20-minute members call** ("Everything: 20 minutes", Thomas, 2026-10-06), booked
   at `https://www.functionalps.ch/book/thomas/foundation-call-20` ("Members call · 20 min"). Newcomers: day 3,
   optional; day 14, the review, unlocked by the review rule (or by Thomas). Existing members launched by Thomas: day 3,
