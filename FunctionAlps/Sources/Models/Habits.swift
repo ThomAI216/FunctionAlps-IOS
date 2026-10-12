@@ -469,6 +469,15 @@ enum HabitEngine {
 
     /// Done and total for the routine's header: its actions, plus — in the morning — the morning check-in, which
     /// opens the morning routine for everyone (owner, 2026-10-12). The check-in is not a habit: no cap counts it.
+    /// Does the routine card carry the morning check-in? Always in the morning routine, which it opens (owner,
+    /// 2026-10-12). Missed before 10:00, it stays at the top of the day's card until it is done or the morning
+    /// check-in's window closes at 17:00 (`MomentSlot.current`), when the evening check-in takes over: a late morning
+    /// still gets its sleep and its focus. Only the morning routine counts it (`routineCount`).
+    static func showsMorningCheckin(_ slot: HabitSlot, hour: Int, done: Bool) -> Bool {
+        if slot == .morning { return true }
+        return slot == .midday && !done && MomentSlot.current(hour: hour) == .morning
+    }
+
     static func routineCount(_ routine: RoutineNow, morningCheckinDone: Bool) -> (done: Int, total: Int) {
         let done = routine.actions.filter(\.done).count
         guard routine.slot == .morning else { return (done, routine.actions.count) }

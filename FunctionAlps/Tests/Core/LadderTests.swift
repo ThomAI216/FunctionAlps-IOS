@@ -62,6 +62,18 @@ struct LadderTests {
         #expect(count(HabitEngine.routineNow(plan([]), hour: 8), false) == [0, 1])
     }
 
+    @Test func aMissedMorningCheckinStaysOnTheDaysCardUntil17() {
+        #expect(HabitEngine.showsMorningCheckin(.morning, hour: 7, done: false))
+        #expect(HabitEngine.showsMorningCheckin(.morning, hour: 7, done: true))       // shown done in its own routine
+        #expect(HabitEngine.showsMorningCheckin(.midday, hour: 14, done: false))      // a late morning still gets it
+        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 14, done: true))
+        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 17, done: false))     // the evening check-in's time
+        #expect(!HabitEngine.showsMorningCheckin(.evening, hour: 20, done: false))
+        // On the day's card it is not counted: "N of M done" stays the day's actions.
+        let day = HabitEngine.routineNow(plan([habit("d1", slot: "midday")]), hour: 14)
+        #expect(HabitEngine.routineCount(day, morningCheckinDone: false).total == 1)
+    }
+
     @Test func aMembersOwnHabitReadsTheCardInTheAppsLanguage_aPrescribedOneKeepsItsWords() {
         var stretch = ActionCardRow(id: "stretch", title: "Morning stretch, five minutes")
         stretch.titleFr = "Étirements du matin, cinq minutes"
