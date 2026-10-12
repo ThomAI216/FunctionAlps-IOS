@@ -96,6 +96,58 @@ struct ActionCardTests {
         #expect(content.steps.isEmpty && content.links.isEmpty && content.kind == nil)
     }
 
+    @Test func aHabitWithoutACardShowsItsOwnWhyAndEveryVideo() {
+        var own = habit(card: nil)
+        own.generalWhy = "  Rest without sleep.  "
+        own.resources = HabitLinks([
+            .init(kind: "video", title: "Routine A", url: "https://www.youtube.com/watch?v=aaa"),
+            .init(kind: "article", title: "Elsewhere", url: "https://example.com/read"),
+            .init(kind: nil, title: "Routine B", url: "https://youtu.be/bbb"),
+            .init(kind: "video", title: "Insecure", url: "http://www.youtube.com/watch?v=ccc"),
+            .init(kind: "video", title: " ", url: "https://m.youtube.com/watch?v=ddd"),
+        ])
+        let content = ActionCardLogic.content(card: nil, habit: own, locale: "fr")
+        #expect(content.why == "Rest without sleep.")
+        #expect(content.videos.map { $0.url.absoluteString } == ["https://www.youtube.com/watch?v=aaa", "https://youtu.be/bbb", "https://m.youtube.com/watch?v=ddd"])
+        #expect(content.videos.map { $0.title } == ["Routine A", "Routine B", nil])
+        #expect(content.video?.title == "Routine A")
+    }
+
+    @Test func aHabitsOwnVideosComeAfterTheCardsAndTheCardsWhyWins() {
+        var own = habit()
+        own.generalWhy = "The habit's why"
+        own.resources = HabitLinks([
+            .init(kind: "video", title: "Demo", url: "https://youtu.be/abc"),
+            .init(kind: "video", title: "Another", url: "https://youtu.be/xyz"),
+        ])
+        let content = ActionCardLogic.content(card: card(), habit: own, locale: "en")
+        #expect(content.why == "Slow breathing can help you settle.")
+        #expect(content.videos.map { $0.url.absoluteString } == ["https://youtu.be/abc", "https://youtu.be/xyz"])
+        let silent = ActionCardLogic.content(card: card { $0.generalWhy = nil }, habit: own, locale: "en")
+        #expect(silent.why == "The habit's why")
+    }
+
+    @Test func aHabitsLinksAreReadLeniently_neverFailingThePlan() throws {
+        let json = """
+        [{"id":"h-1","care_plan_item_id":null,"title":"Snacks","description":null,"frequency_rule":"FREQ=DAILY",
+          "status":"active","source":"self_initiated","pillar":"exercise","slot":"midday","appears_after_habit_id":null,
+          "easy_title":null,"easy_description":null,"rev_title":null,"rev_description":null,
+          "created_at":"2026-10-12T10:16:20+00:00","general_why":"Why",
+          "resources":[{"kind":"video","title":"A","url":"https://youtu.be/a","minutes":7},"stray",{"title":3}]},
+         {"id":"h-2","care_plan_item_id":null,"title":"Odd","description":null,"frequency_rule":null,
+          "status":"active","source":"self_initiated","pillar":null,"slot":null,"appears_after_habit_id":null,
+          "easy_title":null,"easy_description":null,"rev_title":null,"rev_description":null,
+          "created_at":"2026-10-12T10:16:20+00:00","resources":{"not":"a list"}}]
+        """
+        let rows = try JSON.decoder.decode([HabitRow].self, from: Data(json.utf8))
+        #expect(rows.count == 2)
+        #expect(rows[0].generalWhy == "Why")
+        #expect(rows[0].resources?.entries.first == HabitLinks.Entry(kind: "video", title: "A", url: "https://youtu.be/a"))
+        #expect(ActionCardLogic.habitLinks(rows[0].resources) == [.video(url: URL(string: "https://youtu.be/a")!, title: "A")])
+        #expect(rows[1].resources?.entries.isEmpty == true)
+        #expect(rows[1].generalWhy == nil)
+    }
+
     @Test func theCardsVersionsWinOverTheHabitsOnlyWhenWritten() {
         let content = ActionCardLogic.content(card: card { $0.easyTitle = nil }, habit: habit(easy: "Habit's gentle one"), locale: "en")
         #expect(content.easyTitle == "Habit's gentle one")

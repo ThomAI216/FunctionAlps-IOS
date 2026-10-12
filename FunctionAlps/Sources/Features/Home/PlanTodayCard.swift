@@ -33,9 +33,10 @@ struct PlanTodayCard: View {
         case .loaded(let plan):
             // The day's band is the focus service's — one server read of the day, shared by the focus and the faces.
             let readiness = dependencies.focus.focus?.readiness
-            if let routine = habits.routineNow(band: readiness?.bandValue), !plan.activeHabits.isEmpty || routine.slot == .morning {
-                // In the morning the card shows for everyone: the check-in leads, even before any action exists.
-                card(plan, routine: routine, readiness: readiness)
+            if let routine = habits.routineNow(band: readiness?.bandValue),
+               !plan.activeHabits.isEmpty || HabitEngine.showsMorningCheckin(routine.slot, hour: habits.hour, done: morningCheckinDone) {
+                // The card shows for everyone while the morning check-in is on it, even before any action exists.
+                card(plan, routine: routine, readiness: readiness, hour: habits.hour)
             } else {
                 // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
                 FACard {
@@ -48,15 +49,16 @@ struct PlanTodayCard: View {
         }
     }
 
-    private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?) -> some View {
+    private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?, hour: Int) -> some View {
         let actions = routine.actions
-        let withCheckin = routine.slot == .morning
+        // The morning routine opens with the check-in; missed, it stays on the day's card until 17:00 (not counted there).
+        let withCheckin = HabitEngine.showsMorningCheckin(routine.slot, hour: hour, done: morningCheckinDone)
         let count = HabitEngine.routineCount(routine, morningCheckinDone: morningCheckinDone)
         let remaining = count.total - count.done
         let headline = routine.slot.routineTitle
         // Nothing in this routine today (a weekly action on its off day, or a routine left empty): say so plainly.
         let subtitle = count.total == 0
-            ? routine.slot.window + " · " + String(localized: "routine.empty", defaultValue: "Nothing in this routine today")
+            ? (withCheckin ? routine.slot.window : routine.slot.window + " · " + String(localized: "routine.empty", defaultValue: "Nothing in this routine today"))
             : remaining == 0
                 ? routine.slot.window + " · " + String(localized: "routine.allDone", defaultValue: "All done ✓")
                 : routine.slot.window + " · " + String(localized: "routine.progress", defaultValue: "\(count.done) of \(count.total) done")

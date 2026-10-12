@@ -55,7 +55,8 @@ import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // ---------------------------------------------------------------------------
 // Inlined from lib/nutrition/resolve/types.ts
 // ---------------------------------------------------------------------------
-export type Basis = 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown'
+// 'ai': priced per 100 g by OpenAI (ai-pricing.ts, MEAL_PRICING), never by this resolver — no reference row behind it.
+export type Basis = 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown' | 'ai'
 export type ReviewReason = 'not_found' | 'not_a_food' | 'low_confidence'
 export type ReviewSeverity = 'red' | 'orange'
 
@@ -126,6 +127,12 @@ const clean = (s: string): string =>
 function reduceTerm(raw: string): string {
   const kept = clean(raw).split(' ').filter((t) => t && !PREPARATION.has(t)).map(singular)
   return kept.length ? kept.join(' ') : clean(raw).split(' ').map(singular).join(' ')
+}
+
+/** The key a member's correction is stored under (`nb_patient_food_aliases.alias_norm`): the clients' `aliasKey`,
+ *  which is `normalise(name).core`. Exported so a caller can find a member's corrections without running the ladder. */
+export function aliasKey(raw: string): string {
+  return normalise(raw).core
 }
 
 function normalise(raw: string): { core: string; alternatives: string[] } {
@@ -689,7 +696,7 @@ function dietViolation(c: Candidate, query: string): string | null {
 // must not be priced.
 const PLACEHOLDER = /^(total|whole)?\s*(meal|day|lunch|dinner|breakfast|snack|brunch|supper|plate|dish|food|item)s?(\s+items?)?$/i
 
-function isPlaceholder(name: string): boolean {
+export function isPlaceholder(name: string): boolean {
   const n = name.trim()
   if (!n) return true
   if (PLACEHOLDER.test(n)) return true

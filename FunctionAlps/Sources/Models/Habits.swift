@@ -101,12 +101,55 @@ struct HabitRow: Decodable, Sendable, Equatable, Identifiable {
     var levelSince: String? = nil
     /// The clinician keeps this habit at its current level.
     var levelLocked: Bool? = nil
+    /// The habit's own "why" (`habits.general_why`): what the card page shows when its card says nothing, or it has
+    /// no card.
+    var generalWhy: String? = nil
+    /// The habit's own links (`habits.resources`), added to its card's.
+    var resources: HabitLinks? = nil
 
     var slotValue: HabitSlot? { slot.flatMap(HabitSlot.init(rawValue:)) }
     var isActive: Bool { status == "active" }
     var isSelfInitiated: Bool { source == "self_initiated" }
     /// `YYYY-MM-DD` of `createdAt`.
     var createdDay: String { String(createdAt.prefix(10)) }
+}
+
+/// A habit's own links, `habits.resources`: `[{ kind, title, url, source, minutes }]` (the Expo app's
+/// `parseResources` shape). Read leniently: a malformed entry reads as empty, and a value that is not a list reads as
+/// no links, so a stray row never fails the whole plan.
+struct HabitLinks: Decodable, Sendable, Equatable {
+    struct Entry: Decodable, Sendable, Equatable {
+        var kind: String?
+        var title: String?
+        var url: String?
+
+        init(kind: String? = nil, title: String? = nil, url: String? = nil) {
+            self.kind = kind
+            self.title = title
+            self.url = url
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try? decoder.container(keyedBy: Key.self)
+            func text(_ key: Key) -> String? {
+                guard let container else { return nil }
+                return try? container.decodeIfPresent(String.self, forKey: key)
+            }
+            kind = text(.kind)
+            title = text(.title)
+            url = text(.url)
+        }
+
+        private enum Key: String, CodingKey { case kind, title, url }
+    }
+
+    var entries: [Entry]
+
+    init(_ entries: [Entry]) { self.entries = entries }
+
+    init(from decoder: Decoder) throws {
+        entries = (try? decoder.singleValueContainer().decode([Entry].self)) ?? []
+    }
 }
 
 /// One `habit_completions` row (the member's own; `completion_date` is the live column).
@@ -360,6 +403,8 @@ enum HabitEngine {
             createdAt: habit.createdAt, habitBankId: habit.habitBankId)
         shown.levelSince = habit.levelSince
         shown.levelLocked = habit.levelLocked
+        shown.generalWhy = habit.generalWhy
+        shown.resources = habit.resources
         return shown
     }
 
@@ -424,6 +469,15 @@ enum HabitEngine {
 
     /// Done and total for the routine's header: its actions, plus — in the morning — the morning check-in, which
     /// opens the morning routine for everyone (owner, 2026-10-12). The check-in is not a habit: no cap counts it.
+    /// Does the routine card carry the morning check-in? Always in the morning routine, which it opens (owner,
+    /// 2026-10-12). Missed before 10:00, it stays at the top of the day's card until it is done or the morning
+    /// check-in's window closes at 17:00 (`MomentSlot.current`), when the evening check-in takes over: a late morning
+    /// still gets its sleep and its focus. Only the morning routine counts it (`routineCount`).
+    static func showsMorningCheckin(_ slot: HabitSlot, hour: Int, done: Bool) -> Bool {
+        if slot == .morning { return true }
+        return slot == .midday && !done && MomentSlot.current(hour: hour) == .morning
+    }
+
     static func routineCount(_ routine: RoutineNow, morningCheckinDone: Bool) -> (done: Int, total: Int) {
         let done = routine.actions.filter(\.done).count
         guard routine.slot == .morning else { return (done, routine.actions.count) }
