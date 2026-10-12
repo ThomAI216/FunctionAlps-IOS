@@ -36,6 +36,9 @@ Deno.test("an unusable answer is refused, so the food is priced another way", ()
   assert(p && p !== "not_food")
   assertEquals(p.macros.fiber_g, 0)
   assertEquals(p.category, null)
+  // Dense foods are honest: USDA carbohydrate already contains the fibre, so chia seeds pass.
+  const chia = parsePer100(JSON.stringify(per100({ energy_kcal: 486, protein_g: 16.5, carbs_g: 42.1, fat_g: 30.7, fiber_g: 34.4 })))
+  assert(chia && chia !== "not_food")
 })
 
 Deno.test("a portion is scaled from 100 g at the resolver's rounding, as basis ai with no reference row", () => {
@@ -125,5 +128,79 @@ Deno.test("priceMeal on OpenAI: every food priced, totals and scores from those 
     assertEquals(meta.pricing.source, "openai")
   } finally {
     globalThis.fetch = realFetch
+  }
+})
+
+/** A Supabase-shaped fake: every builder call chains, awaiting it answers from `answer(table, filters, op)`. */
+function fakeDb(answer: (table: string, filters: Record<string, unknown>, op: string) => unknown) {
+  return {
+    from(table: string) {
+      const filters: Record<string, unknown> = {}
+      let op = "select"
+      const chain: Record<string, unknown> = {
+        select: () => chain,
+        update: () => {
+          op = "update"
+          return chain
+        },
+        eq: (k: string, v: unknown) => {
+          filters[k] = v
+          return chain
+        },
+        in: (k: string, v: unknown) => {
+          filters[k] = v
+          return chain
+        },
+        maybeSingle: () => {
+          op = op === "select" ? "single" : op
+          return chain
+        },
+        then: (ok: (v: unknown) => unknown, ko: (e: unknown) => unknown) =>
+          Promise.resolve({ data: answer(table, filters, op), error: null }).then(ok, ko),
+      }
+      return chain
+    },
+  }
+}
+
+Deno.test("a food the member corrected, and a placeholder, are the resolver's — never sent to OpenAI", async () => {
+  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk" }, "pinned")
+  const asked: string[] = []
+  const realFetch = globalThis.fetch
+  const g = globalThis as unknown as { Supabase?: unknown }
+  const realSupabase = g.Supabase
+  g.Supabase = { ai: { Session: class { run() { throw new Error("no embedding expected") } } } }
+  globalThis.fetch = (async (_url: string | URL | Request, init?: RequestInit) => {
+    const food = JSON.parse(String(init?.body)).messages[1].content as string
+    asked.push(food)
+    const content = JSON.stringify(per100({ name_fr: food }))
+    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 })
+  }) as typeof fetch
+  const db = fakeDb((table, filters, op) => {
+    if (table === "nb_patient_food_aliases" && op === "select") return [{ alias_norm: "quark" }]
+    if (table === "nb_patient_food_aliases" && op === "single") {
+      return filters.alias_norm === "quark" ? { id: "a-1", food_item_id: "f-skyr", off_code: null, grams_default: null, hit_count: 2 } : null
+    }
+    if (table === "nb_food_items" && op === "single" && filters.id === "f-skyr") {
+      return { id: "f-skyr", name: "Skyr, plain", name_fr: "skyr nature", category: "Dairy and Egg Products",
+        energy_kcal: 63, protein_g: 11, carbs_g: 4, fat_g: 0.2, fiber_g: 0 }
+    }
+    return null
+  })
+  try {
+    const priced = await mod.priceMeal(db, [
+      { name: "quark", estimated_grams: 150, flags: [] },
+      { name: "dinner items", estimated_grams: 300, flags: [] },
+      { name: "cooked brown rice", estimated_grams: 100, flags: [] },
+    ], "patient-1")
+    assertEquals(asked, ["cooked brown rice"]) // only the open food went to OpenAI
+    assertEquals(priced.items.map((i: { basis: string }) => i.basis), ["learned", "unknown", "ai"])
+    assertEquals(priced.items[0].food_item_id, "f-skyr")
+    assertEquals(priced.totals.kcal, Math.round(63 * 1.5 + 123)) // the placeholder is not counted
+    assertEquals(priced.pricing.pinned, 2)
+    assertEquals(priced.pricing.fallback, 0)
+  } finally {
+    globalThis.fetch = realFetch
+    g.Supabase = realSupabase
   }
 })

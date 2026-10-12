@@ -129,6 +129,12 @@ function reduceTerm(raw: string): string {
   return kept.length ? kept.join(' ') : clean(raw).split(' ').map(singular).join(' ')
 }
 
+/** The key a member's correction is stored under (`nb_patient_food_aliases.alias_norm`): the clients' `aliasKey`,
+ *  which is `normalise(name).core`. Exported so a caller can find a member's corrections without running the ladder. */
+export function aliasKey(raw: string): string {
+  return normalise(raw).core
+}
+
 function normalise(raw: string): { core: string; alternatives: string[] } {
   const alternatives: string[] = []
   let head = raw
@@ -690,7 +696,7 @@ function dietViolation(c: Candidate, query: string): string | null {
 // must not be priced.
 const PLACEHOLDER = /^(total|whole)?\s*(meal|day|lunch|dinner|breakfast|snack|brunch|supper|plate|dish|food|item)s?(\s+items?)?$/i
 
-function isPlaceholder(name: string): boolean {
+export function isPlaceholder(name: string): boolean {
   const n = name.trim()
   if (!n) return true
   if (PLACEHOLDER.test(n)) return true

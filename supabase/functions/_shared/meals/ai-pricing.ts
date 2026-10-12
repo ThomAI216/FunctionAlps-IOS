@@ -83,10 +83,12 @@ export function parsePer100(content: string): Per100 | "not_food" | null {
     if (v < 0) return null
     macros[k] = v
   }
-  // Per 100 g, nothing is denser than pure fat (~900 kcal), and the solids cannot outweigh the food.
+  // Per 100 g, nothing is denser than pure fat (~900 kcal), and the solids cannot outweigh the food. Fibre is left out
+  // of the sum: USDA's carbohydrate "by difference" already contains it, so adding it again would refuse chia seeds,
+  // nuts and cocoa, which are honestly that dense.
   if (macros.energy_kcal > 902) return null
   if (macros.protein_g > 100 || macros.carbs_g > 100 || macros.fat_g > 100 || macros.fiber_g > 100) return null
-  if (macros.protein_g + macros.carbs_g + macros.fat_g + macros.fiber_g > 105) return null
+  if (macros.protein_g + macros.carbs_g + macros.fat_g > 105) return null
 
   const micros: Record<string, number | null> = {}
   for (const k of AI_MICRO_KEYS) {

@@ -31,7 +31,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2"
 import type { SupabaseClient as ResolverClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { scoreMeal, type MealScores } from "./meal-scores.ts"
 import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
-import { resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
+import { aliasKey, isPlaceholder, resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
 import { priceItemsWithOpenAI } from "./ai-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
@@ -588,7 +588,7 @@ export type PricedMeal = {
   scores: MealScores
   /** Where the numbers came from (`resolution_meta.pricing`): the source, its model, how long, how many foods fell
    *  back to the database. Absent on an empty meal. */
-  pricing?: { source: PricingSource; model: string | null; ms: number; fallback: number }
+  pricing?: { source: PricingSource; model: string | null; ms: number; fallback: number; pinned: number }
 }
 
 /** A fresh object every call — the result is handed straight to JSON.stringify
@@ -639,19 +639,48 @@ export async function priceMeal(
     )
   let resolved: ResolvedItem[]
   let fallback = 0
+  let pinnedCount = 0
   if (PRICING_SOURCE === "openai" && PRICING_KEY) {
-    const ai = await priceItemsWithOpenAI(asked, { apiKey: PRICING_KEY, model: PRICING_MODEL })
-    // A food OpenAI could not price (timeout, bad answer, "not a food") is priced from the database, alone: one or
-    // two items stay well inside the CPU budget that eight in a row exhaust.
-    const missing = ai.flatMap((r, i) => (r ? [] : [i]))
-    fallback = missing.length
+    // PINNED FIRST, by the resolver, never by OpenAI: a placeholder ("dinner items") is not a food, and a food this
+    // member corrected is priced from the row THEY chose (tier 0a — a hit costs one indexed read, no embedding).
+    // One query finds the member's corrections among this meal's names; an error just means no pinned corrections.
+    const pinned = new Set<number>()
+    asked.forEach((it, i) => {
+      if (isPlaceholder(it.name)) pinned.add(i)
+    })
+    if (patientId) {
+      const keys = [...new Set(asked.map((it) => aliasKey(it.name)).filter(Boolean))]
+      if (keys.length) {
+        try {
+          const { data } = await db.from("nb_patient_food_aliases").select("alias_norm")
+            .eq("patient_id", patientId).in("alias_norm", keys)
+          const corrected = new Set(((data ?? []) as Array<{ alias_norm: string }>).map((r) => r.alias_norm))
+          asked.forEach((it, i) => {
+            if (corrected.has(aliasKey(it.name))) pinned.add(i)
+          })
+        } catch {
+          // The ladder below still reads tier 0a for anything that falls back; a lost lookup is never a lost meal.
+        }
+      }
+    }
+    pinnedCount = pinned.size
+    const open = asked.flatMap((_, i) => (pinned.has(i) ? [] : [i]))
+    const ai = await priceItemsWithOpenAI(open.map((i) => asked[i]), { apiKey: PRICING_KEY, model: PRICING_MODEL })
+    const out: Array<ResolvedItem | null> = asked.map(() => null)
+    open.forEach((i, k) => {
+      out[i] = ai[k]
+    })
+    // The pinned foods, and any food OpenAI could not price (timeout, bad answer, "not a food"), go to the database
+    // ladder together: a few items stay well inside the CPU budget that eight in a row exhaust.
+    const missing = out.flatMap((r, i) => (r ? [] : [i]))
+    fallback = missing.length - pinnedCount
     if (missing.length) {
       const fromDb = await fromDatabase(missing.map((i) => asked[i]))
       missing.forEach((i, k) => {
-        ai[i] = fromDb[k]
+        out[i] = fromDb[k]
       })
     }
-    resolved = ai as ResolvedItem[]
+    resolved = out as ResolvedItem[]
   } else {
     resolved = await fromDatabase(asked)
   }
@@ -660,6 +689,7 @@ export async function priceMeal(
     model: PRICING_SOURCE === "openai" ? PRICING_MODEL : null,
     ms: Date.now() - startedAt,
     fallback,
+    pinned: pinnedCount,
   }
 
   // MERGE, by index. The resolver returns items in the order it was given them.
