@@ -246,8 +246,9 @@ DAYS = [
 # Each beat: (voiceover, on-screen text, what the animation shows). An empty voiceover is a silent end card.
 # Timing is estimated for a calm AI voice at ~145 words a minute plus a short breath between beats.
 MOTION_STYLE = (
-    "Motion design, no presenter. 16:9 master (1920 × 1080), the app's video frame; keep titles and key visuals "
-    "inside the centre square so a 1:1 or 4:5 crop works for social posts. Same look as the infographics: flat "
+    "Motion design, no presenter. 9:16 vertical master, 1080 × 1920; the card shows a tile and the film opens "
+    "full screen. Keep titles and key visuals inside the centre square so the card's tile and a 1:1 or 4:5 crop "
+    "for social posts work. Same look as the infographics: flat "
     "vector, rounded figures without detailed faces, forest #2E5438 and soft green #4A8A5C on cream #F5F0E8, "
     "charcoal #1A1A16 for text, gold #D4A84E only for the day's NEW action. The Alpine ridge line runs along the "
     "bottom of every frame. On-screen text is short (max 6 words) and doubles as captions for muted viewing; add "

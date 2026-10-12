@@ -194,8 +194,7 @@ final class TrackService {
 
     /// The day's video was played: recorded once, best effort.
     func videoPlayed(day: Int) async {
-        let item = TrackActivityItem(day: day, kind: .video, itemKey: "day")
-        guard !activity.contains(item), let patientId else { return }
+        guard let item = TrackLogic.videoActivity(day: day, logged: activity), let patientId else { return }
         activity.insert(item)
         do {
             try await backend.addTrackActivity(patientId: patientId, code: TrackLogic.trackCode, item: item)

@@ -117,6 +117,15 @@ enum TrackLogic {
         return (url, text(day.imageAltEn, day.imageAltFr, locale: locale))
     }
 
+    /// The day's film is recorded once a day: the activity to write on a play, or nil when that day's is already in.
+    static func videoActivity(day: Int, logged: Set<TrackActivityItem>) -> TrackActivityItem? {
+        let item = TrackActivityItem(day: day, kind: .video, itemKey: "day")
+        return logged.contains(item) ? nil : item
+    }
+
+    /// The card's tile shows the film's first frame only when grabbing it costs no network: a file on the phone.
+    static func canGrabPoster(_ url: URL) -> Bool { url.isFileURL }
+
     /// The action card's version for a track action's face.
     static func habitFace(_ face: String) -> HabitFace {
         switch face {

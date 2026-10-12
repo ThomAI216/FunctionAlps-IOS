@@ -110,4 +110,15 @@ struct TrackDayCardTests {
         http.imageUrl = "http://example.com/protein.png"
         #expect(TrackLogic.infographic(http, locale: "en") == nil)
     }
+
+    @Test("The film is logged once per day; the tile grabs a first frame only from a file on the phone")
+    func videoRules() throws {
+        let first = try #require(TrackLogic.videoActivity(day: 3, logged: []))
+        #expect(first == TrackActivityItem(day: 3, kind: .video, itemKey: "day"))
+        #expect(TrackLogic.videoActivity(day: 3, logged: [first]) == nil)
+        #expect(TrackLogic.videoActivity(day: 4, logged: [first]) != nil)
+        #expect(TrackLogic.videoActivity(day: 3, logged: [TrackActivityItem(day: 3, kind: .read, itemKey: "day")]) != nil)
+        #expect(!TrackLogic.canGrabPoster(try #require(URL(string: "https://example.com/day3.mp4"))))
+        #expect(TrackLogic.canGrabPoster(URL(fileURLWithPath: "/tmp/day3.mp4")))
+    }
 }
