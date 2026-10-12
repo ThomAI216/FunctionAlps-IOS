@@ -138,7 +138,7 @@ struct FAListRow: View {
     }
 }
 
-/// Placeholder brand mark (the real logo lives in `FALogo`).
+/// The brand mark on its green tile, where the full logo image cannot load (the real logo lives in `FALogo`).
 struct FABrandMark: View {
     var size: CGFloat = 48
 
@@ -146,9 +146,7 @@ struct FABrandMark: View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
                 .fill(FAColor.brand)
-            Image(systemName: "mountain.2.fill")
-                .font(.system(size: size * 0.5, weight: .semibold))
-                .foregroundStyle(.white)
+            FAMarkGlyph(color: .white, size: size * 0.62)
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
