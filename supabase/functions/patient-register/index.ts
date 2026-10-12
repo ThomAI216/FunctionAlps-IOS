@@ -26,9 +26,9 @@
 //   never on the "already has a patient" path, which some apps hit on every
 //   sign-in and would re-add a removed action. Existing members get it once by
 //   backfill (supabase/sql/20261012_backfill_morning_activation.sql). FAIL-SOFT.
-//   ⚠️ The MEMBERS, CLINICAL and APP copies are still the pre-v57 source (checked
-//   2026-10-12): this repo's copy is the deployed one. APP deploys a function its
-//   own push touches, so an edit there must start from this file.
+//   All four copies synced to this source on 2026-10-12 (v61, deployed from
+//   FunctionAlps-IOS). APP also deploys a function its own push touches, so an
+//   edit in any repo must start from the deployed source and reach all four.
 //
 // WHAT CHANGED IN v57 (2026-09-25, FunctionAlps-IOS):
 //   1. The "one email = one patient" key is the VERIFIED email from the session
