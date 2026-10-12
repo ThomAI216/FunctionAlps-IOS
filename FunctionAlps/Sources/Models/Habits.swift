@@ -334,12 +334,18 @@ enum HabitEngine {
 
     // MARK: Words
 
-    /// The words a habit shows. A member's OWN habit with a live card follows the card, in the app's language: its
-    /// stored title was frozen in one language when it was added — by the member, by the default morning routine,
-    /// or by a level-up (which writes the card's English) — while the card holds both. A prescribed habit keeps the
-    /// clinician's own words.
+    /// Does this habit show its card's words? A member's OWN habit does: its stored title was frozen in one language
+    /// when it was added — by the member, by the default morning routine, or by a level-up — while the card holds
+    /// both. So does any habit moved up its ladder (`levelSince` set): `member_level_up` replaced its words with the
+    /// card's English, so they are no longer the clinician's. Any other prescribed habit keeps the clinician's words.
+    static func followsCard(_ habit: HabitRow) -> Bool {
+        habit.isSelfInitiated || habit.levelSince != nil
+    }
+
+    /// The words a habit shows: its live card's, in the app's language, when it follows the card (`followsCard`).
+    /// Its gentler and further versions come with them, so an own habit's faces are the card's too.
     static func words(_ habit: HabitRow, card: ActionCardRow?, locale: String) -> HabitRow {
-        guard habit.isSelfInitiated, let card else { return habit }
+        guard followsCard(habit), let card else { return habit }
         func pick(_ en: String?, _ fr: String?) -> String? { ActionCardLogic.pick(en, fr, locale: locale) }
         var shown = HabitRow(
             id: habit.id, carePlanItemId: habit.carePlanItemId,

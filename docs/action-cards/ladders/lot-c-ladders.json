@@ -1,38 +1,38 @@
 [
  {
   "pillar": "exercise",
-  "category": "mobility",
+  "category": "movement",
   "card_kind": "movement",
   "duration_min": 5,
   "default_slot": "morning",
   "frequency_rule": "RRULE:FREQ=DAILY",
   "member_can_add": true,
   "sort_order": 2,
-  "title": "Morning stretch, five minutes",
-  "title_fr": "Étirements du matin, cinq minutes",
+  "title": "Morning activation, five minutes",
+  "title_fr": "Activation matinale, cinq minutes",
   "description": "Wake the body before the day claims it.",
   "description_fr": "Réveillez le corps avant que la journée ne s’en empare.",
-  "easy_title": "Two stretches at the counter",
-  "easy_title_fr": "Deux étirements contre le plan de travail",
-  "easy_description": "While the coffee brews.",
-  "easy_description_fr": "Pendant que le café coule.",
+  "easy_title": "Two minutes while the coffee brews",
+  "easy_title_fr": "Deux minutes pendant que le café coule",
+  "easy_description": "Shoulder rolls and ten rises onto your toes, at the counter.",
+  "easy_description_fr": "Des rotations d’épaules et dix montées sur la pointe des pieds, contre le plan de travail.",
   "rev_title": null,
   "rev_title_fr": null,
   "rev_description": null,
   "rev_description_fr": null,
-  "how_md": "1. Stand tall, feet hip-width apart, and take three slow breaths.\n2. Neck: slowly tilt one ear towards its shoulder, hold for a few breaths, then the other side.\n3. Shoulders: roll them backwards ten times, then reach both arms overhead and stretch tall.\n4. Sides: one arm overhead, lean gently to the other side for a few breaths, then swap.\n5. Hips: hands on your hips, make five slow circles each way.\n6. Back of the legs: soften your knees, fold forward and let your arms hang, then roll up slowly, one vertebra at a time.\n7. Calves: step one foot back, heel on the floor, and lean into the front knee for a few breaths; swap legs.\n8. Move slowly and never bounce. If something hurts, ease off or skip that stretch.",
-  "how_md_fr": "1. Tenez-vous droit, pieds écartés à la largeur des hanches, et prenez trois respirations lentes.\n2. Nuque : inclinez lentement une oreille vers l’épaule, gardez quelques respirations, puis l’autre côté.\n3. Épaules : faites-les rouler dix fois vers l’arrière, puis tendez les deux bras au-dessus de la tête et grandissez-vous.\n4. Côtés : un bras au-dessus de la tête, penchez-vous doucement de l’autre côté pendant quelques respirations, puis changez.\n5. Hanches : mains sur les hanches, faites cinq cercles lents dans chaque sens.\n6. Arrière des jambes : fléchissez légèrement les genoux, penchez-vous en avant en laissant pendre les bras, puis remontez lentement, vertèbre après vertèbre.\n7. Mollets : reculez un pied, talon au sol, et avancez sur le genou de devant pendant quelques respirations ; changez de jambe.\n8. Bougez lentement, sans à-coups. Si quelque chose fait mal, relâchez ou passez cet étirement.",
-  "general_why": "After a night lying still, joints and muscles often feel stiff. A few minutes of gentle movement through their range can help you feel looser and more awake before the day starts asking things of you.",
-  "general_why_fr": "Après une nuit immobile, les articulations et les muscles sont souvent raides. Quelques minutes de mouvements doux sur toute leur amplitude peuvent aider à se sentir plus souple et mieux réveillé avant que la journée ne vous sollicite.",
+  "how_md": "1. Stand tall, feet hip-width apart, and take three slow, deep breaths.\n2. Neck and shoulders: a few slow nods and head turns, then roll your shoulders backwards ten times.\n3. Arms: swing them forwards and back, then across your body, for about thirty seconds.\n4. Hips and back: hands on your hips, five slow circles each way, then a few gentle twists from side to side.\n5. Legs: ten slow squats or sit-to-stands, only as deep as feels comfortable.\n6. Calves: rise slowly onto your toes ten times, holding a counter if you need to.\n7. Get warm: march on the spot or step from side to side for one minute, swinging your arms, a little faster towards the end.\n8. Finish tall: reach both arms overhead and stretch for one or two breaths.\n9. Go at your own pace and never bounce. If something hurts, ease off or skip that move.",
+  "how_md_fr": "1. Tenez-vous droit, pieds écartés à la largeur des hanches, et prenez trois respirations lentes et profondes.\n2. Nuque et épaules : quelques hochements et rotations lentes de la tête, puis faites rouler vos épaules dix fois vers l’arrière.\n3. Bras : balancez-les d’avant en arrière, puis en les croisant devant vous, pendant une trentaine de secondes.\n4. Hanches et dos : mains sur les hanches, cinq cercles lents dans chaque sens, puis quelques rotations douces du buste d’un côté à l’autre.\n5. Jambes : dix squats lents ou assis-debout, seulement aussi bas que c’est confortable.\n6. Mollets : montez lentement dix fois sur la pointe des pieds, en vous tenant à un plan de travail si besoin.\n7. Réchauffez-vous : marchez sur place ou faites des pas sur le côté pendant une minute en balançant les bras, un peu plus vite vers la fin.\n8. Terminez en grand : tendez les deux bras au-dessus de la tête et étirez-vous le temps d’une ou deux respirations.\n9. Allez à votre rythme, sans à-coups. Si quelque chose fait mal, relâchez ou passez ce mouvement.",
+  "general_why": "After a night lying still, joints and muscles often feel stiff and the body is slow to get going. A few minutes of moving every joint, a little leg work and a minute of brisker steps can help you feel looser, warmer and more awake before the day starts asking things of you.",
+  "general_why_fr": "Après une nuit immobile, les articulations et les muscles sont souvent raides et le corps met du temps à se mettre en route. Quelques minutes à mobiliser chaque articulation, un peu de travail des jambes et une minute de pas plus rapides peuvent aider à se sentir plus souple, réchauffé et mieux réveillé avant que la journée ne vous sollicite.",
   "image_url": null,
   "image_alt": null,
   "resources": [
    {
     "kind": "youtube",
-    "query": "5 minute gentle morning stretch routine"
+    "query": "5 minute morning activation routine"
    }
   ],
-  "_note_clinicien": "Owner request 2026-10-06: the live card gets its step-by-step and a video link. Live title, description and gentle version kept verbatim (lot A rule). No source record: a generic gentle sequence written for this card — the counts (three breaths, ten shoulder rolls, five hip circles) are the author's, to review. No demonstration video chosen: paste the practice's preferred video in CLINICAL → Video (the YouTube search is the fallback). member_can_add proposed true (catalogue first pass: trial). card_kind movement, duration 5 (the title's). Ladder: next level 'Morning stretch + a 10-minute walk'."
+  "_note_clinicien": "Owner, 2026-10-12: \"Not just morning stretch, morning activation\" — the default morning action every member gets. Was 'Morning stretch, five minutes' (same card, same id: links, ladder and habits carry over). Description kept verbatim (lot A). No source record: a generic five-minute activation (joint mobility, legs, one minute of brisker steps) written for this card — the counts (three breaths, ten shoulder rolls, five hip circles, ten squats, ten calf rises, one minute of marching) are the author's, to review. Gentle version rewritten to match. No demonstration video chosen: paste the practice's video in CLINICAL → Video (the YouTube search is the fallback). Category movement (was mobility). Ladder: next level 'Morning activation + a 10-minute walk'."
  },
  {
   "pillar": "exercise",
@@ -43,22 +43,22 @@
   "frequency_rule": "RRULE:FREQ=DAILY",
   "member_can_add": true,
   "sort_order": 101,
-  "title": "Morning stretch + a 10-minute walk",
-  "title_fr": "Étirements du matin + 10 minutes de marche",
-  "description": "Your five minutes of stretching, then a 10-minute walk outside.",
-  "description_fr": "Vos cinq minutes d’étirements, puis 10 minutes de marche dehors.",
-  "easy_title": "Stretch, then five minutes outside",
-  "easy_title_fr": "Étirements, puis cinq minutes dehors",
-  "easy_description": "Same stretch, and a short step outside instead of the walk.",
-  "easy_description_fr": "Les mêmes étirements, et un court moment dehors à la place de la marche.",
+  "title": "Morning activation + a 10-minute walk",
+  "title_fr": "Activation matinale + 10 minutes de marche",
+  "description": "Your five-minute activation, then a 10-minute walk outside.",
+  "description_fr": "Vos cinq minutes d’activation, puis 10 minutes de marche dehors.",
+  "easy_title": "Activation, then five minutes outside",
+  "easy_title_fr": "Activation, puis cinq minutes dehors",
+  "easy_description": "Same activation, and a short step outside instead of the walk.",
+  "easy_description_fr": "La même activation, et un court moment dehors à la place de la marche.",
   "rev_title": "Make the walk 20 minutes",
   "rev_title_fr": "Allez jusqu’à 20 minutes de marche",
   "rev_description": "Same morning, with a 20-minute walk.",
   "rev_description_fr": "La même matinée, avec 20 minutes de marche.",
-  "how_md": "1. Do your five-minute morning stretch.\n2. Then head outside and walk for 10 minutes, at an easy to brisk pace.\n3. Go in the morning light when you can, without sunglasses unless you need them.\n4. Look ahead and around you rather than at your phone.\n5. If something hurts, slow down or stop.",
-  "how_md_fr": "1. Faites vos cinq minutes d’étirements du matin.\n2. Puis sortez et marchez 10 minutes, d’un pas tranquille à soutenu.\n3. Sortez dans la lumière du matin quand c’est possible, sans lunettes de soleil sauf si vous en avez besoin.\n4. Regardez devant vous et autour de vous plutôt que votre téléphone.\n5. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
-  "general_why": "Stretching loosens the body, and a short walk outside adds movement and morning daylight, which helps set your body clock for the day. Together they turn a five-minute habit into a real start to the morning.",
-  "general_why_fr": "Les étirements délient le corps, et une courte marche dehors ajoute du mouvement et la lumière du matin, qui aide à régler votre horloge interne pour la journée. Ensemble, ils transforment une habitude de cinq minutes en un vrai départ pour la matinée.",
+  "how_md": "1. Do your five-minute morning activation.\n2. Then head outside and walk for 10 minutes, at an easy to brisk pace.\n3. Go in the morning light when you can, without sunglasses unless you need them.\n4. Look ahead and around you rather than at your phone.\n5. If something hurts, slow down or stop.",
+  "how_md_fr": "1. Faites vos cinq minutes d’activation matinale.\n2. Puis sortez et marchez 10 minutes, d’un pas tranquille à soutenu.\n3. Sortez dans la lumière du matin quand c’est possible, sans lunettes de soleil sauf si vous en avez besoin.\n4. Regardez devant vous et autour de vous plutôt que votre téléphone.\n5. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
+  "general_why": "The activation wakes the body up, and a short walk outside adds movement and morning daylight, which helps set your body clock for the day. Together they turn a five-minute habit into a real start to the morning.",
+  "general_why_fr": "L’activation réveille le corps, et une courte marche dehors ajoute du mouvement et la lumière du matin, qui aide à régler votre horloge interne pour la journée. Ensemble, elles transforment une habitude de cinq minutes en un vrai départ pour la matinée.",
   "image_url": null,
   "image_alt": null,
   "resources": [
@@ -67,7 +67,7 @@
     "query": "morning walk benefits sunlight"
    }
   ],
-  "_note_clinicien": "Owner's ladder, 2026-10-06: Morning stretch → stretch + 10-minute walk → brisk walk 20/30/40 → warm-up + easy run. 10 and 20 minutes are the owner's numbers. Morning light: same idea as 'Morning light within an hour of waking' (huberman:P004), not a separate claim. member_can_add proposed true. Ladder: next level 'A brisk 30-minute walk' (its versions cover 20 → 30 → 40–60)."
+  "_note_clinicien": "Owner's ladder, 2026-10-06: Morning activation (was Morning stretch, renamed 2026-10-12) → activation + 10-minute walk → brisk walk 20/30/40 → warm-up + easy run. 10 and 20 minutes are the owner's numbers. Morning light: same idea as 'Morning light within an hour of waking' (huberman:P004), not a separate claim. member_can_add proposed true. Ladder: next level 'A brisk 30-minute walk' (its versions cover 20 → 30 → 40–60)."
  },
  {
   "pillar": "exercise",
@@ -78,22 +78,22 @@
   "frequency_rule": "RRULE:FREQ=DAILY",
   "member_can_add": true,
   "sort_order": 102,
-  "title": "Morning stretch + one strength circuit",
-  "title_fr": "Étirements du matin + un circuit de renforcement",
-  "description": "Your five minutes of stretching, then one round of sit-to-stands and push-ups.",
-  "description_fr": "Vos cinq minutes d’étirements, puis un tour d’assis-debout et de pompes.",
-  "easy_title": "Stretch + five sit-to-stands",
-  "easy_title_fr": "Étirements + cinq assis-debout",
+  "title": "Morning activation + one strength circuit",
+  "title_fr": "Activation matinale + un circuit de renforcement",
+  "description": "Your five-minute activation, then one round of sit-to-stands and push-ups.",
+  "description_fr": "Vos cinq minutes d’activation, puis un tour d’assis-debout et de pompes.",
+  "easy_title": "Activation + five sit-to-stands",
+  "easy_title_fr": "Activation + cinq assis-debout",
   "easy_description": "Half a round still counts.",
   "easy_description_fr": "Une demi-série compte quand même.",
   "rev_title": "Two rounds of the circuit",
   "rev_title_fr": "Deux tours du circuit",
   "rev_description": "Same moves, twice, resting as long as you need between rounds.",
   "rev_description_fr": "Les mêmes mouvements, deux fois, avec autant de repos que nécessaire entre les tours.",
-  "how_md": "1. Do your five-minute morning stretch.\n2. Ten sit-to-stands: sit on a sturdy chair, stand up without using your hands, sit back down slowly.\n3. One set of push-ups: against a table, a wall or the floor — whatever number you can do with good form.\n4. Rest as long as you need between the two.\n5. Breathe out as you push or stand, and never hold your breath.\n6. If something hurts, stop.",
-  "how_md_fr": "1. Faites vos cinq minutes d’étirements du matin.\n2. Dix assis-debout : asseyez-vous sur une chaise stable, levez-vous sans les mains, rasseyez-vous lentement.\n3. Une série de pompes : contre une table, un mur ou au sol — autant que vous pouvez en faire avec une bonne technique.\n4. Reposez-vous autant que nécessaire entre les deux.\n5. Expirez en poussant ou en vous levant, et ne bloquez jamais votre respiration.\n6. Si quelque chose fait mal, arrêtez-vous.",
-  "general_why": "Strong legs carry everything else, and a few push-ups keep the chest and arms working. Doing them straight after your stretch makes strength part of every morning without needing a gym.",
-  "general_why_fr": "Des jambes solides portent tout le reste, et quelques pompes font travailler la poitrine et les bras. Les faire juste après vos étirements intègre le renforcement à chaque matinée, sans salle de sport.",
+  "how_md": "1. Do your five-minute morning activation.\n2. Ten sit-to-stands: sit on a sturdy chair, stand up without using your hands, sit back down slowly.\n3. One set of push-ups: against a table, a wall or the floor — whatever number you can do with good form.\n4. Rest as long as you need between the two.\n5. Breathe out as you push or stand, and never hold your breath.\n6. If something hurts, stop.",
+  "how_md_fr": "1. Faites vos cinq minutes d’activation matinale.\n2. Dix assis-debout : asseyez-vous sur une chaise stable, levez-vous sans les mains, rasseyez-vous lentement.\n3. Une série de pompes : contre une table, un mur ou au sol — autant que vous pouvez en faire avec une bonne technique.\n4. Reposez-vous autant que nécessaire entre les deux.\n5. Expirez en poussant ou en vous levant, et ne bloquez jamais votre respiration.\n6. Si quelque chose fait mal, arrêtez-vous.",
+  "general_why": "Strong legs carry everything else, and a few push-ups keep the chest and arms working. Doing them straight after your activation makes strength part of every morning without needing a gym.",
+  "general_why_fr": "Des jambes solides portent tout le reste, et quelques pompes font travailler la poitrine et les bras. Les faire juste après votre activation intègre le renforcement à chaque matinée, sans salle de sport.",
   "image_url": null,
   "image_alt": null,
   "resources": [
@@ -102,7 +102,7 @@
     "query": "sit to stand and incline push up for beginners"
    }
   ],
-  "_note_clinicien": "Owner's ladder, 2026-10-06 (bodyweight strength L3): built from the live cards 'Ten sit-to-stands' (its ten, its gentle five and 'Half a round still counts') and 'One set of push-ups' ('form over count'). The breathing step and 'rest as long as you need' are the author's, to review. member_can_add proposed true (bodyweight, one round). Ladder: Ten sit-to-stands → One set of push-ups → this card; the strength sessions (prescription) could follow."
+  "_note_clinicien": "Owner's ladder, 2026-10-06 (bodyweight strength L3): built from the live cards 'Ten sit-to-stands' (its ten, its gentle five and 'Half a round still counts') and 'One set of push-ups' ('form over count'). The breathing step and 'rest as long as you need' are the author's, to review. member_can_add proposed true (bodyweight, one round). Ladder: Ten sit-to-stands → One set of push-ups → this card; the strength sessions (prescription) could follow. Renamed 2026-10-12 with the morning activation (was 'Morning stretch + one strength circuit')."
  },
  {
   "pillar": "exercise",

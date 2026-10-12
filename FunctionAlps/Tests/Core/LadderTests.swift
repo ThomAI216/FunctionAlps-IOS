@@ -76,6 +76,14 @@ struct LadderTests {
         let prescribed = habit("rx", slot: "morning", card: "stretch")
         #expect(HabitEngine.words(prescribed, card: stretch, locale: "fr").title == "Habit rx")
         #expect(HabitEngine.words(own, card: nil, locale: "fr").title == "Habit own")
+        // A prescribed habit moved up its ladder holds the card's English (member_level_up): it reads the card too,
+        // on Home and on the card page.
+        let climbed = habit("up", slot: "morning", card: "stretch", levelSince: "2026-10-10")
+        #expect(HabitEngine.words(climbed, card: stretch, locale: "fr").title == "Étirements du matin, cinq minutes")
+        #expect(ActionCardLogic.content(card: stretch, habit: climbed, locale: "fr").title == "Étirements du matin, cinq minutes")
+        #expect(ActionCardLogic.content(card: stretch, habit: prescribed, locale: "fr").title == "Habit rx")
+        // An own habit takes the card's gentler version on a low day, as a bank pick copied in the Expo app does.
+        #expect(HabitEngine.face(HabitEngine.words(own, card: stretch, locale: "fr"), band: .low).face == .easy)
         // Home shows the French title too.
         var p = plan([own])
         p.cards = ["stretch": stretch]

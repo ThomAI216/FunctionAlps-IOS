@@ -41,11 +41,12 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
     - The Morning routine card on Home opens with **Morning check-in** (`MorningCheckinLine`, `PlanTodayCard(morningCheckinDone:)` fed by `CheckinEngine.slotIsDone`). It shows for everyone in the morning, even with no action yet, and counts in the routine's "N of M done" (`HabitEngine.routineCount`). It is outside the routine caps.
     - Why: without Apple Health or a wearable it is how the day gets its sleep and its focus.
     - The morning check-in screen again asks **How are you feeling?** (the mood card: slider, "How did it show up?" — Motivated… / Anxious… — and "What shaped it?"), after last night, "How are you walking into the day?" and "What is today for?". It is back as before 2026-09-17, with the earlier intro.
-  - **Default morning activation:** every member gets "Morning stretch, five minutes" in their morning routine. It is a self-initiated habit: the member can remove it or level it up.
+  - **Default morning activation:** every member gets "Morning activation, five minutes" (owner: "Not just morning stretch, morning activation"; the same card as the former "Morning stretch, five minutes", same id) in their morning routine. It is a self-initiated habit: the member can remove it or level it up.
     - New members get it from `patient-register` v61 (`ensureDefaultMorningAction`).
-    - Existing members get it from the one-off `supabase/sql/20261012_backfill_morning_activation.sql`.
-    - Skipped when the member is already on its ladder or their morning is full.
-  - **Language:** a member's own habit with a live card now reads the card in the app's language (`HabitEngine.words`, also on the card page and the plan page), since its stored title was frozen in one language (a level-up writes the English one).
+    - Existing members get it from the one-off `supabase/sql/20261012_backfill_morning_activation.sql` (run on the owner's go).
+    - Copied the way the apps add a bank card (Expo `createHabitFromBank`): title, description, gentler / further versions and why, in the member's language (onboarding locale → app profile → the phone's `Accept-Language` → preferred language).
+    - Skipped when the member's morning routine already holds a habit on its ladder, or the morning is full (3, or 2 in the member's first 14 days, as `RoutineRules`). Two registrations at once keep one copy.
+  - **Language:** a habit that follows its card (`HabitEngine.followsCard`: a member's own habit, or any habit moved up its ladder, since `member_level_up` writes the card's English) reads the card in the app's language (`HabitEngine.words`, on Home, the card page and the plan page), gentler and further versions included. A prescribed habit never levelled up keeps the clinician's words.
   - **Library:**
     - Cards are back to the gentle pillar gradient and its sheen: the fluted-glass topic covers are no longer drawn (`PillarCover`, and the episode player's poster in `ShowPlayerView`; covers still read, `cover:` kept). Resource bands are back to 56 pt.
     - Track, episode and reader use the standard iOS navigation bar and back button. The three small custom back controls are gone.
