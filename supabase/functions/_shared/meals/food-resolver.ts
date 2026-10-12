@@ -55,7 +55,8 @@ import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // ---------------------------------------------------------------------------
 // Inlined from lib/nutrition/resolve/types.ts
 // ---------------------------------------------------------------------------
-export type Basis = 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown'
+// 'ai': priced per 100 g by OpenAI (ai-pricing.ts, MEAL_PRICING), never by this resolver — no reference row behind it.
+export type Basis = 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown' | 'ai'
 export type ReviewReason = 'not_found' | 'not_a_food' | 'low_confidence'
 export type ReviewSeverity = 'red' | 'orange'
 

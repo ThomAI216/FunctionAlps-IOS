@@ -32,6 +32,7 @@ import type { SupabaseClient as ResolverClient } from "https://esm.sh/@supabase/
 import { scoreMeal, type MealScores } from "./meal-scores.ts"
 import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
 import { resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
+import { priceItemsWithOpenAI } from "./ai-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
 import { buildIdentifyUserParts, MAX_IDENTIFY_IMAGES } from "./identify-parts.ts"
@@ -186,6 +187,22 @@ const UPSTREAM = IDENTIFY_PROVIDER === "openai"
   }
 const API_KEY = UPSTREAM.key
 const TEXT_MODEL = UPSTREAM.textModel
+
+// WHICH SOURCE PRICES THE IDENTIFIED FOODS (owner, 2026-10-12, for testing: "make all the process on OpenAI").
+//   openai   — OpenAI gives each distinct food's nutrients per 100 g, in parallel (ai-pricing.ts); a food it cannot
+//              price falls back to the reference database. No in-process embeddings, so no CPU-time kill.
+//   database — the reference database ladder (food-resolver.ts), as before.
+// MEAL_PRICING picks; unset, it follows MEAL_AI_PROVIDER (OpenAI identification → OpenAI pricing). Without
+// OPENAI_API_KEY it is always the database. Only food names leave Supabase on this path, never anything about the member.
+export type PricingSource = "openai" | "database"
+const PRICING_CHOICE = (Deno.env.get("MEAL_PRICING") ?? "").trim().toLowerCase()
+const PRICING_KEY = Deno.env.get("OPENAI_API_KEY")
+export const PRICING_SOURCE: PricingSource = !PRICING_KEY
+  ? "database"
+  : PRICING_CHOICE === "openai" || PRICING_CHOICE === "database"
+  ? PRICING_CHOICE
+  : IDENTIFY_PROVIDER === "openai" ? "openai" : "database"
+const PRICING_MODEL = Deno.env.get("OPENAI_PRICING_MODEL") ?? Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini"
 const VISION_MODEL = UPSTREAM.visionModel
 const BASE = UPSTREAM.base
 
@@ -569,6 +586,9 @@ export type PricedMeal = {
   totals: MealTotals
   micros: Record<string, number | null>
   scores: MealScores
+  /** Where the numbers came from (`resolution_meta.pricing`): the source, its model, how long, how many foods fell
+   *  back to the database. Absent on an empty meal. */
+  pricing?: { source: PricingSource; model: string | null; ms: number; fallback: number }
 }
 
 /** A fresh object every call — the result is handed straight to JSON.stringify
@@ -607,14 +627,40 @@ export async function priceMeal(
 ): Promise<PricedMeal> {
   if (!identified.length) return emptyPriced()
 
-  const session = new Supabase.ai.Session("gte-small")
-  const resolved = await resolveItems(
-    // The one specifier cast — see the import header.
-    db as unknown as ResolverClient,
-    session,
-    identified.map((it) => ({ name: it.name, grams: it.estimated_grams })),
-    patientId,
-  )
+  const startedAt = Date.now()
+  const asked = identified.map((it) => ({ name: it.name, grams: it.estimated_grams }))
+  const fromDatabase = (subset: typeof asked) =>
+    resolveItems(
+      // The one specifier cast — see the import header.
+      db as unknown as ResolverClient,
+      new Supabase.ai.Session("gte-small"),
+      subset,
+      patientId,
+    )
+  let resolved: ResolvedItem[]
+  let fallback = 0
+  if (PRICING_SOURCE === "openai" && PRICING_KEY) {
+    const ai = await priceItemsWithOpenAI(asked, { apiKey: PRICING_KEY, model: PRICING_MODEL })
+    // A food OpenAI could not price (timeout, bad answer, "not a food") is priced from the database, alone: one or
+    // two items stay well inside the CPU budget that eight in a row exhaust.
+    const missing = ai.flatMap((r, i) => (r ? [] : [i]))
+    fallback = missing.length
+    if (missing.length) {
+      const fromDb = await fromDatabase(missing.map((i) => asked[i]))
+      missing.forEach((i, k) => {
+        ai[i] = fromDb[k]
+      })
+    }
+    resolved = ai as ResolvedItem[]
+  } else {
+    resolved = await fromDatabase(asked)
+  }
+  const pricing = {
+    source: PRICING_SOURCE,
+    model: PRICING_SOURCE === "openai" ? PRICING_MODEL : null,
+    ms: Date.now() - startedAt,
+    fallback,
+  }
 
   // MERGE, by index. The resolver returns items in the order it was given them.
   //   from the RESOLVER: macros, micros, basis, food_item_id, needs_review,
@@ -668,9 +714,10 @@ export async function priceMeal(
     }
   }
 
-  // The rules engine sees the RESOLVED macros, not the model's guesses, so the
-  // glycemic/digestion arithmetic runs on reference numbers.
-  return { items, resolved, totals, micros, scores: scoreMeal(items) }
+  // The rules engine sees the PRICED macros — the reference database's, or under
+  // MEAL_PRICING=openai OpenAI's per-100 g estimate scaled to the portion — never
+  // the identification model's guesses (it is told not to give any).
+  return { items, resolved, totals, micros, scores: scoreMeal(items), pricing }
 }
 
 // ---------------------------------------------------------------------------
@@ -735,6 +782,7 @@ export function completionPatch(
       attempts,
       basis,
       needs_review: priced.resolved.filter((r) => r.needs_review).length,
+      ...(priced.pricing ? { pricing: priced.pricing } : {}),
       resolved_at: now.toISOString(),
     },
     total_calories: priced.totals.kcal,

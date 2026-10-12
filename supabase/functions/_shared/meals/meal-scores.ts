@@ -61,7 +61,7 @@ export type MealItem = {
   /** Per-item micronutrients from the resolver; `saturated_fat_g` and `sugar_g` live here. */
   micros?: Record<string, number | null> | null
   /** How the item was priced. Drives confidence, never the score itself. */
-  basis?: 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown' | null
+  basis?: 'exact' | 'learned' | 'matched' | 'decomposed' | 'estimated' | 'unknown' | 'ai' | null
 }
 
 /** Legacy triple, still the shape written to the three nb_meal_logs columns. */
@@ -284,8 +284,10 @@ const band = (v: number): Band => (v >= 80 ? 'very_strong' : v >= 60 ? 'strong' 
 // How much a score can be trusted, per item, from how the resolver priced it.
 // This is CONFIDENCE ONLY — it never moves the score itself, because a poorly
 // matched food should read as "we are unsure", not as a worse meal.
+// `ai` (OpenAI's per-100 g estimate) is trusted like a database match: the app's own table (MealScoring.swift) has no
+// entry for it and falls back to 0.85, so the server and the phone agree.
 const BASIS_TRUST: Record<string, number> = {
-  exact: 1, learned: 0.95, matched: 0.85, decomposed: 0.75, estimated: 0.35, unknown: 0.1,
+  exact: 1, learned: 0.95, matched: 0.85, decomposed: 0.75, estimated: 0.35, unknown: 0.1, ai: 0.85,
 }
 
 const confidenceBand = (t: number): Confidence => (t >= 0.8 ? 'high' : t >= 0.5 ? 'moderate' : 'low')
