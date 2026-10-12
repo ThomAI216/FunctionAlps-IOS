@@ -108,9 +108,13 @@ struct ActionCardContent: Sendable, Equatable {
     var imageAlt: String?
     var links: [ActionCardLink]
 
-    var video: (url: URL, title: String?)? {
-        for link in links { if case .video(let url, let title) = link { return (url, title) } }
-        return nil
+    var video: (url: URL, title: String?)? { videos.first }
+    /// Every video, in order: the first is the demonstration, the others are more to choose from.
+    var videos: [(url: URL, title: String?)] {
+        links.compactMap { link -> (url: URL, title: String?)? in
+            if case .video(let url, let title) = link { return (url, title) }
+            return nil
+        }
     }
     var youtubeQuery: String? {
         for link in links { if case .youtube(let query) = link { return query } }
@@ -164,6 +168,20 @@ enum ActionCardLogic {
         }
     }
 
+    /// A habit's own links as the card's kinds: its videos (an https URL whose `kind` is video, or a YouTube address).
+    /// Articles, podcasts and books outside the library have no place on the card page yet and are left out.
+    static func habitLinks(_ own: HabitLinks?) -> [ActionCardLink] {
+        (own?.entries ?? []).compactMap { entry in
+            guard let string = entry.url?.trimmingCharacters(in: .whitespaces), string.lowercased().hasPrefix("https://"),
+                  let url = URL(string: string) else { return nil }
+            let host = url.host?.lowercased() ?? ""
+            guard entry.kind == "video" || host == "youtu.be" || host == "youtube.com" || host.hasSuffix(".youtube.com") else {
+                return nil
+            }
+            return .video(url: url, title: entry.title?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty)
+        }
+    }
+
     /// What the app opens for a YouTube keyword: YouTube's own search (the app or Safari), nothing embedded.
     static func youtubeSearchURL(_ query: String) -> URL? {
         var components = URLComponents(string: "https://www.youtube.com/results")
@@ -172,19 +190,21 @@ enum ActionCardLogic {
     }
 
     /// The card in one language. `habit` supplies what the card leaves out: the habit's own title (the
-    /// clinician's words for THIS member lead), and its description and versions when the card has none. Without a
-    /// habit (a bank card the member is reading before adding it) the card speaks for itself.
+    /// clinician's words for THIS member lead), its description, versions and why when the card has none, and its own
+    /// videos after the card's. Without a habit (a bank card the member is reading before adding it) the card speaks
+    /// for itself.
     static func content(card: ActionCardRow?, habit: HabitRow?, locale: String) -> ActionCardContent {
         guard let card else {
             return ActionCardContent(
                 kind: nil, durationMin: nil, title: habit?.title ?? "", description: habit?.description?.nilIfEmpty,
                 easyTitle: habit?.easyTitle?.nilIfEmpty, easyDescription: habit?.easyDescription?.nilIfEmpty,
                 furtherTitle: habit?.revTitle?.nilIfEmpty, furtherDescription: habit?.revDescription?.nilIfEmpty,
-                steps: [], why: nil, imageURL: nil, imageAlt: nil, links: []
+                steps: [], why: habit?.generalWhy?.nilIfEmpty, imageURL: nil, imageAlt: nil, links: habitLinks(habit?.resources)
             )
         }
         let image = card.imageUrl.flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
         let cardTitle = pick(card.title, card.titleFr, locale: locale) ?? card.title
+        let cardLinks = links(card.resources)
         return ActionCardContent(
             kind: card.cardKind.flatMap(ActionCardKind.init(rawValue:)),
             durationMin: card.durationMin.flatMap { (1...240).contains($0) ? $0 : nil },
@@ -197,10 +217,11 @@ enum ActionCardLogic {
             furtherTitle: pick(card.revTitle, card.revTitleFr, locale: locale) ?? habit?.revTitle?.nilIfEmpty,
             furtherDescription: pick(card.revDescription, card.revDescriptionFr, locale: locale) ?? habit?.revDescription?.nilIfEmpty,
             steps: steps(pick(card.howMd, card.howMdFr, locale: locale)),
-            why: pick(card.generalWhy, card.generalWhyFr, locale: locale),
+            why: pick(card.generalWhy, card.generalWhyFr, locale: locale) ?? habit?.generalWhy?.nilIfEmpty,
             imageURL: image,
             imageAlt: card.imageAlt?.nilIfEmpty,
-            links: links(card.resources)
+            // The card's links, then the habit's own (a video chosen for this member) that the card does not have.
+            links: cardLinks + habitLinks(habit?.resources).filter { !cardLinks.contains($0) }
         )
     }
 }

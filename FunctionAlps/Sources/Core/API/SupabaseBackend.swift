@@ -756,7 +756,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         ])
         let header = headers.first
         let habits: [HabitRow] = try await rest.select("habits", query: [
-            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id,level_since,level_locked"),
+            PG.select("id,care_plan_item_id,title,description,frequency_rule,status,source,pillar,slot,appears_after_habit_id,easy_title,easy_description,rev_title,rev_description,created_at,habit_bank_id,level_since,level_locked,general_why,resources"),
             PG.eq("patient_id", patientId), PG.neq("status", "cancelled"), PG.order("created_at"),
         ])
         let completions: [HabitCompletionRow] = try await rest.select("habit_completions", query: [

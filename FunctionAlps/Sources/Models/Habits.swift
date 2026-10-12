@@ -101,12 +101,55 @@ struct HabitRow: Decodable, Sendable, Equatable, Identifiable {
     var levelSince: String? = nil
     /// The clinician keeps this habit at its current level.
     var levelLocked: Bool? = nil
+    /// The habit's own "why" (`habits.general_why`): what the card page shows when its card says nothing, or it has
+    /// no card.
+    var generalWhy: String? = nil
+    /// The habit's own links (`habits.resources`), added to its card's.
+    var resources: HabitLinks? = nil
 
     var slotValue: HabitSlot? { slot.flatMap(HabitSlot.init(rawValue:)) }
     var isActive: Bool { status == "active" }
     var isSelfInitiated: Bool { source == "self_initiated" }
     /// `YYYY-MM-DD` of `createdAt`.
     var createdDay: String { String(createdAt.prefix(10)) }
+}
+
+/// A habit's own links, `habits.resources`: `[{ kind, title, url, source, minutes }]` (the Expo app's
+/// `parseResources` shape). Read leniently: a malformed entry reads as empty, and a value that is not a list reads as
+/// no links, so a stray row never fails the whole plan.
+struct HabitLinks: Decodable, Sendable, Equatable {
+    struct Entry: Decodable, Sendable, Equatable {
+        var kind: String?
+        var title: String?
+        var url: String?
+
+        init(kind: String? = nil, title: String? = nil, url: String? = nil) {
+            self.kind = kind
+            self.title = title
+            self.url = url
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try? decoder.container(keyedBy: Key.self)
+            func text(_ key: Key) -> String? {
+                guard let container else { return nil }
+                return try? container.decodeIfPresent(String.self, forKey: key)
+            }
+            kind = text(.kind)
+            title = text(.title)
+            url = text(.url)
+        }
+
+        private enum Key: String, CodingKey { case kind, title, url }
+    }
+
+    var entries: [Entry]
+
+    init(_ entries: [Entry]) { self.entries = entries }
+
+    init(from decoder: Decoder) throws {
+        entries = (try? decoder.singleValueContainer().decode([Entry].self)) ?? []
+    }
 }
 
 /// One `habit_completions` row (the member's own; `completion_date` is the live column).
@@ -360,6 +403,8 @@ enum HabitEngine {
             createdAt: habit.createdAt, habitBankId: habit.habitBankId)
         shown.levelSince = habit.levelSince
         shown.levelLocked = habit.levelLocked
+        shown.generalWhy = habit.generalWhy
+        shown.resources = habit.resources
         return shown
     }
 

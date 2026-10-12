@@ -291,7 +291,8 @@ struct ActionCardView: View {
     private func media(_ content: ActionCardContent) -> some View {
         FACard {
             VStack(alignment: .leading, spacing: 10) {
-                if let video = content.video {
+                let videos = content.videos
+                if let video = videos.first {
                     Button { openURL(video.url) } label: {
                         ZStack(alignment: .bottomLeading) {
                             RoundedRectangle(cornerRadius: 14, style: .continuous).fill(FAColor.charcoal).frame(height: 150)
@@ -302,6 +303,26 @@ struct ActionCardView: View {
                                 .padding(12)
                         }
                         .frame(height: 150)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(video.title ?? String(localized: "action.video.watch", defaultValue: "Watch the demonstration"))
+                }
+                // More videos to choose from (several routines for one action): one row each, opened outside the app.
+                ForEach(Array(videos.dropFirst().enumerated()), id: \.offset) { _, video in
+                    Button { openURL(video.url) } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "play.circle.fill").font(.system(size: 22)).foregroundStyle(FAColor.forest)
+                                .accessibilityHidden(true)
+                            Text(video.title ?? String(localized: "action.video.watch", defaultValue: "Watch the demonstration"))
+                                .font(FATypography.sans(13, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                            Image(systemName: "arrow.up.right").font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(FAColor.inkMuted).accessibilityHidden(true)
+                        }
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(video.title ?? String(localized: "action.video.watch", defaultValue: "Watch the demonstration"))
