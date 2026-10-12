@@ -148,13 +148,15 @@ final class CheckinMomentViewModel {
 
     // MARK: Sections (moment-sections.ts)
 
-    enum Section: Hashable { case sleep, intent, priority, markers, digestion, context }
+    enum Section: Hashable { case sleep, intent, priority, feeling, markers, digestion, context }
 
-    /// Morning = the night behind you and the day ahead. Evening = the day you lived, digestion included.
+    /// Morning = the night behind you, the day ahead, and how you feel walking into it — the mood card with its
+    /// "how did it show up?" (motivated, anxious…) and "what shaped it?" (owner, 2026-10-12: back as before
+    /// 2026-09-17). Evening = the day you lived, digestion included.
     /// Midday is never offered any more; a legacy row opened from a deep link still renders what it holds.
     var sections: [Section] {
         switch slot {
-        case .morning: [.sleep, .intent, .priority]
+        case .morning: [.sleep, .intent, .priority, .feeling]
         case .midday: [.markers, .context]
         case .evening: [.markers, .digestion, .context]
         }
@@ -171,7 +173,7 @@ final class CheckinMomentViewModel {
     var intro: String {
         if isEditing { return String(localized: "checkin.editing", defaultValue: "You already checked in for this moment · tweak anything and save again.") }
         switch slot {
-        case .morning: return String(localized: "checkin.morning.intro", defaultValue: "Last night, and what today is for. Answer what you feel like · anything you skip is fine.")
+        case .morning: return String(localized: "checkin.morning.intro", defaultValue: "A few quick reads to open the day. Answer what you feel like · anything you skip is fine.")
         case .midday: return String(localized: "checkin.midday.intro", defaultValue: "A short pause in the middle of the day. Only what you feel like sharing.")
         case .evening: return String(localized: "checkin.evening.intro", defaultValue: "A moment to look back on the day. Nothing here is required.")
         }

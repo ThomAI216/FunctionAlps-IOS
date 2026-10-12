@@ -14,7 +14,6 @@ struct TrackView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                backRow
                 if let track {
                     hero(track)
                     lessons(track)
@@ -25,10 +24,16 @@ struct TrackView: View {
                 }
             }
             .padding(.horizontal, 18)
+            .padding(.top, 8)
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .faWall()
-        .toolbar(.hidden, for: .navigationBar)
+        // The standard iOS navigation bar and its back button (owner, 2026-10-12: the small custom back control was poor):
+        // a 44 pt target that stays put while the page scrolls, VoiceOver and Dynamic Type for free, native swipe back.
+        // The title names this page in the next screen's back button; the bar itself stays empty (the hero has it).
+        .navigationTitle(track?.title ?? "")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { ToolbarItem(placement: .principal) { Text(verbatim: "") } }
         .task(id: slug) { await load() }
     }
 
@@ -39,21 +44,6 @@ struct TrackView: View {
               let bundle = await dependencies.library.bundle(patientId: member.patientId) else { return }
         track = bundle.tracks.first { $0.slug == slug }
         priority = bundle.prioritySlugs.contains(slug)
-    }
-
-    private var backRow: some View {
-        Button { dismiss() } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.left").font(.system(size: 13, weight: .semibold)).foregroundStyle(FAColor.charcoal)
-                    .frame(width: 30, height: 30)
-                    .background(Color.white.opacity(0.66), in: Circle())
-                    .overlay { Circle().strokeBorder(Color(hex: 0x1A1A16, opacity: 0.1), lineWidth: 1) }
-                Text(String(localized: "library.title", defaultValue: "Library")).font(FATypography.sans(12, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
-            }
-            .padding(.vertical, 12)
-        }
-        .buttonStyle(.plain)
-        .padding(.top, 8)
     }
 
     private func hero(_ t: TrackWithProgress) -> some View {

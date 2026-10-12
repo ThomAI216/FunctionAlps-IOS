@@ -17,6 +17,8 @@ struct LibraryView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
+        // Hidden here; it names the Library in the back button of the screens it opens ("‹ Bibliothèque").
+        .navigationTitle(String(localized: "library.title", defaultValue: "Library"))
         .task {
             if model == nil {
                 let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows)

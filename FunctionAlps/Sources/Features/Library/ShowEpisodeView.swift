@@ -30,7 +30,9 @@ struct ShowEpisodeView: View {
             }
         }
         .faWall()
-        .toolbar(.hidden, for: .navigationBar)
+        // The standard iOS navigation bar and its back button (owner, 2026-10-12: the small custom back control was poor):
+        // a 44 pt target that stays put while the page scrolls, VoiceOver and Dynamic Type for free, native swipe back.
+        .navigationBarTitleDisplayMode(.inline)
         .task(id: slug) {
             guard model == nil, !dependencies.shows.comingSoon else { return }
             let m = ShowEpisodeViewModel(slug: slug, shows: dependencies.shows, members: dependencies.members,
@@ -49,7 +51,6 @@ private struct ShowEpisodeScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
-                backRow
                 switch model.phase {
                 case .loading:
                     FALoadingState().frame(height: 320)
@@ -67,22 +68,9 @@ private struct ShowEpisodeScreen: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.top, 8)
             .padding(.bottom, FASpacing.navBarClearance)
         }
-    }
-
-    private var backRow: some View {
-        Button(action: onBack) {
-            HStack(spacing: 4) {
-                Image(systemName: "chevron.left").font(.system(size: 14, weight: .semibold))
-                Text(String(localized: "library.title", defaultValue: "Library")).font(FATypography.sans(14, .semibold, relativeTo: .body))
-            }
-            .foregroundStyle(FAColor.forest)
-            .faFrost(cornerRadius: 14, horizontal: 12, vertical: 7)
-        }
-        .buttonStyle(.plain)
-        .padding(.top, 8)
-        .accessibilityLabel(String(localized: "show.backToLibrary", defaultValue: "Back to the Library"))
     }
 
     @ViewBuilder

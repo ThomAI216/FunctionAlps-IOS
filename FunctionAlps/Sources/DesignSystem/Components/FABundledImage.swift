@@ -27,6 +27,24 @@ struct FABundledImage: View {
     }
 }
 
+/// The FunctionAlps mark — the peak and its reflection — as a one-colour glyph that takes any tint
+/// (`Assets.xcassets/FAMark`, a template image made from the practice's white mark, CLINICAL
+/// `public/brand/mark-white.webp`). Used where a small logo carries a colour: the check-in slider's thumb.
+struct FAMarkGlyph: View {
+    var color: Color
+    var size: CGFloat
+
+    var body: some View {
+        Image("FAMark")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .foregroundStyle(color)
+            .accessibilityHidden(true)
+    }
+}
+
 /// The FA logo at the size the Expo login uses (200×96, contain).
 struct FALogo: View {
     var height: CGFloat = 96

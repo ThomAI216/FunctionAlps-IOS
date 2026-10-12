@@ -253,7 +253,8 @@ struct CarePlanView: View {
                     .background(FAColor.forestSoft.opacity(0.14), in: Circle())
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(habit.title).font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                    Text(HabitEngine.words(habit, card: card, locale: TodayFocus.locale()).title)
+                        .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
                         .multilineTextAlignment(.leading).lineLimit(2)
                     if !meta.isEmpty {
                         Text(meta.joined(separator: " · ")).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)

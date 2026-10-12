@@ -74,7 +74,7 @@ struct HomeView: View {
                 VStack(spacing: 12) {
                     FoundationTrackCard { questionnaire = TrackQuestionnaireRef(id: $0) }
                     HealthPlanCard()
-                    PlanTodayCard()
+                    PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {

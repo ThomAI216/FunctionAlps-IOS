@@ -188,7 +188,9 @@ enum ActionCardLogic {
         return ActionCardContent(
             kind: card.cardKind.flatMap(ActionCardKind.init(rawValue:)),
             durationMin: card.durationMin.flatMap { (1...240).contains($0) ? $0 : nil },
-            title: habit?.title.nilIfEmpty ?? cardTitle,
+            // A member's own habit, or one moved up its ladder, reads the card in the app's language
+            // (`HabitEngine.followsCard`); any other prescribed one keeps the clinician's title.
+            title: habit.map(HabitEngine.followsCard) == true ? cardTitle : (habit?.title.nilIfEmpty ?? cardTitle),
             description: pick(card.description, card.descriptionFr, locale: locale) ?? habit?.description?.nilIfEmpty,
             easyTitle: pick(card.easyTitle, card.easyTitleFr, locale: locale) ?? habit?.easyTitle?.nilIfEmpty,
             easyDescription: pick(card.easyDescription, card.easyDescriptionFr, locale: locale) ?? habit?.easyDescription?.nilIfEmpty,

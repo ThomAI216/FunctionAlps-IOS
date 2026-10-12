@@ -171,9 +171,17 @@ final class AppRouter {
         }
     }
 
-    /// The reader replaces the floating navbar with its own mark-done bar.
+    /// The reader replaces the floating navbar with its own mark-done bar — on whichever tab it was opened
+    /// (an article reached from Home or Profile too, not only from the Library).
     var hidesTabBar: Bool {
-        if case .read = libraryPath.last { return true }
+        let top: Route? = switch tab {
+        case .home: homePath.last
+        case .trends: trendsPath.last
+        case .food: foodPath.last
+        case .library: libraryPath.last
+        case .profile: profilePath.last
+        }
+        if case .read = top { return true }
         return false
     }
 }

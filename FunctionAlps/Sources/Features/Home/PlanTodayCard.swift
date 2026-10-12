@@ -16,6 +16,9 @@ import SwiftUI
 /// with a retry; a refresh keeps the rows.
 struct PlanTodayCard: View {
     @Environment(AppDependencies.self) private var dependencies
+    /// Today's morning check-in is saved (Home's own snapshot, `CheckinEngine.slotIsDone`). The morning routine
+    /// opens with it (owner, 2026-10-12): without a wearable, it is how the day gets its sleep and its focus.
+    var morningCheckinDone = false
 
     var body: some View {
         let habits = dependencies.habits
@@ -30,7 +33,8 @@ struct PlanTodayCard: View {
         case .loaded(let plan):
             // The day's band is the focus service's — one server read of the day, shared by the focus and the faces.
             let readiness = dependencies.focus.focus?.readiness
-            if !plan.activeHabits.isEmpty, let routine = habits.routineNow(band: readiness?.bandValue) {
+            if let routine = habits.routineNow(band: readiness?.bandValue), !plan.activeHabits.isEmpty || routine.slot == .morning {
+                // In the morning the card shows for everyone: the check-in leads, even before any action exists.
                 card(plan, routine: routine, readiness: readiness)
             } else {
                 // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
@@ -46,15 +50,16 @@ struct PlanTodayCard: View {
 
     private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?) -> some View {
         let actions = routine.actions
-        let remaining = actions.filter { !$0.done }.count
+        let withCheckin = routine.slot == .morning
+        let count = HabitEngine.routineCount(routine, morningCheckinDone: morningCheckinDone)
+        let remaining = count.total - count.done
         let headline = routine.slot.routineTitle
-        let done = actions.filter(\.done).count
         // Nothing in this routine today (a weekly action on its off day, or a routine left empty): say so plainly.
-        let subtitle = actions.isEmpty
+        let subtitle = count.total == 0
             ? routine.slot.window + " · " + String(localized: "routine.empty", defaultValue: "Nothing in this routine today")
             : remaining == 0
                 ? routine.slot.window + " · " + String(localized: "routine.allDone", defaultValue: "All done ✓")
-                : routine.slot.window + " · " + String(localized: "routine.progress", defaultValue: "\(done) of \(actions.count) done")
+                : routine.slot.window + " · " + String(localized: "routine.progress", defaultValue: "\(count.done) of \(count.total) done")
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 12) {
@@ -83,10 +88,15 @@ struct PlanTodayCard: View {
                         .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                if !actions.isEmpty {
+                if withCheckin || !actions.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
+                        if withCheckin { MorningCheckinLine(done: morningCheckinDone) }
                         ForEach(actions) { HabitLine(action: $0) }
                     }
+                }
+                if withCheckin && plan.activeHabits.isEmpty {
+                    // No action yet: the morning still opens with the check-in; the bank is the way to a first action.
+                    PlanLockedArea(reason: .noActions) { PlanPlaceholderLines(lines: 2) }
                 }
                 if routine.more > 0 {
                     NavigationLink(value: Route.carePlan) {
@@ -153,6 +163,46 @@ private struct HabitLine: View {
     private var meta: String? {
         let parts = [action.cardKind?.label, action.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+/// The first row of the morning routine: today's morning check-in — last night, how you walk into the day, what
+/// today is for, how you feel and why (owner, 2026-10-12). Not a habit: the mark says done or not, the whole row opens
+/// the check-in (to fill it in, or to adjust it). Done is said by the mark AND the strikethrough (rule 10).
+struct MorningCheckinLine: View {
+    let done: Bool
+
+    var body: some View {
+        let title = String(localized: "home.carousel.morning", defaultValue: "Morning check-in")
+        NavigationLink(value: Route.checkin(.morning)) {
+            HStack(spacing: 8) {
+                Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22))
+                    .foregroundStyle(done ? FAColor.accent : FAColor.inkMuted)
+                    .frame(width: 44, height: 44)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(FATypography.callout)
+                        .strikethrough(done)
+                        .foregroundStyle(done ? FAColor.inkSecondary : FAColor.ink)
+                    Text(done
+                         ? String(localized: "home.carousel.done", defaultValue: "Done · tap to adjust")
+                         : String(localized: "home.carousel.now", defaultValue: "It's time · about a minute"))
+                        .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkMuted)
+                    .accessibilityHidden(true)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(done
+            ? String(localized: "plan.a11y.done", defaultValue: "Done: \(title)")
+            : title)
+        .accessibilityHint(String(localized: "home.checkin.cta", defaultValue: "Check in"))
     }
 }
 

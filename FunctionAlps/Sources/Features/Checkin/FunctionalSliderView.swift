@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Continuous 0–100 slider, higher = better: red (left) → green (right) veil, a 5-word state
-/// translation above the bar, the score on the right. Untouched = NO thumb and "Tap to rate": a thumb parked
+/// translation above the bar, the score on the right. The thumb carries the FunctionAlps mark in the state's
+/// colour — red, yellow, purple, blue, green as the value moves (owner, 2026-10-12: the logo, not mountains). Untouched = NO thumb and "Tap to rate": a thumb parked
 /// at centre read as an answer, members left it there, tapped Save and nothing was recorded (2026-09-28).
 struct FunctionalSliderView: View {
     let spec: SliderSpec
@@ -50,9 +51,7 @@ struct FunctionalSliderView: View {
                         ZStack {
                             Circle().fill(FAColor.cream)
                             Circle().strokeBorder(color, lineWidth: 1.5)
-                            Image(systemName: "mountain.2.fill")
-                                .font(.system(size: thumb * 0.42))
-                                .foregroundStyle(color)
+                            FAMarkGlyph(color: color, size: thumb * 0.68)
                         }
                         .frame(width: thumb, height: thumb)
                         .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
