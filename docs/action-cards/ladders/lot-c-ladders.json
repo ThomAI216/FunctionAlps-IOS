@@ -21,7 +21,7 @@
   "rev_description": null,
   "rev_description_fr": null,
   "how_md": "1. Stand tall, feet hip-width apart, and take three slow, deep breaths.\n2. Neck and shoulders: a few slow nods and head turns, then roll your shoulders backwards ten times.\n3. Arms: swing them forwards and back, then across your body, for about thirty seconds.\n4. Hips and back: hands on your hips, five slow circles each way, then a few gentle twists from side to side.\n5. Legs: ten slow squats or sit-to-stands, only as deep as feels comfortable.\n6. Calves: rise slowly onto your toes ten times, holding a counter if you need to.\n7. Get warm: march on the spot or step from side to side for one minute, swinging your arms, a little faster towards the end.\n8. Finish tall: reach both arms overhead and stretch for one or two breaths.\n9. Go at your own pace and never bounce. If something hurts, ease off or skip that move.",
-  "how_md_fr": "1. Tenez-vous droit, pieds écartés à la largeur des hanches, et prenez trois respirations lentes et profondes.\n2. Nuque et épaules : quelques hochements et rotations lentes de la tête, puis faites rouler vos épaules dix fois vers l’arrière.\n3. Bras : balancez-les d’avant en arrière, puis en les croisant devant vous, pendant une trentaine de secondes.\n4. Hanches et dos : mains sur les hanches, cinq cercles lents dans chaque sens, puis quelques rotations douces du buste d’un côté à l’autre.\n5. Jambes : dix squats lents ou assis-debout, seulement aussi bas que c’est confortable.\n6. Mollets : montez lentement dix fois sur la pointe des pieds, en vous tenant à un plan de travail si besoin.\n7. Réchauffez-vous : marchez sur place ou faites des pas sur le côté pendant une minute en balançant les bras, un peu plus vite vers la fin.\n8. Terminez en grand : tendez les deux bras au-dessus de la tête et étirez-vous le temps d’une ou deux respirations.\n9. Allez à votre rythme, sans à-coups. Si quelque chose fait mal, relâchez ou passez ce mouvement.",
+  "how_md_fr": "1. Tenez-vous droit, pieds écartés à la largeur des hanches, et prenez trois respirations lentes et profondes.\n2. Nuque et épaules : hochez et tournez lentement la tête quelques fois, puis faites rouler vos épaules dix fois vers l’arrière.\n3. Bras : balancez-les d’avant en arrière, puis en les croisant devant vous, pendant une trentaine de secondes.\n4. Hanches et dos : mains sur les hanches, cinq cercles lents dans chaque sens, puis quelques rotations douces du buste d’un côté à l’autre.\n5. Jambes : dix squats lents ou assis-debout, seulement aussi bas que c’est confortable.\n6. Mollets : montez lentement dix fois sur la pointe des pieds, en vous tenant à un plan de travail si besoin.\n7. Réchauffez-vous : marchez sur place ou faites des pas sur le côté pendant une minute en balançant les bras, un peu plus vite vers la fin.\n8. Pour finir, grandissez-vous : tendez les deux bras au-dessus de la tête et étirez-vous le temps d’une ou deux respirations.\n9. Allez à votre rythme, sans à-coups. Si quelque chose fait mal, relâchez ou passez ce mouvement.",
   "general_why": "After a night lying still, joints and muscles often feel stiff and the body is slow to get going. A few minutes of moving every joint, a little leg work and a minute of brisker steps can help you feel looser, warmer and more awake before the day starts asking things of you.",
   "general_why_fr": "Après une nuit immobile, les articulations et les muscles sont souvent raides et le corps met du temps à se mettre en route. Quelques minutes à mobiliser chaque articulation, un peu de travail des jambes et une minute de pas plus rapides peuvent aider à se sentir plus souple, réchauffé et mieux réveillé avant que la journée ne vous sollicite.",
   "image_url": null,
@@ -57,8 +57,8 @@
   "rev_description_fr": "La même matinée, avec 20 minutes de marche.",
   "how_md": "1. Do your five-minute morning activation.\n2. Then head outside and walk for 10 minutes, at an easy to brisk pace.\n3. Go in the morning light when you can, without sunglasses unless you need them.\n4. Look ahead and around you rather than at your phone.\n5. If something hurts, slow down or stop.",
   "how_md_fr": "1. Faites vos cinq minutes d’activation matinale.\n2. Puis sortez et marchez 10 minutes, d’un pas tranquille à soutenu.\n3. Sortez dans la lumière du matin quand c’est possible, sans lunettes de soleil sauf si vous en avez besoin.\n4. Regardez devant vous et autour de vous plutôt que votre téléphone.\n5. Si quelque chose fait mal, ralentissez ou arrêtez-vous.",
-  "general_why": "The activation wakes the body up, and a short walk outside adds movement and morning daylight, which helps set your body clock for the day. Together they turn a five-minute habit into a real start to the morning.",
-  "general_why_fr": "L’activation réveille le corps, et une courte marche dehors ajoute du mouvement et la lumière du matin, qui aide à régler votre horloge interne pour la journée. Ensemble, elles transforment une habitude de cinq minutes en un vrai départ pour la matinée.",
+  "general_why": "The activation wakes the body up, and a short walk outside adds movement and morning daylight, which can help set your body clock for the day. Together they turn a five-minute habit into a real start to the morning.",
+  "general_why_fr": "L’activation réveille le corps, et une courte marche dehors ajoute du mouvement et la lumière du matin, qui peut aider à régler votre horloge interne pour la journée. Ensemble, elles transforment une habitude de cinq minutes en un vrai départ pour la matinée.",
   "image_url": null,
   "image_alt": null,
   "resources": [
@@ -115,8 +115,8 @@
   "sort_order": 103,
   "title": "Warm-up + an easy run",
   "title_fr": "Échauffement + une course tranquille",
-  "description": "Your stretch and a few minutes of brisk walking, then an easy run at a pace where you can still talk.",
-  "description_fr": "Vos étirements et quelques minutes de marche rapide, puis une course tranquille, à une allure où vous pouvez encore parler.",
+  "description": "Your morning activation and a few minutes of brisk walking, then an easy run at a pace where you can still talk.",
+  "description_fr": "Votre activation matinale et quelques minutes de marche rapide, puis une course tranquille, à une allure où vous pouvez encore parler.",
   "easy_title": "Walk–run",
   "easy_title_fr": "Marche–course",
   "easy_description": "Run until talking gets hard, walk until it is easy again, and repeat.",
@@ -125,8 +125,8 @@
   "rev_title_fr": null,
   "rev_description": null,
   "rev_description_fr": null,
-  "how_md": "1. Only if your practice has cleared you for this.\n2. Warm up: your morning stretch, then a few minutes of brisk walking.\n3. Start running slowly, at a pace where you can still speak in full sentences.\n4. If talking gets hard, walk until it is easy again, then run again.\n5. Finish with a few minutes of walking.\n6. If something hurts or you feel unwell, stop.",
-  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Échauffez-vous : vos étirements du matin, puis quelques minutes de marche rapide.\n3. Commencez à courir lentement, à une allure où vous pouvez encore parler par phrases complètes.\n4. Si parler devient difficile, marchez jusqu’à ce que ce soit facile, puis repartez en courant.\n5. Terminez par quelques minutes de marche.\n6. Si quelque chose fait mal ou si vous ne vous sentez pas bien, arrêtez-vous.",
+  "how_md": "1. Only if your practice has cleared you for this.\n2. Warm up: your morning activation, then a few minutes of brisk walking.\n3. Start running slowly, at a pace where you can still speak in full sentences.\n4. If talking gets hard, walk until it is easy again, then run again.\n5. Finish with a few minutes of walking.\n6. If something hurts or you feel unwell, stop.",
+  "how_md_fr": "1. Seulement si votre cabinet vous l’a conseillé.\n2. Échauffez-vous : votre activation matinale, puis quelques minutes de marche rapide.\n3. Commencez à courir lentement, à une allure où vous pouvez encore parler par phrases complètes.\n4. Si parler devient difficile, marchez jusqu’à ce que ce soit facile, puis repartez en courant.\n5. Terminez par quelques minutes de marche.\n6. Si quelque chose fait mal ou si vous ne vous sentez pas bien, arrêtez-vous.",
   "general_why": "Running at a pace where you can still talk trains your heart and lungs without exhausting you, so you can keep going and come back to it often. The warm-up gets joints and muscles ready first.",
   "general_why_fr": "Courir à une allure où l’on peut encore parler entraîne le cœur et les poumons sans vous épuiser, pour pouvoir continuer et y revenir souvent. L’échauffement prépare d’abord les articulations et les muscles.",
   "image_url": null,
@@ -137,7 +137,7 @@
     "query": "beginner easy run conversational pace"
    }
   ],
-  "_note_clinicien": "Owner's ladder, 2026-10-06 (morning movement L4: 'going for a warm-up and going for a little run'). Running is a step up in impact and effort: member_can_add false and step 1 'Only if your practice has cleared you' (same rule as the cardio cards). Talk test = the simple marker used in 'Long, easy cardio' (huberman:P039). No duration given (the owner gave none; duration_min null). Days Mon/Wed/Fri proposed. Ladder: comes after 'A brisk 30-minute walk'."
+  "_note_clinicien": "Owner's ladder, 2026-10-06 (morning movement L4: 'going for a warm-up and going for a little run'). Running is a step up in impact and effort: member_can_add false and step 1 'Only if your practice has cleared you' (same rule as the cardio cards). Talk test = the simple marker used in 'Long, easy cardio' (huberman:P039). No duration given (the owner gave none; duration_min null). Days Mon/Wed/Fri proposed. Ladder: comes after 'A brisk 30-minute walk'. Wording follows the morning activation (renamed 2026-10-12, was 'Morning stretch')."
  },
  {
   "pillar": "sleep",

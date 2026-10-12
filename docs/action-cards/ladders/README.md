@@ -14,9 +14,11 @@ stretch card's Video field (CLINICAL → Action cards); until then the button op
 **Morning activation (owner, 2026-10-12: "Not just morning stretch, morning activation").** The stretch card becomes
 the morning activation every member gets by default: same card and id, new title, steps (joints, legs, one minute
 of brisker steps), why, gentle version and YouTube search, in English and French. The two levels built on it follow:
-"Morning activation + a 10-minute walk" and "Morning activation + one strength circuit". The file holds the new
-texts; CM OS still shows the stretch until they are applied (CLINICAL → Action cards → Import JSON, or on the owner's
-go).
+"Morning activation + a 10-minute walk" and "Morning activation + one strength circuit"; "Warm-up + an easy run" now
+warms up with "your morning activation". **Applied on CM OS 2026-10-12 (owner's go)**: the four cards match this file
+(checked field by field, ladder links unchanged). Every active member with a login got the activation in their
+morning routine the same day (`supabase/sql/20261012_backfill_morning_activation.sql`: 29 members, 19 in French,
+10 in English).
 
 **Still a draft:** "First coffee 30 minutes after waking" (lot B). It is the middle of the caffeine ladder, so a
 member on "No caffeine after 14:00" sees the next level as "coming soon" until it is published.

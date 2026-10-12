@@ -8,6 +8,7 @@
 --   · skipped when the morning routine is full: 3 active actions, 2 while the member's first action is under 14 days
 --     old (the app's RoutineRules);
 --   · texts in the member's language (profile locale, else preferred language; French by default).
+-- RAN 2026-10-12 on CM OS (owner's go): 29 habits for 29 members, 19 in French, 10 in English.
 -- Run ONCE. Re-running is harmless for members who still have the action, but would re-add it for a member who
 -- removed it in between.
 
