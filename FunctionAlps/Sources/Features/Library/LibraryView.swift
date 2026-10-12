@@ -110,7 +110,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.show == nil) { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -142,6 +142,11 @@ private struct LibraryScreen: View {
         let b = model.bundle
         if let show = model.show {
             showSection(show)
+        } else if model.showPresentation == .comingSoon {
+            // Owner, 2026-10-06: "the show doesn't need to take that much space. Just keep the Coming Soon card."
+            ShowComingSoonCard()
+                .padding(.top, 8)
+                .id(LibraryViewModel.Section.show.id)
         }
         if !model.priority.isEmpty {
             VStack(alignment: .leading, spacing: 0) {

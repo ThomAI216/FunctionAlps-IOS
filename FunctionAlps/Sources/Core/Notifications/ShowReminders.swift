@@ -7,7 +7,7 @@ import UserNotifications
 /// `fa.` request with the day's plan, and must never wipe these.
 @MainActor
 final class ShowReminders {
-    static let prefix = "show.exp."
+    nonisolated static let prefix = ShowLogic.reminderPrefix
 
     struct Item: Sendable, Equatable {
         let day: Int
@@ -30,6 +30,15 @@ final class ShowReminders {
         let p = Self.idPrefix(slug)
         let ids = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(p) }
         if !ids.isEmpty { center.removePendingNotificationRequests(withIdentifiers: ids) }
+    }
+
+    /// Every show-experiment reminder, pending or delivered, whatever the episode (the show is coming soon:
+    /// build 55's internal testers may have scheduled some).
+    func cancelAll() async {
+        let pending = ShowFeature.showReminderIDs(in: await center.pendingNotificationRequests().map(\.identifier))
+        if !pending.isEmpty { center.removePendingNotificationRequests(withIdentifiers: pending) }
+        let delivered = ShowFeature.showReminderIDs(in: await center.deliveredNotifications().map(\.request.identifier))
+        if !delivered.isEmpty { center.removeDeliveredNotifications(withIdentifiers: delivered) }
     }
 
     /// Replaces this experiment's pending reminders with `items`.

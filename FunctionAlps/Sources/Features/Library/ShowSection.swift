@@ -82,7 +82,7 @@ struct ShowLiveCard: View {
     private func subtitle(_ live: ShowSnapshot.Live) -> String {
         if snapshot.preLaunch {
             let time = ShowFormat.clock(live.start)
-            return String(localized: "show.startsSub", defaultValue: "It opens with a live at \(time), then a new episode every day from Tuesday to Friday.")
+            return String(localized: "show.startsSub", defaultValue: "Lives on Wednesday and Saturday at \(time), and a new episode every day from Tuesday to Friday.")
         }
         return live.slug != nil
             ? String(localized: "show.remindTap", defaultValue: "Tap to get a reminder")
@@ -274,5 +274,34 @@ struct ShowExperimentRowView: View {
                 ? String(localized: "show.doneTodayLabel", defaultValue: "Done for today")
                 : String(localized: "show.markToday", defaultValue: "Mark today done"))
         }
+    }
+}
+
+/// The show while it is coming soon (`ShowFeature`; owner, 2026-10-06: "the show doesn't need to take that much
+/// space. Just keep the Coming Soon card."): one compact glass card — eyebrow, "Coming soon", one line. Nothing opens.
+struct ShowComingSoonCard: View {
+    var body: some View {
+        FACard(padded: false) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 16, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    .frame(width: 38, height: 38)
+                    .background(FAColor.forest.opacity(0.1), in: Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "show.navGroup", defaultValue: "The show").uppercased())
+                        .font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1)
+                        .foregroundStyle(FALibraryColor.gold)
+                    Text(String(localized: "lock.comingSoon", defaultValue: "Coming soon"))
+                        .font(FATypography.display(16, relativeTo: .headline)).foregroundStyle(FAColor.ink)
+                    Text(String(localized: "show.comingSoon", defaultValue: "The FunctionAlps Show: episodes, lives and one-week experiments, coming soon."))
+                        .font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
