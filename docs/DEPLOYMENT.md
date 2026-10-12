@@ -1,6 +1,6 @@
 # Deployment — from a Windows desktop to TestFlight (Milestone 1)
 
-> **Owner rule (2026-10-06): TestFlight builds go to INTERNAL testers only.** The `beta` lane uploads without external distribution unless a run sets `FA_TESTFLIGHT_EXTERNAL=true`, which needs the owner's explicit go for that build. Shipping itself (a push to `release/testflight`) also needs the owner's go.
+> **Owner rule (2026-10-06): TestFlight builds go to INTERNAL testers only.** The `beta` lane uploads without external distribution unless a run sets `FA_TESTFLIGHT_EXTERNAL=true`, which needs the owner's explicit go for that build. The iOS workflow sets it for one run only: a push to `release/testflight` whose tip commit message contains `[external]` (2026-10-12; keep the marker off `main` commits, so a later `main:release/testflight` push cannot inherit it). Shipping itself (a push to `release/testflight`) also needs the owner's go.
 
 You have no Mac, so "the manual path" (PRD §38) is the CI path: a GitHub macOS
 runner archives, signs (fastlane `match`) and uploads. Everything you do by hand
@@ -46,7 +46,7 @@ Required GitHub secrets (Settings → Secrets and variables → Actions):
 | `MATCH_GIT_BASIC_AUTHORIZATION` | base64 of `githubusername:personal_access_token` (PAT with repo scope) |
 | `MATCH_PASSWORD` | new passphrase; store it in your password manager |
 
-Run: Actions → **iOS** → Run workflow → branch → `testflight = true`, **or** push the commit you want to ship to the `release/testflight` branch (`git push origin main:release/testflight`) — that route is what the coding agent uses, since its GitHub integration cannot press Run workflow and its git proxy blocks tags. The lane increments the build number from the latest TestFlight build, archives Release, uploads, and skips waiting for processing (check App Store Connect 5–30 min later).
+Run: Actions → **iOS** → Run workflow → branch → `testflight = true`, **or** push the commit you want to ship to the `release/testflight` branch (`git push origin main:release/testflight`) — that route is what the coding agent uses, since its GitHub integration cannot press Run workflow and its git proxy blocks tags. The lane increments the build number from the latest TestFlight build, archives Release, uploads, and waits for processing (up to 40 min) so it can hand the build to testers.
 
 The Fastfile (already committed) has this shape:
 ```ruby
@@ -406,8 +406,9 @@ Rollback: unset `MEAL_AI_PROVIDER` (next cold start is back on Infomaniak).
 
 Members are **external** testers in the group **BetaTesters**. Until 2026-09-28 the `beta` lane uploaded and stopped:
 a build reached only the internal team (automatic distribution), and members stayed on build 35 while 36–43 shipped.
-The lane now waits for processing and hands every build to BetaTesters (`distribute_external`, `groups`, override with
-`FA_TESTFLIGHT_GROUP`), notifying testers. Apple may hold a build for Beta App Review first.
+The lane waits for processing and, on a run marked `[external]` (see the owner rule at the top), hands the build to
+BetaTesters (`distribute_external`, `groups`, override with `FA_TESTFLIGHT_GROUP`), notifying testers; every other run
+reaches the internal team only (since 2026-10-05). Apple may hold a build for Beta App Review first.
 
 Old builds are **not** expired by the lane (a build held in review would leave members nothing to open). Once a build
 is live in BetaTesters: App Store Connect → TestFlight → iOS Builds → each older build → Expire Build. An expired build

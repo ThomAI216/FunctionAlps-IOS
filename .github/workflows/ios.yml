@@ -170,3 +170,6 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FASTLANE_SKIP_UPDATE_CHECK: "1"
+          # External testers (group BetaTesters) for THIS run only, when the pushed tip commit says "[external]" — the
+          # owner's go for that build (CLAUDE.md, DEPLOYMENT.md). Every other run stays internal-only (Fastfile).
+          FA_TESTFLIGHT_EXTERNAL: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[external]') }}
