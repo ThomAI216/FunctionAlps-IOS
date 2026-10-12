@@ -17,6 +17,16 @@
 // either strand plaintext identity in `patients`, create duplicate patient
 // rows, or hand a session an id it does not own.
 //
+// WHAT CHANGED IN v61 (2026-10-12, FunctionAlps-IOS):
+//   ensureDefaultMorningAction() gives every NEW member the morning activation
+//   ("Morning stretch, five minutes") in their morning routine (owner: "pour tout
+//   le monde, par défaut, dans la routine du matin, il y aura la petite activation
+//   matinale"). A self_initiated habit, so the member owns it: they can remove it
+//   or move it up its ladder. Only on the created and linked paths — never on the
+//   "already has a patient" path, which some apps hit on every sign-in and would
+//   re-add a removed action. Existing members got it once by backfill
+//   (supabase/sql/20261012_backfill_morning_activation.sql). FAIL-SOFT.
+//
 // WHAT CHANGED IN v57 (2026-09-25, FunctionAlps-IOS):
 //   1. The "one email = one patient" key is the VERIFIED email from the session
 //      (`user.email`, confirmed), never the request body. The body's email is
@@ -193,6 +203,79 @@ async function ensureDiscoveryAccess(
   }
 }
 
+// ── The default morning activation (v61) ──
+// "Morning stretch, five minutes" heads the morning-movement ladder. Skipped when the card is not live or not
+// member-addable, when the member already has a habit anywhere on its ladder (they keep their level), or when the
+// morning routine is already full (3 actions). The title is written in the member's language; the iOS app also
+// reads a member's own habit in the app's language from the card itself.
+const MORNING_ACTIVATION_CARD = "623658e7-bea0-41a9-9fe5-d646a3340dda"
+const MORNING_ROUTINE_CAP = 3
+
+function localeOf(onboarding: Record<string, unknown> | undefined | null): string | null {
+  const value = onboarding?.locale
+  return typeof value === "string" ? value : null
+}
+
+async function ensureDefaultMorningAction(
+  adminClient: SupabaseClient, patientId: string, locale?: string | null,
+): Promise<void> {
+  try {
+    const { data: card, error: cardErr } = await adminClient
+      .from("habit_bank")
+      .select("id, title, title_fr, description, description_fr, frequency_rule, pillar, active, member_can_add, next_level_id")
+      .eq("id", MORNING_ACTIVATION_CARD)
+      .maybeSingle()
+    if (cardErr || !card || !card.active || !card.member_can_add) return
+
+    const ladder: string[] = [card.id]
+    let next: string | null = card.next_level_id ?? null
+    for (let hop = 0; next && hop < 12 && !ladder.includes(next); hop++) {
+      ladder.push(next)
+      const { data: level } = await adminClient.from("habit_bank").select("next_level_id").eq("id", next).maybeSingle()
+      next = level?.next_level_id ?? null
+    }
+
+    const { data: habits, error: habitsErr } = await adminClient
+      .from("habits")
+      .select("habit_bank_id, slot, status")
+      .eq("patient_id", patientId)
+      .neq("status", "cancelled")
+    if (habitsErr) {
+      console.error("[patient-register] default action: habits read failed, skipping:", habitsErr.message)
+      return
+    }
+    const rows = (habits ?? []) as { habit_bank_id: string | null; slot: string | null; status: string }[]
+    if (rows.some((h) => h.habit_bank_id !== null && ladder.includes(h.habit_bank_id))) return
+    if (rows.filter((h) => h.status === "active" && h.slot === "morning").length >= MORNING_ROUTINE_CAP) return
+
+    let lang = (locale ?? "").trim().toLowerCase()
+    if (!lang) {
+      const [{ data: profile }, { data: patient }] = await Promise.all([
+        adminClient.from("nb_patient_app_profiles").select("locale").eq("patient_id", patientId).maybeSingle(),
+        adminClient.from("patients").select("preferred_language").eq("id", patientId).maybeSingle(),
+      ])
+      lang = String(profile?.locale || patient?.preferred_language || "fr").toLowerCase()
+    }
+    const fr = lang.startsWith("fr")
+    const pick = (en: string | null, frText: string | null) => (fr ? (frText?.trim() || en) : (en?.trim() || frText)) ?? null
+
+    const { error: insertErr } = await adminClient.from("habits").insert({
+      patient_id: patientId,
+      title: pick(card.title, card.title_fr) ?? card.title,
+      description: pick(card.description, card.description_fr),
+      frequency_rule: (card.frequency_rule ?? "").trim() || "FREQ=DAILY",
+      slot: "morning",
+      pillar: card.pillar,
+      habit_bank_id: card.id,
+      source: "self_initiated",
+      status: "active",
+    })
+    if (insertErr) console.error("[patient-register] default morning action failed:", insertErr.message)
+  } catch (e) {
+    console.error("[patient-register] default morning action threw:", e instanceof Error ? e.message : e)
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS })
 
@@ -308,6 +391,7 @@ Deno.serve(async (req: Request) => {
         // A clinician-created patient normally already holds full_access, in
         // which case this is a no-op; it only bites when that grant was missed.
         await ensureDiscoveryAccess(adminClient, hashMatch.id)
+        await ensureDefaultMorningAction(adminClient, hashMatch.id, localeOf(onboardingData))
         return new Response(
           JSON.stringify({ patientId: hashMatch.id, created: false, linked: true }),
           { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
@@ -388,6 +472,7 @@ Deno.serve(async (req: Request) => {
   // this function with discovery access and a closed library (the practitioner
   // opens it), never with a patient row and nothing to sign into.
   await ensureDiscoveryAccess(adminClient, patient.id)
+  await ensureDefaultMorningAction(adminClient, patient.id, localeOf(profileData))
 
   return new Response(
     JSON.stringify({ patientId: patient.id, created: true }),

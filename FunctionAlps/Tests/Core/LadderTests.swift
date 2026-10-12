@@ -47,6 +47,41 @@ struct LadderTests {
         #expect(HabitEngine.routineNow(doneMorning, hour: 20).actions.map(\.id) == ["e1"])
     }
 
+    @Test func theMorningCheckinOpensTheMorningRoutineAndCounts() {
+        func count(_ r: HabitEngine.RoutineNow, _ checkin: Bool) -> [Int] {
+            let c = HabitEngine.routineCount(r, morningCheckinDone: checkin)
+            return [c.done, c.total]
+        }
+        let p = plan([habit("m1", slot: "morning"), habit("e1", slot: "evening")], [done("m1", daysAgo: 0)])
+        let morning = HabitEngine.routineNow(p, hour: 7)
+        #expect(count(morning, false) == [1, 2])   // the action done, the check-in not yet
+        #expect(count(morning, true) == [2, 2])
+        // Only the morning: the evening routine counts its actions alone.
+        #expect(count(HabitEngine.routineNow(p, hour: 20), true) == [0, 1])
+        // A member with no action yet still has the check-in to do in the morning.
+        #expect(count(HabitEngine.routineNow(plan([]), hour: 8), false) == [0, 1])
+    }
+
+    @Test func aMembersOwnHabitReadsTheCardInTheAppsLanguage_aPrescribedOneKeepsItsWords() {
+        var stretch = ActionCardRow(id: "stretch", title: "Morning stretch, five minutes")
+        stretch.titleFr = "Étirements du matin, cinq minutes"
+        stretch.easyTitle = "Two stretches at the counter"
+        stretch.easyTitleFr = "Deux étirements contre le plan de travail"
+        // Seeded or levelled up with the English title, read by a French member: French.
+        let own = habit("own", slot: "morning", card: "stretch", source: "self_initiated")
+        #expect(HabitEngine.words(own, card: stretch, locale: "fr").title == "Étirements du matin, cinq minutes")
+        #expect(HabitEngine.words(own, card: stretch, locale: "fr").easyTitle == "Deux étirements contre le plan de travail")
+        #expect(HabitEngine.words(own, card: stretch, locale: "en").title == "Morning stretch, five minutes")
+        // A prescribed habit keeps the clinician's title; no card, nothing changes.
+        let prescribed = habit("rx", slot: "morning", card: "stretch")
+        #expect(HabitEngine.words(prescribed, card: stretch, locale: "fr").title == "Habit rx")
+        #expect(HabitEngine.words(own, card: nil, locale: "fr").title == "Habit own")
+        // Home shows the French title too.
+        var p = plan([own])
+        p.cards = ["stretch": stretch]
+        #expect(HabitEngine.routineNow(p, hour: 7, locale: "fr").actions.first?.title == "Étirements du matin, cinq minutes")
+    }
+
     @Test func homeShowsUpToTheRoutinesCapAndCountsTheRest() {
         let mornings = (1...5).map { habit("m\($0)", slot: "morning") }
         let now = HabitEngine.routineNow(plan(mornings), hour: 8)

@@ -109,11 +109,12 @@ struct ShowVideoSurface: UIViewRepresentable {
     }
 }
 
-/// The player card of the episode page (mockup AppEpisode): 16:9, the episode's cover dimmed on near-black, the gold
-/// play button in the middle, the progress line along the bottom. Without a replay: the cover and a quiet note.
+/// The player card of the episode page (mockup AppEpisode): 16:9, the topic's gradient dimmed on near-black, the gold
+/// play button in the middle, the progress line along the bottom. Without a replay: the gradient and a quiet note.
 struct ShowPlayerView: View {
     let player: ShowPlayer
     let topic: String
+    /// NOT drawn (owner, 2026-10-12: the fluted-glass topic photos were "too much"; same as `PillarCover`).
     let cover: URL?
 
     private static let progressGold = Color(hex: 0xE6C27A)
@@ -126,7 +127,6 @@ struct ShowPlayerView: View {
                     Color(hex: 0x1A1A16)
                     let (from, to) = LibraryLogic.pillarGradient(topic)
                     LinearGradient(colors: [Color(hex: from), Color(hex: to)], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.75)
-                    CachedCoverImage(url: cover).opacity(0.75)
                     if player.isVideo && player.started {
                         ShowVideoSurface(player: player.player)
                     }

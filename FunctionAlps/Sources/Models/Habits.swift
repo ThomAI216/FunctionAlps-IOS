@@ -332,6 +332,31 @@ enum HabitEngine {
         return true
     }
 
+    // MARK: Words
+
+    /// The words a habit shows. A member's OWN habit with a live card follows the card, in the app's language: its
+    /// stored title was frozen in one language when it was added — by the member, by the default morning routine,
+    /// or by a level-up (which writes the card's English) — while the card holds both. A prescribed habit keeps the
+    /// clinician's own words.
+    static func words(_ habit: HabitRow, card: ActionCardRow?, locale: String) -> HabitRow {
+        guard habit.isSelfInitiated, let card else { return habit }
+        func pick(_ en: String?, _ fr: String?) -> String? { ActionCardLogic.pick(en, fr, locale: locale) }
+        var shown = HabitRow(
+            id: habit.id, carePlanItemId: habit.carePlanItemId,
+            title: pick(card.title, card.titleFr) ?? habit.title,
+            description: pick(card.description, card.descriptionFr) ?? habit.description,
+            frequencyRule: habit.frequencyRule, status: habit.status, source: habit.source, pillar: habit.pillar,
+            slot: habit.slot, appearsAfterHabitId: habit.appearsAfterHabitId,
+            easyTitle: pick(card.easyTitle, card.easyTitleFr) ?? habit.easyTitle,
+            easyDescription: pick(card.easyDescription, card.easyDescriptionFr) ?? habit.easyDescription,
+            revTitle: pick(card.revTitle, card.revTitleFr) ?? habit.revTitle,
+            revDescription: pick(card.revDescription, card.revDescriptionFr) ?? habit.revDescription,
+            createdAt: habit.createdAt, habitBankId: habit.habitBankId)
+        shown.levelSince = habit.levelSince
+        shown.levelLocked = habit.levelLocked
+        return shown
+    }
+
     // MARK: Faces
 
     /// The face a habit shows today (the Expo `habitAction`): its gentler version on a low day, a step further on
@@ -352,7 +377,7 @@ enum HabitEngine {
     /// action does not hang around all afternoon — it can be corrected later elsewhere). Only active habits due
     /// today, with sequencing applied, each on the face the day's band calls for. Stable: a row does not move
     /// when it is checked off.
-    static func todayActions(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil) -> [HabitAction] {
+    static func todayActions(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil, locale: String = TodayFocus.locale()) -> [HabitAction] {
         let now = HabitSlot.current(hour: hour)
         let done = doneIds(plan.completions, on: plan.day)
         let due = plan.activeHabits.filter { isDue($0.frequencyRule, on: plan.day, start: $0.createdDay) }
@@ -361,7 +386,7 @@ enum HabitEngine {
         var earlierDone: [HabitAction] = []
 
         for habit in due where visibleToday(habit, in: plan.habits, doneIds: done) {
-            let shown = face(habit, band: band)
+            let shown = face(words(habit, card: habit.habitBankId.flatMap { plan.cards[$0] }, locale: locale), band: band)
             let action = HabitAction(
                 id: habit.id, title: shown.title, detail: shown.detail, slot: habit.slotValue,
                 completionId: completionId(plan.completions, habit: habit.id, on: plan.day),
@@ -391,9 +416,17 @@ enum HabitEngine {
         let more: Int
     }
 
-    static func routineNow(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil) -> RoutineNow {
+    /// Done and total for the routine's header: its actions, plus — in the morning — the morning check-in, which
+    /// opens the morning routine for everyone (owner, 2026-10-12). The check-in is not a habit: no cap counts it.
+    static func routineCount(_ routine: RoutineNow, morningCheckinDone: Bool) -> (done: Int, total: Int) {
+        let done = routine.actions.filter(\.done).count
+        guard routine.slot == .morning else { return (done, routine.actions.count) }
+        return (done + (morningCheckinDone ? 1 : 0), routine.actions.count + 1)
+    }
+
+    static func routineNow(_ plan: HabitPlan, hour: Int, band: ReadinessBand? = nil, locale: String = TodayFocus.locale()) -> RoutineNow {
         let now = HabitSlot.current(hour: hour)
-        let inRoutine = todayActions(plan, hour: hour, band: band).filter { ($0.slot ?? .midday) == now }
+        let inRoutine = todayActions(plan, hour: hour, band: band, locale: locale).filter { ($0.slot ?? .midday) == now }
         return RoutineNow(slot: now, actions: Array(inRoutine.prefix(now.cap)), more: max(0, inRoutine.count - now.cap))
     }
 

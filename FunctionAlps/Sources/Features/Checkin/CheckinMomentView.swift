@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ONE screen per check-in moment. TWO are asked for: the MORNING (last night, and what today is for)
+/// ONE screen per check-in moment. TWO are asked for: the MORNING (last night, what today is for, how you feel)
 /// and the EVENING (the day you lived — energy, focus, mood, calm, and the whole digestion read).
 /// Nothing is hidden behind an expander: what a moment asks, it asks on one page.
 struct CheckinMomentView: View {
@@ -124,6 +124,10 @@ private struct CheckinMomentScreen: View {
         case .priority:
             sectionLabel(String(localized: "checkin.today", defaultValue: "Today"))
             catalogCard([CatalogSection(group: .dayPriority, title: String(localized: "checkin.priority", defaultValue: "What is today for?"), accent: FAColor.forestSoft)])
+        case .feeling:
+            // The mood card: the slider, "How did it show up?" (Motivated… or Anxious…) and "What shaped it?".
+            sectionLabel(String(localized: "checkin.markers.morning", defaultValue: "How are you feeling?"))
+            DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
         case .markers:
             sectionLabel(model.markersTitle)
             DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)

@@ -38,7 +38,11 @@ struct ReaderView: View {
         }
         .background(FAColor.warm.ignoresSafeArea())
         .overlay(alignment: .bottom) { if isLesson, let item, !item.locked { markDoneBar(item) } }
-        .toolbar(.hidden, for: .navigationBar)
+        // The standard iOS navigation bar and its back button (owner, 2026-10-12: the small custom back control was poor):
+        // a 44 pt target that stays put while the page scrolls, VoiceOver and Dynamic Type for free, native swipe back.
+        // On the reader's warm paper; the context strip (track · lesson n of N · progress) sits under it.
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(FAColor.warm, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .task(id: slug) { await load() }
     }
@@ -71,11 +75,6 @@ struct ReaderView: View {
     private var contextBar: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                Button { dismiss() } label: {
-                    Image(systemName: "arrow.left").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.charcoal)
-                        .frame(width: 26, height: 26).background(Color(hex: 0x1A1A16, opacity: 0.05), in: Circle())
-                }
-                .buttonStyle(.plain)
                 Text(contextLine).font(FATypography.sans(10.5, .bold, relativeTo: .caption)).foregroundStyle(FAColor.stone).lineLimit(1)
                 Spacer()
             }
@@ -130,7 +129,8 @@ struct ReaderView: View {
         if let pair = item.pair {
             VStack(alignment: .leading, spacing: 8) {
                 Text(String(localized: "library.pair.title", defaultValue: "Connected to this")).font(FATypography.display(15, relativeTo: .headline)).foregroundStyle(FAColor.charcoal)
-                Button { router.libraryPath.append(.read(pair.slug)) } label: {
+                // Onto the stack the reader is on (Home, Profile or the Library), not always the Library's.
+                Button { router.push(.read(pair.slug)) } label: {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(localized: "library.pair.kicker", defaultValue: "Go deeper").uppercased()).font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
                         Text(pair.title).font(FATypography.display(13.5, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal)

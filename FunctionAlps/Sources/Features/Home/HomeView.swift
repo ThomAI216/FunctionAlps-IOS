@@ -63,7 +63,7 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     HealthPlanCard()
-                    PlanTodayCard()
+                    PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {

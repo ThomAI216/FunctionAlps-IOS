@@ -1,9 +1,9 @@
 import SwiftUI
 import UIKit
 
-/// Edge swipe to go back — the system interactive pop gesture. Every screen hides the system
-/// navigation bar (each has its own `CenteredHeader`), and UIKit disables the gesture whenever the
-/// bar is hidden. This re-enables it on the stack's `UINavigationController` with a delegate that
+/// Edge swipe to go back — the system interactive pop gesture. Most screens hide the system
+/// navigation bar (each has its own `CenteredHeader`; the check-in and the Library's track, episode and
+/// reader keep the standard bar), and UIKit disables the gesture whenever the bar is hidden. This re-enables it on the stack's `UINavigationController` with a delegate that
 /// only lets it begin when there is somewhere to go back to (a swipe on a root screen would freeze
 /// the stack). Installed on every root and every pushed destination, because the navigation
 /// controller re-asserts its own delegate on some pushes.

@@ -115,7 +115,8 @@ struct ActionCardView: View {
     @ViewBuilder
     private func habitPage(plan: HabitPlan, habit: HabitRow) -> some View {
         let content = ActionCardLogic.content(card: habit.habitBankId.flatMap { plan.cards[$0] }, habit: habit, locale: TodayFocus.locale())
-        let todayFace = HabitEngine.face(habit, band: dependencies.focus.focus?.readiness?.bandValue).face
+        let todayFace = HabitEngine.face(HabitEngine.words(habit, card: habit.habitBankId.flatMap { plan.cards[$0] }, locale: TodayFocus.locale()),
+                                         band: dependencies.focus.focus?.readiness?.bandValue).face
         let shown = face ?? todayFace
         let dueToday = habit.isActive && HabitEngine.isDue(habit.frequencyRule, on: plan.day, start: habit.createdDay)
         let completionId = HabitEngine.completionId(plan.completions, habit: habit.id, on: plan.day)

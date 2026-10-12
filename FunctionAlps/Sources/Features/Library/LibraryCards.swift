@@ -19,19 +19,16 @@ struct PillarCover: View {
     var badge: String? = nil
     var badgeTone: BadgeTone = .plain
     var lockLabel: String? = nil
-    /// The resolved cover (`LibraryLogic.resolveCover`), drawn over the gradient once it loads; nil → gradient only.
+    /// The resolved topic cover (`LibraryLogic.resolveCover`). NOT drawn (owner, 2026-10-12: the fluted-glass topic
+    /// photos were "too much" — back to the gentle pillar gradient and its sheen, as before 2026-09-30). Kept so the
+    /// covers can come back without touching the call sites.
     var cover: URL? = nil
 
     var body: some View {
         let (from, to) = LibraryLogic.pillarGradient(pillar)
         ZStack(alignment: .topLeading) {
             LinearGradient(colors: [Color(hex: from), Color(hex: to)], startPoint: .topLeading, endPoint: .bottomTrailing)
-            if let cover {
-                // 16:9 masters composed so the middle survives any crop — cover fit, centred.
-                CachedCoverImage(url: cover)
-            } else {
-                LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0)], startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.9))
-            }
+            LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0)], startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.9))
             if let badge {
                 Text(badge.uppercased())
                     .font(FATypography.sans(8.5, .bold, relativeTo: .caption2))
@@ -75,8 +72,7 @@ struct PillarCover: View {
     }
 }
 
-/// The 84×64 article preview: this article's own infographic, else the track's resolved cover, else the
-/// pillar gradient. The infographic FILLS the frame anchored top-left ("zoom in … align left and top").
+/// The 84×64 article preview: this article's own infographic, else the pillar gradient. The infographic FILLS the frame anchored top-left ("zoom in … align left and top").
 struct ArticleCoverSlot: View {
     let pillar: String
     var trackCover: URL? = nil
@@ -177,7 +173,7 @@ struct ResourceCard: View {
             FACard(padded: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     // The web's ~96 pt image band at the top of every article card.
-                    PillarCover(pillar: resource.pillar, height: 96, badge: String(localized: "library.badge.resource", defaultValue: "Resource"), cover: resource.cover)
+                    PillarCover(pillar: resource.pillar, height: 56, badge: String(localized: "library.badge.resource", defaultValue: "Resource"), cover: resource.cover)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(resource.pillar.uppercased()).font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
                         Text(resource.title).font(FATypography.display(14, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)

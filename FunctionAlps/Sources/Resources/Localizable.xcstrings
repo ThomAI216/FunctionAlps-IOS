@@ -3938,6 +3938,22 @@
         }
       }
     },
+    "checkin.markers.morning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How are you feeling?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment vous sentez-vous ?"
+          }
+        }
+      }
+    },
     "checkin.midday.greeting": {
       "localizations": {
         "en": {
@@ -3991,13 +4007,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last night, and what today is for. Answer what you feel like · anything you skip is fine."
+            "value": "A few quick reads to open the day. Answer what you feel like · anything you skip is fine."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La nuit passée, et à quoi sert cette journée. Répondez à ce que vous voulez · vous pouvez tout passer."
+            "value": "Quelques repères rapides pour ouvrir la journée. Répondez à ce que vous voulez · ce que vous sautez n'a aucune importance."
           }
         }
       }

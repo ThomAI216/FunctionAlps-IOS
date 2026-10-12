@@ -4,7 +4,7 @@ import SwiftUI
 // under the title, "This week's episodes" (or, before any replay exists, the week as day tiles) as the first section,
 // and the experiments in progress at the top of Continue. Same card family as the rest of the Library.
 
-/// The show's cover: the topic cover of the track (`library_topic_covers`), else the topic gradient.
+/// The show's cover: the topic's pillar gradient (topic photos are no longer drawn, owner 2026-10-12).
 struct ShowCover: View {
     let track: ShowTrack?
     let covers: [String: URL]
