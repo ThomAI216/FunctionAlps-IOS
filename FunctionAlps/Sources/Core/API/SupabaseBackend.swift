@@ -1303,15 +1303,26 @@ struct SupabaseBackend: FunctionAlpsBackend {
         // The column means "when this member FIRST finished" — never moved once set.
         if let existing: Stamp = try? await rest.selectOne("nb_patient_app_profiles", query: [PG.select("onboarding_completed_at"), PG.eq("patient_id", patientId), PG.limit(1)]), let at = existing.onboardingCompletedAt { return at }
         let now = Date()
-        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String }
-        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String }
-        let body = Body(onboardingCompletedAt: ISO8601.string(now), onboardingSource: "app_baseline")
-        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
-        if touched.isEmpty {
-            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: body.onboardingSource)]) }
-            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        do {
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: "app_baseline")
+        } catch AppError.forbidden {
+            // `onboarding_source` is descriptive only — a column grant missing for it (live 2026-10-16) must
+            // never keep a member in onboarding. The stamp alone is what the gate reads.
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: nil)
         }
         return now
+    }
+
+    private func writeOnboardingStamp(patientId: String, at date: Date, source: String?) async throws {
+        // Optionals encode as absent keys, so `source: nil` writes `onboarding_completed_at` alone.
+        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String? }
+        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String? }
+        let body = Body(onboardingCompletedAt: ISO8601.string(date), onboardingSource: source)
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
+        if touched.isEmpty {
+            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: source)]) }
+            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        }
     }
 
     func confirmAdult(dateOfBirth: String) async throws -> Bool {
