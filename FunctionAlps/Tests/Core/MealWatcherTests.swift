@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Testing
 @testable import FunctionAlps
 
@@ -180,5 +181,58 @@ struct DayBatchTests {
         var a = DayBatch.Item(jpeg: Data([1]), mealType: .lunch); a.mealId = "r1"; a.status = .analyzing
         let b = DayBatch.Item(jpeg: Data([2]), mealType: .dinner)
         #expect(DayBatch.saveable([a, b]) == 1)
+    }
+}
+
+/// Nothing is presented while the sheet or cover before it is still going away: the capture cover raised over a
+/// closing camera was half-presented, cancelled its own capture and ignored its close button (build 60).
+@MainActor
+struct CaptureCoordinatorSequencingTests {
+    private func photo() -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 8, height: 8)).image { ctx in
+            UIColor.green.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
+        }
+    }
+
+    @Test func theCaptureOpensOnlyOnceTheCameraIsGone() {
+        let c = MealCaptureCoordinator()
+        c.showCamera = true
+        c.picked(photo())
+        #expect(c.request == nil)
+        c.showCamera = false
+        c.presentPending()
+        #expect(c.request?.input.photos.count == 1)
+        c.presentPending()
+        #expect(c.request?.input.photos.count == 1)
+    }
+
+    @Test func theCameraOpensOnlyOnceTheChooserIsGone() {
+        let c = MealCaptureCoordinator()
+        c.showPhotoSource = true
+        c.chooseCamera()
+        #expect(!c.showPhotoSource)
+        #expect(!c.showCamera)
+        c.presentPending()
+        #expect(c.showCamera)
+    }
+
+    @Test func aGroupingAnswerOpensAfterTheSheetCloses() {
+        let c = MealCaptureCoordinator()
+        let photos = [Data([1]), Data([2])]
+        c.grouping = .init(photos: photos)
+        c.separateMeals(photos)
+        #expect(c.grouping == nil)
+        #expect(c.request == nil)
+        c.presentPending()
+        #expect(c.request?.total == 2)
+    }
+
+    @Test func cancellingTheChooserOpensNothing() {
+        let c = MealCaptureCoordinator()
+        c.showPhotoSource = true
+        c.showPhotoSource = false
+        c.presentPending()
+        #expect(!c.showCamera && !c.showLibrary && c.request == nil)
     }
 }
