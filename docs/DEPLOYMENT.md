@@ -310,7 +310,7 @@ Both channels are complete on both sides; what decides the inbox is two edge-fun
 | Channel | App entry | Edge function | Recipient | Secret |
 |---|---|---|---|---|
 | Product feedback | Profile → Your feedback | `member-feedback` | the team | `ADMIN_ALERT_EMAIL` (code default `thomas@functionalps.ch`) |
-| "Ask your nutritionist" | Profile → Messages | `message-notify` | the clinician | `CLINICIAN_ALERT_TO` (code default `support@functionalps.ch`) |
+| "Ask your nutritionist" | Profile → Messages | `message-notify` | the clinician | `CLINICIAN_ALERT_TO` (code default `thomas@functionalps.ch`) |
 
 The clinician alert is **content-free by design** (no body, no name — the link is the payload); the
 feedback mail does carry the member's words, their email and their tier. A patient message also gets a
