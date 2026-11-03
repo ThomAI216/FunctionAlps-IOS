@@ -182,7 +182,9 @@ const UPSTREAM = IDENTIFY_PROVIDER === "openai"
     base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
     key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
     keyName: "INFOMANIAK_AI_API_KEY",
-    textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "qwen3",
+    // Full id, never the `qwen3` alias: that pointed at Qwen3.5-122B, retired by Infomaniak
+    // on 2026-11-23. Qwen3.8 thinks by default, hence reasoning_effort "none" below.
+    textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "Qwen/Qwen3.8-27B-FP8",
     visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
   }
 const API_KEY = UPSTREAM.key
@@ -368,7 +370,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
       ],
       temperature: 0.2,
       stream: false,
-      // qwen3 quirk (mirrors chatbot-message / generate-periodic-report):
+      // Qwen quirk (mirrors chatbot-message / generate-periodic-report):
       // disable thinking-mode so the JSON lands in message.content.
       reasoning_effort: "none",
     }
@@ -465,7 +467,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
     const msg = JSON.parse(raw)?.choices?.[0]?.message ?? {}
     let content = stripFences(String(msg.content ?? ""))
     if (!content && typeof msg.reasoning === "string") {
-      // qwen3 sometimes emits into `reasoning` despite reasoning_effort none.
+      // Qwen sometimes emits into `reasoning` despite reasoning_effort none.
       const m = msg.reasoning.match(/\{[\s\S]*\}/)
       if (m) content = m[0]
     }
