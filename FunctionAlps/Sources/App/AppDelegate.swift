@@ -13,6 +13,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     @MainActor static var router: AppRouter?
     /// A tap that arrived before the UI was ready (cold start from a notification).
     @MainActor static var pendingRoute: URL?
+    /// The same for a push with no route: the notification row is read once the app is signed in.
+    @MainActor static var pendingNotificationId: String?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
@@ -36,16 +38,29 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     /// then route on the main queue — never inside the callback, and never before the UI exists.
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let action = response.actionIdentifier
-        let route = (response.notification.request.content.userInfo["route"] as? String).flatMap(URL.init(string:))
+        let info = response.notification.request.content.userInfo
+        let route = (info["route"] as? String).flatMap(URL.init(string:))
+        let notificationId = info["notification_id"] as? String
         completionHandler()
-        Task { @MainActor in Self.handle(action: action, route: route) }
+        Task { @MainActor in Self.handle(action: action, route: route, notificationId: notificationId) }
     }
 
     @MainActor
-    private static func handle(action: String, route: URL?) {
+    private static func handle(action: String, route: URL?, notificationId: String?) {
         if action == "fine", let route, let mealId = AppRouter.mealId(from: route) {
             // "Felt fine" from the reaction banner: rated without opening the app.
             notifications?.quickFine(mealId: mealId)
+            return
+        }
+        if route == nil, let notificationId {
+            // A row written without a route (CLINICAL's notifyPatient): its item says where it belongs.
+            if let notifications, let router {
+                Task { @MainActor in
+                    if let url = await notifications.route(forNotification: notificationId) { router.open(url) }
+                }
+            } else {
+                pendingNotificationId = notificationId
+            }
             return
         }
         guard let route else { return }

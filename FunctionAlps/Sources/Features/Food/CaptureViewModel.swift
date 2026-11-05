@@ -61,7 +61,10 @@ final class CaptureViewModel {
                 }
             } catch let error as AppError {
                 Log.error(error, in: Log.data, context: "capture.start")
-                if mealId == nil { phase = .failed(error) }
+                // A cancelled capture is the member leaving (or a restart), not a failure to show.
+                if mealId == nil, !Task.isCancelled { phase = .failed(error) }
+            } catch is CancellationError {
+                Log.data.info("capture.start: cancelled")
             } catch {
                 Log.data.error("capture.start: \(String(describing: error), privacy: .public)")
                 if mealId == nil { phase = .failed(.unknown(detail: String(describing: error))) }
