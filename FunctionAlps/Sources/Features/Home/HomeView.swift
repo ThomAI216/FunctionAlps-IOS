@@ -64,6 +64,12 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     HealthPlanCard()
+                    if content.newResources > 0 {
+                        // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
+                        // under the plan: a card that sits below the fold nudges nobody. Gone once they open it.
+                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources) }
+                            .buttonStyle(.plain)
+                    }
                     PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
 
                     HStack(spacing: 12) {
@@ -83,11 +89,6 @@ struct HomeView: View {
                     }
 
                     ProtocolReviewCard()
-                    if content.newResources > 0 {
-                        // Owner, 2026-11-05: a nudge on Home while something the practice sent is unopened.
-                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources) }
-                            .buttonStyle(.plain)
-                    }
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)
