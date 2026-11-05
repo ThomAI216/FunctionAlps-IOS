@@ -105,6 +105,7 @@ struct MessagingService: Sendable {
     /// One track for its page, with what it needs to draw: titles and what is opened. The track read throws (the page
     /// has an error state); titles and opens fail soft (a title falls back to the slug, nothing shows opened).
     func personalTrackPage(id: String) async throws -> PersonalTrackPage? {
+        let backend = self.backend
         let tracks = try await backend.personalTracks()
         guard let track = tracks.first(where: { $0.id == id }) else { return nil }
         async let opened: Set<String> = {
@@ -113,7 +114,6 @@ struct MessagingService: Sendable {
         }()
         async let cards = (try? await backend.ladderCards()) ?? []
         var titles: [String: String] = [:]
-        let backend = self.backend
         await withTaskGroup(of: (String, String?).self) { group in
             for slug in track.items.compactMap(\.slug) {
                 group.addTask { (slug, (try? await backend.libraryItem(slug: slug))?.title) }
