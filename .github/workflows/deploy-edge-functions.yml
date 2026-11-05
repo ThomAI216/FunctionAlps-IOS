@@ -33,7 +33,9 @@ env:
   # ⚠ THIS LIST CUTS BOTH WAYS: deploying a listed function WITHOUT --no-verify-jwt flips its live
   # setting on and breaks the vendor/cron calls; deploying an UNLISTED function WITH the flag silently
   # re-opens an endpoint. The `verify` step reads the live values first and fails on any disagreement.
-  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page analyze-meal retry-meal-analysis'
+  # preprocess-meal and the three retired report functions (410 stubs) keep the FALSE they had in
+  # FunctionAlps-APP, so the verify step below passes when they are first deployed from here.
+  NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page analyze-meal retry-meal-analysis preprocess-meal generate-report generate-periodic-report generate-daily-report'
   WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile'
   MEALS: 'analyze-meal retry-meal-analysis'
 
@@ -105,7 +107,8 @@ jobs:
             FLAGS=""
             case " $NO_JWT " in *" $fn "*) FLAGS="--no-verify-jwt" ;; esac
             echo "::group::deploy $fn $FLAGS"
-            supabase functions deploy "$fn" --project-ref "$PROJECT_REF" $FLAGS
+            # --yes: newer CLIs ask before deploying and cannot ask a CI runner ("Nothing was changed").
+            supabase functions deploy "$fn" --project-ref "$PROJECT_REF" --yes $FLAGS
             echo "::endgroup::"
           done
 
