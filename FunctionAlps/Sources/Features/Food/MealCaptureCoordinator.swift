@@ -23,12 +23,35 @@ final class MealCaptureCoordinator {
     }
     /// "A whole day": the review cover, while it is up.
     var dayBatch: PhotoGroup?
+    /// What to present once the sheet or cover on screen has FINISHED going away. SwiftUI asked to raise a
+    /// cover while another presentation on the same view is still dismissing either drops it or half-presents
+    /// it: the capture cover then gets a spurious onDisappear (which cancelled the capture before its row
+    /// existed: "Couldn't save this meal" with no request ever sent) and its close button stops working.
+    private var afterDismiss: (@MainActor () -> Void)?
+
+    /// Called from every chooser / camera / grouping `onDismiss`.
+    func presentPending() {
+        let next = afterDismiss
+        afterDismiss = nil
+        next?()
+    }
+
+    /// The source sheet is going away; its choice opens once it is gone.
+    func chooseCamera() {
+        afterDismiss = { [weak self] in self?.showCamera = true }
+        showPhotoSource = false
+    }
+
+    func chooseLibrary() {
+        afterDismiss = { [weak self] in self?.showLibrary = true }
+        showPhotoSource = false
+    }
 
     /// A WHOLE DAY: every photo becomes its own row up front and the member sets the slot per photo.
     func wholeDay(_ photos: [Data]) {
+        guard !photos.isEmpty else { grouping = nil; return }
+        afterDismiss = { [weak self] in self?.dayBatch = PhotoGroup(photos: photos) }
         grouping = nil
-        guard !photos.isEmpty else { return }
-        dayBatch = PhotoGroup(photos: photos)
     }
 
     func openPhotoChooser() { showPhotoSource = true }
@@ -38,12 +61,15 @@ final class MealCaptureCoordinator {
         request = CaptureRequest(input: input)
     }
 
+    /// The camera's shot. It arrives while the camera cover is still up, so the capture opens on its dismissal.
     func picked(_ image: UIImage) {
         guard let jpeg = MealImage.jpeg(image) else {
-            error = String(localized: "food.photo.unreadable", defaultValue: "That photo couldn't be read. Try another one.")
+            afterDismiss = { [weak self] in
+                self?.error = String(localized: "food.photo.unreadable", defaultValue: "That photo couldn't be read. Try another one.")
+            }
             return
         }
-        begin(MealCaptureInput(photos: [jpeg], source: .photo))
+        afterDismiss = { [weak self] in self?.begin(MealCaptureInput(photos: [jpeg], source: .photo)) }
     }
 
     /// The library's multi-select landed. One photo goes straight in; two or more raise the grouping question.
@@ -63,19 +89,20 @@ final class MealCaptureCoordinator {
     /// ONE MEAL, SEVERAL PHOTOS: photo 1 is the hero and the rest ride along to the same analyse call and the
     /// same row. Capped at what the model is handed.
     func oneMeal(_ photos: [Data]) {
+        guard MealPhotoGrouping.oneMealAllowed(photos.count) else { grouping = nil; return }
+        let input = MealCaptureInput(photos: Array(photos.prefix(MealPhotoGrouping.maxPerMeal)), source: .photo)
+        afterDismiss = { [weak self] in self?.begin(input) }
         grouping = nil
-        guard MealPhotoGrouping.oneMealAllowed(photos.count) else { return }
-        begin(MealCaptureInput(photos: Array(photos.prefix(MealPhotoGrouping.maxPerMeal)), source: .photo))
     }
 
     /// ONE MEAL PER PHOTO: the first is captured now, the rest are queued behind it in the same cover.
     func separateMeals(_ photos: [Data]) {
-        grouping = nil
-        guard let first = photos.first else { return }
+        guard let first = photos.first else { grouping = nil; return }
         var r = CaptureRequest(input: MealCaptureInput(photos: [first], source: .photo))
         r.queue = Array(photos.dropFirst())
         r.total = photos.count
-        request = r
+        afterDismiss = { [weak self] in self?.request = r }
+        grouping = nil
     }
 
     /// Loads every picked item off the main actor's way, re-encoding each (downscale, strip EXIF).
@@ -104,18 +131,18 @@ struct MealCaptureHost: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $coordinator.showPhotoSource) {
+            .sheet(isPresented: $coordinator.showPhotoSource, onDismiss: { coordinator.presentPending() }) {
                 PhotoSourceSheet(
                     cameraAvailable: CameraPicker.isAvailable,
-                    onCamera: { coordinator.showPhotoSource = false; coordinator.showCamera = true },
-                    onLibrary: { coordinator.showPhotoSource = false; coordinator.showLibrary = true }
+                    onCamera: { coordinator.chooseCamera() },
+                    onLibrary: { coordinator.chooseLibrary() }
                 )
                 .presentationDetents([.height(CameraPicker.isAvailable ? 250 : 190)])
                 .presentationBackground(.clear)
                 .presentationDragIndicator(.hidden)
                 .preferredColorScheme(.light)
             }
-            .fullScreenCover(isPresented: $coordinator.showCamera) {
+            .fullScreenCover(isPresented: $coordinator.showCamera, onDismiss: { coordinator.presentPending() }) {
                 CameraPicker { image in coordinator.picked(image) }
                     .ignoresSafeArea()
             }
@@ -124,7 +151,7 @@ struct MealCaptureHost: ViewModifier {
                 guard !items.isEmpty else { return }
                 Task { await coordinator.loadPicked(items) }
             }
-            .sheet(item: $coordinator.grouping) { group in
+            .sheet(item: $coordinator.grouping, onDismiss: { coordinator.presentPending() }) { group in
                 PhotoGroupingSheet(
                     photos: group.photos,
                     onOneMeal: { coordinator.oneMeal(group.photos) },

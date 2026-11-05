@@ -17,10 +17,10 @@ struct CaptureView: View {
             ZStack {
                 if let model {
                     if model.showsResult {
-                        MealResultPage(model: model, onFinish: onFinish, onNext: model.request.nextPosition == nil ? nil : { next() })
+                        MealResultPage(model: model, onFinish: close, onNext: model.request.nextPosition == nil ? nil : { next() })
                             .transition(.opacity)
                     } else {
-                        AnalyzingScreen(model: model, onFinish: onFinish)
+                        AnalyzingScreen(model: model, onFinish: close)
                             .transition(.opacity)
                     }
                 }
@@ -36,7 +36,9 @@ struct CaptureView: View {
                 m.start()
             }
         }
-        .onDisappear { model?.cancel(); prefetched?.release() }
+        // Deliberately no onDisappear teardown: SwiftUI can send one while the cover is still on screen (a cover
+        // raised as another presentation goes away), and cancelling there killed the capture before its row
+        // existed. Every way out of this screen goes through `close()`.
         .onChange(of: model?.status) { _, status in
             // One upload at a time: the next photo starts once this one's is over (the pipeline is identifying).
             guard let model, prefetched == nil, model.mealId != nil, let next = model.request.advanced(),
@@ -51,6 +53,13 @@ struct CaptureView: View {
             let notifications = dependencies.notifications
             Task { await notifications.askIfNeeded(); await notifications.mealLogged(id: id, at: Date()) }
         }
+    }
+
+    /// The member leaves: edits saved, the watch stopped. A capture whose row exists runs to its end anyway.
+    private func close() {
+        model?.cancel()
+        prefetched?.release()
+        onFinish()
     }
 
     /// The next queued meal takes over the same cover — its capture is usually already in flight.

@@ -84,7 +84,7 @@ final class LocalNotifications {
         case .morningCheckin, .middayCheckin, .eveningCheckin: Self.categoryCheckin
         case .lunchNotLogged, .dinnerNotLogged: Self.categoryMeal
         case .mealReaction: Self.categoryReaction
-        case .weeklySummary, .wearableStale: ""
+        case .weeklySummary, .wearableStale, .trackMorning, .trackMidday, .trackEvening: ""
         }
     }
 }
