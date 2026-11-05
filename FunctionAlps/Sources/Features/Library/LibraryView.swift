@@ -172,15 +172,7 @@ private struct LibraryScreen: View {
         if !model.sent.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
                 LibrarySectionHead(title: LibraryViewModel.Section.sent.title, note: String(localized: "library.sent.note", defaultValue: "sent with a message"))
-                VStack(spacing: 8) {
-                    ForEach(LibraryLogic.visibleItems(model.sent, expanded: model.expanded.contains(.sent))) { r in
-                        SentResourceRow(resource: r) {
-                            Task { await dependencies.messaging.markResourceOpened(id: r.id) }
-                            router.libraryPath.append(.read(r.slug))
-                        }
-                    }
-                }
-                MoreToggle(label: LibraryLogic.toggleLabel(total: model.sent.count, expanded: model.expanded.contains(.sent), noun: String(localized: "library.noun.resources", defaultValue: "resources")), expanded: model.expanded.contains(.sent)) { model.toggle(.sent) }
+                SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
             }
             .padding(.top, 18)
             .id(LibraryViewModel.Section.sent.id)

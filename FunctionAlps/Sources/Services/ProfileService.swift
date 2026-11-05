@@ -86,6 +86,11 @@ struct MessagingService: Sendable {
         MessagingLogic.sentForLibrary((try? await backend.messageResources()) ?? [])
     }
 
+    /// Sent and never opened — the Library tab's badge and the Home nudge. Fails soft to 0.
+    func unopenedSentCount() async -> Int {
+        MessagingLogic.unopenedCount((try? await backend.messageResources()) ?? [])
+    }
+
     func markRead() async {
         try? await backend.markMessagesRead()
     }

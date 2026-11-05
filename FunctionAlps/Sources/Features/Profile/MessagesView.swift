@@ -127,17 +127,10 @@ struct MessagesView: View {
             // What the practice sent with this message (CLINICAL migration 277): a card per item, opening in
             // the library reader. The open is stamped fail-soft; the item is already unlocked for this member.
             if !m.resources.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(String(localized: "messages.resources.title", defaultValue: "Sent with this message"))
-                        .font(FATypography.sans(10.5, .semibold, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted).padding(.leading, 2)
-                    ForEach(m.resources) { r in
-                        SentResourceRow(resource: r) {
-                            Task { await dependencies.messaging.markResourceOpened(id: r.id) }
-                            router.profilePath.append(.read(r.slug))
-                        }
-                    }
-                }
-                .padding(.top, 2)
+                // Owner, 2026-11-05: "these were the resources attached, you can find them in the library" — one
+                // card, one tap, and the member lands on the mini track made for them (the Library tab).
+                ResourcesAttachedCard(resources: m.resources) { router.openSentTrack() }
+                    .padding(.top, 2)
             }
             HStack(spacing: 5) {
                 if m.unread { Circle().fill(FAColor.forestSoft).frame(width: 6, height: 6) }

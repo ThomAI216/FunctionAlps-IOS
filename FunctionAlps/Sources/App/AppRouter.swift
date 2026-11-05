@@ -8,6 +8,8 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
+    case sentTrack
     /// One episode of "The FunctionAlps Show" (Library), by its event slug.
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
@@ -64,6 +66,8 @@ final class AppRouter {
     /// The web app's five tabs, in its order.
     enum Tab: Hashable, CaseIterable { case home, trends, food, library, profile }
     var tab: Tab = .home
+    /// Items the practice sent and the member never opened — the Library tab's badge (refreshed on each tab change).
+    var libraryBadge = 0
     /// The pillar the Trends tab should open on arrival (the hub's pillar tiles); consumed once.
     var pendingPillar: MemberScores.Pillar?
 
@@ -83,6 +87,12 @@ final class AppRouter {
         case .library: libraryPath.append(route)
         case .profile: profilePath.append(route)
         }
+    }
+
+    /// From a message's "Find them in your library" and the Home nudge: the mini track, in the Library tab.
+    func openSentTrack() {
+        tab = .library
+        libraryPath = [.sentTrack]
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
@@ -120,7 +130,10 @@ final class AppRouter {
             // (an experiment reminder lands there).
             tab = .library; libraryPath = []
             let rest = Array(parts.dropFirst())
-            if rest.first == "show" {
+            if rest.first == "sent" {
+                // library/sent — the mini track of what the practice sent (a reply-with-resources push lands here).
+                libraryPath.append(.sentTrack)
+            } else if rest.first == "show" {
                 // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
                 if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
@@ -229,11 +242,17 @@ struct MainTabView: View {
         .tint(FAColor.brand)
         .overlay(alignment: .bottom) {
             if !router.hidesTabBar {
-                FloatingTabBar(selection: $router.tab)
+                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge])
                     .padding(.bottom, 2)
             }
         }
         .environment(router)
+        // The Library badge: what the practice sent and the member has not opened. One small read on each tab
+        // change and whenever the app comes forward; the screens that open an item decrement it at once.
+        .task(id: router.tab) { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() } }
+        }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
         .onOpenURL { router.open($0) }
         .onAppear {
@@ -270,6 +289,7 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .sentTrack: SentTrackView()
         case .episode(let slug): ShowEpisodeView(slug: slug)
         case .carePlan: CarePlanView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))

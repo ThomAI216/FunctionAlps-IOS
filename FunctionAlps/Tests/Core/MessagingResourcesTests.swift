@@ -61,3 +61,16 @@ struct MessagingResourcesTests {
         #expect(r.openedAt != nil)
     }
 }
+
+extension MessagingResourcesTests {
+    @Test func badgeCountsUnopenedItemsOncePerSlug() {
+        let sent = [
+            resource("a", message: "m1", slug: "sleep", at: 10),
+            resource("b", message: "m2", slug: "sleep", at: 30),
+            resource("c", message: "m2", slug: "light", at: 20, opened: true),
+            resource("d", message: "m3", slug: "walk", at: 40),
+        ]
+        #expect(MessagingLogic.unopenedCount(sent) == 2)
+        #expect(MessagingLogic.unopenedCount([]) == 0)
+    }
+}

@@ -126,6 +126,11 @@ enum MessagingLogic {
         return resources.sorted { $0.createdAt > $1.createdAt }.filter { seen.insert($0.slug).inserted }
     }
 
+    /// The Library tab's badge and the Home nudge: items sent and never opened (one per slug).
+    static func unopenedCount(_ resources: [MessageResource]) -> Int {
+        sentForLibrary(resources).filter { $0.openedAt == nil }.count
+    }
+
     static func validate(_ body: String) -> Bool {
         let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
         return !trimmed.isEmpty && trimmed.count <= maxLength

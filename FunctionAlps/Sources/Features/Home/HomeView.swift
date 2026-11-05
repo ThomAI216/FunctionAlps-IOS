@@ -6,6 +6,7 @@ import SwiftUI
 /// live in Trends. One check-in a day, in the evening, with digestion inside it.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
 
@@ -20,7 +21,7 @@ struct HomeView: View {
         .mealCaptureHost(capture) { Task { await model?.load(refresh: true) } }
         .task {
             if model == nil {
-                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth)
+                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging)
                 model = m
                 await m.load()
             }
@@ -82,6 +83,11 @@ struct HomeView: View {
                     }
 
                     ProtocolReviewCard()
+                    if content.newResources > 0 {
+                        // Owner, 2026-11-05: a nudge on Home while something the practice sent is unopened.
+                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources) }
+                            .buttonStyle(.plain)
+                    }
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)

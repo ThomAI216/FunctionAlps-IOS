@@ -383,6 +383,31 @@ enum ShowcaseData {
         return raw
     }
 
+    // MARK: Messages — a question, the practitioner's answer, two resources sent with it (one opened)
+
+    static let replyMessageId = "showcase-msg-reply"
+
+    static func messages() -> [PatientMessage] {
+        let thread = [
+            PatientMessage(id: "showcase-msg-1", mine: true, text: "I keep crashing after lunch around 3 pm, even on days I sleep well. Is it what I eat at lunch?",
+                           createdAt: at(-1, 14, 10), unread: false, context: nil),
+            PatientMessage(id: replyMessageId, mine: false,
+                           text: "Good question, and a common pattern. Two things to try this week: a short walk right after lunch, and a lunch that holds you (half vegetables, a palm of protein, a quarter complex carbs). I've put two resources in your library that show exactly how.",
+                           createdAt: at(-1, 16, 25), unread: false, context: nil),
+            PatientMessage(id: "showcase-msg-3", mine: true, text: "Thank you! Starting tomorrow.", createdAt: at(-1, 18, 2), unread: false, context: nil),
+        ]
+        return MessagingLogic.attach(messageResources(), to: thread)
+    }
+
+    static func messageResources() -> [MessageResource] {
+        [
+            MessageResource(id: "showcase-res-1", messageId: replyMessageId, slug: "showcase-post-meal-walking", title: "Post-Meal Walking", kind: .action,
+                            createdAt: at(-1, 16, 25), openedAt: at(-1, 18, 0)),
+            MessageResource(id: "showcase-res-2", messageId: replyMessageId, slug: "showcase-breathing-exercises", title: "A lunch that holds you", kind: .resource,
+                            createdAt: at(-1, 16, 26), openedAt: nil),
+        ]
+    }
+
     static func libraryItem(slug: String) -> LibraryGetRow? {
         let title = libraryRaw().list.first { $0.slug == slug }?.title ?? "Listening to your body, week by week"
         return LibraryGetRow(title: title, tags: ["intestin"], bodyMd: LibraryDemo.readerBody, locked: false)

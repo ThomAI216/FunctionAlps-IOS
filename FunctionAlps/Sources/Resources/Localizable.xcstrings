@@ -14322,6 +14322,38 @@
         }
       }
     },
+    "home.resources.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld resources to look at · in your library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ressources à découvrir · dans votre bibliothèque"
+          }
+        }
+      }
+    },
+    "home.resources.new": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New from your practitioner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau de votre praticien"
+          }
+        }
+      }
+    },
     "home.sleep.hours": {
       "localizations": {
         "en": {
@@ -15714,6 +15746,86 @@
         }
       }
     },
+    "library.sent.badge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyé pour vous"
+          }
+        }
+      }
+    },
+    "library.sent.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld resources · %lld opened"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ressources · %lld ouvertes"
+          }
+        }
+      }
+    },
+    "library.sent.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chosen for you from your conversation. Read them in any order; each one stays here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisies pour vous à partir de votre conversation. Lisez-les dans l'ordre que vous voulez; chacune reste ici."
+          }
+        }
+      }
+    },
+    "library.sent.empty.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When your practitioner answers you with a resource, it lands here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand votre praticien vous répond avec une ressource, elle arrive ici."
+          }
+        }
+      }
+    },
+    "library.sent.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing sent yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien d'envoyé pour l'instant"
+          }
+        }
+      }
+    },
     "library.sent.new": {
       "localizations": {
         "en": {
@@ -15730,6 +15842,22 @@
         }
       }
     },
+    "library.sent.newCount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld new"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nouveau(x)"
+          }
+        }
+      }
+    },
     "library.sent.note": {
       "localizations": {
         "en": {
@@ -15742,6 +15870,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "envoyé avec un message"
+          }
+        }
+      }
+    },
+    "library.sent.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner's picks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les choix de votre praticien"
           }
         }
       }
@@ -18798,6 +18942,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retirer le contexte"
+          }
+        }
+      }
+    },
+    "messages.resources.attached": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resources attached"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ressources jointes"
+          }
+        }
+      }
+    },
+    "messages.resources.find": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find them in your library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retrouvez-les dans votre bibliothèque"
           }
         }
       }
@@ -36846,6 +37022,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Problèmes de peau"
+          }
+        }
+      }
+    },
+    "tab.badge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld new"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nouveau(x)"
           }
         }
       }

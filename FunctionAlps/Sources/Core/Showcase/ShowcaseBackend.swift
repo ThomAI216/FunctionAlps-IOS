@@ -72,9 +72,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
     func memberClinicId(userId: String) async throws -> String? { nil }
-    func messages() async throws -> [PatientMessage] { [] }
+    func messages() async throws -> [PatientMessage] { ShowcaseData.messages() }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
-    func messageResources() async throws -> [MessageResource] { [] }
+    func messageResources() async throws -> [MessageResource] { ShowcaseData.messageResources() }
     func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func markMessagesRead() async throws {}
     func sendFeedback(message: String, appVersion: String) async throws {}

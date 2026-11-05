@@ -3,6 +3,8 @@ import SwiftUI
 /// The web app's floating 5-tab pill: see-through frosted glass, black icons, DM Sans labels.
 struct FloatingTabBar: View {
     @Binding var selection: AppRouter.Tab
+    /// A small count on a tab (the Library: items the practice sent, not yet opened). 0 or absent = nothing.
+    var badges: [AppRouter.Tab: Int] = [:]
 
     private struct Item: Identifiable {
         let tab: AppRouter.Tab
@@ -34,6 +36,16 @@ struct FloatingTabBar: View {
                     VStack(spacing: 3) {
                         Image(systemName: item.symbol)
                             .font(.system(size: 22, weight: focused ? .semibold : .regular))
+                            .overlay(alignment: .topTrailing) {
+                                if let n = badges[item.tab], n > 0 {
+                                    Text("\(n)")
+                                        .font(FATypography.sans(9, .bold, relativeTo: .caption2)).foregroundStyle(.white)
+                                        .padding(.horizontal, 4).frame(minWidth: 16, minHeight: 16)
+                                        .background(FAColor.forestSoft, in: Capsule())
+                                        .offset(x: 10, y: -6)
+                                        .accessibilityLabel(String(localized: "tab.badge", defaultValue: "\(n) new"))
+                                }
+                            }
                         Text(item.label)
                             .font(FATypography.sans(9.5, .semibold, relativeTo: .caption2))
                     }
