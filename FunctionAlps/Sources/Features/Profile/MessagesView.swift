@@ -126,6 +126,11 @@ struct MessagesView: View {
                 }
             // What the practice sent with this message (CLINICAL migration 277): a card per item, opening in
             // the library reader. The open is stamped fail-soft; the item is already unlocked for this member.
+            // A personal mini track sent with this message: one card that opens it (its items are not repeated below).
+            if let track = m.track {
+                PersonalTrackMessageCard(summary: track) { router.openPersonalTrack(track.id) }
+                    .padding(.top, 2)
+            }
             if !m.resources.isEmpty {
                 // Owner, 2026-11-05: "these were the resources attached, you can find them in the library" — one
                 // card, one tap, and the member lands on the mini track made for them (the Library tab).
@@ -138,7 +143,7 @@ struct MessagesView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: m.mine ? .trailing : .leading)
-        .padding(m.mine ? .leading : .trailing, m.resources.isEmpty ? 60 : 24)
+        .padding(m.mine ? .leading : .trailing, (m.resources.isEmpty && m.track == nil) ? 60 : 24)
     }
 
     private var composer: some View {

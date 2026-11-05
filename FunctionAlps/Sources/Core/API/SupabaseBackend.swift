@@ -1589,6 +1589,29 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.map(\.resource)
     }
 
+    func personalTracks() async throws -> [PersonalTrack] {
+        let tracks: [PersonalTrackRow] = try await rest.select("patient_tracks", query: [
+            PG.select("id,title,intro_md,created_at,origin_message_id"),
+            PG.isNull("source_track_id"), PG.eq("is_active", "true"), PG.eq("approval_status", "approved"),
+            PG.order("created_at", descending: true), PG.limit(50),
+        ])
+        guard !tracks.isEmpty else { return [] }
+        let lessons: [PersonalTrackLessonRow] = try await rest.select("patient_track_lessons", query: [
+            PG.select("patient_track_id,position,content_slug,habit_bank_id"),
+            PG.inList("patient_track_id", tracks.map(\.id)), PG.order("position"), PG.limit(1000),
+        ])
+        return PersonalTrackLogic.assemble(tracks: tracks, lessons: lessons)
+    }
+
+    private struct ProgressSlugRow: Decodable, Sendable { let contentSlug: String? }
+
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> {
+        let rows: [ProgressSlugRow] = try await rest.select("member_lesson_progress", query: [
+            PG.select("content_slug"), PG.eq("patient_id", patientId), PG.limit(5000),
+        ])
+        return Set(rows.compactMap(\.contentSlug))
+    }
+
     private struct ResourceOpenedBody: Encodable, Sendable { let pId: String }
 
     func markMessageResourceOpened(id: String) async throws -> Bool {

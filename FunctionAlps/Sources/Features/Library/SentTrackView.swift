@@ -10,6 +10,8 @@ struct SentTrackView: View {
     @Environment(AppRouter.self) private var router
     @State private var items: [MessageResource] = []
     @State private var intro: PathwayIntro?
+    @State private var tracks: [PersonalTrack] = []
+    @State private var openedSlugs: Set<String> = []
     @State private var loaded = false
 
     private var opened: Int { items.filter { $0.openedAt != nil }.count }
@@ -19,14 +21,21 @@ struct SentTrackView: View {
             VStack(alignment: .leading, spacing: 12) {
                 if !loaded {
                     FALoadingState()
-                } else if items.isEmpty {
+                } else if items.isEmpty && tracks.isEmpty {
                     FAEmptyState(
                         title: String(localized: "pathway.empty.title", defaultValue: "Your Pathway is on its way"),
                         message: String(localized: "pathway.empty.body", defaultValue: "When your practitioner answers you with something to read or try, it lands here.")
                     )
                 } else {
-                    hero
-                    list
+                    ForEach(tracks) { track in
+                        PersonalTrackCard(track: track, unopened: PersonalTrackLogic.unopened(track, openedSlugs: openedSlugs).count) {
+                            router.libraryPath.append(.personalTrack(track.id))
+                        }
+                    }
+                    if !items.isEmpty {
+                        hero
+                        list
+                    }
                 }
             }
             .padding(.horizontal, 18)
@@ -95,6 +104,8 @@ struct SentTrackView: View {
 
     private func load() async {
         items = await dependencies.messaging.sentResources()
+        tracks = await dependencies.messaging.personalTracks()
+        openedSlugs = await dependencies.messaging.openedSlugs()
         if let member = try? await dependencies.members.currentMember() {
             intro = await dependencies.messaging.pathwayIntro(patientId: member.patientId, items: items)
         }

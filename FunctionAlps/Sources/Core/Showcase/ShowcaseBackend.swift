@@ -75,6 +75,8 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func messages() async throws -> [PatientMessage] { ShowcaseData.messages() }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
     func messageResources() async throws -> [MessageResource] { ShowcaseData.messageResources() }
+    func personalTracks() async throws -> [PersonalTrack] { ShowcaseData.personalTracks() }
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { ["showcase-post-meal-walking"] }
     func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func markMessagesRead() async throws {}
     func sendFeedback(message: String, appVersion: String) async throws {}

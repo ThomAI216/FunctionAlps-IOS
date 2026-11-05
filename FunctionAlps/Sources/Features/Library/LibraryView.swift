@@ -147,9 +147,14 @@ private struct LibraryScreen: View {
             showSection(show)
         }
         // "Your Pathway" in Priority's place (owner, 2026-11-05): what the practice sent, then the priority tracks.
-        if !model.sent.isEmpty || !model.priority.isEmpty {
+        if !model.sent.isEmpty || !model.personal.isEmpty || !model.priority.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 LibrarySectionHead(title: PathwayCopy.title, note: PathwayCopy.eyebrow.lowercased())
+                ForEach(model.personal) { track in
+                    PersonalTrackCard(track: track, unopened: PersonalTrackLogic.unopened(track, openedSlugs: model.openedSlugs).count) {
+                        router.libraryPath.append(.personalTrack(track.id))
+                    }
+                }
                 if !model.sent.isEmpty {
                     SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
                 }

@@ -59,12 +59,15 @@ struct MessagingService: Sendable {
 
     init(backend: any FunctionAlpsBackend) { self.backend = backend }
 
-    /// The thread with the practice's resources under their messages. The resources read fails soft
+    /// The thread with the practice's resources and mini tracks under their messages. Both reads fail soft
     /// (the bubbles still show; the cards come back on the next load).
     func thread() async throws -> [PatientMessage] {
         async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
         let messages = try await backend.messages()
-        return MessagingLogic.attach(await resources, to: messages)
+        let found = await tracks
+        let withResources = MessagingLogic.attach(await resources, to: messages)
+        return MessagingLogic.attach(tracks: found, to: withResources)
     }
 
     /// Sends. The practice is told by CLINICAL itself (its member-message alert reads `patient_messages`
@@ -81,9 +84,45 @@ struct MessagingService: Sendable {
         _ = try? await backend.markMessageResourceOpened(id: id)
     }
 
-    /// What the practice sent with messages, for the Library's "From your practitioner" row.
+    /// What the practice sent loose with messages (no personal track), for the Library's Pathway card.
     func sentResources() async -> [MessageResource] {
-        MessagingLogic.sentForLibrary((try? await backend.messageResources()) ?? [])
+        async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
+        return MessagingLogic.sentForLibrary(PersonalTrackLogic.looseResources(await resources, tracks: await tracks))
+    }
+
+    /// The personal mini tracks for the Library cards; fails soft to none.
+    func personalTracks() async -> [PersonalTrack] {
+        (try? await backend.personalTracks()) ?? []
+    }
+
+    /// Slugs the member has opened (for the "N new" on a track card); fails soft to none.
+    func openedSlugs() async -> Set<String> {
+        guard let patientId = try? await backend.currentPatientId() else { return [] }
+        return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+    }
+
+    /// One track for its page, with what it needs to draw: titles and what is opened. The track read throws (the page
+    /// has an error state); titles and opens fail soft (a title falls back to the slug, nothing shows opened).
+    func personalTrackPage(id: String) async throws -> PersonalTrackPage? {
+        let tracks = try await backend.personalTracks()
+        guard let track = tracks.first(where: { $0.id == id }) else { return nil }
+        async let opened: Set<String> = {
+            guard let patientId = try? await backend.currentPatientId() else { return [] }
+            return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+        }()
+        async let cards = (try? await backend.ladderCards()) ?? []
+        var titles: [String: String] = [:]
+        let backend = self.backend
+        await withTaskGroup(of: (String, String?).self) { group in
+            for slug in track.items.compactMap(\.slug) {
+                group.addTask { (slug, (try? await backend.libraryItem(slug: slug))?.title) }
+            }
+            for await (slug, title) in group { if let title, !title.isEmpty { titles[slug] = title } }
+        }
+        let locale = TodayFocus.locale()
+        for card in await cards { titles["action:" + card.id] = ActionCardLogic.content(card: card, habit: nil, locale: locale).title }
+        return PersonalTrackPage(track: track, titles: titles, openedSlugs: await opened)
     }
 
     /// "Your Pathway": what grounds it. Each read fails soft (a missing part drops out of the sentence).
@@ -96,9 +135,18 @@ struct MessagingService: Sendable {
         return PathwayLogic.intro(consultation: lastConsultation?.start, sentAt: items.map(\.createdAt), objective: objectiveLine)
     }
 
-    /// Sent and never opened — the Library tab's badge and the Home nudge. Fails soft to 0.
+    /// Sent and never opened (loose sends, then articles of personal tracks) — the Library tab's badge and the
+    /// Home nudge. Fails soft to 0.
     func unopenedSentCount() async -> Int {
-        MessagingLogic.unopenedCount((try? await backend.messageResources()) ?? [])
+        async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
+        let found = await tracks
+        let loose = PersonalTrackLogic.looseResources(await resources, tracks: found)
+        let looseCount = MessagingLogic.unopenedCount(loose)
+        guard !found.isEmpty, let patientId = try? await backend.currentPatientId() else { return looseCount }
+        let opened = (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+        let counted = Set(MessagingLogic.sentForLibrary(loose).map(\.slug))
+        return looseCount + PersonalTrackLogic.unopenedCount(found, openedSlugs: opened, alreadyCounted: counted)
     }
 
     func markRead() async {

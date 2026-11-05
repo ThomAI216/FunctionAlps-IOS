@@ -251,7 +251,7 @@ enum LibraryLogic {
                 pct: trackPct(done: done, total: total),
                 state: trackState(unlocked: unlocked, done: done, total: total),
                 lockLabel: unlocked ? nil : lockLabel(gate, titleBySlug: titleBySlug),
-                // No assigned personal tracks (`patient_tracks`) on the phone yet, so nothing explicit.
+                // A library track has no explicit cover; personal tracks (`patient_tracks`) are not in this catalog (own cards + `PersonalTrackView`).
                 cover: resolveCover(explicit: nil, own: coverURL(t.coverImageUrl), pillar: t.pillar, covers: covers)
             )
         }

@@ -26066,6 +26066,134 @@
         }
       }
     },
+    "personalTrack.action.untitled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An action for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une action pour vous"
+          }
+        }
+      }
+    },
+    "personalTrack.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld resources"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ressources"
+          }
+        }
+      }
+    },
+    "personalTrack.count.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 resource"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ressource"
+          }
+        }
+      }
+    },
+    "personalTrack.empty.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When your practitioner adds something, it appears here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand votre praticien ajoute quelque chose, cela apparaît ici."
+          }
+        }
+      }
+    },
+    "personalTrack.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing in this track yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien dans ce parcours pour l'instant"
+          }
+        }
+      }
+    },
+    "personalTrack.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load this track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger ce parcours"
+          }
+        }
+      }
+    },
+    "personalTrack.missing.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner may have changed it. Your Pathway keeps what is current."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre praticien l'a peut-être modifié. Votre parcours garde ce qui est à jour."
+          }
+        }
+      }
+    },
+    "personalTrack.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This track is not available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce parcours n'est pas disponible"
+          }
+        }
+      }
+    },
     "photoReview.confirm": {
       "localizations": {
         "en": {

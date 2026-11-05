@@ -100,6 +100,8 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
     func markMessagesRead() async throws {}
     func messageResources() async throws -> [MessageResource] { [] }
+    func personalTracks() async throws -> [PersonalTrack] { [] }
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { [] }
     func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func sendFeedback(message: String, appVersion: String) async throws {}
     func deleteAccount() async throws {}

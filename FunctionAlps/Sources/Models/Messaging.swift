@@ -79,6 +79,8 @@ struct PatientMessage: Sendable, Equatable, Identifiable {
     let context: MessageContext?
     /// What the practice sent with this message (empty for the member's own).
     var resources: [MessageResource] = []
+    /// The personal mini track the practice sent with this message (`patient_tracks.origin_message_id`).
+    var track: PersonalTrackSummary? = nil
 }
 
 /// Raw row, the PATIENT-readable columns only (never `*` — the table also carries the clinician's
@@ -171,6 +173,19 @@ enum MessagingLogic {
         return messages.map { m in
             var copy = m
             copy.resources = (byMessage[m.id] ?? []).sorted { $0.createdAt < $1.createdAt }
+            return copy
+        }
+    }
+
+    /// Put the track under the message it was sent with, and drop from that message's "Resources attached" the
+    /// articles the track already holds (an item is never shown twice). A message with no track is untouched.
+    static func attach(tracks: [PersonalTrack], to messages: [PatientMessage]) -> [PatientMessage] {
+        let summaries = PersonalTrackLogic.summaries(tracks)
+        return messages.map { m in
+            guard let summary = summaries[m.id], !m.mine else { return m }
+            var copy = m
+            copy.track = summary
+            copy.resources = PersonalTrackLogic.looseResources(m.resources, tracks: tracks)
             return copy
         }
     }

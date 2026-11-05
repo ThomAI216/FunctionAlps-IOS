@@ -10,6 +10,8 @@ enum Route: Hashable {
     case read(String)
     /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
     case sentTrack
+    /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
+    case personalTrack(String)
     /// One episode of "The FunctionAlps Show" (Library), by its event slug.
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
@@ -95,8 +97,14 @@ final class AppRouter {
         libraryPath = [.sentTrack]
     }
 
+    /// From a message's track card and the Library's Pathway cards: one personal track, in the Library tab.
+    func openPersonalTrack(_ id: String) {
+        tab = .library
+        libraryPath = [.personalTrack(id)]
+    }
+
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -127,10 +135,13 @@ final class AppRouter {
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
-            // (an experiment reminder lands there).
+            // (an experiment reminder lands there) · library/track/<uuid> — one personal mini track (an email link lands there).
             tab = .library; libraryPath = []
             let rest = Array(parts.dropFirst())
-            if rest.first == "sent" {
+            if rest.first == "track" {
+                // library/track/<uuid> — a personal mini track. A malformed id lands on the Library, never on a dead page.
+                if rest.count > 1, Self.isTrackId(rest[1]) { libraryPath.append(.personalTrack(rest[1].lowercased())) }
+            } else if rest.first == "sent" {
                 // library/sent — the mini track of what the practice sent (a reply-with-resources push lands here).
                 libraryPath.append(.sentTrack)
             } else if rest.first == "show" {
@@ -153,6 +164,9 @@ final class AppRouter {
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }
     }
+
+    /// A personal track id is a UUID; anything else is not a track link.
+    nonisolated static func isTrackId(_ raw: String) -> Bool { UUID(uuidString: raw) != nil }
 
     /// The meal id a `meal/<id>` route names, nil otherwise.
     nonisolated static func mealId(from url: URL) -> String? {
@@ -290,6 +304,7 @@ struct MainTabView: View {
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
         case .sentTrack: SentTrackView()
+        case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
         case .carePlan: CarePlanView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))

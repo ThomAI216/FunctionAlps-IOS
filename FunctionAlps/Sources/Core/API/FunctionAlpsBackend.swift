@@ -187,6 +187,11 @@ protocol FunctionAlpsBackend: Sendable {
     func messageResources() async throws -> [MessageResource]
     /// `member_mark_message_resource_opened(p_id)` — true when this call stamped `opened_at`.
     func markMessageResourceOpened(id: String) async throws -> Bool
+    /// The personal mini tracks the practice built for this member (`patient_tracks` with no source track, and their
+    /// `patient_track_lessons`), newest first, items by position. RLS keeps to own, active, approved rows.
+    func personalTracks() async throws -> [PersonalTrack]
+    /// Slugs the member has a `member_lesson_progress` row for (a library open leaves one): what is "opened".
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String>
 
     // MARK: Account (feedback · consents · legal · data · deletion)
 
