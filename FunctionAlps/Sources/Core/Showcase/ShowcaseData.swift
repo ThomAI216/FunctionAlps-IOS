@@ -410,15 +410,17 @@ enum ShowcaseData {
 
     static let personalTrackId = "5a0c0000-0000-4000-8000-0000000000a1"
 
-    /// A personal mini track sent with the reply: a named track, the practice's own message, an article and an action card.
+    /// A personal mini track sent with the reply: a named track, the practice's own message, two articles (the first already
+    /// opened) and an action card, so the page shows a done, a current and an upcoming step.
     static func personalTracks() -> [PersonalTrack] {
         [PersonalTrack(
             id: personalTrackId, title: "Your afternoon energy",
             intro: "Marie, here is what I would try first.\nTwo small things, in this order. We will look at how it went when we speak next.",
             createdAt: at(-1, 16, 25), originMessageId: replyMessageId,
             items: [
-                PersonalTrackItem(position: 1, kind: .article("showcase-breathing-exercises")),
-                PersonalTrackItem(position: 2, kind: .action(breathCardId)),
+                PersonalTrackItem(position: 1, kind: .article("showcase-post-meal-walking")),   // opened in the sample: shows a done step
+                PersonalTrackItem(position: 2, kind: .article("showcase-breathing-exercises")),   // the current step
+                PersonalTrackItem(position: 3, kind: .action(breathCardId)),
             ])]
     }
 

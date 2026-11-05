@@ -66,6 +66,8 @@ struct PersonalTrackSummary: Sendable, Equatable {
     let id: String
     let title: String
     let itemCount: Int
+    /// One flag per item in order (true = an action card), for the little tiles on the message card.
+    var actionFlags: [Bool] = []
 }
 
 enum PersonalTrackLogic {
@@ -119,7 +121,8 @@ enum PersonalTrackLogic {
         var out: [String: PersonalTrackSummary] = [:]
         for t in tracks.sorted(by: { $0.createdAt > $1.createdAt }) {
             guard let mid = t.originMessageId, out[mid] == nil else { continue }
-            out[mid] = PersonalTrackSummary(id: t.id, title: t.title, itemCount: t.items.count)
+            out[mid] = PersonalTrackSummary(id: t.id, title: t.title, itemCount: t.items.count,
+                                            actionFlags: t.items.map { if case .action = $0.kind { true } else { false } })
         }
         return out
     }
@@ -169,5 +172,105 @@ extension PersonalTrackLogic {
     static func fallbackTitle(_ slug: String) -> String {
         let words = slug.replacingOccurrences(of: "-", with: " ").replacingOccurrences(of: "_", with: " ")
         return words.prefix(1).uppercased() + words.dropFirst()
+    }
+}
+
+// MARK: The path (the redesigned track page)
+
+/// A step of the path: one of the track's items, or the closing check-in with the practitioner.
+enum PersonalTrackStepKind: Sendable, Equatable {
+    case item(PersonalTrackItem)
+    case checkIn
+}
+
+enum PersonalTrackStepState: Sendable, Equatable {
+    case done, current, upcoming
+}
+
+struct PersonalTrackStep: Sendable, Equatable, Identifiable {
+    /// 1-based, the number in the step's dot.
+    let number: Int
+    let kind: PersonalTrackStepKind
+    let state: PersonalTrackStepState
+
+    var id: String {
+        switch kind {
+        case .item(let item): item.id
+        case .checkIn: "check-in"
+        }
+    }
+}
+
+extension PersonalTrackLogic {
+    /// An article is done when opened (its `member_lesson_progress` row, by slug); an action when the member's plan
+    /// holds a habit made from its card.
+    static func isDone(_ item: PersonalTrackItem, openedSlugs: Set<String>, planCardIds: Set<String>) -> Bool {
+        switch item.kind {
+        case .article(let slug): openedSlugs.contains(slug)
+        case .action(let id): planCardIds.contains(id)
+        }
+    }
+
+    /// (done, total) over the track's items; the check-in is not counted.
+    static func progress(_ track: PersonalTrack, openedSlugs: Set<String>, planCardIds: Set<String>) -> (done: Int, total: Int) {
+        (track.items.filter { isDone($0, openedSlugs: openedSlugs, planCardIds: planCardIds) }.count, track.items.count)
+    }
+
+    /// The path, in `position` order, closed by the check-in. Current = the first item not done and not put off with
+    /// "Later"; when only put-off items remain, the first of them; when every item is done, the check-in. The check-in
+    /// is never done (it is a prompt to write, not something the app can see). No items, no path.
+    static func steps(_ track: PersonalTrack, openedSlugs: Set<String>, planCardIds: Set<String>, deferred: Set<String> = []) -> [PersonalTrackStep] {
+        guard !track.items.isEmpty else { return [] }
+        let items = track.items.sorted { $0.position < $1.position }
+        let done = items.map { isDone($0, openedSlugs: openedSlugs, planCardIds: planCardIds) }
+        let open = items.indices.filter { !done[$0] }
+        let currentIndex = open.first { !deferred.contains(items[$0].id) } ?? open.first
+        var out: [PersonalTrackStep] = items.enumerated().map { index, item in
+            PersonalTrackStep(number: index + 1, kind: .item(item),
+                              state: done[index] ? .done : (index == currentIndex ? .current : .upcoming))
+        }
+        out.append(PersonalTrackStep(number: items.count + 1, kind: .checkIn, state: open.isEmpty ? .current : .upcoming))
+        return out
+    }
+
+    /// "Later" is offered on the current action only while another step is still open to move on to.
+    static func canPutOff(_ step: PersonalTrackStep, in steps: [PersonalTrackStep], deferred: Set<String>) -> Bool {
+        guard step.state == .current, case .item(let item) = step.kind, case .action = item.kind else { return false }
+        return steps.contains { s in
+            guard s.id != step.id, s.state == .upcoming, case .item(let other) = s.kind else { return false }
+            return !deferred.contains(other.id)
+        }
+    }
+
+    /// "Curated for you · 4 Nov" (the date the track was sent, in the reader's language and calendar).
+    static func heroEyebrow(sentAt: Date, locale: Locale = .current, timeZone: TimeZone = .current) -> String {
+        let f = DateFormatter()
+        f.locale = locale
+        f.timeZone = timeZone
+        f.setLocalizedDateFormatFromTemplate("dMMM")
+        return PathwayCopy.eyebrow + " · " + f.string(from: sentAt)
+    }
+
+    /// "1 of 3 done".
+    static func progressLabel(done: Int, total: Int) -> String {
+        String(localized: "personalTrack.progress", defaultValue: "\(done) of \(total) done")
+    }
+
+    /// 0...1 for the thin bar.
+    static func progressFraction(done: Int, total: Int) -> Double {
+        total <= 0 ? 0 : min(1, max(0, Double(done) / Double(total)))
+    }
+
+    /// "<N> picks" on the message card.
+    static func picksLabel(_ n: Int) -> String {
+        n == 1 ? String(localized: "personalTrack.picks.one", defaultValue: "1 pick")
+               : String(localized: "personalTrack.picks", defaultValue: "\(n) picks")
+    }
+
+    /// The first letters of a name for the initials disc ("Anna Keller" → "AK"); nil when there is no usable name.
+    static func initials(_ name: String?) -> String? {
+        let letters = (name ?? "").split(whereSeparator: { $0.isWhitespace }).compactMap { $0.first(where: \.isLetter) }
+        guard !letters.isEmpty else { return nil }
+        return String(letters.prefix(2)).uppercased()
     }
 }

@@ -55,6 +55,11 @@ enum PlanAccess {
         plan?.habits.first { $0.habitBankId == cardId && $0.status != "cancelled" }
     }
 
+    /// The bank cards the member's plan already holds (same rule as `habit(for:in:)`).
+    static func cardIds(in plan: HabitPlan?) -> Set<String> {
+        Set((plan?.habits ?? []).filter { $0.status != "cancelled" }.compactMap(\.habitBankId))
+    }
+
     /// The bank by pillar, in the bank's own order, pillars in a stable order.
     static func bankByPillar(_ cards: [ActionCardRow]) -> [(pillar: String, cards: [ActionCardRow])] {
         var order: [String] = [], groups: [String: [ActionCardRow]] = [:]
