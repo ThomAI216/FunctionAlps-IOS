@@ -69,6 +69,8 @@ Status legend: ✅ done · 🟡 partial · ⬜ not started · 🚫 blocked (reas
     - The routine rules read completions only, so a log may tick an action but never score health.
 
 ## Foundation Track (2026-10-06)
+
+**Leads (2026-11-05):** a lead runs the track automatically — enrolled at Send by CLINICAL's card (invited) and, failing that, by `member_start_track` at their first app open (`20261105_foundation_track_leads.sql`: `source 'lead'`; the members library opens for a live lead entitlement). No Swift change: the app already starts the clock once per foreground. Every day has a short read (`supabase/sql/20261105_foundation_track_reads.sql`), so `TrackReadRow` shows on all 14 days; the day's video is still "coming soon" everywhere. CLINICAL's board says "Lead · two free weeks"; MEMBERS' lead home shows the same day card. **Apply on CM OS pending Thomas's confirmation in the Supabase tool.**
 | Slice | Status | Note |
 |---|---|---|
 | Backend + models | ✅ | `SupabaseBackend` only: `member_start_track` (once per foreground, after the member gate — `MainTabView`), `member_track_status`, `track_day`, `track_questionnaire` + `track_question`, the member's `track_questionnaire_response` (upsert in progress, submit = status + `submitted_at` in one write), `track_activity` (ON CONFLICT DO NOTHING / delete). Rows decoded with keys verbatim (`Core/API/TrackRows.swift`). `*_fr` when the app is drawn in French and the field is written, else `*_en`. |
