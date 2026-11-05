@@ -1,4 +1,4 @@
--- SUPERSEDED — do not apply. Its date-of-birth changes are folded into the coordinated legal release (privacy v14 / terms v10) prepared in FunctionAlps-MEMBERS on 2026-11-05. As written, its guard aborts and its replacement text would reintroduce data@ in place of the current contact.
+-- SUPERSEDED — do not apply. Its date-of-birth changes are folded into the coordinated legal release (privacy v14 / terms v10) prepared in FunctionAlps-MEMBERS on 2026-11-05. As written, its guard aborts (privacy v12/v13 and terms v9 now exist) and its source rows are superseded.
 --
 -- privacy_policy v12 + terms_of_use v9 — the app no longer asks for a date of birth.
 --
