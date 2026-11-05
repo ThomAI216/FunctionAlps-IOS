@@ -15010,6 +15010,22 @@
         }
       }
     },
+    "library.badge.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action"
+          }
+        }
+      }
+    },
     "library.badge.done": {
       "localizations": {
         "en": {
@@ -15650,6 +15666,22 @@
         }
       }
     },
+    "library.section.sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your practitioner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De votre praticien"
+          }
+        }
+      }
+    },
     "library.section.supplements": {
       "localizations": {
         "en": {
@@ -15678,6 +15710,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parcours"
+          }
+        }
+      }
+    },
+    "library.sent.new": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not opened yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore ouvert"
+          }
+        }
+      }
+    },
+    "library.sent.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sent with a message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "envoyé avec un message"
           }
         }
       }
@@ -18734,6 +18798,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Retirer le contexte"
+          }
+        }
+      }
+    },
+    "messages.resources.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent with this message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyé avec ce message"
           }
         }
       }

@@ -59,16 +59,31 @@ struct MessagingService: Sendable {
 
     init(backend: any FunctionAlpsBackend) { self.backend = backend }
 
+    /// The thread with the practice's resources under their messages. The resources read fails soft
+    /// (the bubbles still show; the cards come back on the next load).
     func thread() async throws -> [PatientMessage] {
-        try await backend.messages()
+        async let resources = (try? backend.messageResources()) ?? []
+        let messages = try await backend.messages()
+        return MessagingLogic.attach(await resources, to: messages)
     }
 
-    /// Sends, then notifies the clinician fail-soft (the 15-minute sweep re-notifies anything missed).
+    /// Sends. The practice is told by CLINICAL itself (its member-message alert reads `patient_messages`
+    /// every five minutes, 2026-11-05); the app no longer calls `message-notify`, which never ran.
     func send(_ body: String, member: Member, context: MessageContext?) async throws {
         guard MessagingLogic.validate(body) else { throw AppError.validation(message: String(localized: "messages.empty", defaultValue: "Message cannot be empty.")) }
         guard let clinicId = try await backend.memberClinicId(userId: member.userId) else { throw AppError.notFound }
-        let id = try await backend.sendMessage(patientId: member.patientId, clinicId: clinicId, body: body, context: context)
-        try? await backend.notifyMessage(id: id)
+        _ = try await backend.sendMessage(patientId: member.patientId, clinicId: clinicId, body: body, context: context)
+    }
+
+    /// The member opened a resource card: stamp it once, fail-soft (the open is a courtesy to the practice,
+    /// never a gate on reading).
+    func markResourceOpened(id: String) async {
+        _ = try? await backend.markMessageResourceOpened(id: id)
+    }
+
+    /// What the practice sent with messages, for the Library's "From your practitioner" row.
+    func sentResources() async -> [MessageResource] {
+        MessagingLogic.sentForLibrary((try? await backend.messageResources()) ?? [])
     }
 
     func markRead() async {

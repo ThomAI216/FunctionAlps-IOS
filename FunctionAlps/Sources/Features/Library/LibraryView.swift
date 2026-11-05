@@ -21,7 +21,7 @@ struct LibraryView: View {
         .navigationTitle(String(localized: "library.title", defaultValue: "Library"))
         .task {
             if model == nil {
-                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows)
+                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows, messaging: dependencies.messaging)
                 model = m
                 await m.load()
             }
@@ -32,6 +32,7 @@ struct LibraryView: View {
 private struct LibraryScreen: View {
     @Bindable var model: LibraryViewModel
     @Environment(AppRouter.self) private var router
+    @Environment(AppDependencies.self) private var dependencies
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -110,7 +111,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty) || (section == .sent && model.sent.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -164,6 +165,25 @@ private struct LibraryScreen: View {
             }
             .padding(.top, 8)
             .id(LibraryViewModel.Section.priority.id)
+        }
+
+        // Sent with a message (CLINICAL migration 277): the practice chose these for this member, so they sit
+        // above the catalogue, never veiled — the grant that came with the send unlocks each one in the reader.
+        if !model.sent.isEmpty {
+            VStack(alignment: .leading, spacing: 0) {
+                LibrarySectionHead(title: LibraryViewModel.Section.sent.title, note: String(localized: "library.sent.note", defaultValue: "sent with a message"))
+                VStack(spacing: 8) {
+                    ForEach(LibraryLogic.visibleItems(model.sent, expanded: model.expanded.contains(.sent))) { r in
+                        SentResourceRow(resource: r) {
+                            Task { await dependencies.messaging.markResourceOpened(id: r.id) }
+                            router.libraryPath.append(.read(r.slug))
+                        }
+                    }
+                }
+                MoreToggle(label: LibraryLogic.toggleLabel(total: model.sent.count, expanded: model.expanded.contains(.sent), noun: String(localized: "library.noun.resources", defaultValue: "resources")), expanded: model.expanded.contains(.sent)) { model.toggle(.sent) }
+            }
+            .padding(.top, 18)
+            .id(LibraryViewModel.Section.sent.id)
         }
 
         let experiments = model.show?.experiments ?? []

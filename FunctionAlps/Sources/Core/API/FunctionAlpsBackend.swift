@@ -181,10 +181,12 @@ protocol FunctionAlpsBackend: Sendable {
     func messages() async throws -> [PatientMessage]
     /// Inserts a patient-authored message and returns its id.
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String
-    /// `message-notify` — tells the clinician; fail-soft, the 15-minute sweep re-notifies anyway.
-    func notifyMessage(id: String) async throws
     /// `member_mark_messages_read()` — stamps every unread clinician message.
     func markMessagesRead() async throws
+    /// The library items the practice sent with messages (`patient_message_resources`, approved rows under RLS).
+    func messageResources() async throws -> [MessageResource]
+    /// `member_mark_message_resource_opened(p_id)` — true when this call stamped `opened_at`.
+    func markMessageResourceOpened(id: String) async throws -> Bool
 
     // MARK: Account (feedback · consents · legal · data · deletion)
 

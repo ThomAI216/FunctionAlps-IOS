@@ -36,7 +36,7 @@ Evidence: `audit/app-screens.md` (screens, gating, theme, i18n), `audit/app-back
 | Notifications | ⚠ | one local post-meal nudge; reminder prefs screen (orphan); email reminders server-side | `patient_notification_preferences`; edge fns `daily-checkin-reminder`, `message-notify` (email); **no push token anywhere** | Phase G — needs a device-token table + APNs backend |
 | Settings | ✅ | `profile-settings` (walls, language, privacy, messages, help, wearables, sign out) | `nb_patient_app_profiles.locale` | **M1** skeleton; Phase A |
 | Account deletion | ✅ | `DeleteAccountSheet`, `profile-settings` | edge fn `delete-account` (deletion_log, storage purge, `pii_erase_patient`, `patients` delete, auth delete) | Phase A (backend exists; wording/retention to confirm) |
-| Messaging | ✅ | `profile-messages` | `patient_messages`; RPC `member_mark_messages_read`; edge fn `message-notify` | Phase A/B |
+| Messaging | ✅ | `profile-messages` | `patient_messages`; RPC `member_mark_messages_read`; `patient_message_resources` (resources the practice sent with a message, CLINICAL migration 277) + RPC `member_mark_message_resource_opened`. The practice is told by CLINICAL's own 5-minute alert (2026-11-05); the app no longer calls `message-notify` | Phase A/B |
 | Wearables | ✅ built, OFF | `profile-wearables` | Thryve edge fns; `wearable_daily_labeled`; `wearable-ingest` (HealthKit, **no client code exists**) | Phase H |
 | AI chat / Nutri AI | ❌ dark | `(tabs)/chat`, `nutrition-ai` behind `AI_CHAT_ENABLED`; backend functions are 410 stubs | — | not planned |
 

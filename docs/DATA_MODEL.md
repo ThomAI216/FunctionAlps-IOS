@@ -37,6 +37,7 @@ Derived from the real backend (audit/app-auth-data.md §3), not from the PRD's e
 | `Entitlement` | `member_entitlements` | `access_type` (full_access/paid/beta/discovery), `status` (active/grace), `starts_at`, `expires_at` | Phase A (gate) — window rule is app-side today |
 | `Consent`, `ConsentDefinition` | `consent_definitions`, `consent_audit` via RPCs; legacy `nb_app_consents` | keys `terms_of_use`, `health_data_processing`, `usage_analytics`, `marketing_comms`; notices `privacy_policy`, `legal_notice`, `ai_analysis` | Phase A (gate before external testers) |
 | `Message` | `patient_messages` | `id, sender_type, body, created_at, read_by_patient_at, visibility_class, context_kind, context_meal_id, context_day` | M1 unread count; Phase A/B thread |
+| `MessageResource` | `patient_message_resources` | `id, message_id, library_slug, title, kind, created_at, opened_at` (own approved rows under RLS; CLINICAL migration 277) | the card under a practice message; the Library's "From your practitioner" row; `member_mark_message_resource_opened(p_id)` stamps the open |
 | `NotificationPreferences` | `patient_notification_preferences` | `daily_checkin_reminder_enabled`, `daily_checkin_time`, `email_reminder_enabled`, `timezone` | Phase G |
 | `WearableDay`, `WearableConnection` | `wearable_daily_labeled`, `wearable_connections` | `day, metric, value, data_source_id, layer` | Phase H |
 | `Document` / `TestResult` / `Appointment` | not member-facing today (`appointments` exists, unused; biomarkers screens are mock) | — | product decision |

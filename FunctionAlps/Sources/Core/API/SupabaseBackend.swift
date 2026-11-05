@@ -1557,14 +1557,25 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return row.id
     }
 
-    private struct NotifyBody: Encodable, Sendable { let messageId: String }
-
-    func notifyMessage(id: String) async throws {
-        _ = try await functions.invokeRaw("message-notify", body: NotifyBody(messageId: id))
-    }
-
     func markMessagesRead() async throws {
         let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
+    }
+
+    /// The member-readable columns only (the row also carries `sent_by`, `clinic_id`, `approval_status`;
+    /// RLS already keeps withdrawn rows out).
+    private static let messageResourceColumns = "id,message_id,library_slug,title,kind,created_at,opened_at"
+
+    func messageResources() async throws -> [MessageResource] {
+        let rows: [MessageResourceRow] = try await rest.select("patient_message_resources", query: [
+            PG.select(Self.messageResourceColumns), PG.order("created_at"), PG.limit(200),
+        ])
+        return rows.map(\.resource)
+    }
+
+    private struct ResourceOpenedBody: Encodable, Sendable { let pId: String }
+
+    func markMessageResourceOpened(id: String) async throws -> Bool {
+        try await rest.rpcScalar("member_mark_message_resource_opened", body: ResourceOpenedBody(pId: id)) == "true"
     }
 
     // MARK: Account

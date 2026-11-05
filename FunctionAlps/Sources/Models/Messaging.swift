@@ -35,6 +35,38 @@ enum MessageContext: Sendable, Equatable {
     }
 }
 
+/// A library item the practice sent WITH a message (`patient_message_resources`, CLINICAL migration 277).
+/// The card under the bubble, and the "From your practitioner" row of the Library. The member's RLS reads
+/// approved rows only; the practice's Send is the approval of a published library item.
+struct MessageResource: Sendable, Equatable, Identifiable {
+    enum Kind: String, Sendable { case resource, action }
+    let id: String
+    let messageId: String
+    /// `kb_nodes.slug` — opens in the library reader (`Route.read`).
+    let slug: String
+    let title: String
+    let kind: Kind
+    let createdAt: Date
+    /// Stamped once by `member_mark_message_resource_opened`.
+    let openedAt: Date?
+}
+
+/// Raw row of `patient_message_resources` (the member-readable columns).
+struct MessageResourceRow: Decodable, Sendable {
+    let id: String
+    let messageId: String
+    let librarySlug: String
+    let title: String
+    let kind: String?
+    let createdAt: Date
+    let openedAt: Date?
+
+    var resource: MessageResource {
+        MessageResource(id: id, messageId: messageId, slug: librarySlug, title: title,
+                        kind: MessageResource.Kind(rawValue: kind ?? "") ?? .resource, createdAt: createdAt, openedAt: openedAt)
+    }
+}
+
 /// One `patient_messages` row as the member sees it.
 struct PatientMessage: Sendable, Equatable, Identifiable {
     let id: String
@@ -45,6 +77,8 @@ struct PatientMessage: Sendable, Equatable, Identifiable {
     /// A clinician message the member has not read yet.
     let unread: Bool
     let context: MessageContext?
+    /// What the practice sent with this message (empty for the member's own).
+    var resources: [MessageResource] = []
 }
 
 /// Raw row, the PATIENT-readable columns only (never `*` — the table also carries the clinician's
@@ -74,6 +108,23 @@ struct PatientMessageRow: Decodable, Sendable {
 
 enum MessagingLogic {
     static let maxLength = 5000
+
+    /// Put each resource under its message, in the order they were sent. A resource whose message is not
+    /// in the thread (older than the page, or withdrawn) is dropped: a card needs its bubble.
+    static func attach(_ resources: [MessageResource], to messages: [PatientMessage]) -> [PatientMessage] {
+        let byMessage = Dictionary(grouping: resources, by: \.messageId)
+        return messages.map { m in
+            var copy = m
+            copy.resources = (byMessage[m.id] ?? []).sorted { $0.createdAt < $1.createdAt }
+            return copy
+        }
+    }
+
+    /// The Library's "From your practitioner" row: newest first, one card per slug (the latest send wins).
+    static func sentForLibrary(_ resources: [MessageResource]) -> [MessageResource] {
+        var seen = Set<String>()
+        return resources.sorted { $0.createdAt > $1.createdAt }.filter { seen.insert($0.slug).inserted }
+    }
 
     static func validate(_ body: String) -> Bool {
         let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)

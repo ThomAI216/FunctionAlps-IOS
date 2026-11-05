@@ -310,7 +310,7 @@ Both channels are complete on both sides; what decides the inbox is two edge-fun
 | Channel | App entry | Edge function | Recipient | Secret |
 |---|---|---|---|---|
 | Product feedback | Profile → Your feedback | `member-feedback` | the team | `ADMIN_ALERT_EMAIL` (code default `thomas@functionalps.ch`) |
-| "Ask your nutritionist" | Profile → Messages | `message-notify` | the clinician | `CLINICIAN_ALERT_TO` (code default `support@functionalps.ch`) |
+| "Ask your nutritionist" | Profile → Messages | none from the app (2026-11-05): CLINICAL's cron `member-message-alerts` reads `patient_messages` every 5 minutes and emails the member's primary coach, else the owner | the coach / Thomas | CLINICAL env (`CONVERSATION_OWNER_USER_ID`, `CLINIC_NOTIFY_EMAIL`) |
 
 The clinician alert is **content-free by design** (no body, no name — the link is the payload); the
 feedback mail does carry the member's words, their email and their tier. A patient message also gets a

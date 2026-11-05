@@ -267,3 +267,43 @@ struct Grid2<Item: Identifiable, Cell: View>: View {
         }
     }
 }
+
+/// One item the practice sent with a message (`MessageResource`): the Library's "From your practitioner"
+/// row and the card under a message bubble. Tapping opens the reader; the open is stamped by the caller.
+struct SentResourceRow: View {
+    let resource: MessageResource
+    let onPress: () -> Void
+
+    var body: some View {
+        Button(action: onPress) {
+            FACard(padded: false) {
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous).fill(FAColor.forestSoft.opacity(0.14))
+                        Image(systemName: resource.kind == .action ? "checklist" : "book")
+                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    }
+                    .frame(width: 38, height: 38)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text((resource.kind == .action
+                              ? String(localized: "library.badge.action", defaultValue: "Action")
+                              : String(localized: "library.badge.resource", defaultValue: "Resource")).uppercased())
+                            .font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
+                        Text(resource.title).font(FATypography.display(14, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)
+                        Text(resource.createdAt.formatted(.dateTime.day().month(.abbreviated)))
+                            .font(FATypography.sans(10, relativeTo: .caption2)).foregroundStyle(FAColor.stone)
+                    }
+                    Spacer(minLength: 0)
+                    if resource.openedAt == nil {
+                        Circle().fill(FAColor.forestSoft).frame(width: 7, height: 7)
+                            .accessibilityLabel(String(localized: "library.sent.new", defaultValue: "Not opened yet"))
+                    }
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.stoneLight)
+                }
+                .padding(12)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(resource.title)
+    }
+}

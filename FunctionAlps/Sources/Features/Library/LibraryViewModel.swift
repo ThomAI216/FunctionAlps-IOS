@@ -5,12 +5,13 @@ import Observation
 @Observable
 final class LibraryViewModel {
     enum Section: String, CaseIterable, Identifiable {
-        case show, priority, tracks, foundations, supplements
+        case show, priority, sent, tracks, foundations, supplements
         var id: String { rawValue }
         var title: String {
             switch self {
             case .show: String(localized: "show.navGroup", defaultValue: "The show")
             case .priority: String(localized: "library.section.priority", defaultValue: "Priority")
+            case .sent: String(localized: "library.section.sent", defaultValue: "From your practitioner")
             case .tracks: String(localized: "library.section.tracks", defaultValue: "Tracks")
             case .foundations: String(localized: "library.section.foundations", defaultValue: "Foundations")
             case .supplements: String(localized: "library.section.supplements", defaultValue: "Supplements")
@@ -27,16 +28,20 @@ final class LibraryViewModel {
     private(set) var markingSlug: String?
     var expanded: Set<Section> = []
     private(set) var patientId: String?
+    /// What the practice sent with messages (CLINICAL migration 277), newest first, one card per item.
+    private(set) var sent: [MessageResource] = []
 
     private let library: LibraryService
     private let members: MemberService
     private let shows: ShowService
+    private let messaging: MessagingService?
     private let reminders = ShowReminders()
 
-    init(library: LibraryService, members: MemberService, shows: ShowService) {
+    init(library: LibraryService, members: MemberService, shows: ShowService, messaging: MessagingService? = nil) {
         self.library = library
         self.members = members
         self.shows = shows
+        self.messaging = messaging
     }
 
     func load() async {
@@ -46,6 +51,8 @@ final class LibraryViewModel {
         }
         guard let member = try? await members.currentMember() else { bundle = LibraryDemo.bundle; show = nil; return }
         patientId = member.patientId
+        // The practice's sends ride their own read and fail soft to none: the catalog never waits on them.
+        if let messaging { async let sentRows = messaging.sentResources(); sent = await sentRows }
         // Coming soon (owner, 2026-10-06): the show is a blurred preview — nothing is read from CLINICAL.
         if shows.comingSoon {
             show = nil
@@ -105,6 +112,7 @@ final class LibraryViewModel {
         case .tracks: bundle.tracks.count
         case .foundations: foundations.count
         case .supplements: supplements.count
+        case .sent: sent.isEmpty ? nil : sent.count
         case .show: showPresentation == .live ? show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count } : nil
         case .priority: nil
         }

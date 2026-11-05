@@ -8,6 +8,7 @@ struct MessagesView: View {
     var contextMealName: String? = nil
 
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @Environment(\.scenePhase) private var scenePhase
     @State private var messages: [PatientMessage] = []
     @State private var loading = true
@@ -123,13 +124,28 @@ struct MessagesView: View {
                             .strokeBorder(ProfilePalette.hairline, lineWidth: 1)
                     }
                 }
+            // What the practice sent with this message (CLINICAL migration 277): a card per item, opening in
+            // the library reader. The open is stamped fail-soft; the item is already unlocked for this member.
+            if !m.resources.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(String(localized: "messages.resources.title", defaultValue: "Sent with this message"))
+                        .font(FATypography.sans(10.5, .semibold, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted).padding(.leading, 2)
+                    ForEach(m.resources) { r in
+                        SentResourceRow(resource: r) {
+                            Task { await dependencies.messaging.markResourceOpened(id: r.id) }
+                            router.profilePath.append(.read(r.slug))
+                        }
+                    }
+                }
+                .padding(.top, 2)
+            }
             HStack(spacing: 5) {
                 if m.unread { Circle().fill(FAColor.forestSoft).frame(width: 6, height: 6) }
                 Text(m.createdAt.formatted(date: .omitted, time: .shortened)).font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
             }
         }
         .frame(maxWidth: .infinity, alignment: m.mine ? .trailing : .leading)
-        .padding(m.mine ? .leading : .trailing, 60)
+        .padding(m.mine ? .leading : .trailing, m.resources.isEmpty ? 60 : 24)
     }
 
     private var composer: some View {

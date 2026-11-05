@@ -88,8 +88,9 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func memberClinicId(userId: String) async throws -> String? { nil }
     func messages() async throws -> [PatientMessage] { [] }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
-    func notifyMessage(id: String) async throws {}
     func markMessagesRead() async throws {}
+    func messageResources() async throws -> [MessageResource] { [] }
+    func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func sendFeedback(message: String, appVersion: String) async throws {}
     func deleteAccount() async throws {}
     func consents(locale: String) async throws -> [ConsentItem] { [] }
