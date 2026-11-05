@@ -86,6 +86,16 @@ struct MessagingService: Sendable {
         MessagingLogic.sentForLibrary((try? await backend.messageResources()) ?? [])
     }
 
+    /// "Your Pathway": what grounds it. Each read fails soft (a missing part drops out of the sentence).
+    func pathwayIntro(patientId: String, items: [MessageResource], now: Date = Date()) async -> PathwayIntro {
+        async let consultation = try? backend.lastAppointment(before: now)
+        async let objective = try? backend.activePlanObjective(patientId: patientId)
+        // `try?` flattens the optional (Swift 5+): both are plain optionals here.
+        let lastConsultation: AppointmentRow? = await consultation
+        let objectiveLine: String? = await objective
+        return PathwayLogic.intro(consultation: lastConsultation?.start, sentAt: items.map(\.createdAt), objective: objectiveLine)
+    }
+
     /// Sent and never opened — the Library tab's badge and the Home nudge. Fails soft to 0.
     func unopenedSentCount() async -> Int {
         MessagingLogic.unopenedCount((try? await backend.messageResources()) ?? [])

@@ -5,13 +5,14 @@ import Observation
 @Observable
 final class LibraryViewModel {
     enum Section: String, CaseIterable, Identifiable {
-        case show, priority, sent, tracks, foundations, supplements
+        case show, priority, tracks, foundations, supplements
         var id: String { rawValue }
         var title: String {
             switch self {
             case .show: String(localized: "show.navGroup", defaultValue: "The show")
-            case .priority: String(localized: "library.section.priority", defaultValue: "Priority")
-            case .sent: String(localized: "library.section.sent", defaultValue: "From your practitioner")
+            // Owner, 2026-11-05: "put 'your personalized track' instead of the priority" — one section, the Pathway
+            // (what the practice sent) and the practitioner's priority tracks together.
+            case .priority: PathwayCopy.title
             case .tracks: String(localized: "library.section.tracks", defaultValue: "Tracks")
             case .foundations: String(localized: "library.section.foundations", defaultValue: "Foundations")
             case .supplements: String(localized: "library.section.supplements", defaultValue: "Supplements")
@@ -112,9 +113,8 @@ final class LibraryViewModel {
         case .tracks: bundle.tracks.count
         case .foundations: foundations.count
         case .supplements: supplements.count
-        case .sent: sent.isEmpty ? nil : sent.count
         case .show: showPresentation == .live ? show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count } : nil
-        case .priority: nil
+        case .priority: sent.isEmpty && priority.isEmpty ? nil : (sent.isEmpty ? 0 : 1) + priority.count
         }
     }
 }

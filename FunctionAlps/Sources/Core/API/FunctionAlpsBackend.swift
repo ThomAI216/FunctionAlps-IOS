@@ -255,6 +255,10 @@ protocol FunctionAlpsBackend: Sendable {
     /// The member's next call with the practice — a patient-visible, not-cancelled appointment from `after` on
     /// (RLS `appointments_member_self_select`); nil when none is booked.
     func nextAppointment(after: Date) async throws -> AppointmentRow?
+    /// The member's most recent appointment before `before`, not cancelled ("Your Pathway": "based on your consultation of …").
+    func lastAppointment(before: Date) async throws -> AppointmentRow?
+    /// `care_plans.objective_line` of the active plan — the clinician's own words, "Your focus" on the Pathway.
+    func activePlanObjective(patientId: String) async throws -> String?
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)

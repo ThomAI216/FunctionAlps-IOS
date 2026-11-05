@@ -111,6 +111,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
+    func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}

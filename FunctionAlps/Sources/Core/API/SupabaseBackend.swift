@@ -863,6 +863,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.first
     }
 
+    func lastAppointment(before: Date) async throws -> AppointmentRow? {
+        let rows: [AppointmentRow] = try await rest.select("appointments", query: [
+            PG.select("id,title,starts_at,ends_at,location,meeting_link,status"),
+            PG.lt("starts_at", ISO8601.string(before)), PG.neq("status", "cancelled"),
+            PG.order("starts_at", descending: true), PG.limit(1),
+        ])
+        return rows.first
+    }
+
+    func activePlanObjective(patientId: String) async throws -> String? {
+        let rows: [HabitPlanHeader] = try await rest.select("care_plans", query: [
+            PG.select("id,title,start_date,objective_line"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
+            PG.order("start_date", descending: true), PG.limit(1),
+        ])
+        return rows.first?.objectiveLine
+    }
+
     private struct GatesBody: Encodable, Sendable { let today: String }
 
     func evaluateHabitGates(day: String) async throws {

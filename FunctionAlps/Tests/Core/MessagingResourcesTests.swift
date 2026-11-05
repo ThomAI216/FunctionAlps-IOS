@@ -74,3 +74,32 @@ extension MessagingResourcesTests {
         #expect(MessagingLogic.unopenedCount([]) == 0)
     }
 }
+
+/// "Your Pathway" — what the sentence under the title rests on (owner, 2026-11-05). Same rules as CLINICAL's
+/// `lib/conversations/pathway.ts`, so the practitioner's preview and the phone say the same thing.
+@Suite("Pathway intro")
+struct PathwayIntroTests {
+    private var utc: Calendar { var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(identifier: "UTC")!; return c }
+    private func d(_ s: String) -> Date { ISO8601.parse(s)! }
+
+    @Test func consultationAndTheLastThreeConversationDaysOldestFirst() {
+        let sent = ["2026-11-01T09:00:00Z", "2026-11-04T16:00:00Z", "2026-11-04T16:30:00Z", "2026-10-20T08:00:00Z", "2026-11-03T12:00:00Z"].map(d)
+        let intro = PathwayLogic.intro(consultation: d("2026-10-12T10:00:00Z"), sentAt: sent, objective: "  Get your energy back  ", calendar: utc)
+        guard case let .consultationAndConversations(c, days) = intro.basis else { Issue.record("wrong basis \(intro.basis)"); return }
+        #expect(c == d("2026-10-12T10:00:00Z"))
+        // Same day counted once; the oldest (20 Oct) drops out of the three most recent.
+        #expect(days == ["2026-11-01T00:00:00Z", "2026-11-03T00:00:00Z", "2026-11-04T00:00:00Z"].map(d))
+        #expect(intro.focus == "Get your energy back")
+    }
+
+    @Test func eachPartDropsOutOnItsOwn() {
+        #expect(PathwayLogic.intro(consultation: nil, sentAt: [d("2026-11-04T16:00:00Z")], objective: nil, calendar: utc).basis
+                == .conversations([d("2026-11-04T00:00:00Z")]))
+        #expect(PathwayLogic.intro(consultation: d("2026-10-12T10:00:00Z"), sentAt: [], objective: "x", calendar: utc).basis
+                == .consultation(d("2026-10-12T10:00:00Z")))
+        let empty = PathwayLogic.intro(consultation: nil, sentAt: [], objective: "   ", calendar: utc)
+        #expect(empty.basis == .none)
+        #expect(empty.focus == nil)
+        #expect(PathwayLogic.sentence(.none) == nil)
+    }
+}

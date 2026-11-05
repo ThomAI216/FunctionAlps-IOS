@@ -99,6 +99,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values) }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func lastAppointment(before: Date) async throws -> AppointmentRow? {
+        AppointmentRow(id: "showcase-consult", title: "Consultation", startsAt: ISO8601.string(ShowcaseData.at(-12, 10)), endsAt: nil, location: nil, meetingLink: nil, status: "completed")
+    }
+    func activePlanObjective(patientId: String) async throws -> String? { ShowcaseData.objective }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}

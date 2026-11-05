@@ -111,7 +111,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty) || (section == .sent && model.sent.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty && model.sent.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -141,41 +141,33 @@ private struct LibraryScreen: View {
     @ViewBuilder
     private var sections: some View {
         let b = model.bundle
+        // The show: owner, 2026-11-05, "in the library for now, remove the show as coming soon totally". Only a LIVE
+        // show (ShowFeature off) still renders; while it is coming soon, nothing of it is on the page.
         if let show = model.show {
             showSection(show)
-        } else if model.showPresentation == .comingSoon {
-            // Owner, 2026-10-06: "the show doesn't need to take that much space. Just keep the Coming Soon card."
-            ShowComingSoonCard()
-                .padding(.top, 8)
-                .id(LibraryViewModel.Section.show.id)
         }
-        if !model.priority.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                LibrarySectionHead(title: String(localized: "library.priority.title", defaultValue: "Priority for you"), note: String(localized: "library.priority.note", defaultValue: "chosen from your plan"))
-                Veiled(open: b.access.tracks) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            ForEach(model.priority) { t in
-                                TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
+        // "Your Pathway" in Priority's place (owner, 2026-11-05): what the practice sent, then the priority tracks.
+        if !model.sent.isEmpty || !model.priority.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                LibrarySectionHead(title: PathwayCopy.title, note: PathwayCopy.eyebrow.lowercased())
+                if !model.sent.isEmpty {
+                    SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
+                }
+                if !model.priority.isEmpty {
+                    Veiled(open: b.access.tracks) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(model.priority) { t in
+                                    TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
+                                }
                             }
+                            .padding(.vertical, 2)
                         }
-                        .padding(.vertical, 2)
                     }
                 }
             }
             .padding(.top, 8)
             .id(LibraryViewModel.Section.priority.id)
-        }
-
-        // Sent with a message (CLINICAL migration 277): the practice chose these for this member, so they sit
-        // above the catalogue, never veiled — the grant that came with the send unlocks each one in the reader.
-        if !model.sent.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                LibrarySectionHead(title: LibraryViewModel.Section.sent.title, note: String(localized: "library.sent.note", defaultValue: "sent with a message"))
-                SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
-            }
-            .padding(.top, 18)
-            .id(LibraryViewModel.Section.sent.id)
         }
 
         let experiments = model.show?.experiments ?? []

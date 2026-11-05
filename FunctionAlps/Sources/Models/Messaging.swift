@@ -106,6 +106,61 @@ struct PatientMessageRow: Decodable, Sendable {
     }
 }
 
+/// "Your Pathway" — what grounds it (owner, 2026-11-05: "based on the consultation from this moment, and our
+/// conversations on X, Y, Z"). Built only from what the member can already read: their own past appointment,
+/// the days the practice sent them something, and the clinician's `objective_line`. No wording is invented.
+struct PathwayIntro: Sendable, Equatable {
+    enum Basis: Sendable, Equatable {
+        case consultationAndConversations(consultation: Date, conversations: [Date])
+        case conversations([Date])
+        case consultation(Date)
+        case none
+    }
+    let basis: Basis
+    /// The clinician's own line (`care_plans.objective_line`), shown as "Your focus"; nil when unset.
+    let focus: String?
+}
+
+enum PathwayLogic {
+    /// At most this many conversation days are named; the most recent ones, oldest first.
+    static let maxConversationDays = 3
+
+    static func intro(consultation: Date?, sentAt: [Date], objective: String?, calendar: Calendar = .current) -> PathwayIntro {
+        var seen = Set<Date>()
+        let days = sentAt
+            .map { calendar.startOfDay(for: $0) }
+            .sorted(by: >)
+            .filter { seen.insert($0).inserted }
+            .prefix(maxConversationDays)
+            .sorted()
+        let focus = objective?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let basis: PathwayIntro.Basis
+        switch (consultation, days.isEmpty) {
+        case let (c?, false): basis = .consultationAndConversations(consultation: c, conversations: Array(days))
+        case (nil, false): basis = .conversations(Array(days))
+        case let (c?, true): basis = .consultation(c)
+        case (nil, true): basis = .none
+        }
+        return PathwayIntro(basis: basis, focus: (focus?.isEmpty ?? true) ? nil : focus)
+    }
+
+    /// The sentence under the title, in the member's language.
+    static func sentence(_ basis: PathwayIntro.Basis) -> String? {
+        func day(_ d: Date) -> String { d.formatted(.dateTime.day().month(.abbreviated)) }
+        func days(_ ds: [Date]) -> String { ds.map(day).formatted(.list(type: .and)) }
+        switch basis {
+        case let .consultationAndConversations(c, ds):
+            return String(localized: "pathway.basis.both", defaultValue: "Based on your consultation of \(day(c)) and our conversations of \(days(ds)).")
+        case let .conversations(ds):
+            return String(localized: "pathway.basis.conversations", defaultValue: "Based on our conversations of \(days(ds)).")
+        case let .consultation(c):
+            return String(localized: "pathway.basis.consultation", defaultValue: "Based on your consultation of \(day(c)).")
+        case .none:
+            return nil
+        }
+    }
+}
+
 enum MessagingLogic {
     static let maxLength = 5000
 

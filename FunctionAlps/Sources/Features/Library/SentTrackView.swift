@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// "Your practitioner's picks" — the mini track made of the items the practice sent with its messages
-/// (`patient_message_resources`, CLINICAL migration 277). Owner, 2026-11-05: "They click on it. They arrive
-/// in the library with a mini track specialized for them." Same anatomy as a track: a hero, then the items
-/// as lessons, opened ones ticked. Every item is already unlocked for this member (the grant came with the
-/// send), so nothing here is ever veiled.
+/// "Your Pathway" — the items the practice chose for this member and sent with its messages
+/// (`patient_message_resources`, CLINICAL migration 277). Owner, 2026-11-05: "They click on it. They arrive in the
+/// library with a mini track specialized for them", and the page says what it rests on: "based on the consultation
+/// from this moment, and our conversations on X, Y, Z". Every item is already unlocked for this member (the grant
+/// came with the send), so nothing here is ever veiled.
 struct SentTrackView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
-    @Environment(\.dismiss) private var dismiss
     @State private var items: [MessageResource] = []
+    @State private var intro: PathwayIntro?
     @State private var loaded = false
 
     private var opened: Int { items.filter { $0.openedAt != nil }.count }
@@ -21,8 +21,8 @@ struct SentTrackView: View {
                     FALoadingState()
                 } else if items.isEmpty {
                     FAEmptyState(
-                        title: String(localized: "library.sent.empty.title", defaultValue: "Nothing sent yet"),
-                        message: String(localized: "library.sent.empty.body", defaultValue: "When your practitioner answers you with a resource, it lands here.")
+                        title: String(localized: "pathway.empty.title", defaultValue: "Your Pathway is on its way"),
+                        message: String(localized: "pathway.empty.body", defaultValue: "When your practitioner answers you with something to read or try, it lands here.")
                     )
                 } else {
                     hero
@@ -34,7 +34,7 @@ struct SentTrackView: View {
             .padding(.bottom, FASpacing.navBarClearance)
         }
         .faWall()
-        .navigationTitle(String(localized: "library.sent.title", defaultValue: "Your practitioner's picks"))
+        .navigationTitle(PathwayCopy.title)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
@@ -43,15 +43,31 @@ struct SentTrackView: View {
     private var hero: some View {
         FACard(padded: false) {
             VStack(alignment: .leading, spacing: 0) {
-                PillarCover(pillar: "foundations", height: 120, badge: String(localized: "library.sent.badge", defaultValue: "Sent for you"), badgeTone: .new)
+                // The cover carries only what is new; "Curated for you" is the eyebrow below (once, not twice).
+                PillarCover(pillar: "foundations", height: 120,
+                            badge: items.count > opened ? String(localized: "library.sent.newCount", defaultValue: "\(items.count - opened) new") : nil,
+                            badgeTone: .new)
                 ProgressHairline(pct: items.isEmpty ? 0 : Int((Double(opened) / Double(items.count) * 100).rounded()))
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(String(localized: "library.section.sent", defaultValue: "From your practitioner").uppercased())
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(PathwayCopy.eyebrow.uppercased())
                         .font(FATypography.sans(9, .bold, relativeTo: .caption2)).tracking(1.2).foregroundStyle(FALibraryColor.gold)
-                    Text(String(localized: "library.sent.title", defaultValue: "Your practitioner's picks"))
-                        .font(FATypography.display(21, relativeTo: .title2)).foregroundStyle(FAColor.charcoal)
-                    Text(String(localized: "library.sent.description", defaultValue: "Chosen for you from your conversation. Read them in any order; each one stays here."))
-                        .font(FATypography.sans(12, relativeTo: .footnote)).foregroundStyle(FAColor.stone)
+                    Text(PathwayCopy.title)
+                        .font(FATypography.display(23, relativeTo: .title2)).foregroundStyle(FAColor.charcoal)
+                    if let intro, let sentence = PathwayLogic.sentence(intro.basis) {
+                        Text(sentence)
+                            .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(Color(hex: 0x4A4A42)).lineSpacing(2)
+                    }
+                    if let focus = intro?.focus {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(String(localized: "pathway.focus", defaultValue: "Your focus").uppercased())
+                                .font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FAColor.forest)
+                            Text(focus).font(FATypography.display(15, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal)
+                        }
+                        .padding(11)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(FAColor.forestGlow, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .padding(.top, 4)
+                    }
                     Text(String(localized: "library.sent.count", defaultValue: "\(items.count) resources · \(opened) opened"))
                         .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).foregroundStyle(FAColor.forest).padding(.top, 4)
                 }
@@ -62,7 +78,9 @@ struct SentTrackView: View {
     }
 
     private var list: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "pathway.items", defaultValue: "Chosen for you"))
+                .font(FATypography.display(16.5, relativeTo: .headline)).foregroundStyle(FAColor.ink).padding(.top, 6)
             ForEach(items) { r in
                 SentResourceRow(resource: r) { open(r) }
             }
@@ -77,11 +95,21 @@ struct SentTrackView: View {
 
     private func load() async {
         items = await dependencies.messaging.sentResources()
+        if let member = try? await dependencies.members.currentMember() {
+            intro = await dependencies.messaging.pathwayIntro(patientId: member.patientId, items: items)
+        }
         loaded = true
     }
 }
 
-/// The Library's card for the mini track: the same card family as a track, the practitioner's kicker.
+/// The Pathway's two words, in one place (owner, 2026-11-05: "something that sounds more premium" than
+/// personalised resources or education). Swapping the name is these two strings.
+enum PathwayCopy {
+    static var title: String { String(localized: "pathway.title", defaultValue: "Your Pathway") }
+    static var eyebrow: String { String(localized: "pathway.eyebrow", defaultValue: "Curated for you") }
+}
+
+/// The Library's card for the Pathway: the same card family as a track.
 struct SentTrackCard: View {
     let items: [MessageResource]
     let onPress: () -> Void
@@ -92,13 +120,15 @@ struct SentTrackCard: View {
         Button(action: onPress) {
             FACard(padded: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    PillarCover(pillar: "foundations", height: 84, badge: unopened > 0 ? String(localized: "library.sent.newCount", defaultValue: "\(unopened) new") : String(localized: "library.sent.badge", defaultValue: "Sent for you"), badgeTone: unopened > 0 ? .new : .plain)
+                    PillarCover(pillar: "foundations", height: 96,
+                                badge: unopened > 0 ? String(localized: "library.sent.newCount", defaultValue: "\(unopened) new") : PathwayCopy.eyebrow,
+                                badgeTone: unopened > 0 ? .new : .plain)
                     ProgressHairline(pct: items.isEmpty ? 0 : Int((Double(opened) / Double(items.count) * 100).rounded()))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "library.section.sent", defaultValue: "From your practitioner").uppercased())
+                        Text(PathwayCopy.eyebrow.uppercased())
                             .font(FATypography.sans(8.5, .bold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FALibraryColor.gold)
-                        Text(String(localized: "library.sent.title", defaultValue: "Your practitioner's picks"))
-                            .font(FATypography.display(14, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)
+                        Text(PathwayCopy.title)
+                            .font(FATypography.display(15, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)
                         HStack {
                             Text(String(localized: "library.sent.count", defaultValue: "\(items.count) resources · \(opened) opened"))
                                 .font(FATypography.sans(9.5, relativeTo: .caption2)).foregroundStyle(FAColor.stone)
@@ -113,11 +143,11 @@ struct SentTrackCard: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(String(localized: "library.sent.title", defaultValue: "Your practitioner's picks"))
+        .accessibilityLabel(PathwayCopy.title)
     }
 }
 
-/// Under a practice message in the thread: what came with it, and the way to the mini track.
+/// Under a practice message in the thread: what came with it, and the way to the Pathway.
 struct ResourcesAttachedCard: View {
     let resources: [MessageResource]
     let onPress: () -> Void
@@ -145,7 +175,7 @@ struct ResourcesAttachedCard: View {
                     }
                 }
                 HStack(spacing: 4) {
-                    Text(String(localized: "messages.resources.find", defaultValue: "Find them in your library"))
+                    Text(String(localized: "messages.resources.findPathway", defaultValue: "Open your Pathway"))
                         .font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forest)
                     Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold)).foregroundStyle(FAColor.forest)
                 }
@@ -161,7 +191,7 @@ struct ResourcesAttachedCard: View {
     }
 }
 
-/// Home: "New from your practitioner" — the nudge toward the mini track while something sent is unopened.
+/// Home: the nudge toward the Pathway while something sent is unopened.
 struct NewResourcesCard: View {
     let count: Int
 
@@ -174,9 +204,9 @@ struct NewResourcesCard: View {
                 }
                 .frame(width: 40, height: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.resources.new", defaultValue: "New from your practitioner"))
+                    Text(String(localized: "home.pathway.new", defaultValue: "New in your Pathway"))
                         .font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                    Text(String(localized: "home.resources.count", defaultValue: "\(count) resources to look at · in your library"))
+                    Text(String(localized: "home.pathway.count", defaultValue: "\(count) resources curated for you"))
                         .font(FATypography.sans(13, relativeTo: .callout)).foregroundStyle(FAColor.inkSecondary)
                 }
                 Spacer()
