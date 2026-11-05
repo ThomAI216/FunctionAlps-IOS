@@ -107,7 +107,8 @@ jobs:
             FLAGS=""
             case " $NO_JWT " in *" $fn "*) FLAGS="--no-verify-jwt" ;; esac
             echo "::group::deploy $fn $FLAGS"
-            supabase functions deploy "$fn" --project-ref "$PROJECT_REF" $FLAGS
+            # --yes: newer CLIs ask before deploying and cannot ask a CI runner ("Nothing was changed").
+            supabase functions deploy "$fn" --project-ref "$PROJECT_REF" --yes $FLAGS
             echo "::endgroup::"
           done
 
