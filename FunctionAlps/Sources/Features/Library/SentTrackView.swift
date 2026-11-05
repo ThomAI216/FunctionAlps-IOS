@@ -68,7 +68,7 @@ struct SentTrackView: View {
                         .background(FAColor.forestGlow, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .padding(.top, 4)
                     }
-                    Text(String(localized: "library.sent.count", defaultValue: "\(items.count) resources · \(opened) opened"))
+                    Text(PathwayCopy.count(items.count, opened: opened))
                         .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).foregroundStyle(FAColor.forest).padding(.top, 4)
                 }
                 .padding(14)
@@ -107,6 +107,12 @@ struct SentTrackView: View {
 enum PathwayCopy {
     static var title: String { String(localized: "pathway.title", defaultValue: "Your Pathway") }
     static var eyebrow: String { String(localized: "pathway.eyebrow", defaultValue: "Curated for you") }
+    /// "1 resource · 1 opened" / "3 resources · 1 opened" — never "1 resources".
+    static func count(_ total: Int, opened: Int) -> String {
+        total == 1
+            ? String(localized: "library.sent.count.one", defaultValue: "1 resource · \(opened) opened")
+            : String(localized: "library.sent.count", defaultValue: "\(total) resources · \(opened) opened")
+    }
 }
 
 /// The Library's card for the Pathway: the same card family as a track.
@@ -130,7 +136,7 @@ struct SentTrackCard: View {
                         Text(PathwayCopy.title)
                             .font(FATypography.display(15, relativeTo: .subheadline)).foregroundStyle(FAColor.charcoal).lineLimit(2).multilineTextAlignment(.leading)
                         HStack {
-                            Text(String(localized: "library.sent.count", defaultValue: "\(items.count) resources · \(opened) opened"))
+                            Text(PathwayCopy.count(items.count, opened: opened))
                                 .font(FATypography.sans(9.5, relativeTo: .caption2)).foregroundStyle(FAColor.stone)
                             Spacer()
                             Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.stoneLight)
@@ -206,7 +212,9 @@ struct NewResourcesCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(String(localized: "home.pathway.new", defaultValue: "New in your Pathway"))
                         .font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                    Text(String(localized: "home.pathway.count", defaultValue: "\(count) resources curated for you"))
+                    Text(count == 1
+                         ? String(localized: "home.pathway.count.one", defaultValue: "1 resource curated for you")
+                         : String(localized: "home.pathway.count", defaultValue: "\(count) resources curated for you"))
                         .font(FATypography.sans(13, relativeTo: .callout)).foregroundStyle(FAColor.inkSecondary)
                 }
                 Spacer()

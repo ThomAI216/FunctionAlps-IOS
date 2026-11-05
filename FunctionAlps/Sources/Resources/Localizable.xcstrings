@@ -14322,6 +14322,22 @@
         }
       }
     },
+    "home.pathway.count.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 resource curated for you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ressource sélectionnée pour vous"
+          }
+        }
+      }
+    },
     "home.pathway.new": {
       "localizations": {
         "en": {
@@ -15742,6 +15758,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld ressources · %lld ouvertes"
+          }
+        }
+      }
+    },
+    "library.sent.count.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 resource · %lld opened"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ressource · %lld ouverte"
           }
         }
       }
