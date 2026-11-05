@@ -78,7 +78,7 @@ struct PersonalTracksTests {
         let thread = MessagingLogic.attach(tracks: t, to: MessagingLogic.attach(resources, to: [msg("m1"), msg("m2"), msg("m3", mine: true)]))
         #expect(thread[0].track == nil)
         #expect(thread[0].resources.map(\.id) == ["r3"])
-        #expect(thread[1].track == PersonalTrackSummary(id: "t1", title: "Afternoon energy", itemCount: 2))
+        #expect(thread[1].track == PersonalTrackSummary(id: "t1", title: "Afternoon energy", itemCount: 2, actionFlags: [false, true]))
         #expect(thread[1].resources.map(\.id) == ["r2"])
         #expect(thread[2].track == nil)
         #expect(PersonalTrackLogic.messageLabel(try #require(thread[1].track)) == "Afternoon energy · 2 resources")
@@ -135,5 +135,99 @@ struct PersonalTrackLinkTests {
         #expect(router.libraryPath == [.read("sleep-basics")])
         router.open(URL(string: "functionalps://library")!)
         #expect(router.libraryPath.isEmpty)
+    }
+}
+
+@Suite("Personal track · the path")
+struct PersonalTrackPathTests {
+    private func track(_ items: [PersonalTrackItem]) -> PersonalTrack {
+        PersonalTrack(id: "t", title: "T", intro: "", createdAt: Date(timeIntervalSince1970: 0), originMessageId: nil, items: items)
+    }
+    private let a = PersonalTrackItem(position: 1, kind: .article("a"))
+    private let b = PersonalTrackItem(position: 2, kind: .article("b"))
+    private let c = PersonalTrackItem(position: 3, kind: .action("card"))
+
+    private func states(_ steps: [PersonalTrackStep]) -> [PersonalTrackStepState] { steps.map(\.state) }
+
+    @Test func nothingDoneFirstIsCurrentCheckInWaits() {
+        let steps = PersonalTrackLogic.steps(track([a, b, c]), openedSlugs: [], planCardIds: [])
+        #expect(states(steps) == [.current, .upcoming, .upcoming, .upcoming])
+        #expect(steps.map(\.number) == [1, 2, 3, 4])
+        #expect(steps.last?.kind == .checkIn)
+    }
+
+    @Test func doneStepsAreArticlesOpenedAndActionsInThePlan() {
+        let steps = PersonalTrackLogic.steps(track([a, b, c]), openedSlugs: ["a"], planCardIds: ["card"])
+        #expect(states(steps) == [.done, .current, .done, .upcoming])
+    }
+
+    @Test func currentIsTheFirstNotDoneEvenWhenALaterOneIsDone() {
+        let steps = PersonalTrackLogic.steps(track([a, b, c]), openedSlugs: ["b"], planCardIds: [])
+        #expect(states(steps) == [.current, .done, .upcoming, .upcoming])
+    }
+
+    @Test func checkInIsCurrentOnlyWhenEveryItemIsDone() {
+        let steps = PersonalTrackLogic.steps(track([a, b, c]), openedSlugs: ["a", "b"], planCardIds: ["card"])
+        #expect(states(steps) == [.done, .done, .done, .current])
+    }
+
+    @Test func itemsFollowPositionNotArrayOrder() {
+        let steps = PersonalTrackLogic.steps(track([c, a, b]), openedSlugs: [], planCardIds: [])
+        #expect(steps.compactMap { if case .item(let i) = $0.kind { i.id } else { nil } } == [a.id, b.id, c.id])
+    }
+
+    @Test func noItemsNoPath() {
+        #expect(PersonalTrackLogic.steps(track([]), openedSlugs: [], planCardIds: []).isEmpty)
+    }
+
+    @Test func putOffActionLetsTheNextStepLead() {
+        let act = PersonalTrackItem(position: 1, kind: .action("card"))
+        let t = track([act, PersonalTrackItem(position: 2, kind: .article("a")), PersonalTrackItem(position: 3, kind: .article("b"))])
+        let plain = PersonalTrackLogic.steps(t, openedSlugs: [], planCardIds: [])
+        #expect(states(plain) == [.current, .upcoming, .upcoming, .upcoming])
+        let later = PersonalTrackLogic.steps(t, openedSlugs: [], planCardIds: [], deferred: [act.id])
+        #expect(states(later) == [.upcoming, .current, .upcoming, .upcoming])
+        #expect(PersonalTrackLogic.canPutOff(plain[0], in: plain, deferred: []))
+        #expect(!PersonalTrackLogic.canPutOff(plain[1], in: plain, deferred: []))
+    }
+
+    @Test func putOffIsNotOfferedWhenNothingElseIsOpen() {
+        let t = track([c])
+        let steps = PersonalTrackLogic.steps(t, openedSlugs: [], planCardIds: [])
+        #expect(!PersonalTrackLogic.canPutOff(steps[0], in: steps, deferred: []))
+        // Everything left put off: the first of them is still current, the check-in does not jump ahead.
+        let later = PersonalTrackLogic.steps(t, openedSlugs: [], planCardIds: [], deferred: ["action:card"])
+        #expect(states(later) == [.current, .upcoming])
+    }
+
+    @Test func progressCountsItemsOnlyNotTheCheckIn() {
+        let p = PersonalTrackLogic.progress(track([a, b, c]), openedSlugs: ["a"], planCardIds: ["card"])
+        #expect(p.done == 2 && p.total == 3)
+        #expect(PersonalTrackLogic.progressFraction(done: 2, total: 3) > 0.66)
+        #expect(PersonalTrackLogic.progressFraction(done: 0, total: 0) == 0)
+        #expect(PersonalTrackLogic.progressFraction(done: 5, total: 3) == 1)
+    }
+
+    @Test func heroEyebrowIsTheEyebrowAndTheSentDay() {
+        let en = Locale(identifier: "en_GB")
+        let utc = TimeZone(identifier: "UTC")!
+        let sent = Date(timeIntervalSince1970: 1_793_836_800) // 2026-11-05 00:00 UTC
+        #expect(PersonalTrackLogic.heroEyebrow(sentAt: sent, locale: en, timeZone: utc) == "Curated for you · 5 Nov")
+        // The member's day, not UTC: 23:30 UTC on the 4th is already the 5th in Zurich.
+        let late = Date(timeIntervalSince1970: 1_793_836_800 - 1800)
+        #expect(PersonalTrackLogic.heroEyebrow(sentAt: late, locale: en, timeZone: TimeZone(identifier: "Europe/Zurich")!) == "Curated for you · 5 Nov")
+    }
+
+    @Test func initialsFromTheName() {
+        #expect(PersonalTrackLogic.initials("Anna Keller") == "AK")
+        #expect(PersonalTrackLogic.initials("  anna ") == "A")
+        #expect(PersonalTrackLogic.initials("Anna Maria Keller") == "AM")
+        #expect(PersonalTrackLogic.initials(nil) == nil)
+        #expect(PersonalTrackLogic.initials("   ") == nil)
+    }
+
+    @Test func picksLabelNeverSaysOnePicks() {
+        #expect(PersonalTrackLogic.picksLabel(1) == "1 pick")
+        #expect(PersonalTrackLogic.picksLabel(3) == "3 picks")
     }
 }
