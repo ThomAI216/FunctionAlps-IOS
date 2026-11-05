@@ -5575,13 +5575,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contact your FunctionAlps practitioner or email contact@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
+            "value": "Contact your FunctionAlps practitioner or email data@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contactez votre praticienne FunctionAlps ou écrivez à contact@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
+            "value": "Contactez votre praticienne FunctionAlps ou écrivez à data@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
           }
         }
       }
@@ -28466,6 +28466,22 @@
         }
       }
     },
+    "privacy.contact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy contact"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact protection des données"
+          }
+        }
+      }
+    },
     "privacy.delete": {
       "localizations": {
         "en": {
@@ -28494,22 +28510,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Efface définitivement toutes vos données. Irréversible."
-          }
-        }
-      }
-    },
-    "privacy.dpo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contact Data Protection Officer"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contacter le délégué à la protection des données"
           }
         }
       }

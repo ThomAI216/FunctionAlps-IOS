@@ -1,3 +1,5 @@
+-- SUPERSEDED — do not apply. Its date-of-birth changes are folded into the coordinated legal release (privacy v14 / terms v10) prepared in FunctionAlps-MEMBERS on 2026-11-05. As written, its guard aborts and its replacement text would reintroduce data@ in place of the current contact.
+--
 -- privacy_policy v12 + terms_of_use v9 — the app no longer asks for a date of birth.
 --
 -- ⚠ STALE NUMBERING (2026-09-27): privacy_policy v12 now exists (OpenAI meal identification,

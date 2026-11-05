@@ -35,7 +35,7 @@ p,li{font-size:16px}ul,ol{padding-left:22px}a{color:#2e5438}hr{border:0;border-t
 <header><a class="brand" href="./${slug}?lang=${lang}">FunctionAlps</a><a class="lang" href="./${slug}?lang=${other}">${otherLabel}</a></header>
 <h1>${esc(title)}</h1><div class="meta">${esc(version)}${updated ? ` · ${lang === "fr" ? "en vigueur depuis le" : "effective"} ${esc(updated)}` : ""}</div>
 ${bodyHtml}
-<footer>FunctionAlps · CM Functional Health · ${lang === "fr" ? "Document en vigueur, servi depuis le registre des consentements." : "Current document, served from the consent register."}</footer>
+<footer>FunctionAlps · ${lang === "fr" ? "Document en vigueur, servi depuis le registre des consentements." : "Current document, served from the consent register."}</footer>
 </main></body></html>`
 }
 
