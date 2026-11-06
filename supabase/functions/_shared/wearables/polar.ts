@@ -1,5 +1,6 @@
-// Polar Dynamic API v4 — strategy 2026-09-14 Phase 2 (D4, D10), rebuilt from the corpus
-// `.context/research/2026-09-14_wearables-implementation/vendors/polar.md` (the authority; § numbers below refer to it).
+// Polar Dynamic API v4. Data path REBUILT 2026-11-06 from Polar's official v4 Swagger (see the block under the constants:
+// it supersedes the corpus wherever they differ). The webhook part below still follows the 2026-09-14 corpus
+// `.context/research/2026-09-14_wearables-implementation/vendors/polar.md` (§ numbers refer to it).
 //
 // What the corpus pins (and this file relies on):
 //   • §6/§7/§8  hosts: authorize + token at `auth.polar.com`, HTTP Basic client auth at the token endpoint, refresh via
@@ -24,50 +25,57 @@
 // Field names inside the v4 records are NOT captured by the corpus beyond those listed in §12/§18/§19 — every other key
 // this file reads is marked VERIFY and mirrored in tests/fixtures/polar/*.json `_note`.
 import { type SupabaseClient } from "npm:@supabase/supabase-js@2"
-import { type DailyRow, type EpochRow, type RowBatch, type TokenAAD, type TokenSet, type VendorAdapter, type WebhookEvent, T, VendorHttpError, addDays, compact, currentKeyVersion, daily, dailyDate, dailyText, daysBetween, decrypt, encrypt, env, epoch, getJSON, hmacSha256, num, offsetMinutes, serviceClient, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
+import { type DailyRow, type RowBatch, type TokenAAD, type TokenSet, type VendorAdapter, type WebhookEvent, T, VendorHttpError, addDays, compact, currentKeyVersion, daily, dailyDate, dailyText, decrypt, encrypt, env, getJSON, hmacSha256, num, offsetMinutes, serviceClient, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
 import { log } from "./log.ts"
 
 export const POLAR_AUTH = "https://auth.polar.com/oauth/authorize"          // §6
 export const POLAR_TOKEN = "https://auth.polar.com/oauth/token"             // §7
 export const POLAR_DATA = "https://www.polaraccesslink.com/v4/data"         // §12
-/** VERIFY (§9/§12): the profile family exists under /v4/data; the exact path + identity field need the live v4 schema. */
-export const POLAR_PROFILE = `${POLAR_DATA}/profile`
 
-/** §15: 28 days without samples; 1 day with `features=samples`. Sleep maximum is not pinned (§15) → same 28 (VERIFY). */
+// ── 2026-11-06 rebuild against Polar's OFFICIAL v4 Swagger (https://www.polar.com/polar-api-v4/swagger.yaml) ──────────
+// The corpus-era version of this file called `GET /v4/data/profile` (not a v4 path → 404 → every connect failed), asked for
+// the undocumented scope `ppi:read` (the documented one is `ppi_data:read`), read sleep and Nightly Recharge fields that do
+// not exist, and derived its own RMSSD from whole-day PPI. What the Swagger pins, and this file now follows:
+//   • scopes per path: `/sleeps` sleep:read · `/nightly-recharge-results` nightly_recharge:read · `/user/account-data`
+//     profile:read. We request ONLY what we read (Polar API Agreement §3.1.2, data minimisation).
+//   • identity: neither the token reply (access_token, token_type, refresh_token, expires_in, scope, jti) nor
+//     `/user/account-data` (name, email, settings — no id) carries a user id → Polar accounts have NO vendor_user_id;
+//     v3 webhooks (keyed by the v3 user id) therefore cannot be matched and stay off (POLAR_WEBHOOKS_ENABLED unset).
+//   • `/nightly-recharge-results?from&to` (to EXCLUSIVE) → `{ nightlyRechargeResults: { nightlyRechargeResults: [ … ] } }`,
+//     keyed by `sleepResultDate` (member-local date). `meanNightlyRecoveryRmssd` is documented as "Mean of the PPI (after 0.5h
+//     from sleep start to 4,5h after sleep start PPI) calculated RMSSD values. (ms)" → RmssdSleep 3106 (decision D4 is met:
+//     statistic and unit are official). `recoveryIndicator` 1–6 → 1000130 (categorical, kept as Polar's code).
+//   • `/sleeps?from&to` without `features` lists only DATES; details need `features=sleep-result&features=sleep-evaluation&
+//     features=sleep-score` (collectionFormat multi) and ONE day per call. Durations are strings of seconds ("3.000000001s").
+//     Start/end are `sleepResult.hypnogram.sleepStart/sleepEnd` (local, with offset); `sleepEvaluation.asleepDuration`,
+//     `.sleepSpan`, `.phaseDurations.{rem,light,deep,wake}`, `.analysis.efficiencyPercent`, `.interruptions.totalCount`;
+//     `sleepScore.sleepScore` (1–100) and `sleepScore.scoreRate` (1–5 "compared to own usual level" = Polar's Sleep Charge).
 export const NIGHTLY_MAX_DAYS = 28
-export const SLEEPS_MAX_DAYS = 28
-export const SAMPLES_MAX_DAYS = 1
+export const SLEEP_DATES_MAX_DAYS = 28
+export const SLEEP_FEATURES = ["sleep-result", "sleep-evaluation", "sleep-score"]
 
-/** §6: space-delimited `<family>:read`. `ppi:read` follows the documented family list ("PPI") + pattern — VERIFY the literal. */
-const SCOPES = ["profile:read", "sleep:read", "nightly_recharge:read", "ppi:read", "activity:read", "continuous_samples:read", "training_sessions:read"]
+const SCOPES = ["profile:read", "sleep:read", "nightly_recharge:read"]
 
 // MARK: - Pure helpers (exported through _polarTest)
 
 type Rec = Record<string, unknown>
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v != null && !Array.isArray(v)
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : typeof v === "number" ? String(v) : null)
+const obj = (v: unknown): Rec => (isRec(v) ? v : {})
 
-/** First present key of `keys` in `obj` (the v4 field names are only partly pinned → ordered candidates, VERIFY). */
-function first(obj: Rec | null | undefined, keys: string[]): unknown {
-  if (!obj) return undefined
-  for (const k of keys) if (obj[k] !== undefined && obj[k] !== null) return obj[k]
+/** First present key of `keys` in `obj` (webhook body only). */
+function first(o: Rec | null | undefined, keys: string[]): unknown {
+  if (!o) return undefined
+  for (const k of keys) if (o[k] !== undefined && o[k] !== null) return o[k]
   return undefined
 }
 
-/** A v4 collection body: a bare array, or a wrapper object whose first array-valued key is the collection (VERIFY §13). */
-function unwrap(body: unknown, preferred: string[]): Rec[] {
-  if (Array.isArray(body)) return body.filter(isRec)
-  if (!isRec(body)) return []
-  for (const k of preferred) if (Array.isArray(body[k])) return (body[k] as unknown[]).filter(isRec)
-  for (const v of Object.values(body)) if (Array.isArray(v)) return v.filter(isRec)
-  return []
-}
-
-/** §9: the stable v4 profile identifier. Fails closed — an empty id would silently break webhook routing. VERIFY the key. */
-function profileIdentity(profile: Rec): string {
-  const id = str(first(profile, ["userId", "polarUserId", "memberId", "id"]))
-  if (!id) throw new Error("polar v4 profile carried no user identifier (VERIFY identity field, polar.md §9)")
-  return id
+/** Polar v4 durations: "Format is seconds with optional fraction of seconds … like \"3.000000001s\"" → whole seconds. */
+export function polarSeconds(v: unknown): number | null {
+  if (typeof v === "number") return Number.isFinite(v) ? Math.round(v) : null
+  if (typeof v !== "string") return null
+  const m = /^(-?\d+(?:\.\d+)?)s$/.exec(v.trim())
+  return m ? Math.round(Number(m[1])) : null
 }
 
 /** Splits the inclusive day window [start, end] into `{from, to}` pairs with `to` EXCLUSIVE (§21), each ≤ maxDays. */
@@ -83,100 +91,83 @@ function rangeChunks(start: string, end: string, maxDays: number): { from: strin
   return out
 }
 
-/**
- * FunctionAlps-derived RMSSD (`functionalps_rmssd_v1`): sqrt(mean((PP[i+1] − PP[i])²)) over successive intervals in
- * milliseconds (corpus metrics/hrv-semantics.md "FunctionAlps-derived HRV"). Non-finite / non-positive intervals are
- * dropped before differencing; needs at least 2 accepted intervals.
- */
-function rmssdFromPPI(ppiMs: number[]): number | null {
-  const xs = ppiMs.filter((x) => typeof x === "number" && Number.isFinite(x) && x > 0)
-  if (xs.length < 2) return null
-  let sum = 0
-  for (let i = 1; i < xs.length; i++) { const d = xs[i] - xs[i - 1]; sum += d * d }
-  return Math.sqrt(sum / (xs.length - 1))
+const RES_NIGHTLY = "nightly-recharge-results", RES_SLEEPS = "sleeps"
+
+/** `{ nightlyRechargeResults: { nightlyRechargeResults: [ … ] } }` → the array (Swagger `domainsnightlyrechargeListResponse`). */
+export function nightlyList(body: unknown): Rec[] {
+  const inner = obj(obj(body).nightlyRechargeResults).nightlyRechargeResults
+  return Array.isArray(inner) ? inner.filter(isRec) : []
 }
 
-const RES_NIGHTLY = "nightly-recharge-results", RES_SLEEPS = "sleeps", RES_PPI = "ppi-samples"
+/** `{ nightSleeps: [ … ] }` → the array (Swagger `sleepListSleepsResponse`). */
+export function sleepList(body: unknown): Rec[] {
+  const a = obj(body).nightSleeps
+  return Array.isArray(a) ? a.filter(isRec) : []
+}
 
-/** One Nightly Recharge result → rows (§18/§20/§30). */
+/** One Nightly Recharge result (Swagger `nightlyrechargeNightlyRechargeResult`) → daily rows. */
 function nightlyRechargeRows(rec: Rec): DailyRow[] {
-  const day = str(first(rec, ["date", "nightlyRechargeDate", "sleepDate"]))?.slice(0, 10)   // VERIFY: date key
+  const day = str(rec.sleepResultDate)?.slice(0, 10)
   if (!day) return []
-  const prov: Partial<DailyRow> = {
-    sourceRecordId: str(rec.id) ?? `${RES_NIGHTLY}:${day}`, sourceResourceType: RES_NIGHTLY,
-    sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
-  }
-  const status = first(rec, ["nightlyRechargeStatus", "status"])                                   // VERIFY: status key
-  const ans = first(rec, ["ansStatus"])
-  const details: Rec = {
-    // §30: unit NOT pinned → raw only, never 3106. §18: `meanNightlyRecoveryRri`, respiration interval, baselines are raw.
-    mean_nightly_recovery_rmssd: num(rec.meanNightlyRecoveryRmssd),
-    mean_nightly_recovery_rri: num(rec.meanNightlyRecoveryRri),
-    mean_nightly_recovery_respiration_interval: num(first(rec, ["meanNightlyRecoveryRespirationInterval", "respirationInterval"])),
-    unverified: ["VERIFY: meanNightlyRecoveryRmssd unit not pinned in v4 schema (polar.md §30) — raw only, not 3106"],
-    ...(typeof ans === "string" ? { ans_status_raw: ans } : {}),
-  }
+  const prov: Partial<DailyRow> = { sourceRecordId: `${RES_NIGHTLY}:${day}`, sourceResourceType: RES_NIGHTLY, sourceModifiedAt: str(rec.modified) }
+  const indicator = num(rec.recoveryIndicator)
   return compact([
-    dailyText(day, T.PolarNightlyRechargeStatus, status == null ? null : String(status), { ...prov, sourceField: "status", details }),
-    // 1000132 is numeric in the catalogue; a categorical ansStatus is kept raw (§18 "do not coerce if categorical").
-    daily(day, T.PolarAnsStatus, typeof ans === "number" ? ans : null, { ...prov, sourceField: "ansStatus", details }),
-    daily(day, T.PolarSleepCharge, num(first(rec, ["sleepCharge"])), { ...prov, sourceField: "sleepCharge", details }),   // §18 "if exposed" (VERIFY)
+    daily(day, T.RmssdSleep, num(rec.meanNightlyRecoveryRmssd), {
+      ...prov, sourceField: "meanNightlyRecoveryRmssd",
+      details: { statistic: "rmssd", window: "0.5h-4.5h_after_sleep_start", unit: "ms", baseline_mean: num(rec.meanBaselineRmssd), baseline_sd: num(rec.sdBaselineRmssd) },
+    }),
+    // Categorical (catalogue 1000130 is STRING): Polar's own 1–6 code, never relabelled; the sub-level stays beside it.
+    dailyText(day, T.PolarNightlyRechargeStatus, indicator == null ? null : String(indicator), {
+      ...prov, sourceField: "recoveryIndicator",
+      details: { scale: "polar_recovery_indicator_1_6", sub_level: num(rec.recoveryIndicatorSubLevel), ans_rate: num(rec.ansRate) },
+    }),
+    daily(day, T.PolarAnsStatus, num(rec.ansStatus), {
+      ...prov, sourceField: "ansStatus",
+      // Kept raw: mean RR interval and respiration interval (ms) — turning them into bpm / breaths per minute is a derivation
+      // the practice has not decided on.
+      details: { mean_nightly_recovery_rri_ms: num(rec.meanNightlyRecoveryRri), mean_nightly_recovery_respiration_interval_ms: num(rec.meanNightlyRecoveryRespirationInterval), baseline_rri_ms: num(rec.meanBaselineRri) },
+    }),
   ])
 }
 
-/** One v4 sleep → rows from the CURRENT `sleepResult` (§16/§19). */
-function sleepRows(rec: Rec): DailyRow[] {
-  const day = str(rec.sleepDate)?.slice(0, 10)
+/** One night (Swagger `sleepNightSleep`, fetched WITH features) → daily rows from the CURRENT `sleepResult` (§16/§19). */
+function sleepRows(night: Rec): DailyRow[] {
+  const day = str(night.sleepDate)?.slice(0, 10)
   if (!day) return []
-  const sr = isRec(rec.sleepResult) ? rec.sleepResult : rec                    // VERIFY: nesting of the result fields
-  const startIso = str(first(sr, ["sleepStartTime", "startTime"])) ?? str(first(rec, ["sleepStartTime", "startTime"]))
-  const endIso = str(first(sr, ["sleepEndTime", "endTime"])) ?? str(first(rec, ["sleepEndTime", "endTime"]))
-  const tz = offsetMinutes(startIso?.slice(19))
+  const hyp = obj(obj(night.sleepResult).hypnogram)
+  const ev = obj(night.sleepEvaluation), phases = obj(ev.phaseDurations), analysis = obj(ev.analysis), interruptions = obj(ev.interruptions)
+  const score = obj(night.sleepScore)
+  const startIso = str(hyp.sleepStart), endIso = str(hyp.sleepEnd)
   const prov: Partial<DailyRow> = {
-    sourceRecordId: str(rec.id) ?? `${RES_SLEEPS}:${day}`, sourceResourceType: RES_SLEEPS, timezoneOffset: tz,
-    sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
+    sourceRecordId: `${RES_SLEEPS}:${day}`, sourceResourceType: RES_SLEEPS, timezoneOffset: offsetMinutes(startIso?.slice(19)),
+    sourceModifiedAt: str(score.lastModified), sourceDeviceId: str(obj(hyp.deviceReference).deviceId),
   }
-  const details: Rec = {
-    edited: rec.originalSleepResult != null,
-    // "verify v4 unit" (canonical-metric-map) → stage durations stay raw until pinned.
-    stages_raw: { light: num(first(sr, ["lightSleep", "light"])), deep: num(first(sr, ["deepSleep", "deep"])), rem: num(first(sr, ["remSleep", "rem"])), wake: num(first(sr, ["wake", "awake"])), unknown: num(first(sr, ["unknown"])) },
-    continuity: num(first(sr, ["continuity"])),
-    unverified: ["VERIFY: stage duration unit not pinned (canonical-metric-map) — raw only"],
-  }
+  const details = { sleep_type: str(ev.sleepType), edited: night.originalSleepResult != null, continuity_index: num(analysis.continuityIndex), unknown_s: polarSeconds(phases.unknown) }
   return compact([
-    daily(day, T.SleepEfficiency, num(first(sr, ["efficiency", "sleepEfficiency"])), { ...prov, sourceField: "efficiency", details }),
-    daily(day, T.SleepScore, num(first(sr, ["sleepScore"]) ?? first(rec, ["sleepScore"])), { ...prov, sourceField: "sleepScore", details }),
-    dailyDate(day, T.SleepStart, startIso, { ...prov, sourceField: "sleepStartTime" }),
-    dailyDate(day, T.SleepEnd, endIso, { ...prov, sourceField: "sleepEndTime" }),
+    daily(day, T.MainSleepDuration, polarSeconds(ev.asleepDuration), { ...prov, sourceField: "sleepEvaluation.asleepDuration", details }),
+    daily(day, T.InBed, polarSeconds(ev.sleepSpan), { ...prov, sourceField: "sleepEvaluation.sleepSpan" }),
+    daily(day, T.REM, polarSeconds(phases.rem), { ...prov, sourceField: "phaseDurations.rem" }),
+    daily(day, T.Deep, polarSeconds(phases.deep), { ...prov, sourceField: "phaseDurations.deep" }),
+    daily(day, T.Light, polarSeconds(phases.light), { ...prov, sourceField: "phaseDurations.light" }),
+    daily(day, T.Awake, polarSeconds(phases.wake), { ...prov, sourceField: "phaseDurations.wake" }),
+    daily(day, T.SleepEfficiency, num(analysis.efficiencyPercent), { ...prov, sourceField: "analysis.efficiencyPercent" }),
+    daily(day, T.Interruptions, num(interruptions.totalCount), { ...prov, sourceField: "interruptions.totalCount", details: { long_count: num(interruptions.longCount), short_count: num(interruptions.shortCount) } }),
+    daily(day, T.SleepScore, num(score.sleepScore), { ...prov, sourceField: "sleepScore.sleepScore" }),
+    daily(day, T.PolarSleepCharge, num(score.scoreRate), { ...prov, sourceField: "sleepScore.scoreRate", details: { scale: "1-5_vs_own_usual_level" } }),
+    dailyDate(day, T.SleepStart, startIso, { ...prov, sourceField: "hypnogram.sleepStart" }),
+    dailyDate(day, T.SleepEnd, endIso, { ...prov, sourceField: "hypnogram.sleepEnd" }),
   ])
-}
-
-/** One PPI sample set → one 3100 epoch row (FunctionAlps-derived RMSSD, ms pinned for `ppInterval`). */
-function ppiRows(rec: Rec, queryDay: string): EpochRow[] {
-  const samples = (Array.isArray(rec.samples) ? rec.samples : []).filter(isRec)   // VERIFY: `samples` key (§21 anchor + offsetMillis)
-  const raw = samples.map((s) => num(s.ppInterval))
-  const accepted = raw.filter((x): x is number => x != null && Number.isFinite(x) && x > 0)
-  const value = rmssdFromPPI(accepted)
-  if (value == null) return []
-  const anchor = str(first(rec, ["startTime", "start", "timestamp"]))
-  const startTs = anchor ? new Date(Date.parse(anchor)).toISOString() : `${queryDay}T00:00:00Z`
-  const lastOff = num(samples[samples.length - 1]?.offsetMillis)
-  const endTs = lastOff != null ? new Date(Date.parse(startTs) + lastOff).toISOString() : null
-  const row = epoch(startTs, T.Rmssd, value, {
-    endTs, sourceRecordId: str(rec.id) ?? `${RES_PPI}:${queryDay}:${startTs}`, sourceResourceType: RES_PPI, sourceField: "ppInterval", sourceModifiedAt: str(rec.modified), sourceDeviceId: str(first(rec, ["deviceId", "device_id"])),
-    details: { algorithm: "functionalps_rmssd_v1", n: accepted.length, rejected: raw.length - accepted.length, quality: "functionalps_derived", window_ms: lastOff, anchor: anchor ? "record_start" : "day_start" },
-  })
-  return row ? [row] : []
 }
 
 // MARK: - HTTP
 
-async function v4get(resource: string, q: Record<string, string>, tokens: TokenSet): Promise<Rec[]> {
+async function v4get(resource: string, q: Record<string, string | string[]>, tokens: TokenSet): Promise<unknown> {
+  const qs = new URLSearchParams()
+  for (const [k, v] of Object.entries(q)) for (const x of Array.isArray(v) ? v : [v]) qs.append(k, x)
   try {
-    const body: unknown = await getJSON(`${POLAR_DATA}/${resource}?${new URLSearchParams(q)}`, { Authorization: `Bearer ${tokens.accessToken}` })
-    return unwrap(body, [resource, "items", "data", "results"])
+    return await getJSON(`${POLAR_DATA}/${resource}?${qs}`, { Authorization: `Bearer ${tokens.accessToken}` })
   } catch (e) {
-    if (e instanceof VendorHttpError && e.status === 404) return []   // §24: missing data is not a failure
+    if (e instanceof VendorHttpError && e.status === 404) return {}   // §24: missing data is not a failure
     throw e
   }
 }
@@ -207,9 +198,8 @@ export const polar: VendorAdapter = {
     const { clientId, clientSecret } = vendorClient("polar")
     const t = await tokenPost(POLAR_TOKEN, { grant_type: "authorization_code", code, redirect_uri: redirectUri }, { basic: { id: clientId, secret: clientSecret } })
     const set = tokenSet(t)
-    // §9: identity from the v4 profile, never `x_user_id`.
-    const profile = await getJSON(POLAR_PROFILE, { Authorization: `Bearer ${set.accessToken}` })
-    return { ...set, scopes: set.scopes ?? SCOPES, vendorUserId: profileIdentity(profile) }
+    // v4 exposes no user id anywhere (token reply or /user/account-data) → no vendor_user_id; never derived from name/email.
+    return { ...set, scopes: set.scopes ?? SCOPES }
   },
 
   async refresh(refreshToken) {
@@ -249,23 +239,25 @@ export const polar: VendorAdapter = {
   },
 
   async fetchRange(tokens, start, end): Promise<RowBatch> {
-    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
+    const dailyRows: DailyRow[] = []
     const inRange = (r: DailyRow) => r.day >= start && r.day <= end
     for (const { from, to } of rangeChunks(start, end, NIGHTLY_MAX_DAYS)) {
-      for (const rec of await v4get(RES_NIGHTLY, { from, to }, tokens)) dailyRows.push(...nightlyRechargeRows(rec).filter(inRange))
+      for (const rec of nightlyList(await v4get(RES_NIGHTLY, { from, to }, tokens))) dailyRows.push(...nightlyRechargeRows(rec).filter(inRange))
     }
-    for (const { from, to } of rangeChunks(start, end, SLEEPS_MAX_DAYS)) {
-      for (const rec of await v4get(RES_SLEEPS, { from, to }, tokens)) dailyRows.push(...sleepRows(rec).filter(inRange))
+    // Sleep: the dates first (no features), then each night with its features — one day per call (Swagger).
+    const dates = new Set<string>()
+    for (const { from, to } of rangeChunks(start, end, SLEEP_DATES_MAX_DAYS)) {
+      for (const n of sleepList(await v4get(RES_SLEEPS, { from, to }, tokens))) { const d = str(n.sleepDate)?.slice(0, 10); if (d && d >= start && d <= end) dates.add(d) }
     }
-    // §15: sample endpoints are one day per call.
-    for (const day of daysBetween(start, end)) {
-      for (const rec of await v4get(RES_PPI, { from: day, to: addDays(day, SAMPLES_MAX_DAYS), features: "samples" }, tokens)) epochRows.push(...ppiRows(rec, day))
+    for (const d of [...dates].sort()) {
+      for (const n of sleepList(await v4get(RES_SLEEPS, { from: d, to: addDays(d, 1), features: SLEEP_FEATURES }, tokens))) dailyRows.push(...sleepRows(n).filter(inRange))
     }
-    return { daily: dailyRows, epoch: epochRows }
+    log("info", "polar.fetch_range", { fn: "polar", vendor: "polar", start, end, nights: dates.size, daily: dailyRows.length })
+    return { daily: dailyRows, epoch: [] }
   },
 }
 
-export const _polarTest = { rmssdFromPPI, rangeChunks, profileIdentity, unwrap, nightlyRechargeRows, sleepRows, ppiRows, first, resetWebhookSecretCache: () => { cachedWebhookSecret = null } }
+export const _polarTest = { rangeChunks, nightlyRechargeRows, sleepRows, first, resetWebhookSecretCache: () => { cachedWebhookSecret = null } }
 
 // MARK: - App-level webhook (v3 AccessLink): registered by the backend, its once-shown signing key kept encrypted
 
