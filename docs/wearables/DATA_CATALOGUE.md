@@ -56,8 +56,8 @@ functions). Until then a member who taps Connect on Oura or Polar gets "The conn
   `appli=63`, needs new ids) · glucose (code 119 → 1000107) · visceral fat, BMR, metabolic age, extra/intracellular
   water (Advanced Biomarkers plan) · sleep timing (`night_events`, wake-up latency, out-of-bed count, the hypnogram) ·
   soft/moderate/intense minutes · device model ("Withings Body+").
-- **HRV:** not in the sleep summary under the names we ask for (`sdnn_1`, `rmssd` are high-frequency fields; the summary
-  has `rmssd_start_avg` / `rmssd_end_avg`). Many sleep metrics are Advanced-Biomarkers-only on a free-plan app.
+- **HRV:** the sleep summary has `rmssd_start_avg` / `rmssd_end_avg` (the old `sdnn_1` / `rmssd` request was wrong —
+  fixed 2026-11-06); both are kept raw in `details` (D4). Many sleep metrics are Advanced-Biomarkers-only on a free-plan app.
 - **Plan limits:** free plan = 10 active users until Withings reviews the app; **from 2026-10-12 newly created Withings
   accounts need Withings+ to share with a free-plan app** (also through Apple Health).
 
@@ -74,8 +74,8 @@ functions). Until then a member who taps Connect on Oura or Polar gets "The conn
 ### 2.4 WHOOP (available)
 - **Stored:** recovery %, resting HR, HRV (RMSSD, ms, per sleep), SpO₂, skin temperature, sleep stages + performance,
   respiratory rate, day strain + kcal, workouts with HR zones.
-- **Gaps:** daily steps (`cycle.step_count`, added 2026-09-23) · sleep need / sleep debt · sleep consistency ·
-  disturbance and cycle counts · naps (dropped today) · weight/height history.
+- **Gaps:** sleep need / sleep debt · sleep consistency · disturbance and cycle counts · weight/height history.
+  (Daily steps from `cycle.step_count` and naps — as epoch rows marked `nap` — are stored since 2026-11-06.)
 - **Not in the API at all:** continuous HR, HRV series, VO₂max, stress monitor, cycle, BP, journal.
 
 ### 2.5 Polar (available; data path rebuilt today)
@@ -94,7 +94,7 @@ functions). Until then a member who taps Connect on Oura or Polar gets "The conn
   cycle phase/length, body water %.
 - **Starter tier:** push only and **no history** — data starts the day a member connects; a missed push is lost.
 
-### 2.7 Suunto (planned)
+### 2.7 Suunto (planned; data path rebuilt 2026-11-06 against the APIZone reference)
 - **API offers:** workouts (incl. R-R intervals), 24/7 activity (HR, steps, energy, SpO₂, HRV ~10 min), daily step and
   energy totals, sleep (stages, latency, WASO, HR, HRV, quality score, SpO₂), recovery balance and stress state — all
   with webhooks.
@@ -165,27 +165,38 @@ needs to be checked against Oura's and WHOOP's clauses in particular.
 
 ---
 
-## 5. Fix list (found 2026-11-06; Oura and Polar already fixed on the branch)
+## 5. Fix list (found 2026-11-06)
 
-1. **WHOOP** — vendor deletions (`sleep.deleted`, `workout.deleted`, `recovery.deleted`) are never applied; HR-zone
-   buckets are shifted one zone against WHOOP's own labels; `cycle.step_count` not stored; naps dropped.
-2. **Withings** — no pagination (`more` / `offset`) on getmeas / getactivity / getworkouts; a 31-day backfill exceeds the
-   7-day sleep limit; attrib 5 and 8 measures dropped; AFib code 0–13 written to a BOOLEAN id; snoring seconds written to
-   a BOOLEAN id; error 601 not treated as a rate limit; the HRV fields asked of the summary are the wrong ones.
-3. **Suunto** — daily statistics call uses the wrong parameters and shape (no daily steps ever); workout HR read from the
-   wrong field (`hrdata.workoutAvgHR`); sleep `Duration` is time in bed (→ 2301), asleep = deep + light + REM; 31-day
-   backfill exceeds the 28-day limit.
-4. **Platform** — vendor deletion events are not applied anywhere (`WebhookEvent.deleted` is never acted on).
+Fixed on `claude/blissful-sagan-66das2` (Oura connect and Polar merged to `main` earlier the same day; the three below
+reach members only after the next merge):
+
+1. ~~**WHOOP**~~ — fixed: vendor deletions (`sleep.deleted`, `workout.deleted`, `recovery.deleted`) now remove the
+   matching rows; HR zones follow WHOOP's own labels (light = zone 1, moderate = 2, intense = 3 + 4, maximal = 5);
+   `cycle.step_count` stored as daily steps; naps stored as epoch sleep rows marked `nap` (never the main night).
+2. ~~**Withings**~~ — fixed: `more` / `offset` paging on getmeas / getactivity / getworkouts / getsummary; sleep
+   summaries fetched in 7-day calls; attrib 0, 1, 5 and 8 kept; AFib written as yes/no with the raw code in `details`;
+   snoring written as yes/no with seconds and episodes in `details`; error 601 treated as a rate limit; HRV read from
+   `rmssd_start_avg` / `rmssd_end_avg` (raw, D4).
+3. ~~**Suunto**~~ — fixed: daily statistics on the documented path, parameters and shape (daily steps now arrive);
+   workout HR from `hrdata`; sleep `Duration` → time in bed (2301), asleep = deep + light + REM (2300), WASO → 2308;
+   Balance written as the 0–1 number the catalogue expects; 28-day chunks; workout paging; inline workouts in
+   `WORKOUT_CREATED` webhooks.
+4. ~~**Platform**~~ — fixed: the webhook handler applies vendor deletion events (`WebhookEvent.deleted`) and audits them.
+   WHOOP is the only adapter that emits them today.
+
+Still open:
+
 5. **Oura** — delete events not subscribed; overnight HR written twice (sleep series and `/heartrate`).
 
 ---
 
 ## 6. Decisions for Thomas
 
-1. Merge the branch to `main` (deploys the Oura and Polar fixes, the Garmin adapter and the readiness probe).
+1. Merge the branch to `main` again for the WHOOP, Withings and Suunto fixes (the first merge, with the Oura and Polar
+   fixes, the Garmin adapter and the readiness probe, landed on 2026-11-06 as `40ce802`).
 2. Legal read of §4 before practitioner-facing displays of Oura / WHOOP data.
 3. D4: write overnight HRV for Oura and Garmin once their definitions are accepted (Polar and WHOOP are official RMSSD).
 4. Glucose: approve a Privacy Notice update so the app can read `bloodGlucose` from Apple Health.
-5. Which gaps to build first (suggestion: Polar fuel use, WHOOP steps, Withings urine + glucose, Apple Health
+5. Which gaps to build first (suggestion: Polar fuel use, Withings urine + glucose, Apple Health
    wrist temperature + daylight + water/caffeine).
 6. Withings: the 10-user free-plan cap and Withings+ for new accounts.
