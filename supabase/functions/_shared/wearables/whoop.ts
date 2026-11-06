@@ -70,23 +70,21 @@ const msToS = (ms: unknown) => { const v = num(ms); return v == null ? null : Ma
 const msToMin = (ms: number) => Math.round(ms / 60_000) || null
 
 /**
- * HR-zone bucket mapping (05_WORKOUTS_AND_HR_ZONES.md "HR zones": prefer vendor duration-in-zone, keep the
- * threshold definition in metadata; "Catalogue": 3090–3093 retain the project definitions, semantics documented here).
- * WHOOP reports six buckets of the member's max HR — zone 0 (< 50 %), 1 (50–60 %), 2 (60–70 %), 3 (70–80 %),
- * 4 (80–90 %), 5 (90–100 %) — as `score.zone_durations.zone_{zero..five}_milli` (VERIFY: field names and the
- * percentage bands are not pinned in the corpus; they are WHOOP's published zone model as of 2026-09).
- * Project buckets: Light 3090 = zones 1+2 · Moderate 3091 = zone 3 · Intense 3092 = zone 4 · Maximal 3093 = zone 5.
- * Zone 0 is below any training zone and stays in metadata only. Zones from other vendors' threshold models must
- * never be summed with these (same doc, "Do not combine vendor zones").
+ * HR-zone bucket mapping, by WHOOP's OWN labels (OpenAPI `ZoneDurations`, read 2026-11-06): zone_zero "very light
+ * activity", zone_one "light activity", zone_two "moderate activity", zone_three "hard activity", zone_four "very hard
+ * activity", zone_five "maximum effort". Project buckets: Light 3090 = zone 1 · Moderate 3091 = zone 2 · Intense 3092 =
+ * zones 3 + 4 (hard + very hard) · Maximal 3093 = zone 5. Zone 0 stays in metadata only. (Until 2026-11-06 zone 2 was
+ * counted as light and zone 3 as moderate — one zone off WHOOP's labels.) Zones from other vendors' threshold models
+ * must never be summed with these ("Do not combine vendor zones").
  */
-const ZONE_MODEL = "whoop_percent_max_hr_6_buckets"
+const ZONE_MODEL = "whoop_labelled_zones_v2"
 function hrZones(z: Rec): { light: number | null; moderate: number | null; intense: number | null; maximal: number | null; raw: Record<string, number | null> } {
   const ms = (k: string) => num(z[k])
   const raw = { zone_zero_milli: ms("zone_zero_milli"), zone_one_milli: ms("zone_one_milli"), zone_two_milli: ms("zone_two_milli"), zone_three_milli: ms("zone_three_milli"), zone_four_milli: ms("zone_four_milli"), zone_five_milli: ms("zone_five_milli") }
   return {
-    light: msToMin((raw.zone_one_milli ?? 0) + (raw.zone_two_milli ?? 0)),
-    moderate: msToMin(raw.zone_three_milli ?? 0),
-    intense: msToMin(raw.zone_four_milli ?? 0),
+    light: msToMin(raw.zone_one_milli ?? 0),
+    moderate: msToMin(raw.zone_two_milli ?? 0),
+    intense: msToMin((raw.zone_three_milli ?? 0) + (raw.zone_four_milli ?? 0)),
     maximal: msToMin(raw.zone_five_milli ?? 0),
     raw,
   }
@@ -147,9 +145,14 @@ export const whoop: VendorAdapter = {
     const skewMs = Number.isFinite(Number(ts)) ? Date.now() - Number(ts) : null
     log(skewMs != null && Math.abs(skewMs) > SKEW_WARN_MS ? "warn" : "info", "whoop.webhook_skew", { fn: FN, vendor: "whoop", kind, skewMs, hasTraceId: eventId != null })
     if (e.user_id == null) return []
-    // `id` is the sleep/workout UUID (for recovery.* the UUID of the associated sleep, §10). The contract carries a day
-    // window, not a resource id, so the sync re-pulls the default window; the exact-resource GET is a later refinement.
-    return [{ vendorUserId: String(e.user_id), kind, eventId }]
+    // `id` is the sleep/workout UUID (for recovery.* the UUID of the associated sleep, §10). `*.deleted` (sleep, workout,
+    // recovery — "a recovery is deleted when its associated sleep is deleted") is a SIGNED tombstone: the webhook function
+    // removes the rows stored from that record (2026-11-06). Updates re-pull the default window.
+    const [resourceType, action] = kind.split(".")
+    if (action === "deleted" && e.id != null && ["sleep", "workout", "recovery"].includes(resourceType)) {
+      return [{ vendorUserId: String(e.user_id), kind, eventId, deleted: true, resourceId: String(e.id), resourceType }]
+    }
+    return [{ vendorUserId: String(e.user_id), kind, eventId, resourceId: e.id == null ? null : String(e.id) }]
   },
 
   async fetchRange(tokens, start, end, _ctx: AccountContext) {
@@ -163,7 +166,17 @@ export const whoop: VendorAdapter = {
 
     // ── Sleep (whoop.md §19, §21; 08_SLEEP.md "WHOOP": `nap` is explicit) ─────────────────────────────────────
     for (const s of await records("/v2/activity/sleep", tokens, q)) {
-      if (s.nap === true || s.score_state !== "SCORED" || !s.end) continue
+      if (s.score_state !== "SCORED" || !s.end) continue
+      if (s.nap === true) {
+        // Naps (2026-11-06; dropped before): one timed row of asleep seconds — never the day's main-sleep ids.
+        const off = offsetMinutes(s.timezone_offset as string), day = dayOfISO(String(s.end), off)
+        if (!inRange(day)) continue
+        const g = obj(obj(s.score).stage_summary)
+        const asleep = (msToS(g.total_light_sleep_time_milli) ?? 0) + (msToS(g.total_slow_wave_sleep_time_milli) ?? 0) + (msToS(g.total_rem_sleep_time_milli) ?? 0)
+        const row = epoch(String(s.start), T.MainSleepDuration, asleep || null, { endTs: String(s.end), timezoneOffset: off, sourceRecordId: String(s.id), sourceResourceType: "sleep", sourceModifiedAt: str(s.updated_at), details: { nap: true, day } })
+        if (row) epochRows.push(row)
+        continue
+      }
       const off = offsetMinutes(s.timezone_offset as string), day = dayOfISO(String(s.end), off), id = String(s.id)
       sleepDay.set(id, day)
       if (s.cycle_id != null) cycleSleepDay.set(String(s.cycle_id), day)
@@ -199,9 +212,11 @@ export const whoop: VendorAdapter = {
       const linked = cycleSleepDay.get(id), day = linked ?? cycleStartDay.get(id)!
       if (!inRange(day)) continue
       const sc = obj(c.score)
-      dailyRows.push(...dailyMap(day, { [T.StrainScore]: num(sc.strain), [T.BurnedCalories]: kcal(sc.kilojoule), [T.HeartRate]: num(sc.average_heart_rate) }, {
+      // `step_count` (OpenAPI, added 2026-09-23): "Total number of steps taken during the cycle. Null when no step data
+      // exists" — a wake-to-wake cycle, not a midnight day; `details.steps_window` says so.
+      dailyRows.push(...dailyMap(day, { [T.StrainScore]: num(sc.strain), [T.BurnedCalories]: kcal(sc.kilojoule), [T.HeartRate]: num(sc.average_heart_rate), [T.Steps]: num(c.step_count) }, {
         timezoneOffset: off, sourceRecordId: id, sourceResourceType: "cycle", sourceModifiedAt: str(c.updated_at),
-        details: { day_basis: linked ? "linked_sleep_end_local" : "cycle_start_local", max_heart_rate: num(sc.max_heart_rate), cycle_start: str(c.start), cycle_end: str(c.end), score_state: "SCORED" },
+        details: { day_basis: linked ? "linked_sleep_end_local" : "cycle_start_local", steps_window: "whoop_cycle", max_heart_rate: num(sc.max_heart_rate), cycle_start: str(c.start), cycle_end: str(c.end), score_state: "SCORED" },
       }))
     }
 
@@ -216,8 +231,10 @@ export const whoop: VendorAdapter = {
         [T.RmssdSleep]: num(sc.hrv_rmssd_milli),  // RMSSD ms, sleep-linked → 3106 only; nothing else is derived from it (§20)
         [T.HeartRateResting]: num(sc.resting_heart_rate), [T.SPO2]: num(sc.spo2_percentage), [T.SkinTemperature]: num(sc.skin_temp_celsius), [T.RecoveryScore]: num(sc.recovery_score),
       }, {
-        sourceRecordId: cycleId, sourceResourceType: "recovery", sourceModifiedAt: str(r.updated_at),
-        details: { day_basis: "linked_sleep_end_local", sleep_id: sleepId, statistic: "rmssd", window: "night", user_calibrating: r.score == null ? null : (sc.user_calibrating ?? null), score_state: "SCORED" },
+        // Keyed by the SLEEP id (WHOOP: a recovery webhook's `id` is "the UUID of the associated sleep") so a
+        // `recovery.deleted` tombstone finds exactly these rows; the cycle id stays in details.
+        sourceRecordId: sleepId ?? cycleId, sourceResourceType: "recovery", sourceModifiedAt: str(r.updated_at),
+        details: { day_basis: "linked_sleep_end_local", sleep_id: sleepId, cycle_id: cycleId, statistic: "rmssd", window: "night", user_calibrating: r.score == null ? null : (sc.user_calibrating ?? null), score_state: "SCORED" },
       }))
     }
 
@@ -236,9 +253,9 @@ export const whoop: VendorAdapter = {
         epoch(startTs, T.HeartRate, num(sc.average_heart_rate), { ...prov, details: { workout: true, max_heart_rate: num(sc.max_heart_rate) } }),
         epoch(startTs, T.CoveredDistance, num(sc.distance_meter), { ...prov, details: { workout: true } }),
         epoch(startTs, T.ElevationGain, num(sc.altitude_gain_meter), { ...prov, details: { workout: true, altitude_change_meter: num(sc.altitude_change_meter) } }),
-        epoch(startTs, T.HRZoneLight, zones.light, { ...prov, details: { ...zoneMeta, buckets: ["zone_one", "zone_two"] } }),
-        epoch(startTs, T.HRZoneModerate, zones.moderate, { ...prov, details: { ...zoneMeta, buckets: ["zone_three"] } }),
-        epoch(startTs, T.HRZoneIntense, zones.intense, { ...prov, details: { ...zoneMeta, buckets: ["zone_four"] } }),
+        epoch(startTs, T.HRZoneLight, zones.light, { ...prov, details: { ...zoneMeta, buckets: ["zone_one"] } }),
+        epoch(startTs, T.HRZoneModerate, zones.moderate, { ...prov, details: { ...zoneMeta, buckets: ["zone_two"] } }),
+        epoch(startTs, T.HRZoneIntense, zones.intense, { ...prov, details: { ...zoneMeta, buckets: ["zone_three", "zone_four"] } }),
         epoch(startTs, T.HRZoneMaximal, zones.maximal, { ...prov, details: { ...zoneMeta, buckets: ["zone_five"] } }),
       ]))
     }

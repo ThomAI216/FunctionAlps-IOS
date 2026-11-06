@@ -4,7 +4,7 @@
 // gets a receipt (vendor event id, else body hash) so a redelivery is ACKed and skipped; rows a vendor
 // pushes are persisted, everything else becomes a queued pull. Answers fast, never calls the vendor here.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-import { type AccountRow, addDays, audit, cancelJobs, enqueue, localDay, markAccount, persistRows, receiptKey, recordReceipt, serviceClient, sha256Hex, storeRaw, upsertConnection } from "../_shared/wearables/core.ts"
+import { type AccountRow, addDays, audit, cancelJobs, deleteVendorRecord, enqueue, localDay, markAccount, persistRows, receiptKey, recordReceipt, serviceClient, sha256Hex, storeRaw, upsertConnection } from "../_shared/wearables/core.ts"
 import { adapter } from "../_shared/wearables/registry.ts"
 import { errorSummary, log, timer } from "../_shared/wearables/log.ts"
 
@@ -55,6 +55,14 @@ Deno.serve(async (req) => {
       await upsertConnection(db, acc.patient_id, a.key, false)
       await cancelJobs(db, acc.patient_id, a.key, "revoked_by_vendor")
       await audit(db, { patientId: acc.patient_id, vendor: a.key, accountId: acc.id, action: "revoke_by_vendor", actor: "vendor" })
+      continue
+    }
+    if (ev.deleted && ev.resourceId) {
+      // A signed vendor tombstone (WHOOP `*.deleted`): remove the rows stored from that one record; nothing to pull.
+      try {
+        const removed = await deleteVendorRecord(db, acc.patient_id, a.key, ev.resourceId, ev.resourceType ?? null)
+        await audit(db, { patientId: acc.patient_id, vendor: a.key, accountId: acc.id, action: "vendor_record_deleted", actor: "vendor", details: { kind: ev.kind, resource_type: ev.resourceType ?? null, ...removed } })
+      } catch (e) { log("error", "webhook.delete_failed", { fn: FN, vendor: a.key, account: acc.id, ...errorSummary(e) }) }
       continue
     }
     if (ev.rows) {
