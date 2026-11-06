@@ -1,9 +1,9 @@
 // Withings adapter — Phase 2 golden trace (strategy 2026-09-14): signed `requesttoken` (corpus vendors/withings.md §7), the D4 HRV
 // gate (sdnn_1/rmssd raw-only), PWV type 91 → 3008 with the unit exponent, provenance on every row, the unsigned notification
 // parser, notify subscribe/revoke, the signed revoke and the WITHINGS_REGION guard. `globalThis.fetch` is stubbed; nothing leaves the box.
-import { assert, assertEquals, assertMatch } from "jsr:@std/assert@1"
-import { T, hmacSha256 } from "../core.ts"
-import { _withingsTest, apiBase, localDayIn, scaleMeasure, sign, signingString, withings } from "../withings.ts"
+import { assert, assertEquals, assertMatch, assertRejects } from "jsr:@std/assert@1"
+import { RateLimitedError, T, UnauthorizedError, hmacSha256 } from "../core.ts"
+import { _withingsTest, apiBase, isAuthFailure, localDayIn, scaleMeasure, sevenDayChunks, sign, signingString, withings } from "../withings.ts"
 
 const EU = "https://wbsapi.withings.net"
 const fixture = async (name: string) => JSON.parse(await Deno.readTextFile(new URL(`./fixtures/withings/${name}`, import.meta.url)))
@@ -173,13 +173,15 @@ Deno.test("golden trace: fetchRange → exact rows; HRV raw-only under details (
 
       assertEquals(rows.daily, [
         { day: "2026-09-13", dataTypeId: 2300, dataTypeName: "ThryveMainSleepDuration", value: 25200, valueType: "LONG", ...sleep, details: {
-          ...base, sdnn_1_unverified: 62, rmssd_unverified: 48, hrv_source: "sleep_summary",
-          hrv_note: "UNVERIFIED: Withings HRV statistic/window not pinned (strategy D4; W §20) — raw only, no canonical HRV row",
+          ...base, rmssd_start_avg_raw: 62, rmssd_end_avg_raw: 48, hrv_source: "sleep_summary",
+          hrv_note: "Withings RMSSD averages at sleep start / end (ms); window not documented → raw only (D4)",
         } },
         sd(2200, "SleepEfficiency", 93), sd(2201, "SleepQuality", 81), sd(2301, "ThryveMainSleepInBedDuration", 27000), sd(2302, "ThryveMainSleepREMDuration", 6600),
         sd(2303, "ThryveMainSleepDeepDuration", 6000), sd(2305, "ThryveMainSleepLightDuration", 12600), sd(2306, "ThryveMainSleepAwakeDuration", 1800),
         sd(2307, "ThryveMainSleepLatency", 600), sd(2308, "ThryveMainSleepAwakeAfterWakeup", 900), sd(2402, "ThryveMainSleepInterruptions", 2),
-        sd(3002, "HeartRateSleep", 54), sd(3020, "HeartRateSleepLowest", 47), sd(4002, "RespirationRateSleep", 14), sd(4100, "Breathing", 5), sd(4101, "SnoringBinary", 300), sd(1000105, "SleepScore", 81),
+        sd(3002, "HeartRateSleep", 54), sd(3020, "HeartRateSleepLowest", 47), sd(4002, "RespirationRateSleep", 14), sd(4100, "Breathing", 5), sd(1000105, "SleepScore", 81),
+        // 4101 is BOOLEAN: presence of snoring, the seconds and episodes beside it (Withings `snoring` = seconds)
+        { day: "2026-09-13", dataTypeId: 4101, dataTypeName: "SnoringBinary", value: 1, valueType: "BOOLEAN", ...sleep, details: { ...base, snoring_s: 300, snoring_episodes: 4 } },
         { day: "2026-09-13", dataTypeId: 2400, dataTypeName: "ThryveMainSleepStartTime", value: 1789250400, valueText: "2026-09-12T22:00:00.000Z", valueType: "DATE", ...sleep, details: base },
         { day: "2026-09-13", dataTypeId: 2401, dataTypeName: "ThryveMainSleepEndTime", value: 1789277400, valueText: "2026-09-13T05:30:00.000Z", valueType: "DATE", ...sleep, details: base },
         { day: "2026-09-13", dataTypeId: 5020, dataTypeName: "Weight", value: 72.45, valueType: "DOUBLE", ...weight },
@@ -201,7 +203,7 @@ Deno.test("golden trace: fetchRange → exact rows; HRV raw-only under details (
       // D4: no canonical HRV id anywhere, the raw values only under the sleep-duration row.
       const all = [...rows.daily, ...rows.epoch]
       assertEquals(all.filter((r) => [T.Rmssd, T.RmssdSleep, T.SDNN, T.SDRR, T.RmssdSleepHighest].includes(r.dataTypeId as never)), [])
-      const carriers = all.filter((r) => r.details && ("sdnn_1_unverified" in r.details || "rmssd_unverified" in r.details))
+      const carriers = all.filter((r) => r.details && ("rmssd_start_avg_raw" in r.details || "sdnn_1_unverified" in r.details || "rmssd_unverified" in r.details))
       assertEquals(carriers.map((r) => r.dataTypeId), [T.MainSleepDuration])
       // Every row is traceable to a vendor record (grpid / sleep id) with its resource type; BP pair shares one record + timestamp (P16).
       assert(all.every((r) => r.sourceRecordId && r.sourceResourceType))
@@ -213,9 +215,9 @@ Deno.test("golden trace: fetchRange → exact rows; HRV raw-only under details (
   })
 })
 
-Deno.test("HRV fallback: when the summary lacks sdnn_1/rmssd the series means land in the same raw details — still no canonical row", async () => {
+Deno.test("HRV fallback: when the summary lacks rmssd_start/end_avg the series means land in the same raw details — still no canonical row", async () => {
   const summary = await fixture("sleep_getsummary.json"), series = await fixture("sleep_get_series.json")
-  delete summary.body.series[0].data.sdnn_1; delete summary.body.series[0].data.rmssd
+  delete summary.body.series[0].data.rmssd_start_avg; delete summary.body.series[0].data.rmssd_end_avg
   await withEnv(CREDS, async () => {
     const f = stubFetch((path, action) => path === "/v2/sleep" ? (action === "getsummary" ? summary : series) : path === "/measure" ? { status: 0, body: { measuregrps: [] } } : { status: 0, body: {} })
     try {
@@ -231,4 +233,78 @@ Deno.test("WITHINGS_REGION: EU by default (D10); an unpinned region falls back t
   await withEnv({ WITHINGS_REGION: null }, async () => { assertEquals(apiBase(), EU) })
   await withEnv({ WITHINGS_REGION: "eu" }, async () => { assertEquals(apiBase(), EU) })
   await withEnv({ WITHINGS_REGION: "US" }, async () => { assertEquals(apiBase(), EU) })
+})
+
+// MARK: - 2026-11-06 fixes, against developer.withings.com/openapi.yaml
+
+const grpOf = (grpid: number, attrib: number, type: number, value: number, unit = 0) => ({ grpid, attrib, date: 1789286400, created: 1789286400, modified: 1789286400, category: 1, deviceid: "dev-x", model: 45, measures: [{ value, type, unit }] })
+
+Deno.test("getmeas pages through `more` + `offset` until the last page (a busy window is no longer cut)", async () => {
+  await withEnv(CREDS, async () => {
+    const f = stubFetch((path, action, params) => {
+      if (path === "/measure" && action === "getmeas") {
+        return params.get("offset") === "2"
+          ? { status: 0, body: { measuregrps: [grpOf(3, 0, 1, 70100, -3)], more: 0, offset: 0, timezone: "Europe/Zurich" } }
+          : { status: 0, body: { measuregrps: [grpOf(1, 0, 1, 70300, -3), grpOf(2, 0, 1, 70200, -3)], more: 1, offset: 2, timezone: "Europe/Zurich" } }
+      }
+      return path === "/v2/sleep" ? { status: 0, body: { series: [] } } : { status: 0, body: { activities: [], series: [] } }
+    })
+    try {
+      const rows = await withings.fetchRange({ accessToken: "at" }, "2026-11-05", "2026-11-05", { patientId: "p", vendorUserId: "1", meta: {} })
+      const meas = f.calls.filter((c) => c.params.action === "getmeas")
+      assertEquals(meas.map((c) => c.params.offset ?? null), [null, "2"])
+      assertEquals(rows.epoch.filter((r) => r.dataTypeId === T.Weight).map((r) => r.sourceRecordId), ["1", "2", "3"])
+    } finally { f.restore() }
+  })
+})
+
+Deno.test("sleep summaries are asked in ≤ 7-day calls (\"A single call can span up to 7 days maximum\"): a 31-day backfill = 5 calls", async () => {
+  assertEquals(sevenDayChunks("2026-10-06", "2026-11-05").map((c) => [c.start, c.end]), [
+    ["2026-10-06", "2026-10-12"], ["2026-10-13", "2026-10-19"], ["2026-10-20", "2026-10-26"], ["2026-10-27", "2026-11-02"], ["2026-11-03", "2026-11-05"],
+  ])
+  await withEnv(CREDS, async () => {
+    const f = stubFetch((path) => path === "/v2/sleep" ? { status: 0, body: { series: [] } } : path === "/measure" ? { status: 0, body: { measuregrps: [] } } : { status: 0, body: { activities: [], series: [] } })
+    try {
+      await withings.fetchRange({ accessToken: "at" }, "2026-10-06", "2026-11-05", { patientId: "p", vendorUserId: "1", meta: {} })
+      const sums = f.calls.filter((c) => c.params.action === "getsummary")
+      assertEquals(sums.length, 5)
+      assert(sums.every((c) => c.params.data_fields.includes("rmssd_start_avg") && !c.params.data_fields.includes("sdnn_1")))
+    } finally { f.restore() }
+  })
+})
+
+Deno.test("device measure groups only: attrib 0, 1, 5 (the BP monitor's best value) and 8 kept; 2, 4 (manual), 7, 15 skipped", async () => {
+  assertEquals([..._withingsTest.DEVICE_ATTRIBS].sort(), [0, 1, 5, 8])
+  await withEnv(CREDS, async () => {
+    const groups = [grpOf(10, 0, 10, 120), grpOf(11, 5, 10, 118), grpOf(12, 8, 10, 119), grpOf(13, 2, 10, 140), grpOf(14, 4, 10, 150), grpOf(15, 7, 10, 160)]
+    const f = stubFetch((path) => path === "/measure" ? { status: 0, body: { measuregrps: groups, more: 0 } } : path === "/v2/sleep" ? { status: 0, body: { series: [] } } : { status: 0, body: { activities: [], series: [] } })
+    try {
+      const rows = await withings.fetchRange({ accessToken: "at" }, "2026-11-05", "2026-11-05", { patientId: "p", vendorUserId: "1", meta: {} })
+      assertEquals(rows.epoch.filter((r) => r.dataTypeId === T.SystolicBP).map((r) => r.sourceRecordId), ["10", "11", "12"])
+    } finally { f.restore() }
+  })
+})
+
+Deno.test("AFib (type 130) is a 0–13 classification: only 0 (negative) and 1 (positive) reach the BOOLEAN 3120; 2 (inconclusive) does not", async () => {
+  await withEnv(CREDS, async () => {
+    const groups = [grpOf(20, 0, 130, 0), grpOf(21, 0, 130, 1), grpOf(22, 0, 130, 2), grpOf(23, 0, 130, 13)]
+    const f = stubFetch((path) => path === "/measure" ? { status: 0, body: { measuregrps: groups, more: 0 } } : path === "/v2/sleep" ? { status: 0, body: { series: [] } } : { status: 0, body: { activities: [], series: [] } })
+    try {
+      const rows = await withings.fetchRange({ accessToken: "at" }, "2026-11-05", "2026-11-05", { patientId: "p", vendorUserId: "1", meta: {} })
+      const afib = rows.epoch.filter((r) => r.dataTypeId === T.AFib)
+      assertEquals(afib.map((r) => [r.sourceRecordId, r.value, r.valueType]), [["20", 0, "BOOLEAN"], ["21", 1, "BOOLEAN"]])
+    } finally { f.restore() }
+  })
+})
+
+Deno.test("status codes: 601 \"Too many request\" is a rate limit; 100..102, 200, 401, 2555 are auth failures; 214 \"Unauthorized\" (a permission) is not", async () => {
+  assertEquals([100, 101, 102, 200, 401, 2555].map(isAuthFailure), [true, true, true, true, true, true])
+  assertEquals([0, 214, 277, 601, 503].map(isAuthFailure), [false, false, false, false, false])
+  await withEnv(CREDS, async () => {
+    for (const [status, err] of [[601, RateLimitedError], [401, UnauthorizedError], [100, UnauthorizedError]] as const) {
+      const f = stubFetch(() => ({ status, error: "x" }))
+      try { await assertRejects(() => withings.fetchRange({ accessToken: "at" }, "2026-11-05", "2026-11-05", { patientId: "p", vendorUserId: "1", meta: {} }), err) }
+      finally { f.restore() }
+    }
+  })
 })

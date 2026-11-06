@@ -19,7 +19,7 @@
 //   • PWV → catalogue 3008 (P16 "Best source": the API "explicitly covers BP, body metrics, heart recordings and PWV"; pack index
 //     "PWV/AFib/BP 3008, 3120, 3300–3301"). BP systolic+diastolic share one `source_record_id` and timestamp (P16 "Measurement pairing").
 //   • Region: the app is an EU app, API base `https://wbsapi.withings.net`, `WITHINGS_REGION=EU` (W §3, §4, §7, §26; strategy D10).
-import { type AccountContext, type DailyRow, type EpochRow, type ExchangeResult, type TokenSet, type VendorAdapter, type WebhookEvent, T, UnauthorizedError, compact, daily, dailyDate, dailyMap, daysBetween, env, epoch, hmacSha256, mean, num, unixOf, vendorClient, webhookUrl } from "./core.ts"
+import { type AccountContext, type DailyRow, type EpochRow, type ExchangeResult, type TokenSet, type VendorAdapter, type WebhookEvent, T, RateLimitedError, UnauthorizedError, addDays, compact, daily, dailyDate, dailyMap, daysBetween, env, epoch, hmacSha256, mean, num, unixOf, vendorClient, webhookUrl } from "./core.ts"
 import { errorSummary, log } from "./log.ts"
 
 const AUTH = "https://account.withings.com/oauth2_user/authorize2"
@@ -48,10 +48,47 @@ async function wapi(path: string, params: Record<string, string | number>, acces
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`
   const r = await fetch(apiBase() + path, { method: "POST", headers, body: new URLSearchParams(Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))) })
   const j = (await r.json()) as { status: number; body?: Record<string, unknown>; error?: string }
-  if (j.status === 401 || j.status === 2555) throw new UnauthorizedError(`withings status ${j.status}`)
+  // Status table (developer.withings.com/openapi.yaml, read 2026-11-06): 100..102, 200, 401 "Authentication failed",
+  // 2555 "Unauthorized" → refresh once, then reconnect; 601 "Too many request" → a rate limit (120 requests/min/app), retried.
+  if (isAuthFailure(j.status)) throw new UnauthorizedError(`withings status ${j.status}`)
+  if (j.status === 601) throw new RateLimitedError("60")
   if (j.status !== 0) throw new Error(`withings ${path} status ${j.status}: ${String(j.error ?? "").slice(0, 200)}`)
   return j.body ?? {}
 }
+
+export const isAuthFailure = (status: number) => (status >= 100 && status <= 102) || status === 200 || status === 401 || status === 2555
+
+/**
+ * Every page of a paginated Withings list: "When a first call returns `more:1` (or `more:true`) and `offset:XX`, set value XX in
+ * this parameter to retrieve next available rows" (getmeas, getactivity, getworkouts). Without this a busy window was silently cut.
+ */
+export async function wpaged(path: string, params: Record<string, string | number>, accessToken: string, listKey: string): Promise<{ items: Record<string, unknown>[]; first: Record<string, unknown> }> {
+  const items: Record<string, unknown>[] = []
+  let first: Record<string, unknown> = {}
+  let offset: number | null = null
+  for (let page = 0; page < 20; page++) {
+    const body = await wapi(path, offset == null ? params : { ...params, offset }, accessToken)
+    if (page === 0) first = body
+    items.push(...((body[listKey] as Record<string, unknown>[]) ?? []))
+    const more = body.more === true || body.more === 1 || body.more === "1"
+    const next = num(body.offset)
+    if (!more || next == null || next === offset) break
+    offset = next
+  }
+  return { items, first }
+}
+
+/** Withings sleep data: "A single call can span up to 7 days maximum" → inclusive day chunks of at most 7 days. */
+export function sevenDayChunks(start: string, end: string): { start: string; end: string }[] {
+  const out: { start: string; end: string }[] = []
+  for (let s = start; s <= end && out.length < 60; s = addDays(s, 7)) { const e = addDays(s, 6); out.push({ start: s, end: e < end ? e : end }) }
+  return out
+}
+
+/** Device-captured measure groups (openapi `measuregrp_object.attrib`): 0 device + known user, 1 device (ambiguous user),
+ *  5 "Measure auto … only for the Blood Pressure Monitor … computed the best value", 8 "Same as attrib 0". Manual entries
+ *  (2, 4), confirmed activities (7) and guided nerve-health tests (15) are not body measurements we store. */
+export const DEVICE_ATTRIBS = new Set([0, 1, 5, 8])
 
 // MARK: - Request signing (W §7, §26; source `withings_sign` in pack 25_SOURCES.md)
 
@@ -183,17 +220,21 @@ export const withings: VendorAdapter = {
   async fetchRange(tokens, start, end, _ctx: AccountContext) {
     const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
     const tok = tokens.accessToken
-    // ── Sleep summaries (W §12/§19; P08 "Withings": score, efficiency, latency, time in bed, stages, overnight HRV, RR, HR, snoring).
-    // VERIFY: exact Sleep v2 field names/units are an open blocker (W §30) — `sdnn_1`/`rmssd` are requested from the summary and, when
-    // absent there, read from the per-night series; either way they stay RAW (D4).
-    const sum = await wapi("/v2/sleep", { action: "getsummary", startdateymd: start, enddateymd: end, data_fields: "total_timeinbed,total_sleep_time,sleep_efficiency,sleep_latency,waso,deepsleepduration,lightsleepduration,remsleepduration,wakeupduration,wakeupcount,hr_average,hr_min,rr_average,snoring,breathing_disturbances_intensity,sleep_score,sdnn_1,rmssd" }, tok)
-    for (const n of (sum.series as Record<string, unknown>[]) ?? []) {
+    // ── Sleep summaries, in ≤ 7-day calls (Withings: "A single call can span up to 7 days maximum"). Field names are the
+    // official getsummary `data_fields` (openapi.yaml, 2026-11-06): the summary carries `rmssd_start_avg` / `rmssd_end_avg`, NOT
+    // `sdnn_1` / `rmssd` (those are Sleep v2 GET series fields). HRV stays RAW either way (D4: the RMSSD window is "a few seconds").
+    const nights: Record<string, unknown>[] = []
+    for (const c of sevenDayChunks(start, end)) {
+      nights.push(...(await wpaged("/v2/sleep", { action: "getsummary", startdateymd: c.start, enddateymd: c.end, data_fields: "total_timeinbed,total_sleep_time,sleep_efficiency,sleep_latency,waso,deepsleepduration,lightsleepduration,remsleepduration,wakeupduration,wakeupcount,hr_average,hr_min,rr_average,snoring,snoringepisodecount,breathing_disturbances_intensity,sleep_score,rmssd_start_avg,rmssd_end_avg" }, tok, "series")).items)
+    }
+    for (const n of nights) {
       const d = (n.data ?? {}) as Record<string, unknown>, day = String(n.date), st = num(n.startdate), en = num(n.enddate)
       const sleepId = n.id != null ? String(n.id) : `${day}:${st ?? ""}`
       const prov = { sourceRecordId: sleepId, sourceResourceType: "sleep_summary", sourceDeviceId: n.hash_deviceid != null ? String(n.hash_deviceid) : null, sourceModifiedAt: iso(n.modified) }
       const base = { model: n.model ?? null, sleep_id: n.id ?? null, timezone: n.timezone ?? null }
       // Per-night series (HR / RR per minute → epoch rows). HRV series values are only ever folded into the raw `_unverified` details.
-      let sdnn = num(d.sdnn_1), rmssd = num(d.rmssd), hrvSource: string | null = sdnn != null || rmssd != null ? "sleep_summary" : null, hrvSamples = 0
+      const rmssdStart = num(d.rmssd_start_avg), rmssdEnd = num(d.rmssd_end_avg)
+      let sdnn: number | null = null, rmssd: number | null = null, hrvSource: string | null = rmssdStart != null || rmssdEnd != null ? "sleep_summary" : null, hrvSamples = 0
       if (st && en) {
         try {
           const ser = await wapi("/v2/sleep", { action: "get", startdate: st, enddate: en, data_fields: "hr,rr,sdnn_1,rmssd" }, tok)
@@ -208,21 +249,26 @@ export const withings: VendorAdapter = {
         } catch (e) { warn("withings.sleep_series_failed", e) }
       }
       // D4 gate: the HRV fields ride on the sleep-duration row as raw details and are never written to 3100 / 3106 / 3112.
-      const hrv = hrvSource ? { sdnn_1_unverified: sdnn, rmssd_unverified: rmssd, hrv_source: hrvSource, ...(hrvSamples ? { hrv_samples: hrvSamples } : {}), hrv_note: "UNVERIFIED: Withings HRV statistic/window not pinned (strategy D4; W §20) — raw only, no canonical HRV row" } : {}
+      const hrv = hrvSource === "sleep_summary"
+        ? { rmssd_start_avg_raw: rmssdStart, rmssd_end_avg_raw: rmssdEnd, hrv_source: hrvSource, hrv_note: "Withings RMSSD averages at sleep start / end (ms); window not documented → raw only (D4)" }
+        : hrvSource ? { sdnn_1_unverified: sdnn, rmssd_unverified: rmssd, hrv_source: hrvSource, ...(hrvSamples ? { hrv_samples: hrvSamples } : {}), hrv_note: "Withings Sleep v2 GET series means: SDNN over 1 min, RMSSD over \"a few seconds\" (ms) → raw only (D4)" } : {}
       const eff = num(d.sleep_efficiency)
       dailyRows.push(...compact([daily(day, T.MainSleepDuration, num(d.total_sleep_time), { ...prov, details: { ...base, ...hrv } })]))
       dailyRows.push(...dailyMap(day, {
         [T.InBed]: num(d.total_timeinbed), [T.REM]: num(d.remsleepduration), [T.Deep]: num(d.deepsleepduration), [T.Light]: num(d.lightsleepduration),
         [T.Awake]: num(d.wakeupduration), [T.Latency]: num(d.sleep_latency), [T.AwakeAfterWakeup]: num(d.waso), [T.Interruptions]: num(d.wakeupcount), [T.SleepEfficiency]: eff != null && eff <= 1 ? eff * 100 : eff,
         [T.SleepQuality]: num(d.sleep_score), [T.SleepScore]: num(d.sleep_score), [T.HeartRateSleep]: num(d.hr_average), [T.HeartRateSleepLowest]: num(d.hr_min), [T.RespirationRateSleep]: num(d.rr_average),
-        [T.Snoring]: num(d.snoring), [T.Breathing]: num(d.breathing_disturbances_intensity),
+        [T.Breathing]: num(d.breathing_disturbances_intensity),
       }, { ...prov, details: base }))
+      // 4101 SnoringBinary is BOOLEAN; Withings `snoring` is "Total snoring time (seconds)" → presence, with the seconds beside it.
+      const snoringS = num(d.snoring)
+      if (snoringS != null) dailyRows.push(...compact([daily(day, T.Snoring, snoringS > 0 ? 1 : 0, { ...prov, valueType: "BOOLEAN", details: { ...base, snoring_s: snoringS, snoring_episodes: num(d.snoringepisodecount) } })]))
       if (st && en) dailyRows.push(...compact([dailyDate(day, T.SleepStart, new Date(st * 1000).toISOString(), { ...prov, details: base }), dailyDate(day, T.SleepEnd, new Date(en * 1000).toISOString(), { ...prov, details: base })]))
     }
     // ── Daily activity (Withings devices only; brand 18 = external source, skipped to avoid double counting with the Apple Health relay).
     // VERIFY: activity has no vendor record id — `activity:<date>` is a FunctionAlps key.
-    const act = await wapi("/v2/measure", { action: "getactivity", startdateymd: start, enddateymd: end, data_fields: "steps,distance,elevation,active,calories,totalcalories,hr_average,hr_zone_0,hr_zone_1,hr_zone_2,hr_zone_3" }, tok)
-    for (const x of (act.activities as Record<string, unknown>[]) ?? []) {
+    const act = await wpaged("/v2/measure", { action: "getactivity", startdateymd: start, enddateymd: end, data_fields: "steps,distance,elevation,active,calories,totalcalories,hr_average,hr_zone_0,hr_zone_1,hr_zone_2,hr_zone_3" }, tok, "activities")
+    for (const x of act.items) {
       if (num(x.brand) === 18) continue
       const day = String(x.date)
       dailyRows.push(...dailyMap(day, {
@@ -230,14 +276,14 @@ export const withings: VendorAdapter = {
         [T.HRZoneLight]: (num(x.hr_zone_0) ?? 0) / 60 || null, [T.HRZoneModerate]: (num(x.hr_zone_1) ?? 0) / 60 || null, [T.HRZoneIntense]: (num(x.hr_zone_2) ?? 0) / 60 || null, [T.HRZoneMaximal]: (num(x.hr_zone_3) ?? 0) / 60 || null,
       }, { details: { brand: num(x.brand), is_tracker: x.is_tracker ?? null, timezone: x.timezone ?? null }, sourceRecordId: `activity:${day}`, sourceResourceType: "activity", sourceDeviceId: x.deviceid != null ? String(x.deviceid) : null, sourceModifiedAt: iso(x.modified) }))
     }
-    // ── Measures (body composition / BP / PWV / SpO2 / temperature): `value × 10^unit`, category 1 = real measures; device readings only
-    // (attrib 0/1; manual entries 2+ skipped — P15 "whether user-entered/manual if exposed" is kept in details). Row identity = measure
-    // group id (P15 "Keep: measurement group/id"; P16: systolic and diastolic share one `source_record_id` and timestamp).
-    const meas = await wapi("/measure", { action: "getmeas", meastypes: Object.keys(MEAS).join(","), category: 1, startdate: unixOf(`${start}T00:00:00Z`), enddate: unixOf(`${end}T23:59:59Z`) }, tok)
-    const tz = typeof meas.timezone === "string" ? meas.timezone : null
-    for (const g of (meas.measuregrps as Record<string, unknown>[]) ?? []) {
+    // ── Measures (body composition / BP / PWV / SpO2 / temperature): `value × 10^unit`, category 1 = real measures, every page,
+    // device-captured groups only (DEVICE_ATTRIBS: 0, 1, 5 = the BP monitor's best value, 8). Row identity = measure group id
+    // (P15 "Keep: measurement group/id"; P16: systolic and diastolic share one `source_record_id` and timestamp).
+    const meas = await wpaged("/measure", { action: "getmeas", meastypes: Object.keys(MEAS).join(","), category: 1, startdate: unixOf(`${start}T00:00:00Z`), enddate: unixOf(`${end}T23:59:59Z`) }, tok, "measuregrps")
+    const tz = typeof meas.first.timezone === "string" ? meas.first.timezone : null
+    for (const g of meas.items) {
       const attrib = num(g.attrib) ?? 0
-      if (attrib > 1) continue
+      if (!DEVICE_ATTRIBS.has(attrib)) continue
       const unix = num(g.date) ?? 0, ts = new Date(unix * 1000).toISOString(), day = localDayIn(unix, tz)
       const prov = { sourceRecordId: g.grpid != null ? String(g.grpid) : null, sourceResourceType: "measuregrp", sourceDeviceId: g.deviceid != null ? String(g.deviceid) : null, sourceModifiedAt: iso(g.modified) }
       for (const q of (g.measures as Record<string, unknown>[]) ?? []) {
@@ -246,22 +292,29 @@ export const withings: VendorAdapter = {
         const unit = num(q.unit) ?? 0
         let v = scaleMeasure(num(q.value) ?? 0, unit)
         if (id === T.Height) v *= 100  // metres → cm (catalogue 5030)
-        const details = { grpid: g.grpid ?? null, attrib, model: g.model ?? null, meastype: type, unit_exponent: unit, timezone: tz }
-        const row = epoch(ts, id, v, { ...prov, details })
+        const details: Record<string, unknown> = { grpid: g.grpid ?? null, attrib, model: g.model ?? null, meastype: type, unit_exponent: unit, timezone: tz }
+        // AFib (type 130) is "a classification integer … 0 Negative, 1 Positive, 2 Inconclusive … 13 No Diagnosis"; catalogue 3120 is
+        // BOOLEAN → only a clear negative (0) or positive (1) is written; any other code is not a detection result.
+        if (id === T.AFib) {
+          if (v !== 0 && v !== 1) continue
+          details.afib_code = v
+        }
+        const row = epoch(ts, id, v, { ...prov, details, ...(id === T.AFib ? { valueType: "BOOLEAN" as const } : {}) })
         if (row) epochRows.push(row)
         if (DAILY_MEAS.has(id)) dailyRows.push(...dailyMap(day, { [id]: v }, { ...prov, details }))
       }
     }
     // ── Workouts.
     try {
-      const wk = await wapi("/v2/measure", { action: "getworkouts", startdateymd: start, enddateymd: end, data_fields: "calories,hr_average,hr_min,hr_max,steps,distance,effduration" }, tok)
-      for (const w of (wk.series as Record<string, unknown>[]) ?? []) {
+      // Documented getworkouts data_fields only (`effduration` is not one of them).
+      const wk = await wpaged("/v2/measure", { action: "getworkouts", startdateymd: start, enddateymd: end, data_fields: "calories,intensity,hr_average,hr_min,hr_max,steps,distance" }, tok, "series")
+      for (const w of wk.items) {
         const st = num(w.startdate), en = num(w.enddate), d = (w.data ?? {}) as Record<string, unknown>
         if (!st) continue
         const startTs = new Date(st * 1000).toISOString(), endTs = en ? new Date(en * 1000).toISOString() : undefined
         const prov = { sourceRecordId: w.id != null ? String(w.id) : `workout:${st}`, sourceResourceType: "workout", sourceDeviceId: w.deviceid != null ? String(w.deviceid) : null, sourceModifiedAt: iso(w.modified) }
         epochRows.push(...compact([
-          epoch(startTs, T.ActivityType, num(w.category) ?? 0, { ...prov, endTs, valueText: `withings_category_${w.category}`, valueType: "STRING", details: { workout_id: w.id ?? null, effduration: num(d.effduration) } }),
+          epoch(startTs, T.ActivityType, num(w.category) ?? 0, { ...prov, endTs, valueText: `withings_category_${w.category}`, valueType: "STRING", details: { workout_id: w.id ?? null, intensity: num(d.intensity) } }),
           epoch(startTs, T.ActiveBurnedCalories, num(d.calories), { ...prov, endTs, details: { workout: true } }), epoch(startTs, T.CoveredDistance, num(d.distance), { ...prov, endTs, details: { workout: true } }),
           epoch(startTs, T.HeartRate, num(d.hr_average), { ...prov, endTs, details: { workout: true, max: num(d.hr_max) } }),
         ]))
@@ -271,4 +324,4 @@ export const withings: VendorAdapter = {
   },
 }
 
-export const _withingsTest = { daysBetween, APPLIS, MEAS, SCOPES }
+export const _withingsTest = { daysBetween, APPLIS, MEAS, SCOPES, DEVICE_ATTRIBS }
