@@ -19,6 +19,10 @@ struct MessagesView: View {
     @State private var context: MessageContext?
     @State private var member: Member?
     @State private var errorMessage: String?
+    /// Voice in the composer (Thomas, 2026-11-06): the meal describer's recorder, the sovereign Whisper
+    /// (`transcribe-audio`, Infomaniak). The words land in the field for review; nothing is sent on its own.
+    @State private var dictation: SpeechDictation?
+    @State private var micPulse = false
 
     private var canSend: Bool { MessagingLogic.validate(text) && !sending }
 
@@ -150,13 +154,16 @@ struct MessagesView: View {
 
     private var composer: some View {
         HStack(alignment: .bottom, spacing: 9) {
-            TextField(String(localized: "messages.placeholder", defaultValue: "Write a message…"), text: $text, axis: .vertical)
+            TextField(composerPlaceholder, text: $text, axis: .vertical)
                 .focused($composerFocused)
+                // Grows a line at a time up to five, then scrolls inside, like a chat app.
                 .lineLimit(1...5)
+                .animation(.easeOut(duration: 0.16), value: text)
                 .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(FAColor.ink)
                 .padding(.horizontal, 14).padding(.vertical, 11)
                 .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(text.isEmpty ? ProfilePalette.hairline : FAColor.gold, lineWidth: 1.5) }
+            if let dictation { micButton(dictation) }
             Button { Task { await send() } } label: {
                 ZStack {
                     Circle().fill(canSend ? FAColor.gold : ProfilePalette.surfaceSoft)
@@ -171,10 +178,59 @@ struct MessagesView: View {
             .accessibilityLabel(String(localized: "messages.send", defaultValue: "Send message"))
         }
         // Above the floating bar while reading; on the keyboard while typing (the bar steps aside then).
+        .overlay(alignment: .topLeading) {
+            if let error = dictation?.error {
+                Text(error).font(FATypography.sans(11.5, .semibold, relativeTo: .caption)).foregroundStyle(ProfilePalette.red)
+                    .padding(.horizontal, 16).offset(y: -18)
+            }
+        }
         .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, composerFocused ? 10 : FASpacing.tabBarInset)
         .overlay(alignment: .top) { Rectangle().fill(ProfilePalette.hairline).frame(height: 1) }
         .onChange(of: composerFocused) { _, focused in router.composing = focused }
         .onDisappear { router.composing = false }
+        .task {
+            guard dictation == nil else { return }
+            let meals = dependencies.meals
+            let d = SpeechDictation { audio, mime in try await meals.transcribe(audio: audio, mimeType: mime) }
+            d.onFinal = { words in
+                let current = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                text = current.isEmpty ? words : current + " " + words
+            }
+            dictation = d
+        }
+    }
+
+    private var composerPlaceholder: String {
+        if dictation?.listening == true { return String(localized: "messages.voice.listening", defaultValue: "Listening… tap the button when you're done") }
+        if dictation?.transcribing == true { return String(localized: "messages.voice.transcribing", defaultValue: "Writing it down…") }
+        return String(localized: "messages.placeholder", defaultValue: "Write a message…")
+    }
+
+    /// The microphone, beside Send and the same size: tap to speak, tap again to stop; the words land in the field.
+    private func micButton(_ dictation: SpeechDictation) -> some View {
+        let active = dictation.listening || dictation.transcribing
+        return Button { dictation.toggle() } label: {
+            ZStack {
+                Circle().fill(active ? FAColor.forestSoft : ProfilePalette.surfaceSoft)
+                if dictation.transcribing {
+                    ProgressView().tint(.white)
+                } else {
+                    Image(systemName: dictation.listening ? "stop.fill" : "mic")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(active ? Color.white : FAColor.forestSoft)
+                }
+            }
+            .frame(width: 42, height: 42)
+            .opacity(dictation.listening && micPulse ? 0.6 : 1)
+        }
+        .buttonStyle(.plain)
+        .disabled(dictation.transcribing || sending)
+        .accessibilityLabel(dictation.listening
+            ? String(localized: "messages.voice.stop", defaultValue: "Stop and write it down")
+            : String(localized: "messages.voice.start", defaultValue: "Dictate a message"))
+        .onChange(of: dictation.listening) { _, on in
+            if on { withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) { micPulse = true } } else { withAnimation(.default) { micPulse = false } }
+        }
     }
 
     private func load() async {
