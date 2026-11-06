@@ -40210,22 +40210,6 @@
         }
       }
     },
-    "track.video.soon": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Today's video is coming soon."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La vidéo du jour arrive bientôt."
-          }
-        }
-      }
-    },
     "track.video.watch": {
       "localizations": {
         "en": {

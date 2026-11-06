@@ -119,7 +119,8 @@ private struct TrackTodayCard: View {
     }
 }
 
-/// The day's video, played in the card; the first play is the day's `video` activity.
+/// The day's video, played in the card; the first play is the day's `video` activity. A day without a video shows
+/// nothing in its place (Thomas, 2026-11-06: no "coming soon" line; the videos arrive with their URLs).
 struct TrackDayVideo: View {
     @Environment(AppDependencies.self) private var dependencies
     let day: TrackDay
@@ -128,8 +129,10 @@ struct TrackDayVideo: View {
         let track = dependencies.track
         let url = TrackLogic.text(day.videoUrlEn, day.videoUrlFr, locale: track.locale)
             .flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
-        TrackVideoView(url: url) { Task { await track.videoPlayed(day: day.day) } }
-            .id(day.day)
+        if let url {
+            TrackVideoView(url: url) { Task { await track.videoPlayed(day: day.day) } }
+                .id(day.day)
+        }
     }
 }
 
