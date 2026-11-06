@@ -251,8 +251,12 @@ final class WearableService {
 
     /// Which vendors the practice has opened (`wearable_vendors.status = available`).
     func availableVendors() async -> Set<String> {
-        let rows = (try? await backend.wearableVendors()) ?? []
-        return Set(rows.filter(\.isAvailable).map(\.key))
+        Set(await vendorRows().filter(\.isAvailable).map(\.key))
+    }
+
+    /// Every `wearable_vendors` row (key, name, source id, status) — the Devices screen lists them all.
+    func vendorRows() async -> [WearableVendorRow] {
+        (try? await backend.wearableVendors()) ?? []
     }
 
     /// The vendor's OAuth consent in the system sheet; the callback function sends the phone back with the outcome.

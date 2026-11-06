@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Settings → Devices → Apple Health & Apple Watch. The phone is the connection: Apple Health already
 /// holds what the Watch (and any device that syncs into Health) recorded, so one permission sheet
-/// covers them all. Other wearables (Garmin, Oura, Fitbit…) link through the web app for now.
+/// covers them all. Direct vendor accounts (Oura, WHOOP, Withings, Garmin…) link below through their own
+/// consent page; a device that is in neither list can be asked for (`DeviceRequestCard`).
 struct WearablesView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var days: [WearableDay] = []
@@ -14,7 +15,8 @@ struct WearablesView: View {
     @State private var errorMessage: String?
     @State private var confirmDisconnect = false
     // Direct vendors
-    @State private var availableVendors: Set<String> = []
+    @State private var vendorRows: [WearableVendorRow] = []
+    private var availableVendors: Set<String> { Set(vendorRows.filter(\.isAvailable).map(\.key)) }
     @State private var accounts: [WearableVendorAccountRow] = []
     @State private var vendorDisclosed: Bool?
     @State private var busyVendor: String?
@@ -63,7 +65,7 @@ struct WearablesView: View {
                             }
                         }
                     }
-                    ForEach(WearableVendor.all) { vendor in
+                    ForEach(WearableVendor.catalogue(rows: vendorRows)) { vendor in
                         VendorCard(
                             vendor: vendor,
                             account: accounts.first { $0.vendor == vendor.key },
@@ -76,7 +78,8 @@ struct WearablesView: View {
                         .padding(.bottom, 10)
                     }
                     Text(String(localized: "vendor.footnote", defaultValue: "Devices without a public service (Eight Sleep, RingConn, Renpho, Zepp…) still arrive through Apple Health when their app writes to it."))
-                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 4)
+                        .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 4).padding(.bottom, 14)
+                    DeviceRequestCard()
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, FASpacing.navBarClearance)
@@ -296,7 +299,7 @@ struct WearablesView: View {
         let version = (try? await notice)?.version
         disclosed = service.isConnected || WearableDisclosure.isDisclosed(noticeVersion: version)
         vendorDisclosed = WearableDisclosure.isVendorDisclosed(noticeVersion: version)
-        availableVendors = await service.availableVendors()
+        vendorRows = await service.vendorRows()
     }
 }
 
@@ -360,8 +363,12 @@ private struct VendorCard: View {
                     }
                     .padding(.top, 12)
                 }
-                Text(String(localized: "vendor.adds", defaultValue: "Adds: \(vendor.adds)")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(4).padding(.top, 10)
-                Text(String(localized: "vendor.viaHealth", defaultValue: "Already via Apple Health: \(vendor.viaAppleHealth)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 3)
+                if !vendor.adds.isEmpty {
+                    Text(String(localized: "vendor.adds", defaultValue: "Adds: \(vendor.adds)")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(4).padding(.top, 10)
+                }
+                if !vendor.viaAppleHealth.isEmpty {
+                    Text(String(localized: "vendor.viaHealth", defaultValue: "Already via Apple Health: \(vendor.viaAppleHealth)")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 3)
+                }
             }
         }
         .overlay { RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous).strokeBorder(Color(hex: 0x4A8A5C, opacity: isLive ? 0.45 : 0), lineWidth: 1) }
@@ -408,6 +415,72 @@ private struct VendorCard: View {
             }
             return available ? String(localized: "vendor.available", defaultValue: "Account link available") : String(localized: "vendor.soon", defaultValue: "In development")
         }
+    }
+}
+
+/// "Don't see your device?" — a member names the device they use; it reaches the practice on the product feedback
+/// channel (`member-feedback`, prefixed "Device request:"), which is how the next direct integration gets chosen.
+/// The first line of the card says what already works without asking: any device whose app writes to Apple Health.
+private struct DeviceRequestCard: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var device = ""
+    @State private var busy = false
+    @State private var sent = false
+    @State private var errorMessage: String?
+
+    static let maxLength = 80
+    private var trimmed: String { String(device.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxLength)) }
+
+    var body: some View {
+        FACard {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 10) {
+                    Image(systemName: "plus.circle").font(.system(size: 15, weight: .semibold)).foregroundStyle(FAColor.forestSoft).accessibilityHidden(true)
+                    Text(String(localized: "vendor.request.title", defaultValue: "Don't see your device?")).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                }
+                Text(String(localized: "vendor.request.body", defaultValue: "If its app writes to Apple Health, connect Apple Health above and its data comes in with it. Otherwise tell us which device you use: the practice adds the ones members ask for most."))
+                    .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineSpacing(4).padding(.top, 8)
+                if sent {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundStyle(FAColor.forestSoft).accessibilityHidden(true)
+                        Text(String(localized: "vendor.request.thanks", defaultValue: "Thank you. The practice has your request.")).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
+                    }
+                    .padding(.top, 12)
+                } else {
+                    TextField(String(localized: "vendor.request.placeholder", defaultValue: "Brand and model"), text: $device)
+                        .font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                        .textInputAutocapitalization(.words).autocorrectionDisabled().submitLabel(.send)
+                        .onSubmit { Task { await submit() } }
+                        .padding(.horizontal, 12).padding(.vertical, 10)
+                        .background(ProfilePalette.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay { RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(trimmed.isEmpty ? ProfilePalette.hairline : FAColor.forestSoft, lineWidth: 1) }
+                        .accessibilityLabel(String(localized: "vendor.request.field", defaultValue: "Your device's brand and model"))
+                        .padding(.top, 12)
+                    if let errorMessage {
+                        Text(errorMessage).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(ProfilePalette.red).lineSpacing(4).padding(.top, 8)
+                    }
+                    ForestPillButton(title: busy ? String(localized: "feedback.sending", defaultValue: "Sending...") : String(localized: "vendor.request.send", defaultValue: "Ask for this device"),
+                                     enabled: !trimmed.isEmpty, busy: busy) {
+                        Task { await submit() }
+                    }
+                    .padding(.top, 12)
+                }
+            }
+        }
+    }
+
+    private func submit() async {
+        guard !busy, !trimmed.isEmpty else { return }
+        busy = true
+        errorMessage = nil
+        do {
+            try await dependencies.account.sendFeedback("Device request: \(trimmed)")
+            sent = true
+            device = ""
+        } catch {
+            errorMessage = String(localized: "feedback.failed", defaultValue: "That did not send. Please try again.")
+        }
+        busy = false
     }
 }
 

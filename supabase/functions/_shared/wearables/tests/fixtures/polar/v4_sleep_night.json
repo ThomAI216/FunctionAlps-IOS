@@ -1,0 +1,34 @@
+{
+  "_note": "Shape = Polar v4 `/sleeps` WITH features sleep-result, sleep-evaluation, sleep-score (Swagger `sleepNightSleep`, `sleepHypnogram`, `sleepSleepEvaluation`, `sleepAnalysis`, `sleepInterruptions`, `sleepPhaseDurations`, `sleepSleepScoreData`). Durations are strings of seconds as documented. Values illustrative.",
+  "nightSleeps": [
+    {
+      "sleepDate": "2026-11-05",
+      "sleepResult": {
+        "hypnogram": {
+          "sleepStart": "2026-11-04T23:10:00+01:00",
+          "sleepEnd": "2026-11-05T06:40:00+01:00",
+          "birthday": "1990-01-01",
+          "batteryRanOut": false,
+          "deviceReference": { "deviceId": "A1B2C3D4" },
+          "sleepStateChanges": [ { "offsetFromStart": "0s", "newState": "SLEEP_STATE_NON_REM1" } ]
+        }
+      },
+      "sleepEvaluation": {
+        "sleepType": "SLEEP_TYPE_SLEEP_PLUS_STAGES",
+        "sleepSpan": "27000s",
+        "asleepDuration": "25080.5s",
+        "analysis": { "efficiencyPercent": 92.9, "continuityIndex": 3.6, "continuityClass": 3 },
+        "interruptions": { "totalDuration": "1920s", "longDuration": "900s", "shortDuration": "1020s", "totalCount": 14, "longCount": 2, "shortCount": 12 },
+        "phaseDurations": { "wake": "1920s", "rem": "5400.000000001s", "light": "13680s", "deep": "6000s", "unknown": "0s", "remPercentage": 21.5, "deepPercentage": 23.9 }
+      },
+      "sleepScore": {
+        "created": "2026-11-05T06:45:00Z",
+        "lastModified": "2026-11-05T06:45:00Z",
+        "sleepScore": 81.4,
+        "sleepTimeOwnTargetScore": 80, "sleepTimeRecommendationScore": 85, "continuityScore": 70, "efficiencyScore": 90,
+        "remScore": 75, "n3Score": 88, "longInterruptionsTimeScore": 60, "groupDurationScore": 82, "groupSolidityScore": 74, "groupRefreshScore": 81,
+        "scoreRate": 4
+      }
+    }
+  ]
+}
