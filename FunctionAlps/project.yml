@@ -63,7 +63,7 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: FunctionAlps uses the camera to photograph your meals so they can be analysed.
-        NSMicrophoneUsageDescription: FunctionAlps listens while you describe a meal by voice; the words are analysed, the audio stays on your phone.
+        NSMicrophoneUsageDescription: "FunctionAlps listens while you dictate a meal or a message to your practitioner. The recording is sent to our Swiss transcription service only to write your words down."
         NSSpeechRecognitionUsageDescription: FunctionAlps turns your spoken meal description into text so it can be analysed.
         NSHealthShareUsageDescription: FunctionAlps reads your steps, sleep, heart rate, heart-rate variability, breathing rate, blood oxygen, workouts and weight from Apple Health (including your Apple Watch) so your practitioner can see how your body responds alongside what you log. Nothing is written back to Health.
         NSHealthUpdateUsageDescription: FunctionAlps does not write to Apple Health.
