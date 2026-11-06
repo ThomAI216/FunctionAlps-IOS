@@ -9,6 +9,9 @@ final class HomeViewModel {
         let today: TodaySnapshot
         /// Items the practice sent with a message and the member has not opened (the Home nudge). 0 = no card.
         var newResources: Int = 0
+        /// Who the member talks to and the thread's last message (the Home messages card); both fail soft to none.
+        var careTeam: CareTeam = .empty
+        var lastMessage: PatientMessage? = nil
     }
 
     enum Blocker: Equatable { case notRegistered }
@@ -36,9 +39,11 @@ final class HomeViewModel {
             let member = try await members.currentMember()
             // The nudge rides its own read and fails soft to 0: Home never waits on it.
             async let fresh = messaging?.unopenedSentCount() ?? 0
+            async let team = messaging?.careTeam() ?? .empty
+            async let last = messaging?.lastMessage()
             let today = try await dashboard.today(patientId: member.patientId)
             blocker = nil
-            state = .loaded(Content(member: member, today: today, newResources: await fresh))
+            state = .loaded(Content(member: member, today: today, newResources: await fresh, careTeam: await team, lastMessage: await last))
         } catch MemberService.MemberError.notRegistered {
             blocker = .notRegistered
             state = .empty

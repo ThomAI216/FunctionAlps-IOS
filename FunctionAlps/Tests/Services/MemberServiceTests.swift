@@ -15,6 +15,9 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func memberProfile(patientId: String) async throws -> MemberProfile? { profile }
     func meals(patientId: String, since: Date) async throws -> [MealLog] { meals }
     func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? { checkin }
+    var careTeamResult: [CareMember] = []
+    var careTeamFails = false
+    func careTeam() async throws -> [CareMember] { if careTeamFails { throw AppError.notFound }; return careTeamResult }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { unread }
 
     func meal(id: String) async throws -> MealLog? { meals.first { $0.id == id } }

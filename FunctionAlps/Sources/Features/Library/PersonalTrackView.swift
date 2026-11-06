@@ -70,11 +70,13 @@ final class PersonalTrackViewModel {
 /// The words are the practice's; the app adds the frame only.
 struct PersonalTrackView: View {
     let trackId: String
-    /// The practitioner's name when the app knows it; nothing reads it yet, so the page says "your practitioner".
+    /// The practitioner's name when the caller knows it; otherwise the care team's first name, else "your practitioner".
     var practitionerName: String? = nil
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
     @State private var model: PersonalTrackViewModel?
+    /// The team's first member, when known: names the sender of the note and the check-in.
+    @State private var teamFirstName: String?
 
     var body: some View {
         ScrollView {
@@ -96,6 +98,7 @@ struct PersonalTrackView: View {
                 await m.load()
             }
         }
+        .task { teamFirstName = await dependencies.messaging.careTeam().firstName }
         .task {
             // The plan says which actions are done; a link straight into the page may arrive before Home loaded it.
             if dependencies.habits.plan == nil, let member = try? await dependencies.members.currentMember() {
@@ -105,7 +108,7 @@ struct PersonalTrackView: View {
         .refreshable { await model?.load() }
     }
 
-    private var who: PractitionerWords { PractitionerWords(name: practitionerName) }
+    private var who: PractitionerWords { PractitionerWords(name: practitionerName ?? teamFirstName) }
 
     @ViewBuilder
     private var content: some View {

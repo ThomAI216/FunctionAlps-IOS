@@ -1578,6 +1578,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
     }
 
+    func careTeam() async throws -> [CareMember] {
+        try await rest.rpc("member_care_team", body: EmptyBody())
+    }
+
     /// The member-readable columns only (the row also carries `sent_by`, `clinic_id`, `approval_status`;
     /// RLS already keeps withdrawn rows out).
     private static let messageResourceColumns = "id,message_id,library_slug,title,kind,created_at,opened_at"

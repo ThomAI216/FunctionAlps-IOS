@@ -9,7 +9,7 @@ import SwiftUI
 /// Launched by the `Screenshots` workflow: `-FAShowcase <screen>` (see `Screen`).
 enum Showcase {
     enum Screen: String, CaseIterable {
-        case today, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, episode, symptoms, article, onboarding
+        case today, todayBottom = "today-bottom", profile, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, episode, symptoms, article, onboarding
         /// The practice's answer with resources, and the mini track they land on (2026-11-05).
         case messages, sentTrack = "sent-track", personalTrack = "personal-track"
         /// The action-card anatomy for the content brief: one complete card from the top, middle and bottom, a breathing card, the bank.
@@ -40,7 +40,8 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .checkinDone, .onboarding: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding: "functionalps://home"
+        case .profile: "functionalps://profile"
         case .checkin, .checkinMood: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"

@@ -18,6 +18,9 @@ struct MessagesView: View {
     @State private var sending = false
     @State private var context: MessageContext?
     @State private var member: Member?
+    /// Who the member is talking to (photo, name, title); empty until it loads or while migration 288 is not applied.
+    @State private var team: CareTeam = .empty
+    @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     /// Voice in the composer (Thomas, 2026-11-06): the meal describer's recorder, the sovereign Whisper
     /// (`transcribe-audio`, Infomaniak). The words land in the field for review; nothing is sent on its own.
@@ -28,11 +31,7 @@ struct MessagesView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            CenteredHeader(title: String(localized: "settings.messages", defaultValue: "Messages"), hairline: true)
-            // The promise, pinned — NOT a "no AI" claim: the clinician may draft with help, a human always sends.
-            Text(String(localized: "messages.promise", defaultValue: "Direct line with your nutritionist"))
-                .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)
-                .frame(maxWidth: .infinity).padding(.top, 8)
+            header
 
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
@@ -87,11 +86,50 @@ struct MessagesView: View {
         .task {
             context = initialContext
             member = try? await dependencies.members.currentMember()
+            async let teamRead = dependencies.messaging.careTeam()
             await load()
+            team = await teamRead
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await load() } }
         }
+    }
+
+    /// Who you talk to: the first member's photo, name and title. Without a team it keeps the plain title and the promise.
+    @ViewBuilder
+    private var header: some View {
+        if let first = team.first {
+            HStack(spacing: 10) {
+                Button { dismiss() } label: {
+                    Image(systemName: "chevron.left").font(.system(size: 20, weight: .medium)).foregroundStyle(FAColor.ink)
+                        .frame(width: 36, height: 36, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "action.back", defaultValue: "Go back"))
+                CareAvatar(member: first, size: 42)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(first.name).font(FATypography.display(19, relativeTo: .title3)).foregroundStyle(FAColor.ink).lineLimit(1)
+                    Text(headerSubtitle(first)).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).lineLimit(2)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .overlay(alignment: .bottom) { Rectangle().fill(ProfilePalette.hairline).frame(height: 1) }
+        } else {
+            CenteredHeader(title: String(localized: "settings.messages", defaultValue: "Messages"), hairline: true)
+            // The promise, pinned — NOT a "no AI" claim: the clinician may draft with help, a human always sends.
+            Text(String(localized: "messages.promise", defaultValue: "Direct line with your nutritionist"))
+                .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)
+                .frame(maxWidth: .infinity).padding(.top, 8)
+        }
+    }
+
+    private func headerSubtitle(_ member: CareMember) -> String {
+        if let title = CareTeamLogic.title(member, french: CareTeamLogic.appIsFrench) {
+            return String(localized: "messages.header.sub", defaultValue: "\(title) · usually replies within a day")
+        }
+        return String(localized: "messages.header.subNoTitle", defaultValue: "Usually replies within a day")
     }
 
     private var emptyState: some View {
@@ -116,7 +154,7 @@ struct MessagesView: View {
     private func bubble(_ m: PatientMessage) -> some View {
         VStack(alignment: m.mine ? .trailing : .leading, spacing: 3) {
             if !m.mine {
-                Text(String(localized: "messages.her", defaultValue: "Your nutritionist"))
+                Text(team.firstName ?? String(localized: "messages.her", defaultValue: "Your nutritionist"))
                     .font(FATypography.sans(11.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forest).padding(.leading, 2)
             }
             Text(m.text)
@@ -134,7 +172,7 @@ struct MessagesView: View {
             // the library reader. The open is stamped fail-soft; the item is already unlocked for this member.
             // A personal mini track sent with this message: one card that opens it (its items are not repeated below).
             if let track = m.track {
-                PersonalTrackMessageCard(summary: track) { router.openPersonalTrack(track.id) }
+                PersonalTrackMessageCard(summary: track, madeBy: team.firstName) { router.openPersonalTrack(track.id) }
                     .padding(.top, 2)
             }
             if !m.resources.isEmpty {
@@ -152,7 +190,45 @@ struct MessagesView: View {
         .padding(m.mine ? .leading : .trailing, (m.resources.isEmpty && m.track == nil) ? 60 : 24)
     }
 
+    /// Starter phrases above the composer: a tap fills the field (never sends) and puts the cursor in it.
+    private var quickStarts: some View {
+        let starts: [(label: String, phrase: String)] = [
+            (String(localized: "messages.chip.meal", defaultValue: "About a meal"),
+             String(localized: "messages.chip.meal.text", defaultValue: "I have a question about a meal: ")),
+            (String(localized: "messages.chip.feel", defaultValue: "How I feel today"),
+             String(localized: "messages.chip.feel.text", defaultValue: "Today I feel ")),
+            (String(localized: "messages.chip.plan", defaultValue: "My plan"),
+             String(localized: "messages.chip.plan.text", defaultValue: "A question about my plan: ")),
+        ]
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(starts, id: \.label) { start in
+                    Button {
+                        text = start.phrase
+                        composerFocused = true
+                    } label: {
+                        Text(start.label)
+                            .font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forest)
+                            .padding(.horizontal, 13).padding(.vertical, 7)
+                            .background(ProfilePalette.surface, in: Capsule())
+                            .overlay { Capsule().strokeBorder(FAColor.forestSoft.opacity(0.35), lineWidth: 1) }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 14)
+        }
+        .padding(.top, 8)
+    }
+
     private var composer: some View {
+        VStack(spacing: 0) {
+            if text.isEmpty && !composerFocused { quickStarts }
+            composerRow
+        }
+    }
+
+    private var composerRow: some View {
         HStack(alignment: .bottom, spacing: 9) {
             TextField(composerPlaceholder, text: $text, axis: .vertical)
                 .focused($composerFocused)
@@ -197,12 +273,19 @@ struct MessagesView: View {
                 text = current.isEmpty ? words : current + " " + words
             }
             dictation = d
+            // Home's mic: the composer is focused and the recording starts; the words still wait for review.
+            if router.pendingDictation {
+                router.pendingDictation = false
+                composerFocused = true
+                d.toggle()
+            }
         }
     }
 
     private var composerPlaceholder: String {
         if dictation?.listening == true { return String(localized: "messages.voice.listening", defaultValue: "Listening… tap the button when you're done") }
         if dictation?.transcribing == true { return String(localized: "messages.voice.transcribing", defaultValue: "Writing it down…") }
+        if let name = team.firstName { return String(localized: "messages.placeholder.to", defaultValue: "Write to \(name)…") }
         return String(localized: "messages.placeholder", defaultValue: "Write a message…")
     }
 

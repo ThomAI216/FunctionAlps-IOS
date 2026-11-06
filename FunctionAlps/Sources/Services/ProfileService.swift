@@ -70,6 +70,17 @@ struct MessagingService: Sendable {
         return MessagingLogic.attach(tracks: found, to: withResources)
     }
 
+    /// Who the member talks to (`member_care_team()`). Fails soft to an empty team (migration 288 may not be applied
+    /// yet, or the read failed): every screen then keeps its "your nutritionist" wording and shows initials.
+    func careTeam() async -> CareTeam {
+        CareTeam(members: (try? await backend.careTeam()) ?? [])
+    }
+
+    /// The newest message of the thread (Home's quote), or nil. Fails soft.
+    func lastMessage() async -> PatientMessage? {
+        (try? await backend.messages())?.last
+    }
+
     /// Sends. The practice is told by CLINICAL itself (its member-message alert reads `patient_messages`
     /// every five minutes, 2026-11-05); the app no longer calls `message-notify`, which never ran.
     func send(_ body: String, member: Member, context: MessageContext?) async throws {
