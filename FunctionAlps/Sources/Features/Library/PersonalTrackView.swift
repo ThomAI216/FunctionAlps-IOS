@@ -274,7 +274,8 @@ struct PersonalTrackHero: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             LinearGradient(colors: [FAColor.forest, FAColor.forestDark], startPoint: .topLeading, endPoint: .bottomTrailing)
-            FAMarkGlyph(color: .white.opacity(0.10), size: 120).offset(x: 18, y: -6)
+            // Lower than the top edge so the peak shows whole (Thomas, 2026-11-06); the right edge still crops it, like a bookmark.
+            FAMarkGlyph(color: .white.opacity(0.10), size: 120).offset(x: 18, y: 18)
             VStack(alignment: .leading, spacing: 8) {
                 Text(PersonalTrackLogic.heroEyebrow(sentAt: sentAt).uppercased())
                     .font(FATypography.sans(9.5, .bold, relativeTo: .caption2)).tracking(1.2).foregroundStyle(FAColor.forestMist)

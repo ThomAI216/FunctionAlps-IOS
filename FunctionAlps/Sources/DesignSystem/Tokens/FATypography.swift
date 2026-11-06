@@ -53,6 +53,9 @@ enum FASpacing {
     static let lg: CGFloat = 24
     static let xl: CGFloat = 32
     static let navBarClearance: CGFloat = 120
+    /// What a bottom-pinned control (the Messages composer) leaves under it so the floating bar (66 tall, 2 off the
+    /// bottom) never covers it, with a little air.
+    static let tabBarInset: CGFloat = 80
 }
 
 /// Mirrors `radii = { sm: 12, md: 16, lg: 22, xl: 24, pill: 200 }`; `glass` is the GlassCard's 25.

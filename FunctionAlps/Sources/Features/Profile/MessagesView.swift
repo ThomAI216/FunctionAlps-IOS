@@ -9,6 +9,8 @@ struct MessagesView: View {
 
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
+    /// The composer is focused: the floating bar hides (AppRouter.composing) and the composer sits on the keyboard.
+    @FocusState private var composerFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @State private var messages: [PatientMessage] = []
     @State private var loading = true
@@ -149,6 +151,7 @@ struct MessagesView: View {
     private var composer: some View {
         HStack(alignment: .bottom, spacing: 9) {
             TextField(String(localized: "messages.placeholder", defaultValue: "Write a message…"), text: $text, axis: .vertical)
+                .focused($composerFocused)
                 .lineLimit(1...5)
                 .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(FAColor.ink)
                 .padding(.horizontal, 14).padding(.vertical, 11)
@@ -167,8 +170,11 @@ struct MessagesView: View {
             .disabled(!canSend)
             .accessibilityLabel(String(localized: "messages.send", defaultValue: "Send message"))
         }
-        .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 16)
+        // Above the floating bar while reading; on the keyboard while typing (the bar steps aside then).
+        .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, composerFocused ? 10 : FASpacing.tabBarInset)
         .overlay(alignment: .top) { Rectangle().fill(ProfilePalette.hairline).frame(height: 1) }
+        .onChange(of: composerFocused) { _, focused in router.composing = focused }
+        .onDisappear { router.composing = false }
     }
 
     private func load() async {
