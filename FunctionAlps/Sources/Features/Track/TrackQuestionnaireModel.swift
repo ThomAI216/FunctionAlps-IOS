@@ -39,14 +39,18 @@ final class TrackQuestionnaireModel {
     private let members: MemberService
     private let wearables: WearableService
     private let notifications: NotificationService
+    /// Saves the baseline a member enters when the record has none (age, sex, height, weight, activity).
+    private let profileService: ProfileService?
     @ObservationIgnored private var prefilledScreens: Set<Int> = []
 
-    init(questionnaire: TrackQuestionnaire, track: TrackService, members: MemberService, wearables: WearableService, notifications: NotificationService) {
+    init(questionnaire: TrackQuestionnaire, track: TrackService, members: MemberService, wearables: WearableService, notifications: NotificationService,
+         profile: ProfileService? = nil) {
         self.questionnaire = questionnaire
         self.track = track
         self.members = members
         self.wearables = wearables
         self.notifications = notifications
+        self.profileService = profile
         locale = track.locale
         let existing = track.response(for: questionnaire.id)
         answers = existing?.answers ?? [:]
@@ -109,8 +113,18 @@ final class TrackQuestionnaireModel {
         if let first = pages.first { enter(first) } else { await finish() }
     }
 
+    /// The questionnaire opens on its first page, with the title and "Why we ask" above the first questions
+    /// (Thomas, 2026-11-06): no separate start screen.
+    func beginIfNeeded() async {
+        if step == .intro { await begin() }
+    }
+
+    /// The first page carries the title and the intro.
+    var isFirstPage: Bool { pageIndex == 0 }
+
     func next() async {
         guard let current = page else { return }
+        await saveEnteredBaseline(on: current)
         if let following = pages.first(where: { $0.screen > current.screen }) {
             await save()
             enter(following)
@@ -122,7 +136,7 @@ final class TrackQuestionnaireModel {
     func back() {
         guard let current = page else { return }
         Task { await save() }   // a page change saves too; the member does not wait for it
-        if let previous = pages.last(where: { $0.screen < current.screen }) { enter(previous) } else { step = .intro }
+        if let previous = pages.last(where: { $0.screen < current.screen }) { enter(previous) }
     }
 
     /// Leaving mid-way keeps what was answered (in progress); the card offers it again.
@@ -193,6 +207,9 @@ final class TrackQuestionnaireModel {
 
     /// The prompt: the matching variant, its `{placeholders}` filled from the baseline and the earlier answers.
     func prompt(_ question: TrackQuestion) -> String {
+        if baselineMissing(question) {
+            return String(localized: "track.baseline.missing", defaultValue: "A few things about you, to set your starting point.")
+        }
         let raw = TrackLogic.rawPrompt(question, context: context, locale: locale)
         return TrackLogic.fill(raw) { name in
             if name == "baseline" { return self.baselineLine(question) }
@@ -205,6 +222,45 @@ final class TrackQuestionnaireModel {
     func baselineLine(_ question: TrackQuestion) -> String? {
         guard case .profile(let fields)? = question.prefill else { return nil }
         return TrackLogic.baselineLine(profile, fields: fields)
+    }
+
+    // MARK: - The baseline, entered here when the record has none (Thomas, 2026-11-06)
+
+    /// The record holds no age, height or weight: the question asks with selectors instead of "Still right?".
+    func baselineMissing(_ question: TrackQuestion) -> Bool {
+        guard question.kind == .confirm, case .profile? = question.prefill else { return false }
+        return profile?.age == nil || profile?.heightCm == nil || profile?.weightKg == nil
+    }
+
+    static let baselineKeys = (sex: "baseline_sex", age: "baseline_age", height: "baseline_height_cm", weight: "baseline_weight_kg",
+                               activity: "baseline_activity")
+
+    /// The selectors' answers as the profile's values, once all five are chosen.
+    var enteredBaseline: BaselineValues? {
+        let k = Self.baselineKeys
+        guard let sex = answers[k.sex]?.stringValue.flatMap(MemberProfile.Sex.init(rawValue:)),
+              let age = answers[k.age]?.doubleValue, let height = answers[k.height]?.doubleValue,
+              let weight = answers[k.weight]?.doubleValue,
+              let activity = answers[k.activity]?.stringValue.flatMap(ActivityLevel.init(rawValue:)) else { return nil }
+        return BaselineValues(sex: sex, age: Int(age), heightCm: height, weightKg: weight, activity: activity)
+    }
+
+    /// One selector changed: the question counts as answered ("entered") when all five are chosen.
+    func setBaseline(_ key: String, _ value: JSONValue?, question: TrackQuestion) {
+        answers[key] = value
+        answers[question.key] = enteredBaseline == nil ? nil : .string("entered")
+    }
+
+    /// Leaving the page: the entered baseline goes to the profile (the energy and protein ranges need it). A failed
+    /// save is said quietly; the answers stay in the questionnaire and the member can update the profile later.
+    private func saveEnteredBaseline(on page: TrackPage) async {
+        guard page.questions.contains(where: { baselineMissing($0) }), let values = enteredBaseline, let profileService else { return }
+        do {
+            let member = try await members.currentMember()
+            if let saved = try await profileService.saveBaseline(patientId: member.patientId, values: values) { profile = saved }
+        } catch {
+            saveFailed = true
+        }
     }
 
     func chip(_ question: TrackQuestion) -> TrackLogic.PrefillSource? {
@@ -293,18 +349,17 @@ extension TrackQuestionnaireModel {
     /// The showcase screenshots: walk to a step as a member pressing Continue would (each page entered in order, so
     /// what a page prefills is prefilled). A screen hidden by the answers so far lands on the next one that shows.
     func showcaseJump(to target: ShowcaseTrack.QuestionnaireStep) async {
+        await beginIfNeeded()
         switch target {
         case .intro:
             return
         case .screen(let screen):
-            await begin()
             var guardSteps = 0
             while let current = page, current.screen < screen, !isLastPage, guardSteps < 20 {
                 await next()
                 guardSteps += 1
             }
         case .done:
-            await begin()
             var guardSteps = 0
             while step != .done, guardSteps < 20 {
                 await next()

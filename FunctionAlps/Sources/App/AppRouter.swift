@@ -21,6 +21,8 @@ enum Route: Hashable {
     case trackCard(String, face: String)
     /// The Foundation Track's approved day-7 summary.
     case trackSummary
+    /// The Foundation Track's day as its own page (Home's track card opens it).
+    case trackDay
     case baseline
     case feedback
     case guide
@@ -92,7 +94,7 @@ final class AppRouter {
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
-    ///   foundation/summary (the approved day-7 summary)
+    ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -143,7 +145,11 @@ final class AppRouter {
         case "home": tab = .home; homePath = []
         case "foundation":
             tab = .home
-            homePath = parts.dropFirst().first == "summary" ? [.trackSummary] : []
+            switch parts.dropFirst().first {
+            case "summary": homePath = [.trackSummary]
+            case "day": homePath = [.trackDay]
+            default: homePath = []
+            }
             #if DEBUG
             // The showcase screenshots only: a track action's card and the day's read, pushed over Home as a tap would.
             if Showcase.isOn, parts.count > 2 {
@@ -305,6 +311,7 @@ struct MainTabView: View {
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .trackSummary: TrackSummaryView()
+        case .trackDay: TrackDayPage()
         case .baseline: BaselineEditView()
         case .feedback: FeedbackView()
         case .guide: GuideView()

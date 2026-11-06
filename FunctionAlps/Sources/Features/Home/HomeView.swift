@@ -62,6 +62,18 @@ struct HomeView: View {
         }
     }
 
+    /// The member's day on the Foundation Track (1…14), nil off it or after it.
+    private var trackDay: Int? {
+        if case .today(let day) = dependencies.track.mode { return day }
+        return nil
+    }
+
+    /// Whether the member has a care plan; nil while the plan is still being read.
+    private var hasPlan: Bool? {
+        if case .loaded(let plan) = dependencies.habits.phase { return plan.header != nil }
+        return nil
+    }
+
     @ViewBuilder
     private func content(_ model: HomeViewModel) -> some View {
         switch model.state {
@@ -82,8 +94,20 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     FoundationTrackCard { questionnaire = TrackQuestionnaireRef(id: $0) }
-                    HealthPlanCard()
-                    PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                    // During the Foundation Track (Thomas, 2026-11-06): the day's read on Home, no "My health plan"
+                    // without a plan, the routine from day 2, and on day 1 a banner over the two squares.
+                    if let day = trackDay, let slug = dependencies.track.today?.readSlug {
+                        TrackHomeReadCard(slug: slug, day: day)
+                    }
+                    if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
+                        HealthPlanCard()
+                    }
+                    if TrackLogic.showsRoutine(trackDay: trackDay) {
+                        PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                    }
+                    if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
+                        TrackFeatureBanner()
+                    }
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {
@@ -131,7 +155,7 @@ struct HomeView: View {
 #if DEBUG
 /// Invisible marks every `step` points down Home's content, so the showcase can scroll to "page N" (there is no
 /// finger in the simulator). Drawn only in a showcase launch.
-private struct ShowcasePageMarks: View {
+struct ShowcasePageMarks: View {
     static let step: CGFloat = 620
 
     var body: some View {

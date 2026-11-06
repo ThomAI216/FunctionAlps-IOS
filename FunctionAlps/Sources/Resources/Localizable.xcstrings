@@ -13351,13 +13351,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evening check-in"
+            "value": "Functional check-in"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check-in du soir"
+            "value": "Check-in fonctionnel"
           }
         }
       }
@@ -38850,6 +38850,22 @@
         }
       }
     },
+    "track.baseline.activityLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In an ordinary week, you are…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendant une semaine ordinaire, vous êtes…"
+          }
+        }
+      }
+    },
     "track.baseline.age": {
       "localizations": {
         "en": {
@@ -38862,6 +38878,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld ans"
+          }
+        }
+      }
+    },
+    "track.baseline.ageLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âge"
+          }
+        }
+      }
+    },
+    "track.baseline.choose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir"
           }
         }
       }
@@ -38882,6 +38930,22 @@
         }
       }
     },
+    "track.baseline.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few things about you, to set your starting point."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelques informations sur vous, pour fixer votre point de départ."
+          }
+        }
+      }
+    },
     "track.baseline.weight": {
       "localizations": {
         "en": {
@@ -38894,6 +38958,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ kg"
+          }
+        }
+      }
+    },
+    "track.baseline.weightLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids"
           }
         }
       }
@@ -39214,6 +39294,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apple Santé n'est pas disponible sur cet appareil."
+          }
+        }
+      }
+    },
+    "track.home.a11y.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens today's page"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre la page du jour"
+          }
+        }
+      }
+    },
+    "track.home.banner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try the main features: log a meal and the functional check-in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez l'essentiel : photographier un repas et le check-in fonctionnel."
+          }
+        }
+      }
+    },
+    "track.home.firstAction": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try your first action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez votre première action"
+          }
+        }
+      }
+    },
+    "track.home.openDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open today's page"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir la page du jour"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireDone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire terminé"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireDoneNamed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ : terminé"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireWaiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's questionnaire: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire du jour : %@"
+          }
+        }
+      }
+    },
+    "track.home.tapToStart": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap this card to start"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez cette carte pour commencer"
+          }
+        }
+      }
+    },
+    "track.home.welcome": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to your space"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue dans votre espace"
           }
         }
       }
@@ -39630,6 +39854,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "~%1$@–%2$@ g de protéines"
+          }
+        }
+      }
+    },
+    "track.read.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in the library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans la bibliothèque"
           }
         }
       }
@@ -40222,6 +40462,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "La vidéo du jour · environ 1 minute"
+          }
+        }
+      }
+    },
+    "track.voice.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't start listening · type your answer instead."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de démarrer l'écoute · écrivez plutôt votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.micDenied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone isn't allowed. You can enable it in Settings, or type your answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le micro n'est pas autorisé. Vous pouvez l'activer dans Réglages, ou écrire votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.speak": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say it instead"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dire plutôt"
+          }
+        }
+      }
+    },
+    "track.voice.stop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop, and write it down"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter et l'écrire"
+          }
+        }
+      }
+    },
+    "track.voice.transcribeFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't write that down · try again or type your answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n'avons pas pu l'écrire · réessayez ou écrivez votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.writing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing it down…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcription…"
           }
         }
       }

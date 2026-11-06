@@ -161,16 +161,58 @@ private struct TrackField: View {
 }
 
 private struct TrackTextInput: View {
+    @Environment(AppDependencies.self) private var dependencies
     let question: TrackQuestion
     let model: TrackQuestionnaireModel
+    /// Speaking instead of typing (questions with `voice`, Thomas 2026-11-06): the sovereign Whisper writes it down.
+    @State private var dictation: SpeechDictation?
 
     var body: some View {
-        TrackField(text: Binding(
-            get: { model.value(question.key)?.stringValue ?? "" },
-            set: { model.set(question.key, $0.isEmpty ? nil : .string($0)) }
-        ), placeholder: question.required
-            ? String(localized: "track.text.placeholder", defaultValue: "Your answer")
-            : String(localized: "track.text.optional", defaultValue: "Optional"))
+        VStack(alignment: .leading, spacing: 8) {
+            TrackField(text: Binding(
+                get: { model.value(question.key)?.stringValue ?? "" },
+                set: { model.set(question.key, $0.isEmpty ? nil : .string($0)) }
+            ), placeholder: question.required
+                ? String(localized: "track.text.placeholder", defaultValue: "Your answer")
+                : String(localized: "track.text.optional", defaultValue: "Optional"))
+            if question.voice, let dictation {
+                Button { dictation.toggle() } label: {
+                    HStack(spacing: 8) {
+                        if dictation.transcribing {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            Image(systemName: dictation.listening ? "stop.circle.fill" : "mic.fill").font(.system(size: 15, weight: .semibold))
+                                .accessibilityHidden(true)
+                        }
+                        Text(dictation.transcribing
+                             ? String(localized: "track.voice.writing", defaultValue: "Writing it down…")
+                             : dictation.listening
+                               ? String(localized: "track.voice.stop", defaultValue: "Stop, and write it down")
+                               : String(localized: "track.voice.speak", defaultValue: "Say it instead"))
+                            .font(FATypography.sans(14, .semibold, relativeTo: .subheadline))
+                    }
+                    .foregroundStyle(dictation.listening ? Color.white : FAColor.forestDark)
+                    .padding(.horizontal, 14).frame(minHeight: 40)
+                    .background(dictation.listening ? FAColor.forest : FAColor.forestSoft.opacity(0.16), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(dictation.transcribing)
+                if let error = dictation.error {
+                    Text(error).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .task {
+            guard question.voice, dictation == nil else { return }
+            let meals = dependencies.meals
+            let d = SpeechDictation(purpose: .answer) { data, mime in try await meals.transcribe(audio: data, mimeType: mime) }
+            d.onFinal = { words in
+                let before = model.value(question.key)?.stringValue ?? ""
+                model.set(question.key, .string(before.isEmpty ? words : before + " " + words))
+            }
+            dictation = d
+        }
     }
 }
 
@@ -269,16 +311,80 @@ private struct TrackConfirmInput: View {
     var body: some View {
         let options = model.options(question)
         VStack(alignment: .leading, spacing: 10) {
-            if let line = model.baselineLine(question) {
+            if model.baselineMissing(question) {
+                // The record holds no baseline: ask for it here, with selectors (Thomas, 2026-11-06).
+                TrackBaselineFields(question: question, model: model)
+            } else if let line = model.baselineLine(question) {
                 Text(line).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
                     .padding(12).frame(maxWidth: .infinity, alignment: .leading)
                     .modifier(FAGlassSurface(cornerRadius: 14, inset: true))
             }
-            TrackChoices(options: options, model: model, isOn: { model.isChosen($0, in: question) }) { value in
-                model.set(question.key, .string(value))
-                if value == "update" { onUpdate() }
+            if !model.baselineMissing(question) {
+                TrackChoices(options: options, model: model, isOn: { model.isChosen($0, in: question) }) { value in
+                    model.set(question.key, .string(value))
+                    if value == "update" { onUpdate() }
+                }
             }
         }
+    }
+}
+
+/// The baseline as selectors, when the record has none: sex, age, height, weight (menus) and the activity level.
+/// Saved to the profile when the member continues (`TrackQuestionnaireModel.saveEnteredBaseline`).
+private struct TrackBaselineFields: View {
+    let question: TrackQuestion
+    let model: TrackQuestionnaireModel
+
+    private var keys: (sex: String, age: String, height: String, weight: String, activity: String) { TrackQuestionnaireModel.baselineKeys }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            TrackChoices(options: [
+                TrackOption(value: MemberProfile.Sex.female.rawValue, labelEn: String(localized: "baseline.female", defaultValue: "Female")),
+                TrackOption(value: MemberProfile.Sex.male.rawValue, labelEn: String(localized: "baseline.male", defaultValue: "Male")),
+            ], model: model, isOn: { model.value(keys.sex)?.stringValue == $0 }) { model.setBaseline(keys.sex, .string($0), question: question) }
+            HStack(spacing: 8) {
+                menu(String(localized: "track.baseline.ageLabel", defaultValue: "Age"), key: keys.age,
+                     values: Array(BaselineLogic.ageRange), unit: String(localized: "baseline.years", defaultValue: "years"))
+                menu(String(localized: "profile.height", defaultValue: "Height"), key: keys.height, values: Array(140...210), unit: "cm")
+                menu(String(localized: "track.baseline.weightLabel", defaultValue: "Weight"), key: keys.weight, values: Array(35...180), unit: "kg")
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text(String(localized: "track.baseline.activityLabel", defaultValue: "In an ordinary week, you are…"))
+                    .font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                TrackChoices(options: ActivityLevel.allCases.map { TrackOption(value: $0.rawValue, labelEn: $0.title) },
+                             model: model, isOn: { model.value(keys.activity)?.stringValue == $0 }) {
+                    model.setBaseline(keys.activity, .string($0), question: question)
+                }
+            }
+        }
+    }
+
+    private func menu(_ label: String, key: String, values: [Int], unit: String) -> some View {
+        let current = model.value(key)?.doubleValue.map { Int($0) }
+        return Menu {
+            Picker(label, selection: Binding<Int?>(
+                get: { current },
+                set: { model.setBaseline(key, $0.map { .number(Double($0)) }, question: question) }
+            )) {
+                ForEach(values, id: \.self) { Text("\($0) \(unit)").tag(Int?.some($0)) }
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                HStack(spacing: 4) {
+                    Text(current.map { "\($0) \(unit)" } ?? String(localized: "track.baseline.choose", defaultValue: "Choose"))
+                        .font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(current == nil ? FAColor.inkSecondary : FAColor.ink)
+                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 10, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+                        .accessibilityHidden(true)
+                }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 9)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .modifier(FAGlassSurface(cornerRadius: 14, inset: true))
+        }
+        .accessibilityLabel(label)
+        .accessibilityValue(current.map { "\($0) \(unit)" } ?? "")
     }
 }
 

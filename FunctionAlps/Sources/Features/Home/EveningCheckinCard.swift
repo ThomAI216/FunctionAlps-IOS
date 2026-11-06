@@ -1,84 +1,68 @@
 import SwiftUI
 
-/// The Home check-in square (right of the meal-scan square): the evening check-in — the one check-in of the
-/// day since 2026-09-30 (digestion is answered inside it) — where the owner's sunset photograph IS the card.
-/// On it: the five marker curves drawing themselves across the picture, the five marker pills (mood · sleep ·
-/// energy · calm · digestion) in glass, and the title on a dark foot band. The whole card is the way in.
+/// The Home check-in square (right of the meal-scan square): the functional check-in, the one check-in of the
+/// day since 2026-09-30 (digestion is answered inside it). Thomas, 2026-11-06: no mountain photograph; the card
+/// is glass, with the five marker curves drawing themselves across it and the five marker pills (mood · sleep ·
+/// energy · calm · digestion) scattered over them, and the title at the foot. The whole card is the way in.
 struct EveningCheckinCard: View {
     let today: TodaySnapshot
     let now: MomentSlot
 
     var body: some View {
         NavigationLink(value: Route.checkin(.evening)) {
-            CheckinPhotoCard(today: today, now: now)
+            CheckinCurvesCard(today: today, now: now)
         }
         .buttonStyle(.plain)
-        .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.glass, style: .continuous))
-        .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
     }
 }
 
-/// One photo card, sized by its parent (a square on Home).
-private struct CheckinPhotoCard: View {
+/// One glass card, sized by its parent (a square on Home).
+private struct CheckinCurvesCard: View {
     let today: TodaySnapshot
     let now: MomentSlot
 
     private var done: Bool { CheckinEngine.slotIsDone(today.moments, .evening) }
     private var isNow: Bool { now == .evening }
 
-    /// mood · sleep · energy · calmness · digestion — today's reads, each with its accent (the curve's colour).
-    private var markers: [(name: String, color: Color, value: Int?)] {
+    /// mood · sleep · energy · calmness · digestion — today's reads, each with its accent (the curve's colour), and
+    /// where its pill sits on the card (fractions of the width and height), scattered rather than in rows.
+    private var markers: [(name: String, color: Color, value: Int?, x: CGFloat, y: CGFloat)] {
         let c = today.checkin
         return [
-            (String(localized: "marker.mood", defaultValue: "Mood"), Color(hex: 0xDB2777), c?.mood),
-            (String(localized: "marker.sleep", defaultValue: "Sleep"), Color(hex: 0x6366F1), c?.sleep),
-            (String(localized: "marker.energy", defaultValue: "Energy"), Color(hex: 0xD97706), c?.energy),
-            (String(localized: "marker.calm", defaultValue: "Calmness"), Color(hex: 0xE11D48), c?.calmness),
-            (String(localized: "marker.digestion", defaultValue: "Digestion"), PulseWaves.digestionGreen, c?.gutOverall),
+            (String(localized: "marker.mood", defaultValue: "Mood"), Color(hex: 0xDB2777), c?.mood, 0.30, 0.13),
+            (String(localized: "marker.sleep", defaultValue: "Sleep"), Color(hex: 0x6366F1), c?.sleep, 0.76, 0.27),
+            (String(localized: "marker.energy", defaultValue: "Energy"), Color(hex: 0xD97706), c?.energy, 0.27, 0.42),
+            (String(localized: "marker.calm", defaultValue: "Calmness"), Color(hex: 0xE11D48), c?.calmness, 0.70, 0.55),
+            (String(localized: "marker.digestion", defaultValue: "Digestion"), PulseWaves.digestionGreen, c?.gutOverall, 0.36, 0.66),
         ]
     }
 
     var body: some View {
         GeometryReader { geo in
-            let h = geo.size.height
-            ZStack(alignment: .bottom) {
-                CheckinLandscape(name: "checkin-evening", fallback: sky)
-                LinearGradient(colors: [.black.opacity(0.26), .black.opacity(0)], startPoint: .top, endPoint: .bottom)
-                    .frame(height: h * 0.45)
-                    .frame(maxHeight: .infinity, alignment: .top)
+            let w = geo.size.width, h = geo.size.height
+            ZStack(alignment: .topLeading) {
                 PulseWaves()
-                    .frame(height: h * 0.5)
-                    .frame(maxHeight: .infinity, alignment: .center)
-                    .offset(y: h * 0.06)
+                    .frame(width: w, height: h * 0.62)
+                    .offset(y: h * 0.10)
                     .allowsHitTesting(false)
-                // The five marker pills, just above the foot band.
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 4) { markerPill(markers[0]); markerPill(markers[1]) }
-                    HStack(spacing: 4) { markerPill(markers[2]); markerPill(markers[3]) }
-                    markerPill(markers[4])
+                ForEach(Array(markers.enumerated()), id: \.offset) { _, m in
+                    markerPill(m).position(x: w * m.x, y: h * m.y)
                 }
-                .padding(.horizontal, 10)
-                .padding(.bottom, h * 0.30)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                LinearGradient(colors: [.black.opacity(0), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-                    .frame(height: h * 0.42)
-                    .overlay(alignment: .bottom) {
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(title).font(FATypography.display(15, relativeTo: .headline)).foregroundStyle(.white).lineLimit(1).minimumScaleFactor(0.75)
-                            Text(status).font(FATypography.sans(9.5, .medium, relativeTo: .caption2)).foregroundStyle(.white.opacity(0.85)).lineLimit(1).minimumScaleFactor(0.8)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 11).padding(.bottom, 10)
-                    }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title).font(FATypography.display(15, relativeTo: .headline)).foregroundStyle(FAColor.ink).lineLimit(1).minimumScaleFactor(0.75)
+                    Text(status).font(FATypography.sans(9.5, .medium, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary).lineLimit(1).minimumScaleFactor(0.8)
+                }
+                .frame(width: w - 22, alignment: .leading)
+                .position(x: w / 2, y: h - 22)
             }
         }
+        .modifier(FAGlassSurface(cornerRadius: FACornerRadius.glass))
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title). \(status)")
     }
 
-    private var title: String { String(localized: "home.carousel.evening", defaultValue: "Evening check-in") }
+    private var title: String { String(localized: "home.carousel.evening", defaultValue: "Functional check-in") }
 
     private var status: String {
         if done { return String(localized: "home.carousel.done", defaultValue: "Done · tap to adjust") }
@@ -86,25 +70,23 @@ private struct CheckinPhotoCard: View {
         return String(localized: "home.carousel.evening.sub", defaultValue: "How the day landed, before bed")
     }
 
-    private var sky: [Color] { [Color(hex: 0xF2A96A), Color(hex: 0xD8707C), Color(hex: 0x5B4B7A)] }
-
     /// One marker pill: its colour dot, the name and today's read (— until the check-in is done).
-    private func markerPill(_ m: (name: String, color: Color, value: Int?)) -> some View {
+    private func markerPill(_ m: (name: String, color: Color, value: Int?, x: CGFloat, y: CGFloat)) -> some View {
         HStack(spacing: 4) {
             Circle().fill(m.color).frame(width: 5, height: 5)
             Text(m.name).font(FATypography.sans(8.5, .medium, relativeTo: .caption2))
             Text(m.value.map { "\($0)" } ?? "—").font(FATypography.display(9.5, relativeTo: .caption2))
         }
-        .foregroundStyle(.white)
-        .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
+        .foregroundStyle(FAColor.ink)
         .padding(.horizontal, 6).padding(.vertical, 3)
-        .modifier(FAGlassSurface(cornerRadius: 8))
+        .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(m.color.opacity(0.35), lineWidth: 0.75))
         .fixedSize()
     }
 }
 
 /// The five marker curves (mood · sleep · energy · calm · digestion) drawing themselves left → right — the old
-/// Check-In square's pulse, now over the photograph.
+/// Check-In square's pulse.
 struct PulseWaves: View {
     /// Digestion's accent — a clear green, set apart from the four warm/violet markers.
     static let digestionGreen = Color(hex: 0x22C55E)

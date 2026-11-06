@@ -75,6 +75,28 @@ enum TrackLogic {
         return .finished(questionnaireId: last?.id)
     }
 
+    /// What Home's track card says (Thomas, 2026-11-06). Home holds a short card; the day itself is its own page.
+    enum HomeCard: Equatable {
+        /// Day 1, its questionnaire not sent yet: "Welcome to your space", tap to start, and nothing else.
+        case welcome
+        /// Any other day, or day 1 once its questionnaire is in: the day's title. `questionnaireDone` says whether
+        /// today's questionnaire is sent; nil when the day has none.
+        case day(questionnaireDone: Bool?)
+    }
+
+    static func homeCard(day: Int, questionnaires: [TrackQuestionnaire], submitted: Set<String>) -> HomeCard {
+        let done = questionnaires.first { $0.day == day }.map { submitted.contains($0.id) }
+        if day == 1, done != true { return .welcome }
+        return .day(questionnaireDone: done)
+    }
+
+    /// Home during the track (Thomas, 2026-11-06): "My health plan" only for a member who has a plan (nil = not
+    /// read yet, so not shown rather than flashing in); the routine card from day 2; on day 1 a banner pointing at
+    /// the meal photo and the check-in. `trackDay` is nil off the track, where Home is unchanged.
+    static func showsHealthPlan(trackDay: Int?, hasPlan: Bool?) -> Bool { trackDay == nil || hasPlan == true }
+    static func showsRoutine(trackDay: Int?) -> Bool { trackDay != 1 }
+    static func showsFeatureBanner(trackDay: Int?) -> Bool { trackDay == 1 }
+
     /// The questionnaires the card offers: today's, and every earlier one not submitted yet (oldest first).
     static func openQuestionnaires(_ questionnaires: [TrackQuestionnaire], today: Int, submitted: Set<String>) -> [TrackQuestionnaire] {
         questionnaires.filter { $0.day <= today && !submitted.contains($0.id) }.sorted { ($0.day, $0.id) < ($1.day, $1.id) }

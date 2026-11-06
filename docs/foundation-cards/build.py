@@ -15,7 +15,8 @@ HERE = pathlib.Path(__file__).parent
 # key → (moment, title, how)
 ACTIONS = {
     "water_waking": ("morning", "A glass of water on waking", "Before your coffee. Keep a glass by your bed."),
-    "breaths_3": ("morning", "3 slow breaths at the window", "In through the nose, a long breath out. Look outside, at the light."),
+    # Thomas, 2026-11-06: physiological breaths, without the window and the light; its own card (habit_bank 7fc3d878…).
+    "breaths_3": ("morning", "3 physiological breaths", "A big breath in through the nose. When you're almost full, one more. Then a long breath out."),
     "move_1min": ("morning", "1 minute of gentle movement", "Roll your shoulders, circle your hips, a few slow squats."),
     "morning_flow_5": ("morning", "5-minute morning flow", "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong."),
     "morning_flow_10": ("morning", "10-minute morning flow", "The same movements, a little longer."),
@@ -43,7 +44,7 @@ ACTIONS = {
 
 # key, first day, last day (None = to the end). A replacement starts the day after the old one ends.
 SCHEDULE = [
-    ("water_waking", 1, None), ("breaths_3", 1, 6), ("meal_photos", 2, None),
+    ("water_waking", 2, None), ("breaths_3", 1, 6), ("meal_photos", 2, None),  # water from day 2 (Thomas, 2026-11-06)
     ("move_1min", 3, 6), ("exercise_snack", 3, 6), ("stretch_evening", 3, 10),
     ("daylight", 4, None), ("phone_out", 4, None),
     ("box_breathing", 5, 10), ("one_good_thing", 5, None),
@@ -72,13 +73,13 @@ CALL = "Book a call with Thomas · 20 min"
 
 DAYS = [
     dict(day=1, week=1, title="Your starting point", pillar="Where you are, where you're going",
-         today=[("What it is", "Your Foundation Track: 14 days, one card a day. Week 1 helps us understand you, one pillar a day. Week 2 is about action."),
-                ("Why it matters", "Lasting change starts from where you really are, not from a perfect plan. Knowing your starting point and where you want to go lets everything after fit you."),
+         # Thomas, 2026-11-06: no "What it is", no mini tip and no "First thing to try" heading on day 1.
+         today=[("Why it matters", "Lasting change starts from where you really are, not from a perfect plan. Knowing your starting point and where you want to go lets everything after fit you."),
                 ("How we use it", "Your answers and check-ins shape your week-2 actions, your first-week summary on day 7 and your review call with Thomas on day 14.")],
          questionnaire=("You, today", 3, "Your goals, your usual week and your rhythm. This is your starting point: everything after builds on it, so there are no wrong answers. Don't change anything yet."),
          extras=["Connect Apple Health", "Turn on your reminders"],
-         try_label="First thing to try · a mini morning routine",
-         tip="Put a glass of water by your bed tonight, so tomorrow's first step is already waiting.",
+         try_label=None,
+         tip=None,
          evolve=[("Tomorrow", "Photograph what you eat. That habit runs all 14 days."),
                  ("Day 3", "1 minute of movement joins your morning, and your evening routine begins."),
                  ("Day 7", "Your full day: a 5-minute morning flow and a daily exercise snack.")],
@@ -93,7 +94,7 @@ So this first week is about you. Each day we look at one pillar of your health: 
 
 Today's questions are about your starting point: your goals, your usual week, your rhythm. Three minutes.
 
-And your first thing to try is a mini morning routine: a glass of water when you wake up, then three slow breaths at the window. That's it.
+And your first thing to try is three physiological breaths: a big breath in through the nose, one more when you're almost full, then a long breath out. That's it.
 
 Small steps, one a day. Let's start."""),
     dict(day=2, week=1, title="Nutrition", pillar="Pillar 1 · Nutrition",
@@ -507,9 +508,9 @@ def card_html(d):
       {ig}
       {qblock}
       {extras}
-      <p class="sec gold">{esc(d["try_label"])}</p>
+      {f'<p class="sec gold">{esc(d["try_label"])}</p>' if d.get("try_label") else ""}
       <ul class="acts">{new_rows}</ul>
-      <div class="tip"><span class="tip-k">Mini tip</span><p>{esc(d["tip"])}</p></div>
+      {f'<div class="tip"><span class="tip-k">Mini tip</span><p>{esc(d["tip"])}</p></div>' if d.get("tip") else ""}
       <p class="sec">Your routine</p>
       <div class="routine">{routine}</div>
       <p class="sec">How it will evolve</p>
