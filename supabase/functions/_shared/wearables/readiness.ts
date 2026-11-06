@@ -14,11 +14,10 @@ export const VENDOR_EXTRA_SECRETS: Record<VendorKey, string[]> = {
   oura: ["OURA_WEBHOOK_VERIFICATION_TOKEN", "OURA_MAINTAIN_SUBSCRIPTIONS?"],
   whoop: [],
   polar: ["POLAR_WEBHOOKS_ENABLED?", "POLAR_WEBHOOK_SECRET?"],
-  garmin: [],
+  garmin: ["GARMIN_WEBHOOK_TOKEN", "GARMIN_PULL_ENABLED?"],
   withings: ["WITHINGS_REGION?"],
   suunto: ["SUUNTO_SUBSCRIPTION_KEY", "SUUNTO_WEBHOOK_SECRET"],
   google: ["GOOGLE_WEBHOOK_SECRET", "GOOGLE_CLOUD_PROJECT_NUMBER?"],
-  strava: ["STRAVA_WEBHOOK_VERIFY_TOKEN", "STRAVA_SUBSCRIPTION_ID?"],
 }
 
 export const PLATFORM_SECRETS = ["WEARABLE_TOKEN_KEY", "REPORT_SECRET", "WEARABLE_LOG_SALT?"]
@@ -42,7 +41,7 @@ export function authorizeCheck(a: VendorAdapter, clientId: string | undefined, r
       redirectExact: u.searchParams.get("redirect_uri") === redirectUri, pkce: u.searchParams.has("code_challenge"),
     }
   } catch (e) {
-    return { ok: false, error: (e as Error)?.name === "GarminPortalError" ? "portal_not_approved" : String((e as Error)?.message ?? e).slice(0, 120) }
+    return { ok: false, error: String((e as Error)?.message ?? e).slice(0, 120) }
   }
 }
 

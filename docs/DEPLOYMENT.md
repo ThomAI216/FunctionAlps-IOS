@@ -191,12 +191,15 @@ syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use
      notification URL + a notification secret you choose. Secrets: `SUUNTO_SUBSCRIPTION_KEY` (Profile → Subscriptions),
      `SUUNTO_WEBHOOK_SECRET`. Field names are unverified (no official spec was reachable) — the first live payloads in
      `wearable_raw_events` are the truth.
-   - **Garmin** — programme currently closed to new applicants; keep `wearable_vendors.status = 'planned'`. If a key is
-     granted: https://developerportal.garmin.com, endpoints tool → PUSH for every summary type to the webhook URL;
-     secrets `GARMIN_CLIENT_ID/_SECRET`.
-   - **Google Health** — deferred (`planned`): restricted-scope verification + CASA before real users can consent.
-     When pursued: Cloud project, OAuth client (Web), the five `googlehealth.*.readonly` scopes, a project-level
-     subscriber pointing at the webhook URL with `endpointAuthorization.secret = "Bearer <GOOGLE_WEBHOOK_SECRET>"`.
+   - **Garmin** — adapter rebuilt 2026-11-06 (see "Garmin, Fitbit and Strava (2026-11-06)" below for every step):
+     https://developerportal.garmin.com → your app → redirect URI above; Endpoint Configuration → **PUSH** for each
+     summary type we map, plus Deregistration and User Permission Change, all to
+     `…/wearable-vendor-webhook/garmin?token=<GARMIN_WEBHOOK_TOKEN>`. Secrets `GARMIN_CLIENT_ID`, `GARMIN_CLIENT_SECRET`,
+     `GARMIN_WEBHOOK_TOKEN`; `GARMIN_PULL_ENABLED=1` only on the Enterprise tier (Ping/Pull).
+   - **Google Health (Fitbit)** — the only route left (the legacy Fitbit Web API was switched off on 2026-11-02).
+     Restricted scopes: OAuth verification + an annual CASA assessment before real members can consent (below).
+     When pursued: Cloud project, OAuth client (Web), the `googlehealth.*.readonly` scopes, a project-level subscriber
+     pointing at the webhook URL with `endpointAuthorization.secret = "Bearer <GOOGLE_WEBHOOK_SECRET>"`.
 2. Supabase → Project Settings → Edge Functions → Secrets: `<VENDOR>_CLIENT_ID`, `<VENDOR>_CLIENT_SECRET`
    (uppercase vendor key, e.g. `OURA_CLIENT_ID`), the per-vendor extras above, and ONCE `WEARABLE_TOKEN_KEY` = 32
    random bytes base64 (`openssl rand -base64 32`). Never paste any of these into chat or a repo.
@@ -251,6 +254,107 @@ shows queue depth per status, accounts per state and webhooks in the last 24 h. 
 The member's "Disconnect and delete synced data" calls `wearable-vendor-disconnect` with `erase: true` →
 `wearable_erase_vendor_data()` deletes that vendor's `wearable_daily` / `wearable_epoch` rows and marks its raw events
 for the nightly purge; nothing from another source is touched.
+
+### Audit, the readiness probe and device requests (2026-11-06)
+
+**State on CM OS, 2026-11-06** (read-only audit): `available` = Oura, WHOOP, Polar, Withings; `planned` = Garmin,
+Google (Fitbit), Suunto. Exactly **one** direct account exists — Withings (connected 2026-09-26, nightly reconcile
+`pull.ok` every night, last rows 2026-10-17 because no new measurement has been taken since; the Withings
+notifications stopped the same day). Oura, WHOOP and Polar have **never** been connected by anyone: their first real
+connection is still the test. The 60 Oura rows in `wearable_daily` are the demo seed (`normalization_version =
+demo-seed-celine`), not a connection. Polar's credentials answered 200 on 2026-11-06 with the app webhook registered
+at our URL. On 2026-09-14, when the webhook URLs were entered in the portals, WHOOP (20:20 UTC) and Oura (20:39 UTC)
+each had one delivery rejected with `signature mismatch` — either a portal test ping signed differently or a client
+secret in Supabase that differs from the portal's. Settle it with the first real connection (a wrong secret also
+breaks the token exchange, which the callback logs as `oauth.callback_failed`).
+
+**Readiness probe** (`{"probe":"vendor-readiness"}` → `wearable-reconcile`, `x-report-secret`; deployed with the next
+`main` push that touches `_shared/wearables/`). Per vendor: which Edge Function secrets are SET (names → true/false,
+never a value), whether the OAuth authorisation URL builds with them (origin, path, parameter names, exact
+redirect), the status row, live accounts and the last successful sync. Calls no vendor, writes nothing. From the SQL
+editor:
+
+```sql
+select net.http_post(
+  url := 'https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-reconcile',
+  headers := jsonb_build_object('Content-Type','application/json','x-report-secret',
+             (select decrypted_secret from vault.decrypted_secrets where name = 'report_secret')),
+  body := '{"probe":"vendor-readiness"}'::jsonb);
+-- then: select content from net._http_response order by id desc limit 1;
+```
+
+**Strava — assessed and not added.** An adapter was written and tested on 2026-11-06, then withdrawn the same day:
+Strava's API Policy (effective 2026-06-01, https://www.strava.com/legal/api_policy) forbids what every connector here
+does — storing Strava data beyond a transient 7-day cache (§5.5, §6.2), combining it with other data or deriving
+insights from it (§5.4), disclosing it to anyone but the athlete "even if a user … consents" (§5.10, §2.3), and any AI
+use (§5.3). New apps also need a paid Strava subscription and start at 1 athlete (10 self-serve, more after a review
+with no timeline). A member's Strava workouts still reach us the compliant way: the Strava iPhone app writes them to
+Apple Health, and most of them were recorded on a Garmin, Polar, Suunto, COROS or Apple Watch in the first place.
+`ai-policy.ts` keeps `strava` in the AI-forbidden set as a guard. Revisit only with a written exception from Strava.
+
+**"Don't see your device?"** (Devices screen, under the vendor cards): a member types a brand and model; it is sent
+on the product feedback channel as `Device request: <text>` (`member-feedback` → `beta_feedback` + the admin alert
+mail). Count the demand with `select message, created_at from beta_feedback where message like 'Device request:%'`.
+A `wearable_vendors` row the app has no copy for still gets a card (`WearableVendor.catalogue(rows:)`), so a brand
+added later server-side (adapter + row) needs no app release.
+
+### Garmin, Fitbit and Strava (2026-11-06)
+
+**Garmin — what the app and the server need now** (adapter `_shared/wearables/garmin.ts`, tests `tests/garmin_test.ts`):
+
+| Item | Value |
+|---|---|
+| OAuth | 2.0 + PKCE S256 (required). Authorize `https://connect.garmin.com/oauth2Confirm`; token + refresh `POST https://connectapi.garmin.com/di-oauth2-service/oauth/token` (Garmin's public OAuth2 PKCE spec, June 2025). A new refresh token on every refresh; we refresh 600 s before `expires_in`. |
+| Redirect URI to register | `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-oauth-callback` |
+| Webhook URL to register (every summary type + Deregistration + User Permission Change) | `https://ndojytvvlvlbgtodujkf.supabase.co/functions/v1/wearable-vendor-webhook/garmin?token=<GARMIN_WEBHOOK_TOKEN>` |
+| Delivery | **PUSH** (data inline). Starter tier = push only, no backfill. Ping/Pull + backfill = Enterprise: set `GARMIN_PULL_ENABLED=1` only then. A PING callback URL is never fetched; only its upload window is used, and only from `https://apis.garmin.com/wellness-api/rest/…`. |
+| Webhook security | Garmin documents no signature. Our own secret in the URL (`GARMIN_WEBHOOK_TOKEN`, constant-time compare, fail closed); the `garmin-client-id` header is never trusted; pushes land only on a Garmin user id we already hold; every write is an idempotent upsert. |
+| Scopes | Fixed by Garmin. The member chooses permissions on the consent page (HEALTH_EXPORT, ACTIVITY_EXPORT, MCT_EXPORT); we read them after connect (`/user/permissions`, kept in the account `meta`). |
+| Disconnect | `DELETE /wellness-api/rest/user/registration` — Garmin says it MUST be called when the app offers its own disconnect; `wearable-vendor-disconnect` does. A deregistration push revokes the account. |
+| Secrets | `GARMIN_CLIENT_ID`, `GARMIN_CLIENT_SECRET`, `GARMIN_WEBHOOK_TOKEN` (32 random bytes, base64url — you invent it; it goes in the portal URL and in Supabase). Optional `GARMIN_PULL_ENABLED=1`. |
+| Summary types to enable (PUSH) | dailies, sleeps, hrv, stressDetails, bodyComps, userMetrics, skinTemp, bloodPressures, activities, mct (Women's Health). Leave epochs, pulseOx and allDayRespiration off — not mapped. |
+
+Catalogue mapping (`data_source_id` 1000002; field names **VERIFY** against the Health API spec PDF — every push body is
+stored verbatim in `wearable_raw_events` first, so a wrong name is fixed from the stored payload):
+dailies → Steps 1000, CoveredDistance 1001, FloorsClimbed 1002, ActiveBurnedCalories 1011, BurnedCalories 1010 (active +
+BMR, only when both are sent), ActivityDuration 1100, ActivityMid/High 1102/1103 (minutes, as the Oura adapter), resting
+HR 3001, average HR 3000, AverageStress 6010 (negative "no data" sentinels dropped), High/Medium/Low stress minutes
+6011–6013 · sleeps → 2300 asleep, 2301 in bed (asleep + awake), 2302 REM, 2303 deep, 2305 light, 2306 awake, 2402
+interruptions, 1000105 sleep score, 4002 / 3009 sleep means, 2400/2401 start/end, stage epochs 2002/2003/2005/2006 ·
+stressDetails → BodyBattery 1000103 (day high, low in details) · bodyComps → 5020 kg, 5021, 5022, 5025, 5026 · skinTemp →
+1000106 · bloodPressures → 3300/3301 (epoch + day) · userMetrics → VO2max 3030 · activities → workout epochs 1200 (type),
+1011, 1001, 3000, 1003 (the activity title is never stored) · mct → MenstrualCycleDay 1000108.
+**HRV (decision D4):** `lastNightAvg` / `hrvValues` are NOT written to an HRV id until the spec's definition is read
+(RMSSD over the sleep window?) — flip `HRV_RMSSD_CONFIRMED` in `garmin.ts` (one line, its tests already cover both
+states) and they go to RmssdSleep 3106 / RmssdSleepHighest 3107 / Rmssd 3100 epochs.
+
+Owner steps, in order:
+1. Developer portal: the redirect URI and the PUSH endpoints above; download the **Health API** and **Push/Ping
+   notification** spec PDFs and the **Garmin Connect** brand tile, and put the PDFs in `docs/vendors/garmin/` (they are
+   what turns every VERIFY above into a pinned field).
+2. Secrets through the secure form (never chat): `GARMIN_CLIENT_ID`, `GARMIN_CLIENT_SECRET`, `GARMIN_WEBHOOK_TOKEN`.
+3. Deploy (merge to `main`), run the readiness probe: `garmin.authorize.ok = true`, all three secrets `true`.
+4. The first real connection. There is no private test lane: `wearable-oauth-start` only starts an `available` vendor
+   and the app only shows Connect for one. So, at a quiet moment and with your go: `available` → connect your own
+   Garmin → sync the watch → within minutes `wearable_raw_events` has `garmin / vendor_webhook` rows and
+   `wearable_daily` rows under 1000002. Anything wrong → `paused` (hides it, keeps the tokens) and fix from the stored
+   push. Rows there → it stays `available`.
+5. Before members: the official "Garmin Connect™" tile on the Devices card and "Garmin [device model]" attribution next
+   to every view of Garmin data (Garmin API Brand Guidelines v6.30.2025) — the app and the dashboard don't do this yet.
+   Read the developer agreement you accepted: the 2026 China variant adds an AI-transparency clause; the International
+   one (2023) does not. Starter apps are capped in users and show "unverified" until Garmin reviews them.
+
+**Fitbit — the realistic route.** The legacy Fitbit Web API is gone (switched off 2026-11-02; no new apps). Google Fit
+REST is deprecated. The only route is the **Google Health API** (`health.googleapis.com/v4`, launched 2026-03-24), which
+`_shared/wearables/google.ts` already implements (OAuth web flow, signed webhooks with Google's ECDSA keyset, RMSSD/SDNN
+mapping). Its scopes are **restricted**: (1) Google OAuth app verification (Trust & Safety), (2) a **CASA** security
+assessment by an authorised lab, renewed **yearly** — 2–3 weeks (tier 2) or 4–6 weeks (tier 3), **USD 500–4,500** paid to
+the assessor (an existing SOC 2 / ISO 27001 helps but still goes through a CASA lab), plus an in-app disclosure. Before
+that the project runs in Testing mode: ≤ 100 named test users and refresh tokens that **expire after 7 days** (members
+would re-link weekly) — fine for your own test, not for members. Members must also link their Google account in the
+Google Health app first. Get the Google Health API data policy read against our use (no use in a product that may
+qualify as a medical device; PHI only with Google's written approval) before paying for CASA. Meanwhile Fitbit
+users' sleep (with stages), steps and workouts already arrive through Apple Health; HRV does not.
 
 ### Apple Health relay — FunctionAlps sleep rule (own rule, 2026-09-14) and decision D7
 

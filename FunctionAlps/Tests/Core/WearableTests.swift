@@ -117,9 +117,8 @@ struct WearableTests {
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=oura&status=ok")!) == .ok(vendor: "oura"))
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=whoop&status=error&reason=denied")!) == .failed(vendor: "whoop", reason: "denied"))
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback")!) == .failed(vendor: nil, reason: "unknown"))
-        #expect(WearableVendor.all.count == 8 && WearableVendor.vendor("garmin")?.sourceId == 1_000_002)
-        #expect(WearableVendor.vendor("strava")?.sourceId == 1_000_070 && WearableVendor.vendor("strava")?.wordmark == "STRAVA")
-        #expect(Set(WearableVendor.all.map(\.sourceId)).count == 8 && !WearableVendor.all.contains { $0.sourceId == WearableSource.appleHealth })
+        #expect(WearableVendor.all.count == 7 && WearableVendor.vendor("garmin")?.sourceId == 1_000_002)
+        #expect(Set(WearableVendor.all.map(\.sourceId)).count == 7 && !WearableVendor.all.contains { $0.sourceId == WearableSource.appleHealth })
     }
 
     @Test("A wearable_vendors row the phone has no copy for still gets a card; known keys are never duplicated")

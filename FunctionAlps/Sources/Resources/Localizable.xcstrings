@@ -41874,38 +41874,6 @@
         }
       }
     },
-    "vendor.strava.adds": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Workouts from any device that uploads to Strava (bike computers, other watches): sport, distance, climb, heart rate"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les séances de tout appareil qui envoie vers Strava (compteurs vélo, autres montres) : sport, distance, dénivelé, fréquence cardiaque"
-          }
-        }
-      }
-    },
-    "vendor.strava.relay": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Workouts the Strava app saves to Health. Strava holds no sleep, HRV or daily steps"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les séances que l'app Strava enregistre dans Santé. Strava ne contient ni sommeil, ni VFC, ni pas quotidiens"
-          }
-        }
-      }
-    },
     "vendor.request.title": {
       "localizations": {
         "en": {

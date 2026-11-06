@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-/// The direct vendors (owner decision 2026-09-04: free, direct OAuth; no aggregator — plus Strava, 2026-11-06).
+/// The seven direct vendors (owner decision 2026-09-04: free, direct OAuth; no aggregator).
 /// The phone carries the copy; CM OS `wearable_vendors.status` says which are open to members today, so a vendor
 /// goes live with a row update, not a release. A `wearable_vendors` row the phone has no copy for still gets a
 /// card (`catalogue(rows:)`), so a brand added server-side later needs no release either.
@@ -33,7 +33,6 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
         case "withings": "withings"
         case "suunto": "SUUNTO"
         case "google": "Fitbit"
-        case "strava": "STRAVA"
         default: name
         }
     }
@@ -61,9 +60,6 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
             WearableVendor(key: "google", name: "Google (Fitbit)", sourceId: 1_000_011, symbol: "g.circle", tintHex: 0x4285F4,
                            adds: String(localized: "vendor.google.adds", defaultValue: "Daily HRV, sleep stages, temperature deviation"),
                            viaAppleHealth: String(localized: "vendor.google.relay", defaultValue: "Sleep with stages, steps, workouts, vitals from the Google Health app (no HRV)")),
-            WearableVendor(key: "strava", name: "Strava", sourceId: 1_000_070, symbol: "figure.outdoor.cycle", tintHex: 0xFC4C02,
-                           adds: String(localized: "vendor.strava.adds", defaultValue: "Workouts from any device that uploads to Strava (bike computers, other watches): sport, distance, climb, heart rate"),
-                           viaAppleHealth: String(localized: "vendor.strava.relay", defaultValue: "Workouts the Strava app saves to Health. Strava holds no sleep, HRV or daily steps")),
         ]
     }
 
