@@ -1,0 +1,141 @@
+t-d01-a-home-p0	-FAShowcase track -FATrackDay 1 -FAPage 0
+t-d01-a-home-p1	-FAShowcase track -FATrackDay 1 -FAPage 1
+t-d01-a-home-p2	-FAShowcase track -FATrackDay 1 -FAPage 2
+t-d01-a-home-p3	-FAShowcase track -FATrackDay 1 -FAPage 3
+t-d01-a-home-p4	-FAShowcase track -FATrackDay 1 -FAPage 4
+t-d01-c-q0-intro	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep intro
+t-d01-c-q1-screen1	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 1
+t-d01-c-q2-screen2	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 2
+t-d01-c-q3-screen3	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 3
+t-d01-c-q4-screen4	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 4
+t-d01-c-q5-screen5	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 5
+t-d01-c-q6-screen6	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep 6
+t-d01-c-q9-done	-FAShowcase track-q -FATrackDay 1 -FAQuestionnaire foundation_d1_you_today -FAQStep done
+t-d01-d-read	-FAShowcase track-read -FATrackDay 1 -FASlug feedback-and-self-tracking
+t-d02-a-home-p0	-FAShowcase track -FATrackDay 2 -FAPage 0
+t-d02-a-home-p1	-FAShowcase track -FATrackDay 2 -FAPage 1
+t-d02-a-home-p2	-FAShowcase track -FATrackDay 2 -FAPage 2
+t-d02-a-home-p3	-FAShowcase track -FATrackDay 2 -FAPage 3
+t-d02-a-home-p4	-FAShowcase track -FATrackDay 2 -FAPage 4
+t-d02-c-q0-intro	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep intro
+t-d02-c-q1-screen1	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep 1
+t-d02-c-q2-screen2	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep 2
+t-d02-c-q3-screen3	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep 3
+t-d02-c-q4-screen4	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep 4
+t-d02-c-q9-done	-FAShowcase track-q -FATrackDay 2 -FAQuestionnaire foundation_d2_how_you_eat -FAQStep done
+t-d02-d-read	-FAShowcase track-read -FATrackDay 2 -FASlug macros-vs-micros
+t-d03-a-home-p0	-FAShowcase track -FATrackDay 3 -FAPage 0
+t-d03-a-home-p1	-FAShowcase track -FATrackDay 3 -FAPage 1
+t-d03-a-home-p2	-FAShowcase track -FATrackDay 3 -FAPage 2
+t-d03-a-home-p3	-FAShowcase track -FATrackDay 3 -FAPage 3
+t-d03-a-home-p4	-FAShowcase track -FATrackDay 3 -FAPage 4
+t-d03-c-q0-intro	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep intro
+t-d03-c-q1-screen1	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep 1
+t-d03-c-q2-screen2	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep 2
+t-d03-c-q3-screen3	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep 3
+t-d03-c-q4-screen4	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep 4
+t-d03-c-q9-done	-FAShowcase track-q -FATrackDay 3 -FAQuestionnaire foundation_d3_how_you_move -FAQStep done
+t-d03-d-read	-FAShowcase track-read -FATrackDay 3 -FASlug micro-workouts-exercise-snacks
+t-d04-a-home-p0	-FAShowcase track -FATrackDay 4 -FAPage 0
+t-d04-a-home-p1	-FAShowcase track -FATrackDay 4 -FAPage 1
+t-d04-a-home-p2	-FAShowcase track -FATrackDay 4 -FAPage 2
+t-d04-a-home-p3	-FAShowcase track -FATrackDay 4 -FAPage 3
+t-d04-a-home-p4	-FAShowcase track -FATrackDay 4 -FAPage 4
+t-d04-c-q0-intro	-FAShowcase track-q -FATrackDay 4 -FAQuestionnaire foundation_d4_how_you_sleep -FAQStep intro
+t-d04-c-q1-screen1	-FAShowcase track-q -FATrackDay 4 -FAQuestionnaire foundation_d4_how_you_sleep -FAQStep 1
+t-d04-c-q2-screen2	-FAShowcase track-q -FATrackDay 4 -FAQuestionnaire foundation_d4_how_you_sleep -FAQStep 2
+t-d04-c-q3-screen3	-FAShowcase track-q -FATrackDay 4 -FAQuestionnaire foundation_d4_how_you_sleep -FAQStep 3
+t-d04-c-q9-done	-FAShowcase track-q -FATrackDay 4 -FAQuestionnaire foundation_d4_how_you_sleep -FAQStep done
+t-d04-d-read	-FAShowcase track-read -FATrackDay 4 -FASlug morning-wake-up-routine
+t-d04-e-card-daylight	-FAShowcase track-card -FATrackDay 4 -FACard afa499c9-5033-43d3-bf0c-81f2b8e70819 -FAFace standard
+t-d04-e-card-phone_out	-FAShowcase track-card -FATrackDay 4 -FACard d76c26e1-2e7c-42f8-8ea1-204413c96916 -FAFace easy
+t-d05-a-home-p0	-FAShowcase track -FATrackDay 5 -FAPage 0
+t-d05-a-home-p1	-FAShowcase track -FATrackDay 5 -FAPage 1
+t-d05-a-home-p2	-FAShowcase track -FATrackDay 5 -FAPage 2
+t-d05-a-home-p3	-FAShowcase track -FATrackDay 5 -FAPage 3
+t-d05-a-home-p4	-FAShowcase track -FATrackDay 5 -FAPage 4
+t-d05-c-q0-intro	-FAShowcase track-q -FATrackDay 5 -FAQuestionnaire foundation_d5_stress_recovery -FAQStep intro
+t-d05-c-q1-screen1	-FAShowcase track-q -FATrackDay 5 -FAQuestionnaire foundation_d5_stress_recovery -FAQStep 1
+t-d05-c-q2-screen2	-FAShowcase track-q -FATrackDay 5 -FAQuestionnaire foundation_d5_stress_recovery -FAQStep 2
+t-d05-c-q3-screen3	-FAShowcase track-q -FATrackDay 5 -FAQuestionnaire foundation_d5_stress_recovery -FAQStep 3
+t-d05-c-q9-done	-FAShowcase track-q -FATrackDay 5 -FAQuestionnaire foundation_d5_stress_recovery -FAQStep done
+t-d05-d-read	-FAShowcase track-read -FATrackDay 5 -FASlug breathing-exercises
+t-d05-e-card-box_breathing	-FAShowcase track-card -FATrackDay 5 -FACard 3ca4a693-d097-4a1b-92a2-95343120d2db -FAFace standard
+t-d05-e-card-one_good_thing	-FAShowcase track-card -FATrackDay 5 -FACard 4e0ec835-daa1-423f-b51a-8229a55b4f82 -FAFace easy
+t-d06-a-home-p0	-FAShowcase track -FATrackDay 6 -FAPage 0
+t-d06-a-home-p1	-FAShowcase track -FATrackDay 6 -FAPage 1
+t-d06-a-home-p2	-FAShowcase track -FATrackDay 6 -FAPage 2
+t-d06-a-home-p3	-FAShowcase track -FATrackDay 6 -FAPage 3
+t-d06-a-home-p4	-FAShowcase track -FATrackDay 6 -FAPage 4
+t-d06-c-q0-intro	-FAShowcase track-q -FATrackDay 6 -FAQuestionnaire foundation_d6_first_week -FAQStep intro
+t-d06-c-q1-screen1	-FAShowcase track-q -FATrackDay 6 -FAQuestionnaire foundation_d6_first_week -FAQStep 1
+t-d06-c-q2-screen2	-FAShowcase track-q -FATrackDay 6 -FAQuestionnaire foundation_d6_first_week -FAQStep 2
+t-d06-c-q3-screen3	-FAShowcase track-q -FATrackDay 6 -FAQuestionnaire foundation_d6_first_week -FAQStep 3
+t-d06-c-q9-done	-FAShowcase track-q -FATrackDay 6 -FAQuestionnaire foundation_d6_first_week -FAQStep done
+t-d06-d-read	-FAShowcase track-read -FATrackDay 6 -FASlug your-unique-terrain-roadmap
+t-d06-e-card-walk_after_lunch_5	-FAShowcase track-card -FATrackDay 6 -FACard 7e6ee768-30fe-4781-ba62-52669aeab7c3 -FAFace easy
+t-d07-a-home-p0	-FAShowcase track -FATrackDay 7 -FAPage 0
+t-d07-a-home-p1	-FAShowcase track -FATrackDay 7 -FAPage 1
+t-d07-a-home-p2	-FAShowcase track -FATrackDay 7 -FAPage 2
+t-d07-a-home-p3	-FAShowcase track -FATrackDay 7 -FAPage 3
+t-d07-a-home-p4	-FAShowcase track -FATrackDay 7 -FAPage 4
+t-d07-d-read	-FAShowcase track-read -FATrackDay 7 -FASlug how-nutrition-training-gut-recovery-and-nervous-system-work-together
+t-d08-a-home-p0	-FAShowcase track -FATrackDay 8 -FAPage 0
+t-d08-a-home-p1	-FAShowcase track -FATrackDay 8 -FAPage 1
+t-d08-a-home-p2	-FAShowcase track -FATrackDay 8 -FAPage 2
+t-d08-a-home-p3	-FAShowcase track -FATrackDay 8 -FAPage 3
+t-d08-a-home-p4	-FAShowcase track -FATrackDay 8 -FAPage 4
+t-d08-b-summary	-FAShowcase track-summary -FATrackDay 8
+t-d08-d-read	-FAShowcase track-read -FATrackDay 8 -FASlug nutrient-dense-foods
+t-d08-e-card-protein_breakfast	-FAShowcase track-card -FATrackDay 8 -FACard 8ba3035e-a61f-4458-b078-9918624b8b18 -FAFace standard
+t-d09-a-home-p0	-FAShowcase track -FATrackDay 9 -FAPage 0
+t-d09-a-home-p1	-FAShowcase track -FATrackDay 9 -FAPage 1
+t-d09-a-home-p2	-FAShowcase track -FATrackDay 9 -FAPage 2
+t-d09-a-home-p3	-FAShowcase track -FATrackDay 9 -FAPage 3
+t-d09-a-home-p4	-FAShowcase track -FATrackDay 9 -FAPage 4
+t-d09-d-read	-FAShowcase track-read -FATrackDay 9 -FASlug post-meal-walking
+t-d09-e-card-lunch_plate	-FAShowcase track-card -FATrackDay 9 -FACard b6cabb08-565b-4f13-8350-7bbc981fa232 -FAFace standard
+t-d09-e-card-coffee_before_14	-FAShowcase track-card -FATrackDay 9 -FACard fc544c65-5f4b-4c36-960a-e49b2aa16377 -FAFace standard
+t-d10-a-home-p0	-FAShowcase track -FATrackDay 10 -FAPage 0
+t-d10-a-home-p1	-FAShowcase track -FATrackDay 10 -FAPage 1
+t-d10-a-home-p2	-FAShowcase track -FATrackDay 10 -FAPage 2
+t-d10-a-home-p3	-FAShowcase track -FATrackDay 10 -FAPage 3
+t-d10-a-home-p4	-FAShowcase track -FATrackDay 10 -FAPage 4
+t-d10-d-read	-FAShowcase track-read -FATrackDay 10 -FASlug strength-is-more-than-muscle-size
+t-d11-a-home-p0	-FAShowcase track -FATrackDay 11 -FAPage 0
+t-d11-a-home-p1	-FAShowcase track -FATrackDay 11 -FAPage 1
+t-d11-a-home-p2	-FAShowcase track -FATrackDay 11 -FAPage 2
+t-d11-a-home-p3	-FAShowcase track -FATrackDay 11 -FAPage 3
+t-d11-a-home-p4	-FAShowcase track -FATrackDay 11 -FAPage 4
+t-d11-d-read	-FAShowcase track-read -FATrackDay 11 -FASlug nsdr-yoga-nidra
+t-d11-e-card-last_meal	-FAShowcase track-card -FATrackDay 11 -FACard 7dede76d-132c-4274-9812-3edba28dfb62 -FAFace easy
+t-d11-e-card-screens_off_60	-FAShowcase track-card -FATrackDay 11 -FACard 47613f35-cb86-4122-b168-ea3135a7a208 -FAFace standard
+t-d12-a-home-p0	-FAShowcase track -FATrackDay 12 -FAPage 0
+t-d12-a-home-p1	-FAShowcase track -FATrackDay 12 -FAPage 1
+t-d12-a-home-p2	-FAShowcase track -FATrackDay 12 -FAPage 2
+t-d12-a-home-p3	-FAShowcase track -FATrackDay 12 -FAPage 3
+t-d12-a-home-p4	-FAShowcase track -FATrackDay 12 -FAPage 4
+t-d12-d-read	-FAShowcase track-read -FATrackDay 12 -FASlug rom-and-loaded-mobility
+t-d13-a-home-p0	-FAShowcase track -FATrackDay 13 -FAPage 0
+t-d13-a-home-p1	-FAShowcase track -FATrackDay 13 -FAPage 1
+t-d13-a-home-p2	-FAShowcase track -FATrackDay 13 -FAPage 2
+t-d13-a-home-p3	-FAShowcase track -FATrackDay 13 -FAPage 3
+t-d13-a-home-p4	-FAShowcase track -FATrackDay 13 -FAPage 4
+t-d13-d-read	-FAShowcase track-read -FATrackDay 13 -FASlug signals-create-adaptation
+t-d14-a-home-p0	-FAShowcase track -FATrackDay 14 -FAPage 0
+t-d14-a-home-p1	-FAShowcase track -FATrackDay 14 -FAPage 1
+t-d14-a-home-p2	-FAShowcase track -FATrackDay 14 -FAPage 2
+t-d14-a-home-p3	-FAShowcase track -FATrackDay 14 -FAPage 3
+t-d14-a-home-p4	-FAShowcase track -FATrackDay 14 -FAPage 4
+t-d14-c-q0-intro	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep intro
+t-d14-c-q1-screen1	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep 1
+t-d14-c-q2-screen2	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep 2
+t-d14-c-q3-screen3	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep 3
+t-d14-c-q4-screen4	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep 4
+t-d14-c-q9-done	-FAShowcase track-q -FATrackDay 14 -FAQuestionnaire foundation_d14_two_weeks -FAQStep done
+t-d14-d-read	-FAShowcase track-read -FATrackDay 14 -FASlug biological-recovery
+t-d15-a-home-p0	-FAShowcase track -FATrackDay 15 -FAPage 0
+t-d15-a-home-p1	-FAShowcase track -FATrackDay 15 -FAPage 1
+t-d15-a-home-p2	-FAShowcase track -FATrackDay 15 -FAPage 2
+t-d15-a-home-p3	-FAShowcase track -FATrackDay 15 -FAPage 3
+t-d15-a-home-p4	-FAShowcase track -FATrackDay 15 -FAPage 4

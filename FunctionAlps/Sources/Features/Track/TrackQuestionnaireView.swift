@@ -37,6 +37,9 @@ struct TrackQuestionnaireView: View {
                                             wearables: dependencies.wearables, notifications: dependencies.notifications)
             model = m
             await m.prepare()
+            #if DEBUG
+            if ShowcaseTrack.questionnaireId == questionnaireId { await m.showcaseJump(to: ShowcaseTrack.questionnaireStep) }
+            #endif
         }
     }
 }

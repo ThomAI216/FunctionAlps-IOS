@@ -35,6 +35,14 @@ struct HomeView: View {
                 await m.load()
             }
         }
+        #if DEBUG
+        .task {
+            // The showcase opens a Foundation Track questionnaire over Home, as tapping its row on the day's card does.
+            guard let id = ShowcaseTrack.questionnaireId else { return }
+            for _ in 0..<40 where dependencies.track.questionnaire(id) == nil { try? await Task.sleep(for: .milliseconds(250)) }
+            questionnaire = TrackQuestionnaireRef(id: id)
+        }
+        #endif
         .onAppear {
             // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
             if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
@@ -70,6 +78,7 @@ struct HomeView: View {
                 retryTitle: String(localized: "action.retry", defaultValue: "Try again")
             ) { Task { await model.load() } }
         case .loaded(let content):
+            ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     FoundationTrackCard { questionnaire = TrackQuestionnaireRef(id: $0) }
@@ -98,11 +107,43 @@ struct HomeView: View {
                 .padding(.horizontal, 18)
                 .padding(.top, 38)
                 .padding(.bottom, FASpacing.navBarClearance)
+                #if DEBUG
+                .background(alignment: .top) { ShowcasePageMarks() }
+                #endif
             }
             .refreshable {
                 await model.load(refresh: true)
                 await dependencies.track.load()
             }
+            #if DEBUG
+            .task {
+                // The showcase frames one page of a long Home (the day's card runs over several screens).
+                guard ShowcaseTrack.isOn, ShowcaseTrack.page > 0 else { return }
+                try? await Task.sleep(for: .seconds(4))
+                proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
+            }
+            #endif
+            }
         }
     }
 }
+
+#if DEBUG
+/// Invisible marks every `step` points down Home's content, so the showcase can scroll to "page N" (there is no
+/// finger in the simulator). Drawn only in a showcase launch.
+private struct ShowcasePageMarks: View {
+    static let step: CGFloat = 620
+
+    var body: some View {
+        if Showcase.isOn {
+            VStack(spacing: 0) {
+                ForEach(0..<24, id: \.self) { i in
+                    Color.clear.frame(height: Self.step).id("fa-page-\(i)")
+                }
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+}
+#endif

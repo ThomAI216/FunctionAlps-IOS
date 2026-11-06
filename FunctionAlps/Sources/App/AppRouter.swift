@@ -144,6 +144,13 @@ final class AppRouter {
         case "foundation":
             tab = .home
             homePath = parts.dropFirst().first == "summary" ? [.trackSummary] : []
+            #if DEBUG
+            // The showcase screenshots only: a track action's card and the day's read, pushed over Home as a tap would.
+            if Showcase.isOn, parts.count > 2 {
+                if parts[1] == "card" { homePath = [.trackCard(parts[2], face: parts.count > 3 ? parts[3] : "standard")] }
+                if parts[1] == "read" { homePath = [.read(parts[2])] }
+            }
+            #endif
         case "health": tab = .home; homePath = [.health]
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }

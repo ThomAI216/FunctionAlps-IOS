@@ -287,3 +287,30 @@ final class TrackQuestionnaireModel {
         }
     }
 }
+
+#if DEBUG
+extension TrackQuestionnaireModel {
+    /// The showcase screenshots: walk to a step as a member pressing Continue would (each page entered in order, so
+    /// what a page prefills is prefilled). A screen hidden by the answers so far lands on the next one that shows.
+    func showcaseJump(to target: ShowcaseTrack.QuestionnaireStep) async {
+        switch target {
+        case .intro:
+            return
+        case .screen(let screen):
+            await begin()
+            var guardSteps = 0
+            while let current = page, current.screen < screen, !isLastPage, guardSteps < 20 {
+                await next()
+                guardSteps += 1
+            }
+        case .done:
+            await begin()
+            var guardSteps = 0
+            while step != .done, guardSteps < 20 {
+                await next()
+                guardSteps += 1
+            }
+        }
+    }
+}
+#endif
