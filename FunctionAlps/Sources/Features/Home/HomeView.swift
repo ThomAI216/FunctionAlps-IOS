@@ -100,7 +100,7 @@ struct HomeView: View {
             }
             .refreshable { await model.load(refresh: true) }
             #if DEBUG
-            .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: .bottom) }
+            .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }
         }
