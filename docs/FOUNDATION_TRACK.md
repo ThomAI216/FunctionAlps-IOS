@@ -23,6 +23,7 @@ Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/
   is readable. Every day now has a `read_slug` (`supabase/sql/20261105_foundation_track_reads.sql`: fourteen articles
   already published to members, one per day by pillar; Thomas may swap any). Videos per day still do not exist
   (the foundation resource pack, CLINICAL `.claude/programmes/foundation-pack/`).
+  Both applied on CM OS 2026-11-06.
 - **Launched member by member (Thomas, 2026-10-12, with the first external build).** Nobody joins on their own: a
   member runs the track only once staff launch them from CLINICAL ("Launch Foundation Track"), and their 14 days start
   at their next app open. Done on the server: `app_track.launched_at` is NULL, so `member_start_track` enrols nobody
