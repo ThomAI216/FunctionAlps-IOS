@@ -41873,6 +41873,134 @@
           }
         }
       }
+    },
+    "vendor.strava.adds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts from any device that uploads to Strava (bike computers, other watches): sport, distance, climb, heart rate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les séances de tout appareil qui envoie vers Strava (compteurs vélo, autres montres) : sport, distance, dénivelé, fréquence cardiaque"
+          }
+        }
+      }
+    },
+    "vendor.strava.relay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts the Strava app saves to Health. Strava holds no sleep, HRV or daily steps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les séances que l'app Strava enregistre dans Santé. Strava ne contient ni sommeil, ni VFC, ni pas quotidiens"
+          }
+        }
+      }
+    },
+    "vendor.request.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't see your device?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre appareil n'est pas dans la liste ?"
+          }
+        }
+      }
+    },
+    "vendor.request.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If its app writes to Apple Health, connect Apple Health above and its data comes in with it. Otherwise tell us which device you use: the practice adds the ones members ask for most."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si son app écrit dans Apple Santé, connectez Apple Santé ci-dessus et ses données arrivent avec. Sinon, dites-nous quel appareil vous utilisez : le cabinet ajoute ceux que les membres demandent le plus."
+          }
+        }
+      }
+    },
+    "vendor.request.thanks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you. The practice has your request."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci. Le cabinet a bien reçu votre demande."
+          }
+        }
+      }
+    },
+    "vendor.request.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand and model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marque et modèle"
+          }
+        }
+      }
+    },
+    "vendor.request.field": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your device's brand and model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marque et modèle de votre appareil"
+          }
+        }
+      }
+    },
+    "vendor.request.send": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask for this device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander cet appareil"
+          }
+        }
+      }
     }
   }
 }

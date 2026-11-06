@@ -19,7 +19,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2"
 import { log } from "./log.ts"
 
-export type VendorKey = "oura" | "whoop" | "polar" | "garmin" | "withings" | "suunto" | "google"
+export type VendorKey = "oura" | "whoop" | "polar" | "garmin" | "withings" | "suunto" | "google" | "strava"
 
 /** Stable `data_source_id` per direct vendor: 1000000 + a number that never collides with Apple Health (1000001). */
 export const VENDOR_SOURCE_IDS: Record<VendorKey, number> = {
@@ -30,6 +30,8 @@ export const VENDOR_SOURCE_IDS: Record<VendorKey, number> = {
   withings: 1000008,
   suunto: 1000050,
   google: 1000011,
+  // FunctionAlps-assigned (2026-11-06): after the reserved Health Connect relay id 1000060. Activities only.
+  strava: 1000070,
 }
 
 /** Reserved `data_source_id`s for the two phone relays (strategy 2026-09-14): Apple Health is live at 1000001

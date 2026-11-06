@@ -30,7 +30,7 @@ export interface PolicyQuery {
 }
 
 /** Vendors whose terms forbid feeding their data to AI systems outright. */
-const AI_FORBIDDEN_VENDORS = new Set(["oura"])
+const AI_FORBIDDEN_VENDORS = new Set(["oura", "strava"])  // Strava API Agreement: no use of Strava data in AI models
 
 /** Vendors with restrictive or undocumented AI terms: same outcome (deny), different reason. */
 const AI_RESTRICTED_VENDORS = new Set(["whoop", "polar", "garmin", "withings", "suunto", "google", "dexcom", "libre", "ultrahuman"])

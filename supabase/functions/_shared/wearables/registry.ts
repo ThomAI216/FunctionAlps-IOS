@@ -1,4 +1,4 @@
-// The seven direct vendors (owner decision 2026-09-04). A vendor is offered to members only when its
+// The direct vendors: the seven of the owner decision 2026-09-04, plus Strava (2026-11-06, activities only). A vendor is offered to members only when its
 // `wearable_vendors.status` is `available` — flipped by the owner once the developer app is approved —
 // so a new vendor needs no app release.
 import type { VendorAdapter, VendorKey } from "./core.ts"
@@ -9,8 +9,9 @@ import { garmin } from "./garmin.ts"
 import { withings } from "./withings.ts"
 import { suunto } from "./suunto.ts"
 import { google } from "./google.ts"
+import { strava } from "./strava.ts"
 
-export const adapters: Record<VendorKey, VendorAdapter> = { oura, whoop, polar, garmin, withings, suunto, google }
+export const adapters: Record<VendorKey, VendorAdapter> = { oura, whoop, polar, garmin, withings, suunto, google, strava }
 
 export function adapter(key: string | null | undefined): VendorAdapter | null {
   if (!key) return null

@@ -117,7 +117,20 @@ struct WearableTests {
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=oura&status=ok")!) == .ok(vendor: "oura"))
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback?vendor=whoop&status=error&reason=denied")!) == .failed(vendor: "whoop", reason: "denied"))
         #expect(VendorCallback.parse(URL(string: "functionalps://wearables/callback")!) == .failed(vendor: nil, reason: "unknown"))
-        #expect(WearableVendor.all.count == 7 && WearableVendor.vendor("garmin")?.sourceId == 1_000_002)
-        #expect(Set(WearableVendor.all.map(\.sourceId)).count == 7 && !WearableVendor.all.contains { $0.sourceId == WearableSource.appleHealth })
+        #expect(WearableVendor.all.count == 8 && WearableVendor.vendor("garmin")?.sourceId == 1_000_002)
+        #expect(WearableVendor.vendor("strava")?.sourceId == 1_000_070 && WearableVendor.vendor("strava")?.wordmark == "STRAVA")
+        #expect(Set(WearableVendor.all.map(\.sourceId)).count == 8 && !WearableVendor.all.contains { $0.sourceId == WearableSource.appleHealth })
+    }
+
+    @Test("A wearable_vendors row the phone has no copy for still gets a card; known keys are never duplicated")
+    func catalogueFallback() {
+        let rows = [WearableVendorRow(key: "oura", name: "Oura", dataSourceId: 1_000_018, status: "available"),
+                    WearableVendorRow(key: "ultrahuman", name: "Ultrahuman", dataSourceId: 1_000_080, status: "planned")]
+        let cards = WearableVendor.catalogue(rows: rows)
+        #expect(cards.count == WearableVendor.all.count + 1)
+        #expect(cards.last?.key == "ultrahuman" && cards.last?.name == "Ultrahuman" && cards.last?.sourceId == 1_000_080)
+        #expect(cards.last?.adds.isEmpty == true && cards.last?.viaAppleHealth.isEmpty == true)
+        #expect(cards.filter { $0.key == "oura" }.count == 1)
+        #expect(WearableVendor.catalogue(rows: []).map(\.key) == WearableVendor.all.map(\.key))
     }
 }
