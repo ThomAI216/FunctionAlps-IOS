@@ -92,7 +92,7 @@ struct HomeView: View {
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)
-                .padding(.top, 38)
+                .padding(.top, FASpacing.screenTop)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .refreshable { await model.load(refresh: true) }

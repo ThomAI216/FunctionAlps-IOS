@@ -53,6 +53,9 @@ enum FASpacing {
     static let lg: CGFloat = 24
     static let xl: CGFloat = 32
     static let navBarClearance: CGFloat = 120
+    /// Gap between the top safe area and a screen's first card (owner, 2026-11-06: as little space at the top as
+    /// possible). Home uses it; new screens should too.
+    static let screenTop: CGFloat = 4
 }
 
 /// Mirrors `radii = { sm: 12, md: 16, lg: 22, xl: 24, pill: 200 }`; `glass` is the GlassCard's 25.

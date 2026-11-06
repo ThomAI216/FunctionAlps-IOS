@@ -41026,6 +41026,22 @@
         }
       }
     },
+    "wall.sageFog": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sage Fog"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brume de sauge"
+          }
+        }
+      }
+    },
     "wall.sand": {
       "localizations": {
         "en": {

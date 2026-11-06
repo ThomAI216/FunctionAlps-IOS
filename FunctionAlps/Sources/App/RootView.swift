@@ -23,7 +23,7 @@ struct RootView: View {
     }
 }
 
-/// Native launch moment: brand mark on cream, nothing else (PRD §22).
+/// Native launch moment: brand mark on the wall colour (Sage Fog top), nothing else (PRD §22).
 struct LaunchView: View {
     var body: some View {
         ZStack {
