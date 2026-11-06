@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// The Expo `profile-settings.tsx`: Language · Appearance · Account rows · Sign out · Delete account.
-/// Language is the phone's own per-app setting (iOS owns it); Appearance offers the photo walls.
+/// Language is the phone's own per-app setting (iOS owns it); Appearance offers the walls (Sage Fog, the photos).
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
@@ -25,12 +25,12 @@ struct SettingsView: View {
                         }
                     }
 
-                    // Appearance — the owner's photo walls.
+                    // Appearance — Sage Fog, then the owner's photo walls.
                     SettingsSectionLabel(title: String(localized: "settings.appearance", defaultValue: "Appearance"))
                     FACard(padded: false) {
                         HStack(spacing: 6) {
-                            ForEach(FAPhotoWalls.all, id: \.key) { photo in
-                                WallSwatch(photo: photo, selection: $wallKey)
+                            ForEach(FAWalls.all, id: \.key) { wall in
+                                WallSwatch(wall: wall, selection: $wallKey)
                             }
                         }
                         .padding(10)
@@ -108,24 +108,29 @@ struct SettingsView: View {
 
 /// One Appearance choice: a 44 pt round preview, its name under it, a ring when selected.
 private struct WallSwatch: View {
-    let photo: PhotoWall
+    let wall: Wall
     @Binding var selection: String
 
     var body: some View {
-        let active = FAWalls.resolved(selection) == photo
-        Button { selection = photo.key } label: {
+        let active = FAWalls.resolved(selection) == wall
+        Button { selection = wall.key } label: {
             VStack(spacing: 5) {
                 Group {
-                    if let thumb = PhotoWallImages.thumbnail(photo) {
-                        Image(uiImage: thumb).resizable().scaledToFill()
-                    } else {
-                        Color(hex: photo.tint)
+                    switch wall {
+                    case .gradient(let gradient):
+                        GradientWallView(wall: gradient)
+                    case .photo(let photo):
+                        if let thumb = PhotoWallImages.thumbnail(photo) {
+                            Image(uiImage: thumb).resizable().scaledToFill()
+                        } else {
+                            Color(hex: photo.tint)
+                        }
                     }
                 }
                 .frame(width: 44, height: 44)
                 .clipShape(Circle())
                 .overlay { Circle().strokeBorder(active ? FAColor.forestSoft : ProfilePalette.hairline, lineWidth: active ? 2 : 1) }
-                Text(photo.label)
+                Text(wall.label)
                     .font(FATypography.sans(9.5, .semibold, relativeTo: .caption2))
                     .foregroundStyle(active ? FAColor.ink : ProfilePalette.muted)
                     .lineLimit(1)
@@ -133,7 +138,7 @@ private struct WallSwatch: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(photo.label)
+        .accessibilityLabel(wall.label)
         .accessibilityAddTraits(active ? .isSelected : [])
     }
 }

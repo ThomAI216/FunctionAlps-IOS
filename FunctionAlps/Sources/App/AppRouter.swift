@@ -200,7 +200,11 @@ final class AppRouter {
 
     /// The reader replaces the floating navbar with its own mark-done bar — on whichever tab it was opened
     /// (an article reached from Home or Profile too, not only from the Library).
+    /// Set while the member types in a composer (Messages): the floating bar steps aside for the keyboard.
+    var composing = false
+
     var hidesTabBar: Bool {
+        if composing { return true }
         let top: Route? = switch tab {
         case .home: homePath.last
         case .trends: trendsPath.last

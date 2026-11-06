@@ -18914,6 +18914,70 @@
         }
       }
     },
+    "messages.voice.listening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening… tap the button when you're done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À l’écoute… touchez le bouton quand vous avez fini"
+          }
+        }
+      }
+    },
+    "messages.voice.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictate a message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dicter un message"
+          }
+        }
+      }
+    },
+    "messages.voice.stop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop and write it down"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter et retranscrire"
+          }
+        }
+      }
+    },
+    "messages.voice.transcribing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing it down…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retranscription…"
+          }
+        }
+      }
+    },
     "micros.avgCoverage": {
       "localizations": {
         "en": {
@@ -42430,6 +42494,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bleu"
+          }
+        }
+      }
+    },
+    "wall.sageFog": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sage Fog"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brume de sauge"
           }
         }
       }

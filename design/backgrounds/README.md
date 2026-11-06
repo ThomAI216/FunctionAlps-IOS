@@ -6,8 +6,9 @@ kept these four (the other seven were removed from the repo, recoverable from gi
 (quality 88, ~150 KB each) as `FunctionAlps/Sources/Resources/Media/<name>.jpg`, listed in
 `FAPhotoWalls.all` (`DesignSystem/Components/SpotlightWall.swift`).
 
-Settings → Appearance offers each photo below (the gradient walls Sage, Cream, Honey and Mist are retired).
-The default is **Sand 1** (`FAWalls.defaultKey`), the owner's pick.
+Settings → Appearance offers **Sage Fog** first (a light grey-green → grey-blue gradient drawn in code, no file;
+the default since 2026-11-06, `FAWalls.defaultKey`), then each photo below. The older gradient walls Sage, Cream,
+Honey and Mist stay retired.
 
 | Name | Picker label | Uploaded as |
 |---|---|---|

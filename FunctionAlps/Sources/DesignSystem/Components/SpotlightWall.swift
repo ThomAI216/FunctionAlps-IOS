@@ -2,18 +2,69 @@ import ImageIO
 import SwiftUI
 import UIKit
 
-/// App walls are the owner's photos (2026-09-30: Blue 1, Blue 3, Sand 1, Sand 4 kept of the eleven
-/// uploaded; the gradient "spotlight" walls are retired). Settings → Appearance picks one.
+/// App walls. Sage Fog — a light grey-green → grey-blue gradient — is the default (owner, 2026-11-06: "a basic
+/// light background"); the owner's four photos (2026-09-30: Blue 1, Blue 3, Sand 1, Sand 4) stay as choices.
+/// Settings → Appearance picks one.
 enum FAWalls {
-    /// `UserDefaults` key the picker writes and every wall reads. `.v3` drops the random draws the test builds
-    /// stored under `.v2`, so every phone starts on the default.
-    static let storageKey = "fa.wall.v3"
-    /// Sand 1 — the owner's default (2026-09-30).
-    static let defaultKey = "photo.bg-sand-1"
+    /// `UserDefaults` key the picker writes and every wall reads. `.v4` sets every phone on Sage Fog once, including
+    /// those that had picked a photo under `.v3`; they can pick it again.
+    static let storageKey = "fa.wall.v4"
+    /// Sage Fog — the owner's default (2026-11-06).
+    static let defaultKey = GradientWall.sageFog.key
 
-    /// The photo for a stored key; anything unknown shows the default.
-    static func resolved(_ key: String) -> PhotoWall {
-        FAPhotoWalls.photo(for: key) ?? FAPhotoWalls.photo(for: defaultKey) ?? FAPhotoWalls.all[0]
+    /// Every choice Settings → Appearance offers, in its order: the light walls first, then the photos.
+    static var all: [Wall] { GradientWall.allCases.map(Wall.gradient) + FAPhotoWalls.all.map(Wall.photo) }
+
+    /// The wall a stored key shows, or nil when that key is not offered.
+    static func wall(for key: String) -> Wall? { all.first { $0.key == key } }
+
+    /// The wall for a stored key; anything unknown shows the default.
+    static func resolved(_ key: String) -> Wall { wall(for: key) ?? .gradient(.sageFog) }
+}
+
+/// One wall the member can pick: a light gradient or a photo.
+enum Wall: Sendable, Equatable {
+    case gradient(GradientWall)
+    case photo(PhotoWall)
+
+    var key: String {
+        switch self {
+        case .gradient(let wall): wall.key
+        case .photo(let photo): photo.key
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .gradient(let wall): wall.label
+        case .photo(let photo): photo.label
+        }
+    }
+}
+
+/// A light gradient wall, top → bottom. Colours live in `FAColor`.
+enum GradientWall: String, Sendable, CaseIterable {
+    /// Grey with a touch of green at the top, easing into grey-blue with a touch of green (owner, 2026-11-06).
+    case sageFog = "sage-fog"
+
+    var key: String { "gradient.\(rawValue)" }
+
+    var label: String {
+        switch self {
+        case .sageFog: String(localized: "wall.sageFog", defaultValue: "Sage Fog")
+        }
+    }
+
+    var top: Color {
+        switch self {
+        case .sageFog: FAColor.sageFogTop
+        }
+    }
+
+    var bottom: Color {
+        switch self {
+        case .sageFog: FAColor.sageFogBottom
+        }
     }
 }
 
@@ -55,11 +106,32 @@ enum FAPhotoWalls {
 
 /// Renders the member's wall as the page background.
 struct SpotlightWallView: View {
-    /// The member's pick from Settings → Appearance; Sand 1 until they choose.
+    /// The member's pick from Settings → Appearance; Sage Fog until they choose.
     @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
 
     var body: some View {
-        PhotoWallView(photo: FAWalls.resolved(wallKey))
+        WallView(wall: FAWalls.resolved(wallKey))
+    }
+}
+
+struct WallView: View {
+    let wall: Wall
+
+    var body: some View {
+        switch wall {
+        case .gradient(let gradient): GradientWallView(wall: gradient)
+        case .photo(let photo): PhotoWallView(photo: photo)
+        }
+    }
+}
+
+/// A gradient wall needs no veil: it is light enough that ink text reads on it as it is.
+struct GradientWallView: View {
+    let wall: GradientWall
+
+    var body: some View {
+        LinearGradient(colors: [wall.top, wall.bottom], startPoint: .top, endPoint: .bottom)
+            .accessibilityHidden(true)
     }
 }
 
