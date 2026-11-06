@@ -181,10 +181,17 @@ protocol FunctionAlpsBackend: Sendable {
     func messages() async throws -> [PatientMessage]
     /// Inserts a patient-authored message and returns its id.
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String
-    /// `message-notify` — tells the clinician; fail-soft, the 15-minute sweep re-notifies anyway.
-    func notifyMessage(id: String) async throws
     /// `member_mark_messages_read()` — stamps every unread clinician message.
     func markMessagesRead() async throws
+    /// The library items the practice sent with messages (`patient_message_resources`, approved rows under RLS).
+    func messageResources() async throws -> [MessageResource]
+    /// `member_mark_message_resource_opened(p_id)` — true when this call stamped `opened_at`.
+    func markMessageResourceOpened(id: String) async throws -> Bool
+    /// The personal mini tracks the practice built for this member (`patient_tracks` with no source track, and their
+    /// `patient_track_lessons`), newest first, items by position. RLS keeps to own, active, approved rows.
+    func personalTracks() async throws -> [PersonalTrack]
+    /// Slugs the member has a `member_lesson_progress` row for (a library open leaves one): what is "opened".
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String>
 
     // MARK: Account (feedback · consents · legal · data · deletion)
 
@@ -253,6 +260,10 @@ protocol FunctionAlpsBackend: Sendable {
     /// The member's next call with the practice — a patient-visible, not-cancelled appointment from `after` on
     /// (RLS `appointments_member_self_select`); nil when none is booked.
     func nextAppointment(after: Date) async throws -> AppointmentRow?
+    /// The member's most recent appointment before `before`, not cancelled ("Your Pathway": "based on your consultation of …").
+    func lastAppointment(before: Date) async throws -> AppointmentRow?
+    /// `care_plans.objective_line` of the active plan — the clinician's own words, "Your focus" on the Pathway.
+    func activePlanObjective(patientId: String) async throws -> String?
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow]
     // Direct vendors (wearable_vendors · wearable-oauth-start · wearable-vendor-disconnect · wearable-vendor-sync)

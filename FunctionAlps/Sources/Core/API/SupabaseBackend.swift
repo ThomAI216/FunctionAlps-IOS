@@ -863,6 +863,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.first
     }
 
+    func lastAppointment(before: Date) async throws -> AppointmentRow? {
+        let rows: [AppointmentRow] = try await rest.select("appointments", query: [
+            PG.select("id,title,starts_at,ends_at,location,meeting_link,status"),
+            PG.lt("starts_at", ISO8601.string(before)), PG.neq("status", "cancelled"),
+            PG.order("starts_at", descending: true), PG.limit(1),
+        ])
+        return rows.first
+    }
+
+    func activePlanObjective(patientId: String) async throws -> String? {
+        let rows: [HabitPlanHeader] = try await rest.select("care_plans", query: [
+            PG.select("id,title,start_date,objective_line"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
+            PG.order("start_date", descending: true), PG.limit(1),
+        ])
+        return rows.first?.objectiveLine
+    }
+
     private struct GatesBody: Encodable, Sendable { let today: String }
 
     func evaluateHabitGates(day: String) async throws {
@@ -1557,14 +1574,48 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return row.id
     }
 
-    private struct NotifyBody: Encodable, Sendable { let messageId: String }
-
-    func notifyMessage(id: String) async throws {
-        _ = try await functions.invokeRaw("message-notify", body: NotifyBody(messageId: id))
-    }
-
     func markMessagesRead() async throws {
         let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
+    }
+
+    /// The member-readable columns only (the row also carries `sent_by`, `clinic_id`, `approval_status`;
+    /// RLS already keeps withdrawn rows out).
+    private static let messageResourceColumns = "id,message_id,library_slug,title,kind,created_at,opened_at"
+
+    func messageResources() async throws -> [MessageResource] {
+        let rows: [MessageResourceRow] = try await rest.select("patient_message_resources", query: [
+            PG.select(Self.messageResourceColumns), PG.order("created_at"), PG.limit(200),
+        ])
+        return rows.map(\.resource)
+    }
+
+    func personalTracks() async throws -> [PersonalTrack] {
+        let tracks: [PersonalTrackRow] = try await rest.select("patient_tracks", query: [
+            PG.select("id,title,intro_md,created_at,origin_message_id"),
+            PG.isNull("source_track_id"), PG.eq("is_active", "true"), PG.eq("approval_status", "approved"),
+            PG.order("created_at", descending: true), PG.limit(50),
+        ])
+        guard !tracks.isEmpty else { return [] }
+        let lessons: [PersonalTrackLessonRow] = try await rest.select("patient_track_lessons", query: [
+            PG.select("patient_track_id,position,content_slug,habit_bank_id"),
+            PG.inList("patient_track_id", tracks.map(\.id)), PG.order("position"), PG.limit(1000),
+        ])
+        return PersonalTrackLogic.assemble(tracks: tracks, lessons: lessons)
+    }
+
+    private struct ProgressSlugRow: Decodable, Sendable { let contentSlug: String? }
+
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> {
+        let rows: [ProgressSlugRow] = try await rest.select("member_lesson_progress", query: [
+            PG.select("content_slug"), PG.eq("patient_id", patientId), PG.limit(5000),
+        ])
+        return Set(rows.compactMap(\.contentSlug))
+    }
+
+    private struct ResourceOpenedBody: Encodable, Sendable { let pId: String }
+
+    func markMessageResourceOpened(id: String) async throws -> Bool {
+        try await rest.rpcScalar("member_mark_message_resource_opened", body: ResourceOpenedBody(pId: id)) == "true"
     }
 
     // MARK: Account

@@ -7,6 +7,7 @@ import SwiftUI
 /// live in Trends. One check-in a day, in the evening, with digestion inside it.
 struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     @State private var model: HomeViewModel?
     @State private var capture = MealCaptureCoordinator()
     /// The Foundation Track questionnaire on screen — owned here, above the card, so a submit that changes or hides
@@ -30,7 +31,7 @@ struct HomeView: View {
         }
         .task {
             if model == nil {
-                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth)
+                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging)
                 model = m
                 await m.load()
             }
@@ -102,6 +103,12 @@ struct HomeView: View {
                     if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
                         HealthPlanCard()
                     }
+                    if content.newResources > 0 {
+                        // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
+                        // under the plan: a card that sits below the fold nudges nobody. Gone once they open it.
+                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources) }
+                            .buttonStyle(.plain)
+                    }
                     if TrackLogic.showsRoutine(trackDay: trackDay) {
                         PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
                     }
@@ -129,7 +136,7 @@ struct HomeView: View {
                     MessagesCard(unread: content.today.unreadClinicianMessages)
                 }
                 .padding(.horizontal, 18)
-                .padding(.top, 38)
+                .padding(.top, FASpacing.screenTop)
                 .padding(.bottom, FASpacing.navBarClearance)
                 #if DEBUG
                 .background(alignment: .top) { ShowcasePageMarks() }

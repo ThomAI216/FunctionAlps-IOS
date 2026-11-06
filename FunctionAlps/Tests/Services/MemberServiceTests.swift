@@ -88,8 +88,11 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func memberClinicId(userId: String) async throws -> String? { nil }
     func messages() async throws -> [PatientMessage] { [] }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
-    func notifyMessage(id: String) async throws {}
     func markMessagesRead() async throws {}
+    func messageResources() async throws -> [MessageResource] { [] }
+    func personalTracks() async throws -> [PersonalTrack] { [] }
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { [] }
+    func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func sendFeedback(message: String, appVersion: String) async throws {}
     func deleteAccount() async throws {}
     func consents(locale: String) async throws -> [ConsentItem] { [] }
@@ -110,6 +113,8 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
+    func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}

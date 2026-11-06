@@ -21,10 +21,14 @@ enum FAColor {
     static let stone = Color(hex: 0x7A796F)
     static let stoneLight = Color(hex: 0xA8A79E)
 
+    // Sage Fog — the default wall (owner, 2026-11-06): grey-green at the top → grey-blue with a touch of green.
+    static let sageFogTop = Color(hex: 0xE2EEE2)
+    static let sageFogBottom = Color(hex: 0xD8E8E9)
+
     // Semantic aliases used by components
     static let brand = forest
     static let accent = forestSoft
-    static let background = cream                    // default "Sage" wall reads as cream/sage
+    static let background = sageFogTop               // the default Sage Fog wall's top colour
     static let surface = Color.white.opacity(0.72)   // glass-card fill on light walls
     static let surfaceOpaque = warm
     static let surfaceMuted = cream2

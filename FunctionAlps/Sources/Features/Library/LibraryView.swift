@@ -21,7 +21,7 @@ struct LibraryView: View {
         .navigationTitle(String(localized: "library.title", defaultValue: "Library"))
         .task {
             if model == nil {
-                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows)
+                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows, messaging: dependencies.messaging)
                 model = m
                 await m.load()
             }
@@ -32,6 +32,7 @@ struct LibraryView: View {
 private struct LibraryScreen: View {
     @Bindable var model: LibraryViewModel
     @Environment(AppRouter.self) private var router
+    @Environment(AppDependencies.self) private var dependencies
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -110,7 +111,7 @@ private struct LibraryScreen: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
                 ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
+                    if (section == .priority && model.priority.isEmpty && model.sent.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
                         let on = model.active == section
                         Button {
                             model.active = section
@@ -140,25 +141,33 @@ private struct LibraryScreen: View {
     @ViewBuilder
     private var sections: some View {
         let b = model.bundle
+        // The show: owner, 2026-11-05, "in the library for now, remove the show as coming soon totally". Only a LIVE
+        // show (ShowFeature off) still renders; while it is coming soon, nothing of it is on the page.
         if let show = model.show {
             showSection(show)
-        } else if model.showPresentation == .comingSoon {
-            // Owner, 2026-10-06: "the show doesn't need to take that much space. Just keep the Coming Soon card."
-            ShowComingSoonCard()
-                .padding(.top, 8)
-                .id(LibraryViewModel.Section.show.id)
         }
-        if !model.priority.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                LibrarySectionHead(title: String(localized: "library.priority.title", defaultValue: "Priority for you"), note: String(localized: "library.priority.note", defaultValue: "chosen from your plan"))
-                Veiled(open: b.access.tracks) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            ForEach(model.priority) { t in
-                                TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
+        // "Your Pathway" in Priority's place (owner, 2026-11-05): what the practice sent, then the priority tracks.
+        if !model.sent.isEmpty || !model.personal.isEmpty || !model.priority.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                LibrarySectionHead(title: PathwayCopy.title, note: PathwayCopy.eyebrow.lowercased())
+                ForEach(model.personal) { track in
+                    PersonalTrackCard(track: track, unopened: PersonalTrackLogic.unopened(track, openedSlugs: model.openedSlugs).count) {
+                        router.libraryPath.append(.personalTrack(track.id))
+                    }
+                }
+                if !model.sent.isEmpty {
+                    SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
+                }
+                if !model.priority.isEmpty {
+                    Veiled(open: b.access.tracks) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(model.priority) { t in
+                                    TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
+                                }
                             }
+                            .padding(.vertical, 2)
                         }
-                        .padding(.vertical, 2)
                     }
                 }
             }

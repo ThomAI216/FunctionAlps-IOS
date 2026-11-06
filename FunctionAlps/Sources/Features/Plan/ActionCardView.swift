@@ -28,6 +28,8 @@ struct ActionCardView: View {
     @State private var skipped = false
     @State private var busy = false
     @State private var writeFailed = false
+    /// The published-cards read has finished (success or not): until then a card missing from the bank may still turn up.
+    @State private var laddersTried = false
     /// "Towards next level" opened: the next level's card shows under it.
     @State private var showNext = false
     /// The server's answer to a level-up it refused, in words.
@@ -64,6 +66,8 @@ struct ActionCardView: View {
                                 bankPage(plan: plan, card: card)
                             } else if case .loading = habits.bank {
                                 FALoadingState()
+                            } else if !laddersTried {
+                                FALoadingState()
                             } else {
                                 missing
                             }
@@ -89,6 +93,7 @@ struct ActionCardView: View {
         .task {
             if case .bankCard = source { await dependencies.habits.loadBank() }
             await dependencies.habits.loadLadders()
+            laddersTried = true
         }
         .alert(String(localized: "error.title", defaultValue: "Something went wrong"), isPresented: $writeFailed) {
             Button(String(localized: "action.ok", defaultValue: "OK"), role: .cancel) {}
@@ -116,7 +121,10 @@ struct ActionCardView: View {
 
     private func bankCard(_ id: String, plan: HabitPlan) -> ActionCardRow? {
         if case .loaded(let cards) = dependencies.habits.bank, let card = cards.first(where: { $0.id == id }) { return card }
-        return plan.cards[id]
+        if let card = plan.cards[id] { return card }
+        // A card the practice put in a personal track need not be in the member-add bank: any published card the
+        // member may read is enough to show it (and to add it).
+        return dependencies.habits.ladderCards?.first { $0.id == id }
     }
 
     private var backRow: some View {

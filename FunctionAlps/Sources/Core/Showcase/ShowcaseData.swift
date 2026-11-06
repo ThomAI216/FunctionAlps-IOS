@@ -383,6 +383,47 @@ enum ShowcaseData {
         return raw
     }
 
+    // MARK: Messages — a question, the practitioner's answer, two resources sent with it (one opened)
+
+    static let replyMessageId = "showcase-msg-reply"
+
+    static func messages() -> [PatientMessage] {
+        let thread = [
+            PatientMessage(id: "showcase-msg-1", mine: true, text: "I keep crashing after lunch around 3 pm, even on days I sleep well. Is it what I eat at lunch?",
+                           createdAt: at(-1, 14, 10), unread: false, context: nil),
+            PatientMessage(id: replyMessageId, mine: false,
+                           text: "Good question, and a common pattern. Two things to try this week: a short walk right after lunch, and a lunch that holds you (half vegetables, a palm of protein, a quarter complex carbs). I've put two resources in your library that show exactly how.",
+                           createdAt: at(-1, 16, 25), unread: false, context: nil),
+            PatientMessage(id: "showcase-msg-3", mine: true, text: "Thank you! Starting tomorrow.", createdAt: at(-1, 18, 2), unread: false, context: nil),
+        ]
+        return MessagingLogic.attach(messageResources(), to: thread)
+    }
+
+    static func messageResources() -> [MessageResource] {
+        [
+            MessageResource(id: "showcase-res-1", messageId: replyMessageId, slug: "showcase-post-meal-walking", title: "Post-Meal Walking", kind: .action,
+                            createdAt: at(-1, 16, 25), openedAt: at(-1, 18, 0)),
+            MessageResource(id: "showcase-res-2", messageId: replyMessageId, slug: "showcase-breathing-exercises", title: "A lunch that holds you", kind: .resource,
+                            createdAt: at(-1, 16, 26), openedAt: nil),
+        ]
+    }
+
+    static let personalTrackId = "5a0c0000-0000-4000-8000-0000000000a1"
+
+    /// A personal mini track sent with the reply: a named track, the practice's own message, two articles (the first already
+    /// opened) and an action card, so the page shows a done, a current and an upcoming step.
+    static func personalTracks() -> [PersonalTrack] {
+        [PersonalTrack(
+            id: personalTrackId, title: "Your afternoon energy",
+            intro: "Marie, here is what I would try first.\nTwo small things, in this order. We will look at how it went when we speak next.",
+            createdAt: at(-1, 16, 25), originMessageId: replyMessageId,
+            items: [
+                PersonalTrackItem(position: 1, kind: .article("showcase-post-meal-walking")),   // opened in the sample: shows a done step
+                PersonalTrackItem(position: 2, kind: .article("showcase-breathing-exercises")),   // the current step
+                PersonalTrackItem(position: 3, kind: .action(breathCardId)),
+            ])]
+    }
+
     static func libraryItem(slug: String) -> LibraryGetRow? {
         let title = libraryRaw().list.first { $0.slug == slug }?.title ?? "Listening to your body, week by week"
         return LibraryGetRow(title: title, tags: ["intestin"], bodyMd: LibraryDemo.readerBody, locked: false)

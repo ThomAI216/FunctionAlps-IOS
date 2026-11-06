@@ -10,7 +10,9 @@ final class LibraryViewModel {
         var title: String {
             switch self {
             case .show: String(localized: "show.navGroup", defaultValue: "The show")
-            case .priority: String(localized: "library.section.priority", defaultValue: "Priority")
+            // Owner, 2026-11-05: "put 'your personalized track' instead of the priority" — one section, the Pathway
+            // (what the practice sent) and the practitioner's priority tracks together.
+            case .priority: PathwayCopy.title
             case .tracks: String(localized: "library.section.tracks", defaultValue: "Tracks")
             case .foundations: String(localized: "library.section.foundations", defaultValue: "Foundations")
             case .supplements: String(localized: "library.section.supplements", defaultValue: "Supplements")
@@ -27,16 +29,23 @@ final class LibraryViewModel {
     private(set) var markingSlug: String?
     var expanded: Set<Section> = []
     private(set) var patientId: String?
+    /// What the practice sent with messages (CLINICAL migration 277), newest first, one card per item.
+    private(set) var sent: [MessageResource] = []
+    /// The personal mini tracks (CLINICAL migration 283), newest first, and the slugs already opened.
+    private(set) var personal: [PersonalTrack] = []
+    private(set) var openedSlugs: Set<String> = []
 
     private let library: LibraryService
     private let members: MemberService
     private let shows: ShowService
+    private let messaging: MessagingService?
     private let reminders = ShowReminders()
 
-    init(library: LibraryService, members: MemberService, shows: ShowService) {
+    init(library: LibraryService, members: MemberService, shows: ShowService, messaging: MessagingService? = nil) {
         self.library = library
         self.members = members
         self.shows = shows
+        self.messaging = messaging
     }
 
     func load() async {
@@ -46,6 +55,15 @@ final class LibraryViewModel {
         }
         guard let member = try? await members.currentMember() else { bundle = LibraryDemo.bundle; show = nil; return }
         patientId = member.patientId
+        // The practice's sends ride their own read and fail soft to none: the catalog never waits on them.
+        if let messaging {
+            async let sentRows = messaging.sentResources()
+            async let trackRows = messaging.personalTracks()
+            async let opened = messaging.openedSlugs()
+            sent = await sentRows
+            personal = await trackRows
+            openedSlugs = await opened
+        }
         // Coming soon (owner, 2026-10-06): the show is a blurred preview — nothing is read from CLINICAL.
         if shows.comingSoon {
             show = nil
@@ -100,13 +118,15 @@ final class LibraryViewModel {
     var pct: Double { lessonTotal == 0 ? 0 : Double(doneTotal) / Double(lessonTotal) }
     var week: Int? { library.weekNumber(startDate: bundle.plan?.startDate) }
 
+    private var pathwayCount: Int { (sent.isEmpty ? 0 : 1) + personal.count + priority.count }
+
     func count(_ section: Section) -> Int? {
         switch section {
         case .tracks: bundle.tracks.count
         case .foundations: foundations.count
         case .supplements: supplements.count
         case .show: showPresentation == .live ? show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count } : nil
-        case .priority: nil
+        case .priority: pathwayCount == 0 ? nil : pathwayCount
         }
     }
 }

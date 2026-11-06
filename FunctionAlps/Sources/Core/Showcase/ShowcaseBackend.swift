@@ -73,9 +73,12 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
     func memberClinicId(userId: String) async throws -> String? { nil }
-    func messages() async throws -> [PatientMessage] { [] }
+    func messages() async throws -> [PatientMessage] { ShowcaseData.messages() }
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String { "msg" }
-    func notifyMessage(id: String) async throws {}
+    func messageResources() async throws -> [MessageResource] { ShowcaseData.messageResources() }
+    func personalTracks() async throws -> [PersonalTrack] { ShowcaseData.personalTracks() }
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { ["showcase-post-meal-walking"] }
+    func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func markMessagesRead() async throws {}
     func sendFeedback(message: String, appVersion: String) async throws {}
     func deleteAccount() async throws {}
@@ -103,6 +106,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values) }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func lastAppointment(before: Date) async throws -> AppointmentRow? {
+        AppointmentRow(id: "showcase-consult", title: "Consultation", startsAt: ISO8601.string(ShowcaseData.at(-12, 10)), endsAt: nil, location: nil, meetingLink: nil, status: "completed")
+    }
+    func activePlanObjective(patientId: String) async throws -> String? { ShowcaseData.objective }
     func deleteHabitCompletion(id: String) async throws {}
     func evaluateHabitGates(day: String) async throws {}
     func setFocusOfferCompleted(id: String, completed: Bool) async throws {}

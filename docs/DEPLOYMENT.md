@@ -72,6 +72,13 @@ end
 ```
 Then `deploy beta` in the agent maps to `fastlane beta`. Code-signing stays Xcode-automatic for an individual account; `match` is only worth it when a second machine or CI appears (it revokes/recreates certificates on adoption — do not run it casually).
 
+## 5a. When the upload stops at `match` with "PLA Update available"
+Apple refuses every API call (certificates, profiles, uploads) until the team's **Account Holder** accepts the latest
+Program License Agreement on developer.apple.com (and App Store Connect, if it shows one). The `match` step then fails
+with `Unable to process request - PLA Update available`. Nothing in the repo can fix it. This happened on 2026-10-29
+(the meal-photo build never reached TestFlight) and on 2026-11-05; the owner accepted the agreement on 2026-11-05.
+After the agreement is accepted, push to `release/testflight` again (the agent cannot press Re-run).
+
 ## 5b. What the first upload taught us (2026-09-03, build 1 accepted)
 - App Store Connect **requires the iOS 26 SDK**: both CI jobs select `Xcode_26*` on the runner. Xcode 16 builds are rejected at upload with "SDK version issue".
 - `match` must run with `readonly: false` on CI the first time (fastlane defaults to read-only when it detects CI); it created the Apple Distribution certificate + App Store profile and stored them in `FunctionAlps-CERTS`.
@@ -310,7 +317,7 @@ Both channels are complete on both sides; what decides the inbox is two edge-fun
 | Channel | App entry | Edge function | Recipient | Secret |
 |---|---|---|---|---|
 | Product feedback | Profile → Your feedback | `member-feedback` | the team | `ADMIN_ALERT_EMAIL` (code default `thomas@functionalps.ch`) |
-| "Ask your nutritionist" | Profile → Messages | `message-notify` | the clinician | `CLINICIAN_ALERT_TO` (code default `support@functionalps.ch`) |
+| "Ask your nutritionist" | Profile → Messages | none from the app (2026-11-05): CLINICAL's cron `member-message-alerts` reads `patient_messages` every 5 minutes and emails the member's primary coach, else the owner | the coach / Thomas | CLINICAL env (`CONVERSATION_OWNER_USER_ID`, `CLINIC_NOTIFY_EMAIL`) |
 
 The clinician alert is **content-free by design** (no body, no name — the link is the payload); the
 feedback mail does carry the member's words, their email and their tier. A patient message also gets a

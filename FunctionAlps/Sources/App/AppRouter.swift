@@ -8,6 +8,10 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
+    case sentTrack
+    /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
+    case personalTrack(String)
     /// One episode of "The FunctionAlps Show" (Library), by its event slug.
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
@@ -70,6 +74,8 @@ final class AppRouter {
     /// The web app's five tabs, in its order.
     enum Tab: Hashable, CaseIterable { case home, trends, food, library, profile }
     var tab: Tab = .home
+    /// Items the practice sent and the member never opened — the Library tab's badge (refreshed on each tab change).
+    var libraryBadge = 0
     /// The pillar the Trends tab should open on arrival (the hub's pillar tiles); consumed once.
     var pendingPillar: MemberScores.Pillar?
 
@@ -91,8 +97,20 @@ final class AppRouter {
         }
     }
 
+    /// From a message's "Find them in your library" and the Home nudge: the mini track, in the Library tab.
+    func openSentTrack() {
+        tab = .library
+        libraryPath = [.sentTrack]
+    }
+
+    /// From a message's track card and the Library's Pathway cards: one personal track, in the Library tab.
+    func openPersonalTrack(_ id: String) {
+        tab = .library
+        libraryPath = [.personalTrack(id)]
+    }
+
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
@@ -124,10 +142,16 @@ final class AppRouter {
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
-            // (an experiment reminder lands there).
+            // (an experiment reminder lands there) · library/track/<uuid> — one personal mini track (an email link lands there).
             tab = .library; libraryPath = []
             let rest = Array(parts.dropFirst())
-            if rest.first == "show" {
+            if rest.first == "track" {
+                // library/track/<uuid> — a personal mini track. A malformed id lands on the Library, never on a dead page.
+                if rest.count > 1, Self.isTrackId(rest[1]) { libraryPath.append(.personalTrack(rest[1].lowercased())) }
+            } else if rest.first == "sent" {
+                // library/sent — the mini track of what the practice sent (a reply-with-resources push lands here).
+                libraryPath.append(.sentTrack)
+            } else if rest.first == "show" {
                 // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
                 if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
@@ -162,6 +186,9 @@ final class AppRouter {
         }
     }
 
+    /// A personal track id is a UUID; anything else is not a track link.
+    nonisolated static func isTrackId(_ raw: String) -> Bool { UUID(uuidString: raw) != nil }
+
     /// The meal id a `meal/<id>` route names, nil otherwise.
     nonisolated static func mealId(from url: URL) -> String? {
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -186,7 +213,11 @@ final class AppRouter {
 
     /// The reader replaces the floating navbar with its own mark-done bar — on whichever tab it was opened
     /// (an article reached from Home or Profile too, not only from the Library).
+    /// Set while the member types in a composer (Messages): the floating bar steps aside for the keyboard.
+    var composing = false
+
     var hidesTabBar: Bool {
+        if composing { return true }
         let top: Route? = switch tab {
         case .home: homePath.last
         case .trends: trendsPath.last
@@ -250,11 +281,17 @@ struct MainTabView: View {
         .tint(FAColor.brand)
         .overlay(alignment: .bottom) {
             if !router.hidesTabBar {
-                FloatingTabBar(selection: $router.tab)
+                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge])
                     .padding(.bottom, 2)
             }
         }
         .environment(router)
+        // The Library badge: what the practice sent and the member has not opened. One small read on each tab
+        // change and whenever the app comes forward; the screens that open an item decrement it at once.
+        .task(id: router.tab) { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() } }
+        }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
         .onOpenURL { router.open($0) }
         .onAppear {
@@ -304,6 +341,8 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .sentTrack: SentTrackView()
+        case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
         case .carePlan: CarePlanView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))

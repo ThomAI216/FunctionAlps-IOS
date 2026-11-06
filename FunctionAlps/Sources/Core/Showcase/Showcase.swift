@@ -10,6 +10,8 @@ import SwiftUI
 enum Showcase {
     enum Screen: String, CaseIterable {
         case today, checkin, checkinMood = "checkin-mood", checkinDone = "checkin-done", meal, food, trends, scores, careplan, action, library, episode, symptoms, article, onboarding
+        /// The practice's answer with resources, and the mini track they land on (2026-11-05).
+        case messages, sentTrack = "sent-track", personalTrack = "personal-track"
         /// The action-card anatomy for the content brief: one complete card from the top, middle and bottom, a breathing card, the bank.
         case card, cardMiddle = "card-middle", cardBottom = "card-bottom", cardBreath = "card-breath", bank
         /// The Foundation Track, screen by screen, on real content (`ShowcaseTrack`): Home on a day, a questionnaire step,
@@ -56,6 +58,9 @@ enum Showcase {
         case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"
         case .bank: "functionalps://bank"
         case .library: "functionalps://library"
+        case .messages: "functionalps://messages"
+        case .sentTrack: "functionalps://library/sent"
+        case .personalTrack: "functionalps://library/track/\(ShowcaseData.personalTrackId)"
         case .episode: "functionalps://library/show/\(ShowcaseData.showEpisodeSlug)"
         case .symptoms: "functionalps://checkin/gut"
         case .article: "functionalps://library/\(ShowcaseData.articleSlug)"

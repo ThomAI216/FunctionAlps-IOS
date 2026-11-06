@@ -35,6 +35,38 @@ enum MessageContext: Sendable, Equatable {
     }
 }
 
+/// A library item the practice sent WITH a message (`patient_message_resources`, CLINICAL migration 277).
+/// The card under the bubble, and the "From your practitioner" row of the Library. The member's RLS reads
+/// approved rows only; the practice's Send is the approval of a published library item.
+struct MessageResource: Sendable, Equatable, Identifiable {
+    enum Kind: String, Sendable { case resource, action }
+    let id: String
+    let messageId: String
+    /// `kb_nodes.slug` — opens in the library reader (`Route.read`).
+    let slug: String
+    let title: String
+    let kind: Kind
+    let createdAt: Date
+    /// Stamped once by `member_mark_message_resource_opened`.
+    let openedAt: Date?
+}
+
+/// Raw row of `patient_message_resources` (the member-readable columns).
+struct MessageResourceRow: Decodable, Sendable {
+    let id: String
+    let messageId: String
+    let librarySlug: String
+    let title: String
+    let kind: String?
+    let createdAt: Date
+    let openedAt: Date?
+
+    var resource: MessageResource {
+        MessageResource(id: id, messageId: messageId, slug: librarySlug, title: title,
+                        kind: MessageResource.Kind(rawValue: kind ?? "") ?? .resource, createdAt: createdAt, openedAt: openedAt)
+    }
+}
+
 /// One `patient_messages` row as the member sees it.
 struct PatientMessage: Sendable, Equatable, Identifiable {
     let id: String
@@ -45,6 +77,10 @@ struct PatientMessage: Sendable, Equatable, Identifiable {
     /// A clinician message the member has not read yet.
     let unread: Bool
     let context: MessageContext?
+    /// What the practice sent with this message (empty for the member's own).
+    var resources: [MessageResource] = []
+    /// The personal mini track the practice sent with this message (`patient_tracks.origin_message_id`).
+    var track: PersonalTrackSummary? = nil
 }
 
 /// Raw row, the PATIENT-readable columns only (never `*` — the table also carries the clinician's
@@ -72,8 +108,98 @@ struct PatientMessageRow: Decodable, Sendable {
     }
 }
 
+/// "Your Pathway" — what grounds it (owner, 2026-11-05: "based on the consultation from this moment, and our
+/// conversations on X, Y, Z"). Built only from what the member can already read: their own past appointment,
+/// the days the practice sent them something, and the clinician's `objective_line`. No wording is invented.
+struct PathwayIntro: Sendable, Equatable {
+    enum Basis: Sendable, Equatable {
+        case consultationAndConversations(consultation: Date, conversations: [Date])
+        case conversations([Date])
+        case consultation(Date)
+        case none
+    }
+    let basis: Basis
+    /// The clinician's own line (`care_plans.objective_line`), shown as "Your focus"; nil when unset.
+    let focus: String?
+}
+
+enum PathwayLogic {
+    /// At most this many conversation days are named; the most recent ones, oldest first.
+    static let maxConversationDays = 3
+
+    static func intro(consultation: Date?, sentAt: [Date], objective: String?, calendar: Calendar = .current) -> PathwayIntro {
+        var seen = Set<Date>()
+        let days = sentAt
+            .map { calendar.startOfDay(for: $0) }
+            .sorted(by: >)
+            .filter { seen.insert($0).inserted }
+            .prefix(maxConversationDays)
+            .sorted()
+        let focus = objective?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let basis: PathwayIntro.Basis
+        switch (consultation, days.isEmpty) {
+        case let (c?, false): basis = .consultationAndConversations(consultation: c, conversations: Array(days))
+        case (nil, false): basis = .conversations(Array(days))
+        case let (c?, true): basis = .consultation(c)
+        case (nil, true): basis = .none
+        }
+        return PathwayIntro(basis: basis, focus: (focus?.isEmpty ?? true) ? nil : focus)
+    }
+
+    /// The sentence under the title, in the member's language.
+    static func sentence(_ basis: PathwayIntro.Basis) -> String? {
+        func day(_ d: Date) -> String { d.formatted(.dateTime.day().month(.abbreviated)) }
+        func days(_ ds: [Date]) -> String { ds.map(day).formatted(.list(type: .and)) }
+        switch basis {
+        case let .consultationAndConversations(c, ds):
+            return String(localized: "pathway.basis.both", defaultValue: "Based on your consultation of \(day(c)) and our conversations of \(days(ds)).")
+        case let .conversations(ds):
+            return String(localized: "pathway.basis.conversations", defaultValue: "Based on our conversations of \(days(ds)).")
+        case let .consultation(c):
+            return String(localized: "pathway.basis.consultation", defaultValue: "Based on your consultation of \(day(c)).")
+        case .none:
+            return nil
+        }
+    }
+}
+
 enum MessagingLogic {
     static let maxLength = 5000
+
+    /// Put each resource under its message, in the order they were sent. A resource whose message is not
+    /// in the thread (older than the page, or withdrawn) is dropped: a card needs its bubble.
+    static func attach(_ resources: [MessageResource], to messages: [PatientMessage]) -> [PatientMessage] {
+        let byMessage = Dictionary(grouping: resources, by: \.messageId)
+        return messages.map { m in
+            var copy = m
+            copy.resources = (byMessage[m.id] ?? []).sorted { $0.createdAt < $1.createdAt }
+            return copy
+        }
+    }
+
+    /// Put the track under the message it was sent with, and drop from that message's "Resources attached" the
+    /// articles the track already holds (an item is never shown twice). A message with no track is untouched.
+    static func attach(tracks: [PersonalTrack], to messages: [PatientMessage]) -> [PatientMessage] {
+        let summaries = PersonalTrackLogic.summaries(tracks)
+        return messages.map { m in
+            guard let summary = summaries[m.id], !m.mine else { return m }
+            var copy = m
+            copy.track = summary
+            copy.resources = PersonalTrackLogic.looseResources(m.resources, tracks: tracks)
+            return copy
+        }
+    }
+
+    /// The Library's "From your practitioner" row: newest first, one card per slug (the latest send wins).
+    static func sentForLibrary(_ resources: [MessageResource]) -> [MessageResource] {
+        var seen = Set<String>()
+        return resources.sorted { $0.createdAt > $1.createdAt }.filter { seen.insert($0.slug).inserted }
+    }
+
+    /// The Library tab's badge and the Home nudge: items sent and never opened (one per slug).
+    static func unopenedCount(_ resources: [MessageResource]) -> Int {
+        sentForLibrary(resources).filter { $0.openedAt == nil }.count
+    }
 
     static func validate(_ body: String) -> Bool {
         let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)

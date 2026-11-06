@@ -59,16 +59,94 @@ struct MessagingService: Sendable {
 
     init(backend: any FunctionAlpsBackend) { self.backend = backend }
 
+    /// The thread with the practice's resources and mini tracks under their messages. Both reads fail soft
+    /// (the bubbles still show; the cards come back on the next load).
     func thread() async throws -> [PatientMessage] {
-        try await backend.messages()
+        async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
+        let messages = try await backend.messages()
+        let found = await tracks
+        let withResources = MessagingLogic.attach(await resources, to: messages)
+        return MessagingLogic.attach(tracks: found, to: withResources)
     }
 
-    /// Sends, then notifies the clinician fail-soft (the 15-minute sweep re-notifies anything missed).
+    /// Sends. The practice is told by CLINICAL itself (its member-message alert reads `patient_messages`
+    /// every five minutes, 2026-11-05); the app no longer calls `message-notify`, which never ran.
     func send(_ body: String, member: Member, context: MessageContext?) async throws {
         guard MessagingLogic.validate(body) else { throw AppError.validation(message: String(localized: "messages.empty", defaultValue: "Message cannot be empty.")) }
         guard let clinicId = try await backend.memberClinicId(userId: member.userId) else { throw AppError.notFound }
-        let id = try await backend.sendMessage(patientId: member.patientId, clinicId: clinicId, body: body, context: context)
-        try? await backend.notifyMessage(id: id)
+        _ = try await backend.sendMessage(patientId: member.patientId, clinicId: clinicId, body: body, context: context)
+    }
+
+    /// The member opened a resource card: stamp it once, fail-soft (the open is a courtesy to the practice,
+    /// never a gate on reading).
+    func markResourceOpened(id: String) async {
+        _ = try? await backend.markMessageResourceOpened(id: id)
+    }
+
+    /// What the practice sent loose with messages (no personal track), for the Library's Pathway card.
+    func sentResources() async -> [MessageResource] {
+        async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
+        return MessagingLogic.sentForLibrary(PersonalTrackLogic.looseResources(await resources, tracks: await tracks))
+    }
+
+    /// The personal mini tracks for the Library cards; fails soft to none.
+    func personalTracks() async -> [PersonalTrack] {
+        (try? await backend.personalTracks()) ?? []
+    }
+
+    /// Slugs the member has opened (for the "N new" on a track card); fails soft to none.
+    func openedSlugs() async -> Set<String> {
+        guard let patientId = try? await backend.currentPatientId() else { return [] }
+        return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+    }
+
+    /// One track for its page, with what it needs to draw: titles and what is opened. The track read throws (the page
+    /// has an error state); titles and opens fail soft (a title falls back to the slug, nothing shows opened).
+    func personalTrackPage(id: String) async throws -> PersonalTrackPage? {
+        let backend = self.backend
+        let tracks = try await backend.personalTracks()
+        guard let track = tracks.first(where: { $0.id == id }) else { return nil }
+        async let opened: Set<String> = {
+            guard let patientId = try? await backend.currentPatientId() else { return [] }
+            return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+        }()
+        async let cards = (try? await backend.ladderCards()) ?? []
+        var titles: [String: String] = [:]
+        await withTaskGroup(of: (String, String?).self) { group in
+            for slug in track.items.compactMap(\.slug) {
+                group.addTask { (slug, (try? await backend.libraryItem(slug: slug))?.title) }
+            }
+            for await (slug, title) in group { if let title, !title.isEmpty { titles[slug] = title } }
+        }
+        let locale = TodayFocus.locale()
+        for card in await cards { titles["action:" + card.id] = ActionCardLogic.content(card: card, habit: nil, locale: locale).title }
+        return PersonalTrackPage(track: track, titles: titles, openedSlugs: await opened)
+    }
+
+    /// "Your Pathway": what grounds it. Each read fails soft (a missing part drops out of the sentence).
+    func pathwayIntro(patientId: String, items: [MessageResource], now: Date = Date()) async -> PathwayIntro {
+        async let consultation = try? backend.lastAppointment(before: now)
+        async let objective = try? backend.activePlanObjective(patientId: patientId)
+        // `try?` flattens the optional (Swift 5+): both are plain optionals here.
+        let lastConsultation: AppointmentRow? = await consultation
+        let objectiveLine: String? = await objective
+        return PathwayLogic.intro(consultation: lastConsultation?.start, sentAt: items.map(\.createdAt), objective: objectiveLine)
+    }
+
+    /// Sent and never opened (loose sends, then articles of personal tracks) — the Library tab's badge and the
+    /// Home nudge. Fails soft to 0.
+    func unopenedSentCount() async -> Int {
+        async let resources = (try? backend.messageResources()) ?? []
+        async let tracks = (try? backend.personalTracks()) ?? []
+        let found = await tracks
+        let loose = PersonalTrackLogic.looseResources(await resources, tracks: found)
+        let looseCount = MessagingLogic.unopenedCount(loose)
+        guard !found.isEmpty, let patientId = try? await backend.currentPatientId() else { return looseCount }
+        let opened = (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
+        let counted = Set(MessagingLogic.sentForLibrary(loose).map(\.slug))
+        return looseCount + PersonalTrackLogic.unopenedCount(found, openedSlugs: opened, alreadyCounted: counted)
     }
 
     func markRead() async {

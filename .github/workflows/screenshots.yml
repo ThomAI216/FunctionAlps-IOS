@@ -107,6 +107,10 @@ jobs:
           shoot 08-library library 14
           shoot 09-symptoms symptoms
           shoot 11-article article 10
+          # The practice's answer with resources, and the mini track it points to (2026-11-05).
+          shoot 12-messages messages 10
+          shoot 12b-sent-track sent-track 10
+          shoot 12c-personal-track personal-track 10
           # The action-card anatomy, for the content brief (EN then FR).
           shoot 20-card-top card 10
           shoot 21-card-middle card-middle 10
