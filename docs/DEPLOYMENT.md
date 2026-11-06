@@ -267,6 +267,12 @@ at our URL. On 2026-09-14, when the webhook URLs were entered in the portals, WH
 each had one delivery rejected with `signature mismatch` — either a portal test ping signed differently or a client
 secret in Supabase that differs from the portal's. Settle it with the first real connection (a wrong secret also
 breaks the token exchange, which the callback logs as `oauth.callback_failed`).
+**Connectors fixed later the same day (2026-11-06, from the vendors' official API specs):** Oura asked for the scope
+`spo2Daily`, which Oura does not document (`spo2` is the scope), and sent no User-Agent (Oura may answer 403); Polar's
+connect called `GET /v4/data/profile`, which is not a v4 path, and asked for `ppi:read` (the scope is `ppi_data:read`).
+So neither could have connected a member. Both are fixed on the branch (Polar's data path rebuilt from its Swagger) and
+reach members only after the merge to `main`. The full data catalogue and the remaining fix list (WHOOP, Withings,
+Suunto) are in `docs/wearables/DATA_CATALOGUE.md`.
 **Copy vs data (owner decision):** three live cards promise more than their adapters write. Oura says "Adds: Nightly
 HRV" and Withings "HRV (RMSSD and SDNN)", but decision D4 keeps both vendors' HRV raw-only (in `details`, under no HRV
 id) until its definition is verified; Polar says "sleep stages, training load", but the Polar adapter writes Nightly
