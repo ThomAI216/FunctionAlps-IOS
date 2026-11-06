@@ -3,7 +3,7 @@
 // `ouraMaintain()` flag. `globalThis.fetch` is stubbed; nothing here talks to the network.
 import { assert, assertEquals, assertRejects } from "jsr:@std/assert@1"
 import { type RowBatch, RateLimitedError, T, hmacSha256 } from "../core.ts"
-import { OURA_DELETE_WITHIN_HOURS, oura, ouraMaintain } from "../oura.ts"
+import { OURA_DELETE_WITHIN_HOURS, OURA_USER_AGENT, oura, ouraMaintain } from "../oura.ts"
 
 const HRV_IDS = [T.Rmssd, T.RmssdSleep, T.RmssdSleepHighest, T.SDNN, T.SDRR]  // 3100 3106 3107 3112 3113
 const fixture = (name: string) => Deno.readTextFile(new URL(`./fixtures/oura/${name}.json`, import.meta.url))
@@ -62,7 +62,6 @@ Deno.test("golden: fixtures → exact daily rows; no HRV id; the nap does not fe
     [1000106, "SkinTemperatureDeviation", -0.2, "2026-09-13", "dr-1"],
     // daily_activity (seconds → minutes for the activity buckets)
     [1000, "Steps", 8421, "2026-09-13", "da-1"],
-    [1001, "CoveredDistance", 6900, "2026-09-13", "da-1"],
     [1010, "BurnedCalories", 2310, "2026-09-13", "da-1"],
     [1011, "ActiveBurnedCalories", 412, "2026-09-13", "da-1"],
     [1100, "ActivityDuration", 160, "2026-09-13", "da-1"],
@@ -166,16 +165,53 @@ Deno.test("429 → RateLimitedError carrying Retry-After; an exhausted X-RateLim
   } finally { f2.restore() }
 })
 
-Deno.test("adapter contract: pkce per corpus, reconcile 3/14, no email scope, the 72 h deletion bound", () => {
-  assertEquals(oura.pkce, "not_documented")
+Deno.test("adapter contract: PKCE supported (documented 2026-11), reconcile 3/14, documented scopes only, the 72 h deletion bound", () => {
+  assertEquals(oura.pkce, "supported")
+  // The scopes Oura's authentication page documents (2026-11-06): email personal daily heartrate workout tag session spo2.
+  const documented = ["email", "personal", "daily", "heartrate", "workout", "tag", "session", "spo2"]
+  for (const s of oura.scopes) assert(documented.includes(s), `undocumented Oura scope: ${s}`)
+  assert(oura.scopes.includes("spo2") && !oura.scopes.includes("spo2Daily"))
   assertEquals(oura.reconcile, { nightlyDays: 3, weeklyDays: 14 })
   assert(!oura.scopes.includes("email"))
   assert(oura.scopes.includes("personal"))  // personal_info → vendor user id
   assertEquals(OURA_DELETE_WITHIN_HOURS, 72)
-  const u = new URL(oura.authorizeURL({ clientId: "cid", redirectUri: "https://x/cb", state: "st", codeChallenge: "ignored" }))
+  const u = new URL(oura.authorizeURL({ clientId: "cid", redirectUri: "https://x/cb", state: "st", codeChallenge: "ch-1" }))
   assertEquals(u.origin + u.pathname, "https://cloud.ouraring.com/oauth/authorize")
   assertEquals(u.searchParams.get("scope"), oura.scopes.join(" "))
-  assertEquals(u.searchParams.get("code_challenge"), null)
+  assertEquals([u.searchParams.get("code_challenge"), u.searchParams.get("code_challenge_method")], ["ch-1", "S256"])
+})
+
+// MARK: - 2026-11-06 fixes, against Oura's authentication page and OpenAPI 1.43
+
+Deno.test("every Oura call carries a non-empty, identifying User-Agent (Oura: requests without one may get 403)", async () => {
+  const f = stubFetch(collectionsHandler)
+  try { await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(f.calls.length > 0)
+  for (const c of f.calls) assertEquals((c.init?.headers as Record<string, string>)["User-Agent"], OURA_USER_AGENT)
+  Deno.env.set("OURA_CLIENT_ID", "cid"); Deno.env.set("OURA_CLIENT_SECRET", "cs")
+  const g = stubFetch((url) => url.includes("/oauth/token") ? jsonResp({ access_token: "at-1", refresh_token: "rt-1", expires_in: 86400 }) : jsonResp({ id: "oura-user-1" }))
+  try { await oura.exchangeCode({ code: "c", redirectUri: "https://x/cb", codeVerifier: "v-1" }) } finally { g.restore() }
+  for (const c of g.calls) assertEquals((c.init?.headers as Record<string, string>)["User-Agent"], OURA_USER_AGENT)
+  assertEquals(new URLSearchParams(String(g.calls[0].init?.body)).get("code_verifier"), "v-1")
+})
+
+Deno.test("a 403 on one collection (scope unticked / subscription lapsed) is skipped; the others still sync", async () => {
+  const f = stubFetch((url) => url.includes("/usercollection/daily_spo2") ? new Response("forbidden", { status: 403 }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(out!.daily.some((r) => r.dataTypeId === T.SleepScore))
+  assert(!out!.daily.some((r) => r.dataTypeId === T.SPO2))
+})
+
+Deno.test("a sleep Oura marks `deleted` is never written, and equivalent walking distance is not distance covered", async () => {
+  const deleted = { id: "sl-del", type: "deleted", day: "2026-09-13", bedtime_start: "2026-09-12T23:00:00+02:00", bedtime_end: "2026-09-13T06:00:00+02:00", total_sleep_duration: 20000, heart_rate: { interval: 300, items: [55, 54], timestamp: "2026-09-12T23:00:00+02:00" }, sleep_phase_5_min: "1234" }
+  const f = stubFetch(async (url) => url.includes("/usercollection/sleep?") ? jsonResp({ data: [deleted], next_token: null }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(![...out!.daily, ...out!.epoch].some((r) => r.sourceRecordId === "sl-del"))
+  assert(!out!.daily.some((r) => r.dataTypeId === T.CoveredDistance))
+  const activity = out!.daily.find((r) => r.dataTypeId === T.Steps)
+  assertEquals(activity?.details?.equivalent_walking_distance_m, 6900)
 })
 
 // MARK: - Webhooks
