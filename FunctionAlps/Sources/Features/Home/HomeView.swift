@@ -22,7 +22,10 @@ struct HomeView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .mealCaptureHost(capture) { Task { await model?.load(refresh: true) } }
+        .mealCaptureHost(capture) {
+            Task { await model?.load(refresh: true) }
+            Task { await dependencies.unlocks.refresh() }   // the first meal opens Food
+        }
         .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
         .onChange(of: dependencies.track.reminders, initial: true) { _, plan in
             // The track moved (a new day, a module sent, the review unlocked): the day's reminders follow.

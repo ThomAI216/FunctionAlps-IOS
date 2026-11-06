@@ -16114,6 +16114,54 @@
         }
       }
     },
+    "lock.food.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph a meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographier un repas"
+          }
+        }
+      }
+    },
+    "lock.food.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph your next meal. From then on, Food shows what you eat, day after day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez votre prochain repas. Ensuite, Alimentation montre ce que vous mangez, jour après jour."
+          }
+        }
+      }
+    },
+    "lock.food.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food opens with your first meal photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation s'ouvre avec votre première photo de repas"
+          }
+        }
+      }
+    },
     "lock.notDefined": {
       "localizations": {
         "en": {
@@ -16126,6 +16174,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre praticienne le complète avec vous"
+          }
+        }
+      }
+    },
+    "lock.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld jours sur %2$lld"
+          }
+        }
+      }
+    },
+    "lock.trends.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do today's check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire le check-in du jour"
+          }
+        }
+      }
+    },
+    "lock.trends.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the app three days in a row, with a check-in or a meal photo, and your curves appear here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez l'app trois jours d'affilée, avec un check-in ou une photo de repas, et vos courbes apparaissent ici."
+          }
+        }
+      }
+    },
+    "lock.trends.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your trends open after 3 days in a row"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos tendances s'ouvrent après 3 jours d'affilée"
           }
         }
       }
@@ -37710,6 +37822,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bibliothèque"
+          }
+        }
+      }
+    },
+    "tab.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, locked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, verrouillé"
           }
         }
       }

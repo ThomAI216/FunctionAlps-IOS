@@ -5,6 +5,8 @@ struct FloatingTabBar: View {
     @Binding var selection: AppRouter.Tab
     /// A small count on a tab (the Library: items the practice sent, not yet opened). 0 or absent = nothing.
     var badges: [AppRouter.Tab: Int] = [:]
+    /// Tabs the Foundation Track keeps locked for now: a small lock on the icon (the tab still opens, on its lock).
+    var locked: Set<AppRouter.Tab> = []
 
     private struct Item: Identifiable {
         let tab: AppRouter.Tab
@@ -37,7 +39,12 @@ struct FloatingTabBar: View {
                         Image(systemName: item.symbol)
                             .font(.system(size: 22, weight: focused ? .semibold : .regular))
                             .overlay(alignment: .topTrailing) {
-                                if let n = badges[item.tab], n > 0 {
+                                if locked.contains(item.tab) {
+                                    Image(systemName: "lock.fill").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+                                        .frame(width: 16, height: 16).background(FAColor.charcoal.opacity(0.7), in: Circle())
+                                        .offset(x: 10, y: -6)
+                                        .accessibilityHidden(true)
+                                } else if let n = badges[item.tab], n > 0 {
                                     Text("\(n)")
                                         .font(FATypography.sans(9, .bold, relativeTo: .caption2)).foregroundStyle(.white)
                                         .padding(.horizontal, 4).frame(minWidth: 16, minHeight: 16)
@@ -54,7 +61,8 @@ struct FloatingTabBar: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(item.label)
+                .accessibilityLabel(locked.contains(item.tab)
+                                    ? String(localized: "tab.locked", defaultValue: "\(item.label), locked") : item.label)
                 .accessibilityAddTraits(focused ? [.isSelected] : [])
             }
         }

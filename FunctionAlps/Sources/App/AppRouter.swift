@@ -232,6 +232,15 @@ final class AppRouter {
 
 /// Five stacks behind one floating glass pill (the system tab bar is hidden on every root).
 struct MainTabView: View {
+    /// The tabs the Foundation Track keeps locked for now (marked on the pill).
+    private var lockedTabs: Set<AppRouter.Tab> {
+        guard dependencies.track.status?.state == .active, dependencies.unlocks.phase == .known else { return [] }
+        var tabs: Set<AppRouter.Tab> = []
+        if !dependencies.unlocks.trendsOpen { tabs.insert(.trends) }
+        if !dependencies.unlocks.foodOpen { tabs.insert(.food) }
+        return tabs
+    }
+
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.scenePhase) private var scenePhase
     @State private var router = AppRouter()
@@ -247,7 +256,7 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.home)
 
             NavigationStack(path: $router.trendsPath) {
-                TrendsView()
+                TrendsTabRoot()
                     .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                 .navigationDestination(for: Route.self, destination: destination)
@@ -255,7 +264,7 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.trends)
 
             NavigationStack(path: $router.foodPath) {
-                FoodView()
+                FoodTabRoot()
                     .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
@@ -281,16 +290,22 @@ struct MainTabView: View {
         .tint(FAColor.brand)
         .overlay(alignment: .bottom) {
             if !router.hidesTabBar {
-                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge])
+                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge], locked: lockedTabs)
                     .padding(.bottom, 2)
             }
         }
         .environment(router)
         // The Library badge: what the practice sent and the member has not opened. One small read on each tab
         // change and whenever the app comes forward; the screens that open an item decrement it at once.
-        .task(id: router.tab) { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+        .task(id: router.tab) {
+            router.libraryBadge = await dependencies.messaging.unopenedSentCount()
+            await dependencies.unlocks.refresh()   // a check-in or a meal elsewhere may have opened Trends or Food
+        }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() } }
+            if phase == .active {
+                Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+                Task { await dependencies.unlocks.refresh() }
+            }
         }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
         .onOpenURL { router.open($0) }
