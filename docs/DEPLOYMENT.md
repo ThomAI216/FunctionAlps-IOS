@@ -267,6 +267,11 @@ at our URL. On 2026-09-14, when the webhook URLs were entered in the portals, WH
 each had one delivery rejected with `signature mismatch` — either a portal test ping signed differently or a client
 secret in Supabase that differs from the portal's. Settle it with the first real connection (a wrong secret also
 breaks the token exchange, which the callback logs as `oauth.callback_failed`).
+**Copy vs data (owner decision):** three live cards promise more than their adapters write. Oura says "Adds: Nightly
+HRV" and Withings "HRV (RMSSD and SDNN)", but decision D4 keeps both vendors' HRV raw-only (in `details`, under no HRV
+id) until its definition is verified; Polar says "sleep stages, training load", but the Polar adapter writes Nightly
+Recharge, ANS charge and the sleep score/times only. Either verify and write those values, or soften the
+`vendor.*.adds` lines in `WearableVendors.swift`.
 
 **Readiness probe** (`{"probe":"vendor-readiness"}` → `wearable-reconcile`, `x-report-secret`; deployed with the next
 `main` push that touches `_shared/wearables/`). Per vendor: which Edge Function secrets are SET (names → true/false,
