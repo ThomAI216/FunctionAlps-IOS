@@ -9,7 +9,7 @@ Until magnesium is published, the screens show the labelled sample (the mockup's
 Foundation Track mockup `X4SrfHtE3Pn7UYuEvf4rjj` and on `LIBRARY_PLAN.md` (decisions of 7 November, branch
 `claude/determined-brahmagupta-n20yaz`).
 **Agent, review, data:** CLINICAL `clinical-dashboard/docs/wiki/features/supplement-library.md`
-(the research agent, Thomas's review, migration 291, the publish rules).
+(the research agent, Thomas's review, migration 293, the publish rules).
 
 ## What the member gets
 
