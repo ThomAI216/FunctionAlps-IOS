@@ -1,25 +1,48 @@
 # Foundation Track · articles and media to create
 
-Day by day: the planned short read (the track source, `docs/foundation-cards/build.py`), the library article the day links
-today on CM OS (`track_day.read_slug`, a stand-in until the read is written), and the other pieces still to make.
-Days 9 and 10 are swapped since 2026-11-07 (easy strength on day 9, the lunch on day 10): the track source and CM OS still have the old order.
+Day by day, with a brief for each (Thomas, 2026-11-07). 'In the library' names a published article on CM OS that already
+covers part of it: a starting point to adapt, or today's stand-in (`track_day.read_slug`). The track source and CM OS
+still have the old plan; this list follows the new one.
 
-- A short video for every day (14; none is on CM OS yet: track_day.video_url_en is empty for all).
-- 14 short reads to write (day 1 in progress by Thomas).
+- 35 pieces: 21 read, 7 short read, 1 lesson, 3 video, 1 infographic, 1 videos, 1 audio · video.
+- Plus a short video for every day (14; none exists yet).
 
-| Day | Theme | Read to write | Linked today (CM OS) | Other pieces |
+NSDR links for day 10: [Huberman Lab Clips · 10 Minute Non-Sleep Deep Rest (NSDR)](https://www.youtube.com/watch?v=KHIbgSN2qAU) · [Virtusan · NSDR with Dr. Andrew Huberman (10 min)](https://www.youtube.com/watch?v=AKGrmY8OSHM) · [Huberman Lab · guide to NSDR](https://www.hubermanlab.com/nsdr)
+
+| Day | Piece | Kind | Brief | In the library |
 |---|---|---|---|---|
-| 1 | Your starting point | Introduction to functional health (Thomas is writing it) | Feedback and Self-Tracking | — |
-| 2 | Nutrition | What your meal photos tell us | Macros vs Micros | — |
-| 3 | Movement | Little and often | Micro-Workouts / Exercise Snacks | Lesson: Exercise snacks, small signals that add up |
-| 4 | Sleep | Light sets your body clock | Morning Wake-Up Routine | — |
-| 5 | Mental and emotional health | The 2-minute downshift | Breathing Exercises | — |
-| 6 | Your first week | Simple actions, repeated | Your Unique Terrain Roadmap | — |
-| 7 | Your full day | Your day, on one page | How Nutrition, Training, Gut, Recovery and Nervous System Work Together | Video: the 5-minute morning flow |
-| 8 | Protein first | Why protein matters | Nutrient-Dense Foods | Infographic: Protein through the day |
-| 9 | Easy strength | Muscle is a long-term account | Strength Is More Than Muscle Size | Video: the 5-minute strength routine (Thomas designs the moves, then films); Image: Five minutes, anywhere |
-| 10 | A lunch that holds you | Complex carbs, simply | Post-Meal Walking | Infographic: The plate that holds you |
-| 11 | Your evening downshift | Your evening routine | NSDR / Yoga Nidra | Audio: 10-minute NSDR (to record); Image: Winding down, step by step |
-| 12 | More morning movement | Sitting less | ROM & Loaded Mobility | Video: the 10-minute morning flow; Image: Ten minutes, then little breaks |
-| 13 | Make it yours | Habits that last | Signals Create Adaptation | Image: Choose what you keep |
-| 14 | Your two weeks | What a personal programme adds | Biological Recovery | Image: From day 1 to day 14 |
+| 1 · Your starting point | Introduction to functional health | Read | What functional health is, the four pillars, why we start from where you are. Thomas is writing it. | Feedback and Self-Tracking |
+| 1 · Your starting point | What your meal photos tell us | Short read | Why we ask for photos (no counting), what we look at, how to snap fast: before the first bite, drinks and snacks too. | — |
+| 1 · Your starting point | Your functional check-in, explained | Short read | The five markers (energy, sleep, mood, calmness, digestion), one minute in the evening, and how your curves become your Trends. | Feedback and Self-Tracking |
+| 2 · Nutrition | Mindful eating | Read | The meal without the phone: chew a lot, breathe between bites, a glass of water, notice when you're full. Why it changes digestion, hunger and cravings. | — |
+| 2 · Nutrition | The 5-minute walk after eating | Short read | A few minutes of walking after a meal softens the blood-sugar rise and helps digestion. How to fit it in, even at work. | Post-Meal Walking |
+| 3 · Movement | Little and often | Read | Functional capacity, not sport. Why 3 minutes in the morning and 2 minutes of stretching at night beat a big plan you don't keep. | Micro-Workouts / Exercise Snacks |
+| 3 · Movement | Exercise snacks: small signals that add up | Lesson | What an exercise snack is (10 squats, a minute of stairs, wall push-ups) and why short bursts add up. | Micro-Workouts / Exercise Snacks |
+| 4 · Sleep | Light sets your body clock | Read | Daylight first thing (even your head out of the window, breathing) sets your rhythm; bright screens at night push it back. | Morning Wake-Up Routine |
+| 4 · Sleep | The 3-2-1 rule | Short read | 3 hours before bed no food, 2 hours no work, 1 hour no screens. Why each one helps, and how to start with one. | — |
+| 4 · Sleep | Caffeine and your sleep | Short read | Caffeine stays in the body for hours: none after 16:00, and what to drink instead. | — |
+| 5 · Mental and emotional health | Breathe: the time you give yourself | Read | A Wim Hof-style round (deep breaths, a slow exhale, a comfortable hold; two rounds to start), but the point isn't the technique: it's 5 minutes for yourself, once a day, and a more positive attitude. Safety: sitting or lying down, never in water or driving. | Breathing Exercises |
+| 5 · Mental and emotional health | 5 minutes of breathing, with Thomas | Video | Thomas guides the 5 minutes on camera, to do along. | — |
+| 5 · Mental and emotional health | Three good things | Short read | Writing down three good things each evening, on your phone or in a journal, and why it shifts attention and mood over a few weeks. | — |
+| 6 · Your first week | Simple actions, repeated | Read | Why the basics, done every day, beat the perfect plan. | Your Unique Terrain Roadmap |
+| 6 · Your first week | The power of habits | Read | How a habit forms: cue, routine, reward; anchoring the new to the old; why we start small. | — |
+| 6 · Your first week | The power of compounding | Read | Small gains that add up: 1% better each day, and why the first two weeks matter more than they feel. | — |
+| 7 · Your full day | Your day, on one page | Read | The full day in four moments, morning to evening, and how the habits link to each other. | How Nutrition, Training, Gut, Recovery and Nervous System Work Together |
+| 7 · Your full day | The 5-minute morning flow | Video | Qi gong inspired: breathing with the arms, gentle twists, shake it out. | — |
+| 8 · Build your plate | Build your plate | Infographic | Protein at every meal, complex carbs over refined, a walk after eating, not too late at night. | — |
+| 8 · Build your plate | Protein at every meal, and why it matters | Read | Building material, fullness, muscle as we age; easy sources for each meal. | Nutrient-Dense Foods |
+| 8 · Build your plate | Complex or refined carbs: why it matters | Read | Fibre, the steadier energy curve, the three o'clock dip; simple swaps. | — |
+| 8 · Build your plate | The walk after every meal | Short read | From one walk on day 2 to a short walk after every meal. | Post-Meal Walking |
+| 9 · Easy strength | Muscle, a long-term investment | Read | Muscle as a health account: joints, blood sugar, independence with age. Exercise snacks as the deposits. | Strength Is More Than Muscle Size |
+| 9 · Easy strength | The benefits of exercise snacks | Read | What short bursts do for the heart, blood sugar, energy and mood, and why 2 to 3 a day. | Micro-Workouts / Exercise Snacks |
+| 9 · Easy strength | Exercise-snack routines | Videos | A few 3-to-5-minute routines to choose from (legs, upper body, whole body), each with an easier version. Thomas designs the moves, then films. | — |
+| 10 · Your evening downshift | Your evening routine | Read | Why the same steps in the same order help you sleep: the 3-2-1 rule, a book, 10 minutes to wind down (box breathing or NSDR). | — |
+| 10 · Your evening downshift | NSDR, explained | Read | Non-sleep deep rest: what it is, when to use it, how it differs from sleep and meditation. Links to a 10-minute guided session. | NSDR / Yoga Nidra |
+| 10 · Your evening downshift | 10-minute NSDR | Audio · video | Ours to record. Meanwhile, link: Huberman Lab's 10-minute NSDR (youtube.com/watch?v=KHIbgSN2qAU) and hubermanlab.com/nsdr. | NSDR / Yoga Nidra |
+| 11 · Your mind, day to day | Connection is health | Read | Why people matter for health; one message or call a day. | — |
+| 11 · Your mind, day to day | The habit of writing | Read | From three good things to 5 minutes of writing: clearing your mind, noticing patterns. | — |
+| 12 · More movement | The power of walking | Read | The simplest, most underrated habit: heart, blood sugar, mood, creativity; ten minutes every two hours. | Post-Meal Walking |
+| 12 · More movement | Sitting less | Read | What long sitting does, and the 10-minute break every two hours. | ROM & Loaded Mobility |
+| 12 · More movement | The 10-minute morning flow | Video | The 5-minute flow, longer. | — |
+| 13 · Make it yours | Habits that last | Read | Keep the ones you'd miss, not the ones you think you should. | Signals Create Adaptation |
+| 14 · Your two weeks | What a personal programme adds | Read | What comes after the app: labs, a plan made for you, follow-up with Thomas. | Biological Recovery |
