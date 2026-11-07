@@ -21,3 +21,6 @@ Add to it rather than deleting a question. When one moves back into a day, strik
 
 - **Day 3, movement, said out loud** (in the mockup, not built): "Tell us about a usual week of movement: what you do, which days, and for how long." An AI pass extracts each activity, when and how long; with age, height, weight and sex it gives a closer estimate of the calories burned.
 - **Library covers:** a new background for the covers, later.
+- **What a habit does for you (hypotheses):** on each habit's page, later, show its effect in the member's own data: "on days you do your morning flow, your mood is higher", "since you started, your energy went up". Not at launch; it needs enough days. Keep it in mind for the whole app (Thomas, 2026-11-07).
+- **Videos play in the app**, in our own player, not on YouTube.
+- **A widget** with the current moment's habits, and buttons for Log a meal and the check-in.
