@@ -48,7 +48,16 @@ For every member, not only the track: a story that builds from the ground up. A 
 Each supplement page: benefits to look for, how to take it, the label, when to ask first (medication, pregnancy,
 kidneys…), the habit it goes with, the articles. Doses and wording are Thomas's to set.
 
-## Search and ask (Thomas, 2026-11-07)
+## First release (Thomas, 2026-11-07)
+
+The library goes live with **only the 14 free Foundation Track days**: one read a day (soft-locked until its day), the
+reader with "Practice it" (Open if the habit is in your actions, "+ Add" if not), the videos in the app. Pillars, tracks,
+supplements and search come next, built on top once this is published.
+
+**Architecture note:** "Ask" (a question → the best article, or a request to write it) will also be part of the AI
+wellness coach later. Build it as one service the library and the coach both call, not as library-only code.
+
+## Search and ask (Thomas, 2026-11-07, next step)
 
 - Search by topic or keyword: the topics a word belongs to, then articles, habits and videos.
 - Ask a question: the best article first, with the passage that answers it; then what is related.
