@@ -1,6 +1,9 @@
-# The supplement library · app side (design, 2026-11-07)
+# The supplement library · app side (design 2026-11-07, built 2026-11-07)
 
-**Status:** DESIGN, waiting for Thomas's go. Nothing built in the app yet.
+**Status:** built, pending the first published supplement (branch `claude/functionalpas-supplement-library-r2dbph`,
+the `iOS` workflow green). Files: `Models/Supplements.swift`, `Core/Library/SupplementLogic.swift` + `SupplementSample.swift`,
+`Features/Library/Supplements/*`, `Route.supplement` / `Route.supplementUse`, `Tests/Core/SupplementLogicTests.swift`.
+Until magnesium is published, the screens show the labelled sample (the mockup's draft wording) on `demo-` slugs only.
 **Mockups:** artifact `CWHqjCHoYPsGpbibB1Mpc4` (the supplements list, the magnesium page top and bottom, "For sleep",
 "For muscle cramps" (not supported), the visuals, and the CLINICAL review screen). It builds on "The library" in the
 Foundation Track mockup `X4SrfHtE3Pn7UYuEvf4rjj` and on `LIBRARY_PLAN.md` (decisions of 7 November, branch
