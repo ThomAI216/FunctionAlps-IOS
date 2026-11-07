@@ -9,6 +9,8 @@ still have the old plan; this list follows the new one.
 
 NSDR links for day 10: [Huberman Lab Clips · 10 Minute Non-Sleep Deep Rest (NSDR)](https://www.youtube.com/watch?v=KHIbgSN2qAU) · [Virtusan · NSDR with Dr. Andrew Huberman (10 min)](https://www.youtube.com/watch?v=AKGrmY8OSHM) · [Huberman Lab · guide to NSDR](https://www.hubermanlab.com/nsdr)
 
+Wim Hof, official channel, for day 5 (pick the ~5-minute one): [Wim Hof breathing tutorial by Wim Hof](https://www.youtube.com/watch?v=nzCaZQqAs9I) · [Guided Wim Hof Method Breathing (3 Rounds)](https://www.youtube.com/watch?v=VQnZcXLAMdg) · [Wim Hof Method Guided Breathing for Beginners (3 Rounds Slow Pace)](https://www.youtube.com/watch?v=0BNejY1e9ik) · [Guided Wim Hof Method Breathing](https://www.youtube.com/watch?v=tybOi4hjZFQ)
+
 | Day | Piece | Kind | Brief | In the library |
 |---|---|---|---|---|
 | 1 · Your starting point | Introduction to functional health | Read | What functional health is, the four pillars, why we start from where you are. Thomas is writing it. | Feedback and Self-Tracking |
@@ -19,10 +21,10 @@ NSDR links for day 10: [Huberman Lab Clips · 10 Minute Non-Sleep Deep Rest (NSD
 | 3 · Movement | Little and often | Read | Functional capacity, not sport. Why 3 minutes in the morning and 2 minutes of stretching at night beat a big plan you don't keep. | Micro-Workouts / Exercise Snacks |
 | 3 · Movement | Exercise snacks: small signals that add up | Lesson | What an exercise snack is (10 squats, a minute of stairs, wall push-ups) and why short bursts add up. | Micro-Workouts / Exercise Snacks |
 | 4 · Sleep | Light sets your body clock | Read | Daylight first thing (even your head out of the window, breathing) sets your rhythm; bright screens at night push it back. | Morning Wake-Up Routine |
-| 4 · Sleep | The 3-2-1 rule | Short read | 3 hours before bed no food, 2 hours no work, 1 hour no screens. Why each one helps, and how to start with one. | — |
+| 4 · Sleep | The 3-2-1 rule | Short read | 3 hours before bed no food, 2 hours no intense exercise (stretching, light movement and a walk are fine), 1 hour no screens: no scrolling, no stimulating phone use; answering a message is fine. Why each one helps. | — |
 | 4 · Sleep | Caffeine and your sleep | Short read | Caffeine stays in the body for hours: none after 16:00, and what to drink instead. | — |
 | 5 · Mental and emotional health | Breathe: the time you give yourself | Read | A Wim Hof-style round (deep breaths, a slow exhale, a comfortable hold; two rounds to start), but the point isn't the technique: it's 5 minutes for yourself, once a day, and a more positive attitude. Safety: sitting or lying down, never in water or driving. | Breathing Exercises |
-| 5 · Mental and emotional health | 5 minutes of breathing, with Thomas | Video | Thomas guides the 5 minutes on camera, to do along. | — |
+| 5 · Mental and emotional health | Guided breathing, with Wim Hof | Video | A Wim Hof video from his official channel, about 5 minutes (Thomas picks which). | — |
 | 5 · Mental and emotional health | Three good things | Short read | Writing down three good things each evening, on your phone or in a journal, and why it shifts attention and mood over a few weeks. | — |
 | 6 · Your first week | Simple actions, repeated | Read | Why the basics, done every day, beat the perfect plan. | Your Unique Terrain Roadmap |
 | 6 · Your first week | The power of habits | Read | How a habit forms: cue, routine, reward; anchoring the new to the old; why we start small. | — |
