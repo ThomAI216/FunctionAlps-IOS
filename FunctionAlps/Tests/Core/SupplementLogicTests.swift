@@ -129,7 +129,8 @@ struct SupplementLogicTests {
          {"slug":"plain","title":"Plain","summary":null,"published_at":null,"tags":[],"is_locked":false,"appearance":null}]
         """
         let rows = try JSON.decoder.decode([LibraryListRow].self, from: Data(json.utf8))
-        guard case .molecule(let m) = try #require(rows[0].supplementVisual) else { Issue.record("expected a molecule"); return }
+        let visual = try #require(rows[0].supplementVisual)
+        guard case .molecule(let m) = visual else { Issue.record("expected a molecule"); return }
         #expect(m.cid == 586 && m.atoms.count == 3 && m.atoms[1] == SupplementVisual.Atom(element: "N", x: 0.866, y: 0))
         #expect(m.bonds == [SupplementVisual.Bond(a: 0, b: 1, order: 1), SupplementVisual.Bond(a: 1, b: 2, order: 2)])   // a bond off the list drops
         #expect(rows[0].coverUrl == "https://x/c.png")

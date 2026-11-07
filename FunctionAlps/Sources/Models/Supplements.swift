@@ -184,10 +184,13 @@ enum SupplementVisual: Sendable, Equatable, Decodable {
             cid = try? c.decodeIfPresent(Int.self, forKey: .cid)
             name = try? c.decodeIfPresent(String.self, forKey: .name)
             formula = try? c.decodeIfPresent(String.self, forKey: .formula)
-            atoms = try c.decode([Atom].self, forKey: .atoms)
+            let decodedAtoms = try c.decode([Atom].self, forKey: .atoms)
+            if decodedAtoms.isEmpty { throw DecodingError.dataCorruptedError(forKey: .atoms, in: c, debugDescription: "no atoms") }
             // A bond that names an atom the list does not have is dropped, never drawn off the canvas.
-            bonds = Lenient<Bond>.array(try c.decode([Lenient<Bond>].self, forKey: .bonds)).filter { $0.a >= 0 && $0.b >= 0 && $0.a < atoms.count && $0.b < atoms.count }
-            if atoms.isEmpty { throw DecodingError.dataCorruptedError(forKey: .atoms, in: c, debugDescription: "no atoms") }
+            let count = decodedAtoms.count
+            let decodedBonds = Lenient<Bond>.array(try c.decode([Lenient<Bond>].self, forKey: .bonds))
+            atoms = decodedAtoms
+            bonds = decodedBonds.filter { $0.a >= 0 && $0.b >= 0 && $0.a < count && $0.b < count }
         }
     }
 
