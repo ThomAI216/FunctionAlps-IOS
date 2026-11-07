@@ -239,10 +239,10 @@ struct SupplementLogicTests {
 
     @Test func moleculeFitsItsFrameAndFlipsY() {
         let atoms = [SupplementVisual.Atom(element: "C", x: 0, y: 0), SupplementVisual.Atom(element: "N", x: 2, y: 1)]
-        let points = MoleculeView.fit(atoms, in: CGSize(width: 120, height: 82), inset: 10)
+        let points = MoleculeGeometry.fit(atoms, in: CGSize(width: 120, height: 82), inset: 10)
         #expect(points.count == 2)
         #expect(points[0].x == 10 && points[1].x == 110)          // the wider axis spans the frame
         #expect(points[0].y > points[1].y)                        // PubChem y up → screen y down
-        #expect(MoleculeView.fit([], in: CGSize(width: 1, height: 1), inset: 0).isEmpty)
+        #expect(MoleculeGeometry.fit([], in: CGSize(width: 1, height: 1), inset: 0).isEmpty)
     }
 }

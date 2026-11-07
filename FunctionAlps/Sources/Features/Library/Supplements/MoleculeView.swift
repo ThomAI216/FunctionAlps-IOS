@@ -11,14 +11,14 @@ struct MoleculeView: View {
 
     var body: some View {
         Canvas { context, size in
-            let points = Self.fit(molecule.atoms, in: size, inset: 12)
+            let points = MoleculeGeometry.fit(molecule.atoms, in: size, inset: 12)
             guard !points.isEmpty else { return }
             let bondColor = FAColor.charcoal
             for bond in molecule.bonds where bond.a < points.count && bond.b < points.count {
                 let a = points[bond.a], b = points[bond.b]
                 let labelledA = molecule.atoms[bond.a].element != "C", labelledB = molecule.atoms[bond.b].element != "C"
                 // Leave room around a labelled atom so the symbol reads, not the line through it.
-                let (start, end) = Self.trim(a, b, startInset: labelledA ? 7 : 0, endInset: labelledB ? 7 : 0)
+                let (start, end) = MoleculeGeometry.trim(a, b, startInset: labelledA ? 7 : 0, endInset: labelledB ? 7 : 0)
                 let dx = end.x - start.x, dy = end.y - start.y
                 let length = max(0.001, (dx * dx + dy * dy).squareRoot())
                 let normal = CGPoint(x: -dy / length * 3, y: dx / length * 3)
@@ -55,6 +55,11 @@ struct MoleculeView: View {
             : String(localized: "supplement.molecule.a11y", defaultValue: "\(name), molecule structure")
     }
 
+}
+
+/// The geometry of the drawing, off the view so it is plain and testable: fit the atoms into a frame, trim a bond
+/// around a labelled atom.
+enum MoleculeGeometry {
     /// PubChem's y axis points up; the screen's points down. Scale to fit, keep the aspect, centre.
     static func fit(_ atoms: [SupplementVisual.Atom], in size: CGSize, inset: CGFloat) -> [CGPoint] {
         guard let first = atoms.first else { return [] }
@@ -69,7 +74,7 @@ struct MoleculeView: View {
         }
     }
 
-    private static func trim(_ a: CGPoint, _ b: CGPoint, startInset: CGFloat, endInset: CGFloat) -> (CGPoint, CGPoint) {
+    static func trim(_ a: CGPoint, _ b: CGPoint, startInset: CGFloat, endInset: CGFloat) -> (CGPoint, CGPoint) {
         let dx = b.x - a.x, dy = b.y - a.y
         let length = (dx * dx + dy * dy).squareRoot()
         guard length > startInset + endInset + 1 else { return (a, b) }
