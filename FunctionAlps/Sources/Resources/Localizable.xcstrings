@@ -42365,7 +42365,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No dose on this page: the research doesn't support taking %@ for this. If it bothers you, tell us; there are other things to look at."
+            "value": "No dose on this page."
           }
         }
       }

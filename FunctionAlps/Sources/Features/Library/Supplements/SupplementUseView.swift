@@ -46,8 +46,14 @@ struct SupplementUseView: View {
                 }
             }
         } else {
-            Text(String(localized: "supplement.noDose", defaultValue: "No dose on this page: the research doesn't support taking \(use.supplement.name) for this. If it bothers you, tell us; there are other things to look at."))
-                .font(FATypography.sans(11.5, relativeTo: .footnote)).foregroundStyle(Color(hex: 0x4B2A2F))
+            // Chrome only; the reason is the publisher's evidence line (rule 6: no health wording written here).
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "supplement.noDose", defaultValue: "No dose on this page."))
+                    .font(FATypography.sans(11.5, .bold, relativeTo: .footnote)).foregroundStyle(Color(hex: 0x4B2A2F))
+                if let line = use.evidence.line, !line.isEmpty {
+                    Text(line).font(FATypography.sans(11.5, relativeTo: .footnote)).foregroundStyle(Color(hex: 0x4B2A2F))
+                }
+            }
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 11).padding(.vertical, 9)
                 .frame(maxWidth: .infinity, alignment: .leading)
