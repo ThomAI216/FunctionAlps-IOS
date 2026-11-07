@@ -112,7 +112,9 @@ final class LibraryViewModel {
     var priority: [TrackWithProgress] { bundle.prioritySlugs.compactMap { s in bundle.tracks.first { $0.slug == s } } }
     var inProgress: [TrackWithProgress] { bundle.tracks.filter { $0.state == .inProgress } }
     var foundations: [LibResource] { bundle.resources.filter { !$0.supplement } }
-    var supplements: [LibResource] { bundle.resources.filter(\.supplement) }
+    /// The supplements LIST: pages only; use rows group under their page (`supplementUses`).
+    var supplements: [LibResource] { SupplementLogic.pages(bundle.resources) }
+    var supplementUses: [String: [LibResource]] { SupplementLogic.usesByPage(bundle.resources) }
     var doneTotal: Int { bundle.tracks.reduce(0) { $0 + $1.done } }
     var lessonTotal: Int { bundle.tracks.reduce(0) { $0 + $1.total } }
     var pct: Double { lessonTotal == 0 ? 0 : Double(doneTotal) / Double(lessonTotal) }

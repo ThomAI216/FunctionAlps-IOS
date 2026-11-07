@@ -67,6 +67,13 @@ struct LibResource: Sendable, Equatable, Identifiable {
     let coverURL: URL?
     /// The card art — the topic cover of the resource's pillar tag (`LibraryLogic.resolveCover`); nil → gradient.
     var cover: URL? = nil
+    /// A supplement USE row (`supplement-use`): one use of a supplement, listed under its page, never in Foundations
+    /// nor in the supplements list.
+    var supplementUse: Bool = false
+    /// The page a use belongs to (`supplement-of:<slug>`).
+    var supplementOf: String? = nil
+    /// `appearance.supplement_visual`: the list draws the tile without reading the page.
+    var supplementVisual: SupplementVisual? = nil
     var id: String { slug }
 }
 
@@ -147,7 +154,8 @@ struct LibraryRawProgress: Sendable, Equatable, Decodable {
 }
 
 /// One `member_library_list()` row. `appearance` is free-form jsonb on a table three other
-/// projects write to, so only `cover_url` is read, and only when it is an http(s) URL.
+/// projects write to, so only `cover_url` (and only when it is an http(s) URL) and `supplement_visual`
+/// (the supplement library's tile, each on its own) are read.
 struct LibraryListRow: Sendable, Equatable, Decodable {
     let slug: String
     let title: String?
@@ -156,13 +164,23 @@ struct LibraryListRow: Sendable, Equatable, Decodable {
     let tags: [String]?
     let isLocked: Bool?
     let coverUrl: String?
+    let supplementVisual: SupplementVisual?
 
     private enum CodingKeys: String, CodingKey { case slug, title, summary, publishedAt, tags, isLocked, appearance }
-    private struct Appearance: Decodable { let coverUrl: String? }
+    private struct Appearance: Decodable {
+        let coverUrl: String?
+        let supplementVisual: SupplementVisual?
+        private enum CodingKeys: String, CodingKey { case coverUrl, supplementVisual }
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            coverUrl = try? c.decodeIfPresent(String.self, forKey: .coverUrl)
+            supplementVisual = try? c.decodeIfPresent(SupplementVisual.self, forKey: .supplementVisual)
+        }
+    }
 
-    init(slug: String, title: String?, summary: String?, publishedAt: String?, tags: [String]?, isLocked: Bool?, coverUrl: String?) {
+    init(slug: String, title: String?, summary: String?, publishedAt: String?, tags: [String]?, isLocked: Bool?, coverUrl: String?, supplementVisual: SupplementVisual? = nil) {
         self.slug = slug; self.title = title; self.summary = summary; self.publishedAt = publishedAt
-        self.tags = tags; self.isLocked = isLocked; self.coverUrl = coverUrl
+        self.tags = tags; self.isLocked = isLocked; self.coverUrl = coverUrl; self.supplementVisual = supplementVisual
     }
 
     init(from decoder: any Decoder) throws {
@@ -173,7 +191,9 @@ struct LibraryListRow: Sendable, Equatable, Decodable {
         publishedAt = try? c.decodeIfPresent(String.self, forKey: .publishedAt)
         tags = try? c.decodeIfPresent([String].self, forKey: .tags)
         isLocked = try? c.decodeIfPresent(Bool.self, forKey: .isLocked)
-        coverUrl = (try? c.decodeIfPresent(Appearance.self, forKey: .appearance))?.coverUrl
+        let appearance = try? c.decodeIfPresent(Appearance.self, forKey: .appearance)
+        coverUrl = appearance?.coverUrl
+        supplementVisual = appearance?.supplementVisual
     }
 }
 
@@ -183,12 +203,36 @@ struct LibraryRawPlan: Sendable, Equatable, Decodable {
     let startDate: String?
 }
 
-/// `member_library_get(p_slug)` — the body is withheld server-side on lock.
+/// `member_library_get(p_slug)` — the body is withheld server-side on lock. `template` and the two structured
+/// supplement payloads decode on their own and fail soft to nil: a row this build cannot read as a supplement
+/// still opens in the reader on `body_md`.
 struct LibraryGetRow: Sendable, Equatable, Decodable {
     let title: String?
     let tags: [String]?
     let bodyMd: String?
     let locked: Bool?
+    let template: String?
+    let supplementPage: SupplementPage?
+    let supplementUse: SupplementUse?
+
+    private enum CodingKeys: String, CodingKey { case title, tags, bodyMd, locked, template, structured }
+
+    init(title: String?, tags: [String]?, bodyMd: String?, locked: Bool?, template: String? = nil, supplementPage: SupplementPage? = nil, supplementUse: SupplementUse? = nil) {
+        self.title = title; self.tags = tags; self.bodyMd = bodyMd; self.locked = locked
+        self.template = template; self.supplementPage = supplementPage; self.supplementUse = supplementUse
+    }
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        title = try? c.decodeIfPresent(String.self, forKey: .title)
+        tags = try? c.decodeIfPresent([String].self, forKey: .tags)
+        bodyMd = try? c.decodeIfPresent(String.self, forKey: .bodyMd)
+        locked = try? c.decodeIfPresent(Bool.self, forKey: .locked)
+        template = try? c.decodeIfPresent(String.self, forKey: .template)
+        let structured = try? c.decodeIfPresent(SupplementStructured.self, forKey: .structured)
+        supplementPage = structured?.page
+        supplementUse = structured?.use
+    }
 }
 
 /// Everything the library needs, read in one go under the member's own session. Each

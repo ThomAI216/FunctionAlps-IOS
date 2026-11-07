@@ -43,6 +43,15 @@ struct LibraryService: Sendable {
         return LibraryLogic.reader(slug: slug, bundle: loaded, row: row)
     }
 
+    /// Open a slug the way the row asks: a structured supplement page or use (`template = supplement`), else the
+    /// reader. The sample library answers `demo-` slugs offline.
+    func open(slug: String, patientId: String) async -> LibraryOpen {
+        if slug.hasPrefix("demo-") { return LibraryDemo.open(slug: slug) }
+        let loaded = await bundle(patientId: patientId)
+        let row = try? await backend.libraryItem(slug: slug)
+        return SupplementLogic.open(slug: slug, bundle: loaded, row: row)
+    }
+
     /// Same rule as the members `completeLesson`: only the first open lesson of an unlocked track.
     func completeLesson(patientId: String, trackSlug: String, contentSlug: String) async -> LibraryLogic.CompleteOutcome {
         let loaded = await bundle(patientId: patientId)

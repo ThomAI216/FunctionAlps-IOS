@@ -31,9 +31,12 @@ enum LibraryDemo {
         LibResource(slug: "demo-post-meal-walking", title: "Post-Meal Walking", summary: "A simple habit for glucose, digestion, energy and recovery", pillar: "intestin", supplement: false, locked: false, publishedAt: nil, coverURL: nil),
         LibResource(slug: "demo-breathing-exercises", title: "Breathing Exercises", summary: "A simple tool to regulate your nervous system", pillar: "foundations", supplement: false, locked: false, publishedAt: nil, coverURL: nil),
         LibResource(slug: "demo-nsdr", title: "NSDR / Yoga Nidra", summary: "Deep recovery for your nervous system", pillar: "sommeil", supplement: false, locked: false, publishedAt: nil, coverURL: nil),
-        LibResource(slug: "demo-magnesium", title: "Magnesium", summary: "What it does, who runs low, and how to take it", pillar: "nutrition", supplement: true, locked: false, publishedAt: nil, coverURL: nil),
-        LibResource(slug: "demo-omega-3", title: "Omega-3", summary: "The anti-inflammatory foundation, dosed properly", pillar: "nutrition", supplement: true, locked: false, publishedAt: nil, coverURL: nil),
-    ]
+        // The supplement library's sample (the mockup of 2026-11-07, draft wording): a page, its five uses, a molecule.
+        LibResource(slug: "demo-magnesium", title: "Magnesium", summary: "A mineral your nerves and muscles rely on.", pillar: "nutrition", supplement: true, locked: false, publishedAt: nil, coverURL: nil,
+                    supplementVisual: SupplementSample.magnesiumVisual),
+        LibResource(slug: "demo-creatine", title: "Creatine", summary: "Strength, power, and support for the brain.", pillar: "nutrition", supplement: true, locked: false, publishedAt: nil, coverURL: nil,
+                    supplementVisual: SupplementSample.creatineVisual),
+    ] + SupplementSample.useRows
 
     /// Sections OPEN here — there is no real member data behind them to protect.
     static let bundle = LibraryBundle(live: false, stage: .lead, access: .open, plan: nil, tracks: tracks, prioritySlugs: [tracks[0].slug], resources: resources)
@@ -59,6 +62,19 @@ enum LibraryDemo {
     2. At the end of the week, read your green/yellow/red pattern.
     3. Bring the pattern to your next check-in · it is the conversation.
     """
+
+    /// A `demo-` slug opens as its structured supplement entry when the sample has one, else as the reader.
+    static func open(slug: String) -> LibraryOpen {
+        if let content = SupplementSample.content(slug: slug) {
+            let title: String
+            switch content {
+            case .page(let page): title = page.name
+            case .use(let use): title = use.title
+            }
+            return .supplement(SupplementEntry(slug: slug, title: title, content: content, locked: false, lockReason: nil, veiled: false, bundle: bundle))
+        }
+        return .reader(reader(slug: slug))
+    }
 
     static func reader(slug: String) -> ReaderResult? {
         for t in tracks {

@@ -210,9 +210,13 @@ private struct LibraryScreen: View {
         if !model.foundations.isEmpty {
             resourceSection(.foundations, items: model.foundations, open: b.access.foundations, noun: String(localized: "library.noun.resources", defaultValue: "resources"))
         }
-        if !model.supplements.isEmpty {
-            resourceSection(.supplements, items: model.supplements, open: b.access.supplements, noun: String(localized: "library.noun.supplements", defaultValue: "supplements"))
+        // The supplement library (2026-11-07): the intro, one row per published supplement, its uses as chips.
+        SupplementListView(pages: model.supplements, usesByPage: model.supplementUses, open: b.access.supplements,
+                           expanded: model.expanded.contains(.supplements), onToggle: { model.toggle(.supplements) }) { page in
+            router.libraryPath.append(.supplement(page.slug))
         }
+        .padding(.top, 18)
+        .id(LibraryViewModel.Section.supplements.id)
     }
 
     /// "This week's episodes" — or, while no replay of the week exists yet (before the launch, early in a week),

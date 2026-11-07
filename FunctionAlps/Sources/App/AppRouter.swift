@@ -8,6 +8,10 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// One supplement of the library (its structured page) and one use of it, by slug. A `read` of a
+    /// `supplement`-template row lands on the same screen.
+    case supplement(String)
+    case supplementUse(String)
     /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
     case sentTrack
     /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
@@ -307,6 +311,7 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .supplement(let slug), .supplementUse(let slug): SupplementScreen(slug: slug)
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)

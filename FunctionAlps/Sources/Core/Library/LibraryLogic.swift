@@ -259,16 +259,20 @@ enum LibraryLogic {
         let resources: [LibResource] = raw.list
             .filter { !lessonSlugs.contains($0.slug) }
             .map { r in
+                // A supplement USE row counts as a supplement (never Foundations) and carries its page's slug.
                 LibResource(
                     slug: r.slug,
                     title: r.title ?? title(fromSlug: r.slug),
                     summary: r.summary ?? "",
                     pillar: pillar(fromTags: r.tags),
-                    supplement: isSupplement(tags: r.tags ?? []),
+                    supplement: isSupplement(tags: r.tags ?? []) || SupplementLogic.isUse(tags: r.tags),
                     locked: r.isLocked ?? false,
                     publishedAt: r.publishedAt,
                     coverURL: coverURL(r.coverUrl),
-                    cover: resolveCover(explicit: nil, own: nil, pillar: topicKey(fromTags: r.tags), covers: covers)
+                    cover: resolveCover(explicit: nil, own: nil, pillar: topicKey(fromTags: r.tags), covers: covers),
+                    supplementUse: SupplementLogic.isUse(tags: r.tags),
+                    supplementOf: SupplementLogic.pageSlug(fromTags: r.tags),
+                    supplementVisual: r.supplementVisual
                 )
             }
 

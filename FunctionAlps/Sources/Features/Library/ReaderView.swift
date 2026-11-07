@@ -14,10 +14,20 @@ struct ReaderView: View {
     @State private var marking = false
     @State private var done = false
     @State private var patientId: String?
+    /// The row is a structured supplement page or use: the supplement screen takes over (same slug, same back button).
+    @State private var supplement: SupplementEntry?
 
     private static let ink = Color(hex: 0x33332C)
 
     var body: some View {
+        if let supplement {
+            SupplementEntryView(entry: supplement)
+        } else {
+            reader
+        }
+    }
+
+    private var reader: some View {
         VStack(spacing: 0) {
             contextBar
             ScrollView {
@@ -51,14 +61,27 @@ struct ReaderView: View {
 
     private func load() async {
         defer { loaded = true }
-        if slug.hasPrefix("demo-") { item = LibraryDemo.reader(slug: slug); isDemo = true; return }
+        if slug.hasPrefix("demo-") { open(LibraryDemo.open(slug: slug)); isDemo = true; return }
         guard let member = try? await dependencies.members.currentMember() else {
-            item = LibraryDemo.reader(slug: slug); isDemo = true; return
+            open(LibraryDemo.open(slug: slug)); isDemo = true; return
         }
         patientId = member.patientId
-        item = await dependencies.library.reader(slug: slug, patientId: member.patientId)
-        if let item, item.kind == .resource, !item.locked {
+        let result = await dependencies.library.open(slug: slug, patientId: member.patientId)
+        switch result {
+        case .reader(let r?) where r.kind == .resource && !r.locked:
             await dependencies.library.recordResourceOpen(patientId: member.patientId, slug: slug)
+        case .supplement(let entry) where !entry.locked:
+            await dependencies.library.recordResourceOpen(patientId: member.patientId, slug: slug)
+        default:
+            break
+        }
+        open(result)
+    }
+
+    private func open(_ result: LibraryOpen) {
+        switch result {
+        case .reader(let result): item = result
+        case .supplement(let entry): supplement = entry
         }
     }
 

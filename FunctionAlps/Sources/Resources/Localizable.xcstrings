@@ -41969,6 +41969,616 @@
           }
         }
       }
+    },
+    "supplement.article.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        }
+      }
+    },
+    "supplement.askFirst": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask us first if"
+          }
+        }
+      }
+    },
+    "supplement.backToPage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All about %@"
+          }
+        }
+      }
+    },
+    "supplement.benefits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benefits to look for"
+          }
+        }
+      }
+    },
+    "supplement.element.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, element %lld, %@"
+          }
+        }
+      }
+    },
+    "supplement.element.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Element %lld"
+          }
+        }
+      }
+    },
+    "supplement.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practice adds the research as it is reviewed."
+          }
+        }
+      }
+    },
+    "supplement.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing published here yet"
+          }
+        }
+      }
+    },
+    "supplement.evidence.limited": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited evidence"
+          }
+        }
+      }
+    },
+    "supplement.evidence.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate evidence"
+          }
+        }
+      }
+    },
+    "supplement.evidence.notSupported": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not supported"
+          }
+        }
+      }
+    },
+    "supplement.evidence.strong": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong evidence"
+          }
+        }
+      }
+    },
+    "supplement.evidence.weak": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak evidence"
+          }
+        }
+      }
+    },
+    "supplement.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food first"
+          }
+        }
+      }
+    },
+    "supplement.food.mg": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ mg"
+          }
+        }
+      }
+    },
+    "supplement.food.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "per portion"
+          }
+        }
+      }
+    },
+    "supplement.fullList": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the full list ›"
+          }
+        }
+      }
+    },
+    "supplement.fullList.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the %@ page"
+          }
+        }
+      }
+    },
+    "supplement.goesWith": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goes with"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.add.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add %@ to your plan"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in your actions"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.notYet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not in your actions yet"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
+    "supplement.goesWith.open.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open %@"
+          }
+        }
+      }
+    },
+    "supplement.goodToKnow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good to know"
+          }
+        }
+      }
+    },
+    "supplement.howTo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to take it"
+          }
+        }
+      }
+    },
+    "supplement.howTo.dose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much"
+          }
+        }
+      }
+    },
+    "supplement.howTo.form": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best form"
+          }
+        }
+      }
+    },
+    "supplement.howTo.onset": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long"
+          }
+        }
+      }
+    },
+    "supplement.howTo.timing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When"
+          }
+        }
+      }
+    },
+    "supplement.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplement"
+          }
+        }
+      }
+    },
+    "supplement.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the label"
+          }
+        }
+      }
+    },
+    "supplement.list.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They appear here once your practice has reviewed the research."
+          }
+        }
+      }
+    },
+    "supplement.list.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No supplements published yet"
+          }
+        }
+      }
+    },
+    "supplement.list.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food first, always. These are the ones we find useful most often. Talk to your nutritionist before you start anything new, especially if you take medication, are pregnant or breastfeeding."
+          }
+        }
+      }
+    },
+    "supplement.list.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A short selection we trust"
+          }
+        }
+      }
+    },
+    "supplement.molecule.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, molecule structure"
+          }
+        }
+      }
+    },
+    "supplement.molecule.a11y.anon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molecule structure"
+          }
+        }
+      }
+    },
+    "supplement.noDose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No dose on this page: the research doesn't support taking %@ for this. If it bothers you, tell us; there are other things to look at."
+          }
+        }
+      }
+    },
+    "supplement.physiology": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it does in your body"
+          }
+        }
+      }
+    },
+    "supplement.physiology.absorbed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Absorbed"
+          }
+        }
+      }
+    },
+    "supplement.physiology.loweredBy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lowered by"
+          }
+        }
+      }
+    },
+    "supplement.physiology.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its job"
+          }
+        }
+      }
+    },
+    "supplement.physiology.stored": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored"
+          }
+        }
+      }
+    },
+    "supplement.scale.limited": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited"
+          }
+        }
+      }
+    },
+    "supplement.scale.moderate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderate"
+          }
+        }
+      }
+    },
+    "supplement.scale.strong": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong"
+          }
+        }
+      }
+    },
+    "supplement.scale.weak": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak"
+          }
+        }
+      }
+    },
+    "supplement.sideEffects": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side effects"
+          }
+        }
+      }
+    },
+    "supplement.sources.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source %@: %@"
+          }
+        }
+      }
+    },
+    "supplement.sources.a11y.card": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sources, opens the list"
+          }
+        }
+      }
+    },
+    "supplement.sources.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sources"
+          }
+        }
+      }
+    },
+    "supplement.sources.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the sources"
+          }
+        }
+      }
+    },
+    "supplement.sources.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld · tap to see each one"
+          }
+        }
+      }
+    },
+    "supplement.sources.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
+    "supplement.sources.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sources"
+          }
+        }
+      }
+    },
+    "supplement.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This page isn't available"
+          }
+        }
+      }
+    },
+    "supplement.upperLimit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upper limit"
+          }
+        }
+      }
+    },
+    "supplement.uses": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it's used for"
+          }
+        }
+      }
+    },
+    "supplement.uses.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tap one"
+          }
+        }
+      }
     }
   }
 }
