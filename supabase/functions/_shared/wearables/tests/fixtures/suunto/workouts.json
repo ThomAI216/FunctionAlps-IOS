@@ -1,7 +1,9 @@
 {
-  "_note": "SYNTHETIC (not a live capture). VERIFY: the `/v3/workouts` path, pagination (`since`/`limit`), `startTime` as epoch milliseconds (suunto.md §21 'known examples'), `totalTime` / `totalDistance` / `energyConsumption` units, the average-HR field name (`avgHR`). The second workout is outside the requested window and must be skipped.",
+  "_note": "SYNTHETIC (not a live capture). APIZone `/v3/workouts` list item: startTime epoch ms, timeOffsetInMinutes, totalTime s, totalDistance m, totalAscent m, hrdata.workoutAvgHR / workoutMaxHR. wk-old is outside the window (skipped); wk-midnight starts 22:30 UTC on the 11th = 00:30 local on the 12th (kept: the local day decides) and its zero distance writes nothing.",
+  "error": null,
   "payload": [
-    { "workoutKey": "wk-abc123", "activityId": 3, "startTime": 1789292400000, "totalTime": 3600, "totalDistance": 10250, "energyConsumption": 2500000, "avgHR": 148 },
-    { "workoutKey": "wk-old", "activityId": 1, "startTime": 1789023600000, "totalTime": 1800, "totalDistance": 4000 }
+    { "workoutKey": "wk-abc123", "activityId": 3, "startTime": 1789292400000, "timeOffsetInMinutes": 120, "totalTime": 3600, "totalDistance": 10250, "totalAscent": 85, "energyConsumption": 612, "stepCount": 9800, "hrdata": { "workoutAvgHR": 148, "workoutMaxHR": 176 } },
+    { "workoutKey": "wk-old", "activityId": 1, "startTime": 1789023600000, "timeOffsetInMinutes": 120, "totalTime": 1800, "totalDistance": 4000 },
+    { "workoutKey": "wk-midnight", "activityId": 1, "startTime": 1789165800000, "timeOffsetInMinutes": 120, "totalTime": 1200, "totalDistance": 0 }
   ]
 }

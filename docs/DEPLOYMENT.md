@@ -271,8 +271,9 @@ breaks the token exchange, which the callback logs as `oauth.callback_failed`).
 `spo2Daily`, which Oura does not document (`spo2` is the scope), and sent no User-Agent (Oura may answer 403); Polar's
 connect called `GET /v4/data/profile`, which is not a v4 path, and asked for `ppi:read` (the scope is `ppi_data:read`).
 So neither could have connected a member. Both are fixed on the branch (Polar's data path rebuilt from its Swagger) and
-reach members only after the merge to `main`. The full data catalogue and the remaining fix list (WHOOP, Withings,
-Suunto) are in `docs/wearables/DATA_CATALOGUE.md`.
+reach members only after the merge to `main`. The full data catalogue and the fix list are in
+`docs/wearables/DATA_CATALOGUE.md`: the WHOOP, Withings and Suunto data-path fixes (and vendor deletions applied by the
+webhook) are on the feature branch and reach production with the next merge; Oura delete events remain open.
 **Copy vs data (owner decision):** three live cards promise more than their adapters write. Oura says "Adds: Nightly
 HRV" and Withings "HRV (RMSSD and SDNN)", but decision D4 keeps both vendors' HRV raw-only (in `details`, under no HRV
 id) until its definition is verified; Polar says "sleep stages, training load", but the Polar adapter writes Nightly

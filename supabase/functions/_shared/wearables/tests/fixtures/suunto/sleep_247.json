@@ -1,5 +1,5 @@
 {
-  "_note": "SYNTHETIC (not a live capture). Field names are the ones the public Suunto webhook page documents (corpus 08_SLEEP.md 'Suunto'). VERIFY: the pull response envelope (`payload` list assumed), duration UNIT (magnitudes look like seconds but must not be inferred — suunto.md §19), AvgHRV statistic/window/unit (§20), SleepQualityScore scale (§22), HRMin meaning.",
+  "_note": "SYNTHETIC (not a live capture). Field names and units per Suunto's APIZone 24/7 sleep reference: durations in SECONDS, `Duration` = time in bed (BedtimeStart → BedtimeEnd, here 22:58 → 06:42 = 27 840 s), asleep = Deep + Light + REM (24 600 s). Still unverified and kept raw: AvgHRV statistic, SleepQualityScore scale. The nap must be skipped.",
   "payload": [
     {
       "timestamp": "2026-09-13T06:42:00+02:00",
@@ -9,7 +9,7 @@
         "DateTime": "2026-09-13T06:42:00+02:00",
         "BedtimeStart": "2026-09-12T22:58:00+02:00",
         "BedtimeEnd": "2026-09-13T06:42:00+02:00",
-        "Duration": 25920,
+        "Duration": 27840,
         "DeepSleepDuration": 5400,
         "LightSleepDuration": 14400,
         "REMSleepDuration": 4800,
@@ -20,7 +20,8 @@
         "HRMin": 45,
         "AvgHRV": 58,
         "AvgHRVSampleCount": 121,
-        "SleepQualityScore": 78
+        "SleepQualityScore": 78,
+        "MaxSpo2": 0.98
       }
     },
     {
