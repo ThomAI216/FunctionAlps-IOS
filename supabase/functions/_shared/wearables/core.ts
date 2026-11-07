@@ -93,7 +93,13 @@ export interface EpochRow {
   sourceModifiedAt?: string | null
 }
 
-export interface RowBatch { daily: DailyRow[]; epoch: EpochRow[] }
+export interface RowBatch {
+  daily: DailyRow[]
+  epoch: EpochRow[]
+  /** Vendor records a PULL reports as gone (an Oura sleep with `type: "deleted"`): `persistRows` removes the rows stored
+   *  from each one (same scoping as a webhook tombstone) before it upserts. Idempotent — a second pass deletes nothing. */
+  deletions?: { recordId: string; resourceType?: string | null }[]
+}
 
 export interface WebhookEvent {
   vendorUserId: string
@@ -678,6 +684,11 @@ export async function audit(db: SupabaseClient, e: { patientId: string | null; v
 /** Upserts on the natural keys with provenance; a re-issued epoch (same source_record_id, moved start) supersedes the old row. */
 export async function persistRows(db: SupabaseClient, patientId: string, vendor: VendorKey, rows: RowBatch, rawEventId: string | null, accountId?: string | null) {
   const sourceId = VENDOR_SOURCE_IDS[vendor]
+  let deleted = 0
+  for (const d of rows.deletions ?? []) {
+    const r = await deleteVendorRecord(db, patientId, vendor, d.recordId, d.resourceType ?? null)
+    deleted += r.daily + r.epoch
+  }
   const prov = (r: DailyRow | EpochRow) => ({
     source_connection_id: accountId ?? null, source_resource_type: r.sourceResourceType ?? null, source_record_id: r.sourceRecordId ?? null,
     source_field: r.sourceField ?? null, source_device_id: r.sourceDeviceId ?? null, source_modified_at: r.sourceModifiedAt ?? null,
@@ -707,7 +718,7 @@ export async function persistRows(db: SupabaseClient, patientId: string, vendor:
     inserted.push(...((data ?? []) as typeof inserted))
   }
   await supersedeMovedEpochs(db, patientId, sourceId, inserted)
-  return { daily: uniqD.length, epoch: uniqE.length }
+  return { daily: uniqD.length, epoch: uniqE.length, deleted }
 }
 
 /** A vendor record that moved (same source_record_id, new start_ts) leaves its old row pointing at the new one. */

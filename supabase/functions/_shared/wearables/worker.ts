@@ -35,7 +35,7 @@ export async function pull(db: SupabaseClient, account: AccountRow, start: strin
     const counts = await persistRows(db, account.patient_id, account.vendor, rows, rawId, account.id)
     const now = new Date().toISOString()
     await markAccount(db, account.id, { status: "connected", reconnect_required: false, last_sync_at: now, last_successful_sync_at: now, last_error: null, last_error_code: null })
-    log("info", "pull.ok", { fn: fnName, vendor: account.vendor, account: account.id, start, end, daily: counts.daily, epoch: counts.epoch, ms: t() })
+    log("info", "pull.ok", { fn: fnName, vendor: account.vendor, account: account.id, start, end, daily: counts.daily, epoch: counts.epoch, deleted: counts.deleted, ms: t() })
     return counts
   } catch (e) {
     // The account status is settled by the caller (classifyError) — but never leave it stuck on `syncing`.

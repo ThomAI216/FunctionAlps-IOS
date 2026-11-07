@@ -209,9 +209,28 @@ Deno.test("a sleep Oura marks `deleted` is never written, and equivalent walking
   let out: RowBatch
   try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
   assert(![...out!.daily, ...out!.epoch].some((r) => r.sourceRecordId === "sl-del"))
+  // …and the rows an earlier sync stored from it are removed when this batch is saved (2026-11-07).
+  assertEquals(out!.deletions, [{ recordId: "sl-del", resourceType: "sleep" }])
   assert(!out!.daily.some((r) => r.dataTypeId === T.CoveredDistance))
   const activity = out!.daily.find((r) => r.dataTypeId === T.Steps)
   assertEquals(activity?.details?.equivalent_walking_distance_m, 6900)
+})
+
+Deno.test("overnight heart rate is written once: `/heartrate` samples with source \"sleep\" are skipped, the sleep document's series stays", async () => {
+  const hr = [
+    { bpm: 51, source: "sleep", timestamp: "2026-09-12T21:12:30+00:00" },     // the same night the sleep document carries
+    { bpm: 72, source: "awake", timestamp: "2026-09-13T08:00:00+00:00" },
+    { bpm: 128, source: "workout", timestamp: "2026-09-13T17:00:00+00:00" },
+    { bpm: 60, source: "rest", timestamp: "2026-09-13T13:00:00+00:00" },
+  ]
+  const f = stubFetch((url) => url.includes("/usercollection/heartrate") ? jsonResp({ data: hr, next_token: null }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  const fromFeed = out!.epoch.filter((r) => r.sourceResourceType === "heartrate")
+  assertEquals(fromFeed.map((r) => [r.value, r.details?.source]), [[72, "awake"], [128, "workout"], [60, "rest"]])
+  // the night's heart rate comes from the sleep document only, with its id (so a deletion can reach it)
+  const night = out!.epoch.filter((r) => r.dataTypeId === T.HeartRate && r.startTs < "2026-09-13T04:00:00.000Z")
+  assertEquals(night.map((r) => [r.value, r.sourceResourceType, r.sourceRecordId]), [[52, "sleep", "sl-long-1"], [50, "sleep", "sl-long-1"]])
 })
 
 // MARK: - Webhooks
@@ -232,6 +251,26 @@ Deno.test("parseWebhook: a correct uppercase-hex HMAC over timestamp+raw body �
     const req = await signedRequest("cs-test", webhookBody)
     const events = await oura.parseWebhook(req, webhookBody, new URL(req.url))
     assertEquals(events, [{ vendorUserId: "oura-user-1", kind: "sleep.update", eventId: "sleep.update.sl-long-1" }])
+  })
+})
+
+Deno.test("parseWebhook: a signed `delete` is a tombstone for that one document (VO₂max mapped to the collection we store); an unstored type is ignored", async () => {
+  await withEnv({ OURA_CLIENT_SECRET: "cs-test", OURA_WEBHOOK_VERIFICATION_TOKEN: "vt-test" }, async () => {
+    const parse = async (body: Record<string, unknown>) => { const raw = JSON.stringify(body); const req = await signedRequest("cs-test", raw); return await oura.parseWebhook(req, raw, new URL(req.url)) }
+    assertEquals(await parse({ event_type: "delete", data_type: "sleep", object_id: "sl-long-1", user_id: "oura-user-1" }),
+      [{ vendorUserId: "oura-user-1", kind: "sleep.delete", eventId: "sleep.delete.sl-long-1", deleted: true, resourceId: "sl-long-1", resourceType: "sleep" }])
+    const [vo2] = await parse({ event_type: "delete", data_type: "vo2_max", object_id: "v-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+    assertEquals([vo2.deleted, vo2.resourceId, vo2.resourceType], [true, "v-1", "vO2_max"])
+    for (const dt of ["daily_sleep", "daily_readiness", "daily_activity", "daily_spo2", "daily_stress", "workout"]) {
+      const [ev] = await parse({ event_type: "delete", data_type: dt, object_id: "x-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+      assertEquals([ev.deleted, ev.resourceType], [true, dt])
+    }
+    // a type we never store (tag) or a delete without an object id: nothing to remove, nothing to pull
+    assertEquals(await parse({ event_type: "delete", data_type: "tag", object_id: "t-1", user_id: "oura-user-1" }), [])
+    assertEquals(await parse({ event_type: "delete", data_type: "sleep", user_id: "oura-user-1" }), [])
+    // create / update stay pull triggers, never tombstones
+    const [upd] = await parse({ event_type: "update", data_type: "sleep", object_id: "sl-long-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+    assertEquals([upd.deleted, upd.resourceId], [undefined, undefined])
   })
 })
 
@@ -299,13 +338,18 @@ Deno.test("ouraMaintain: flag on → lists, renews the expiring one, creates the
     })
     let res
     try { res = await ouraMaintain() } finally { f.restore() }
-    assertEquals(res, { created: 14, renewed: 1 })  // 8 data types × 2 − the 2 that exist
+    assertEquals(res, { created: 22, renewed: 1 })  // 8 data types × create|update|delete − the 2 that exist
     const renew = f.calls.filter((c) => c.url.includes("/webhook/subscription/renew/"))
     assertEquals(renew.map((c) => [c.url.split("/").pop(), c.init?.method]), [["sub-1", "PUT"]])
     const creates = f.calls.filter((c) => c.init?.method === "POST")
-    assertEquals(creates.length, 14)
+    assertEquals(creates.length, 22)
+    // every stored data type gets a `delete` subscription (2026-11-07), VO₂max under the webhook spelling
+    const deletes = creates.map((c) => JSON.parse(String(c.init?.body))).filter((b) => b.event_type === "delete").map((b) => b.data_type)
+    assertEquals(deletes.sort(), ["daily_activity", "daily_readiness", "daily_sleep", "daily_spo2", "daily_stress", "sleep", "vo2_max", "workout"])
     const body = JSON.parse(String(creates[0].init?.body))
-    assertEquals(body, { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "create", data_type: "daily_sleep" })
+    // sleep already has create + update, so its delete is the first one made; then daily_sleep create
+    assertEquals(body, { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "delete", data_type: "sleep" })
+    assertEquals(JSON.parse(String(creates[1].init?.body)), { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "create", data_type: "daily_sleep" })
     for (const c of f.calls) assertEquals((c.init?.headers as Record<string, string>)["x-client-secret"], "cs-test")
   })
 })

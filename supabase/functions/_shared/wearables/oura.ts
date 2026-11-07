@@ -13,7 +13,12 @@
 //   • Provenance: every row carries `sourceRecordId` = the Oura document `id`, `sourceResourceType` = collection.
 //   • Rate limit (§14): 5000 req / 5 min per token and per app; 429 → RateLimitedError(Retry-After).
 //   • AI boundary (§27, security/ai-data-boundaries.md): nothing here reaches a model — ai-policy.ts denies oura.
-import { type DailyRow, type EpochRow, type TokenSet, type VendorAdapter, type WebhookEvent, T, RateLimitedError, UnauthorizedError, VendorHttpError, compact, dailyDate, dailyMap, dayEndISO, dayStartISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
+//   • Deletions (2026-11-07, OpenAPI 1.43 `WebhookOperation` = create | update | delete): we subscribe to `delete` too, and a
+//     signed `delete` becomes a tombstone the webhook function applies to the rows of that one document. A sleep a pull
+//     returns as `type: "deleted"` is removed the same way (`RowBatch.deletions`).
+//   • Overnight heart rate is written ONCE, from the sleep document's `heart_rate` series (it has a document id, so a
+//     deletion can reach it); `/heartrate` samples with `source: "sleep"` repeat that night and are not written.
+import { type DailyRow, type EpochRow, type RowBatch, type TokenSet, type VendorAdapter, type WebhookEvent, T, RateLimitedError, UnauthorizedError, VendorHttpError, compact, dailyDate, dailyMap, dayEndISO, dayStartISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
 import { errorSummary, log } from "./log.ts"
 
 const FN = "oura"
@@ -22,6 +27,11 @@ const TOKEN = "https://api.ouraring.com/oauth/token"
 const API = "https://api.ouraring.com/v2"
 // VERIFY: the data_type × event_type matrix must come from the pinned OpenAPI after app approval (§10, §30).
 const DATA_TYPES = ["sleep", "daily_sleep", "daily_readiness", "daily_activity", "daily_spo2", "daily_stress", "vo2_max", "workout"]
+/** OpenAPI 1.43 `WebhookOperation`. */
+const EVENT_TYPES = ["create", "update", "delete"] as const
+/** Webhook `data_type` → the collection our rows carry as `source_resource_type`. Only VO₂max differs: webhooks spell it
+ *  `vo2_max` (`ExtApiV2DataType`), the data path `/usercollection/vO2_max`. */
+const STORED_AS: Record<string, string> = Object.fromEntries(DATA_TYPES.map((t) => [t, t === "vo2_max" ? "vO2_max" : t]))
 
 /**
  * Oura API and MCP Agreement (effective 2026-06-08, §27): deletion within 72 hours in the described user-deletion
@@ -181,17 +191,26 @@ export const oura: VendorAdapter = {
     // documented (architecture/07-provenance-deduplication.md), so the dedupe key is the stable triple.
     // VERIFY: two `update` deliveries for the same object collapse into one receipt; fine while the pull window is 3 d.
     const dataType = String(e.data_type ?? ""), eventType = String(e.event_type ?? ""), objectId = e.object_id == null ? "" : String(e.object_id)
-    return [{ vendorUserId: String(e.user_id), kind: `${dataType}.${eventType}`, eventId: objectId ? `${dataType}.${eventType}.${objectId}` : null }]
+    const ev: WebhookEvent = { vendorUserId: String(e.user_id), kind: `${dataType}.${eventType}`, eventId: objectId ? `${dataType}.${eventType}.${objectId}` : null }
+    if (eventType === "delete") {
+      // A signed tombstone: the webhook function removes the rows stored from this one document. A type we never store, or
+      // no object id, leaves nothing to remove — and nothing to pull either.
+      const resourceType = STORED_AS[dataType]
+      if (!resourceType || !objectId) return []
+      return [{ ...ev, deleted: true, resourceId: objectId, resourceType }]
+    }
+    return [ev]
   },
 
   async fetchRange(tokens, start, end) {
     const q = { start_date: start, end_date: end }
-    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
+    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = [], deletions: NonNullable<RowBatch["deletions"]> = []
 
     for (const s of await pages("sleep", tokens, q)) {
       const type = String(s.type ?? ""), day = String(s.day), id = s.id
-      // `type: "deleted"` = "deleted sleep by user" (OpenAPI): never written, not even as nap epochs (fixed 2026-11-06).
-      if (type === "deleted") continue
+      // `type: "deleted"` = "deleted sleep by user" (OpenAPI): never written, not even as nap epochs (2026-11-06), and the rows
+      // an earlier sync stored from it are removed (2026-11-07).
+      if (type === "deleted") { if (id != null) deletions.push({ recordId: String(id), resourceType: "sleep" }); continue }
       const tz = offsetMinutes(String(s.bedtime_start ?? ""))
       const P = prov("sleep", id, { timezoneOffset: tz })
       if (type === "long_sleep") {
@@ -243,15 +262,16 @@ export const oura: VendorAdapter = {
         epoch(startTs, T.CoveredDistance, num(w.distance), { ...P, details: { workout: true } }),
       ]))
     }
-    // Daytime heart rate (5-min-ish samples): ISO datetime range. Samples carry no document id → sourceRecordId null.
+    // Daytime heart rate: ISO datetime range. Samples carry no document id → sourceRecordId null. `source: "sleep"` samples
+    // (OpenAPI `PublicHeartRateSource`) repeat the night the sleep documents above already wrote: skipped (fixed 2026-11-07).
     try {
       const hr = await pages("heartrate", tokens, { start_datetime: dayStartISO(start), end_datetime: dayEndISO(end) })
-      epochRows.push(...compact(hr.map((h) => epoch(String(h.timestamp), T.HeartRate, num(h.bpm), { sourceResourceType: "heartrate", details: { source: h.source } }))))
+      epochRows.push(...compact(hr.filter((h) => h.source !== "sleep").map((h) => epoch(String(h.timestamp), T.HeartRate, num(h.bpm), { sourceResourceType: "heartrate", details: { source: h.source } }))))
     } catch (e) {
       if (e instanceof RateLimitedError || e instanceof UnauthorizedError) throw e
       log("warn", "oura.heartrate_failed", { fn: FN, vendor: "oura", ...errorSummary(e) })
     }
-    return { daily: dailyRows, epoch: epochRows }
+    return { daily: dailyRows, epoch: epochRows, deletions }
   },
 }
 
@@ -260,7 +280,7 @@ export const oura: VendorAdapter = {
 export interface OuraMaintainResult { created: number; renewed: number; skipped?: boolean }
 
 /**
- * Ensures every (data_type × create|update) subscription exists and renews those expiring within 7 days.
+ * Ensures every (data_type × create|update|delete) subscription exists and renews those expiring within 7 days.
  * Pure function of the flag: without `OURA_MAINTAIN_SUBSCRIPTIONS=1` nothing is fetched and `skipped: true` is returned.
  * VERIFY: the subscription endpoint paths/body below are the public rendering, not the pinned OpenAPI (§10 blocker).
  */
@@ -282,7 +302,7 @@ export async function ouraMaintain(): Promise<OuraMaintainResult> {
       if (r.ok) renewed++
     }
   }
-  for (const data_type of DATA_TYPES) for (const event_type of ["create", "update"]) {
+  for (const data_type of DATA_TYPES) for (const event_type of EVENT_TYPES) {
     if (existing.some((s) => s.data_type === data_type && s.event_type === event_type)) continue
     const r = await fetch(`${API}/webhook/subscription`, { method: "POST", headers: h, body: JSON.stringify({ callback_url: webhookUrl("oura"), verification_token: token, event_type, data_type }) })
     if (r.ok) created++

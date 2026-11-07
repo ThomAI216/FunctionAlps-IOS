@@ -70,6 +70,8 @@ functions). Until then a member who taps Connect on Oura or Polar gets "The conn
   lifestyle tags (`enhanced_tag`, needs the `tag` scope) · optimal bedtime window · non-wear time · sessions
   (breathing / meditation HR + HRV) · rest mode periods.
 - **Note:** Oura counts the activity day from 4 a.m.; its "lowest HR" is computed differently from the Oura app.
+- **Deletions:** a sleep, daily summary or workout the member deletes in Oura is removed here too (delete webhooks, and
+  sleeps a pull returns as `deleted`). Overnight HR comes from the sleep document only; daytime HR from `/heartrate`.
 
 ### 2.4 WHOOP (available)
 - **Stored:** recovery %, resting HR, HRV (RMSSD, ms, per sleep), SpO₂, skin temperature, sleep stages + performance,
@@ -167,8 +169,9 @@ needs to be checked against Oura's and WHOOP's clauses in particular.
 
 ## 5. Fix list (found 2026-11-06)
 
-Fixed on `claude/blissful-sagan-66das2` (Oura connect and Polar merged to `main` earlier the same day; the three below
-reach members only after the next merge):
+All five are fixed. Oura connect and Polar reached `main` on 2026-11-06 (`40ce802`); WHOOP, Withings, Suunto and the
+platform deletions on 2026-11-07 (`3a35f90`); the Oura data fixes (item 5) are on `claude/blissful-sagan-66das2` and reach
+members with the next merge.
 
 1. ~~**WHOOP**~~ — fixed: vendor deletions (`sleep.deleted`, `workout.deleted`, `recovery.deleted`) now remove the
    matching rows; HR zones follow WHOOP's own labels (light = zone 1, moderate = 2, intense = 3 + 4, maximal = 5);
@@ -182,11 +185,12 @@ reach members only after the next merge):
    Balance written as the 0–1 number the catalogue expects; 28-day chunks; workout paging; inline workouts in
    `WORKOUT_CREATED` webhooks.
 4. ~~**Platform**~~ — fixed: the webhook handler applies vendor deletion events (`WebhookEvent.deleted`) and audits them.
-   WHOOP is the only adapter that emits them today.
-
-Still open:
-
-5. **Oura** — delete events not subscribed; overnight HR written twice (sleep series and `/heartrate`).
+   WHOOP and Oura emit them. A pull can also report records as gone (`RowBatch.deletions`); saving the batch removes
+   their rows with the same scoping.
+5. ~~**Oura**~~ — fixed (OpenAPI 1.43): `ouraMaintain()` also subscribes to `delete` for every stored data type, and a
+   signed `delete` removes that document's rows (`vo2_max` mapped to the `vO2_max` collection our rows carry); a sleep a
+   pull returns as `type: "deleted"` has its earlier rows removed; overnight heart rate is written once, from the sleep
+   document's series — `/heartrate` samples with `source: "sleep"` are skipped.
 
 ---
 
