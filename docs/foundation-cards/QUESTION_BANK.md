@@ -13,6 +13,9 @@ Add to it rather than deleting a question. When one moves back into a day, strik
 | Do you usually eat breakfast? | Most days · Some days · Rarely or never | Day 2, stored on CM OS | Replaced by the breakfast, lunch and dinner clocks | Can be read from the clocks (a skipped breakfast) |
 | Around what time do you usually have lunch? | A time | Day 2, stored on CM OS | Replaced by the three meal clocks | Already covered |
 | You told us you wake up around … on workdays. Still right? | Yes, that's right · Update | Day 4, stored on CM OS | Day 4 now asks the wake time itself (it left day 1) | Back on day 4 if the wake time returns to day 1 |
+| What do you do? (activities, if they exercise) | Walking · Strength or gym · Running · Cycling · Hiking · Skiing · Swimming · Yoga or Pilates · Racket sports · Team sport · Golf · Other | Day 3, stored on CM OS | Removed 7 Nov: the week of movement said out loud covers it | A quick pick when they don't want to speak |
+| At weekends, do you sleep in? | No · Up to 1 hour later · 1–2 hours later · More than 2 hours later | Day 4, stored on CM OS | Removed 7 Nov | Social jet lag: a later sleep check, or read from Apple Health |
+| Anything you'd like us to know before next week? | Free text or voice, optional | Day 6, stored on CM OS | Replaced 7 Nov by “Tell us about your first week” | Already covered |
 
 ## Ideas kept
 
