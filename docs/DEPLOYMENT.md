@@ -169,7 +169,8 @@ syntax check / fallback for the MCP `deploy_edge_function` path; CI does not use
    published FunctionAlps notice. Per vendor:
    - **Oura** — https://cloud.ouraring.com/oauth/applications (self-serve; > 10 users needs Oura's review). The portal
      has NO webhook or verification-token field: subscriptions are created by the backend itself (`ouraMaintain()`,
-     hourly, only when the secret `OURA_MAINTAIN_SUBSCRIPTIONS=1` is set). The verification token lives in ONE place —
+     hourly, only when the secret `OURA_MAINTAIN_SUBSCRIPTIONS=1` is set; one per data type × `create` / `update` /
+     `delete`). The verification token lives in ONE place —
      the Supabase secret `OURA_WEBHOOK_VERIFICATION_TOKEN` (any random string you invent, e.g. 32 base64 chars): the
      backend sends it to Oura when it creates a subscription and Oura echoes it on the GET challenge. No fallback to
      the client secret — unset means the webhook path stays closed (fail closed).
@@ -272,8 +273,9 @@ breaks the token exchange, which the callback logs as `oauth.callback_failed`).
 connect called `GET /v4/data/profile`, which is not a v4 path, and asked for `ppi:read` (the scope is `ppi_data:read`).
 So neither could have connected a member. Both are fixed on the branch (Polar's data path rebuilt from its Swagger) and
 reach members only after the merge to `main`. The full data catalogue and the fix list are in
-`docs/wearables/DATA_CATALOGUE.md`: the WHOOP, Withings and Suunto data-path fixes (and vendor deletions applied by the
-webhook) are on the feature branch and reach production with the next merge; Oura delete events remain open.
+`docs/wearables/DATA_CATALOGUE.md`: the WHOOP, Withings and Suunto data-path fixes and vendor deletions are live since
+2026-11-07 (`3a35f90`). The Oura fixes (delete webhooks, deleted sleeps, overnight HR once) are on the feature branch;
+once merged, the next hourly `ouraMaintain()` run creates one `delete` subscription per stored data type at Oura.
 **Copy vs data (owner decision):** three live cards promise more than their adapters write. Oura says "Adds: Nightly
 HRV" and Withings "HRV (RMSSD and SDNN)", but decision D4 keeps both vendors' HRV raw-only (in `details`, under no HRV
 id) until its definition is verified; Polar says "sleep stages, training load", but the Polar adapter writes Nightly
