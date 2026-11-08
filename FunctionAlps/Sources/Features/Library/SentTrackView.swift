@@ -211,6 +211,19 @@ struct ResourcesAttachedCard: View {
 /// Home: the nudge toward the Pathway while something sent is unopened.
 struct NewResourcesCard: View {
     let count: Int
+    /// The team member's first name when known: "curated for you by Thomas".
+    var from: String? = nil
+
+    private var countLine: String {
+        if let from, !from.isEmpty {
+            return count == 1
+                ? String(localized: "home.pathway.count.one.by", defaultValue: "1 resource curated for you by \(from)")
+                : String(localized: "home.pathway.count.by", defaultValue: "\(count) resources curated for you by \(from)")
+        }
+        return count == 1
+            ? String(localized: "home.pathway.count.one", defaultValue: "1 resource curated for you")
+            : String(localized: "home.pathway.count", defaultValue: "\(count) resources curated for you")
+    }
 
     var body: some View {
         FACard {
@@ -223,9 +236,7 @@ struct NewResourcesCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(String(localized: "home.pathway.new", defaultValue: "New in your Pathway"))
                         .font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                    Text(count == 1
-                         ? String(localized: "home.pathway.count.one", defaultValue: "1 resource curated for you")
-                         : String(localized: "home.pathway.count", defaultValue: "\(count) resources curated for you"))
+                    Text(countLine)
                         .font(FATypography.sans(13, relativeTo: .callout)).foregroundStyle(FAColor.inkSecondary)
                 }
                 Spacer()

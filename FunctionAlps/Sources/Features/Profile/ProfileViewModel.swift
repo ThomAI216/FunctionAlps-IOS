@@ -13,6 +13,8 @@ final class ProfileViewModel {
     private(set) var countdown: AccessCountdown?
     /// The server composite for the compact trend card; nil renders the dashes.
     private(set) var scores: MemberScores?
+    /// Who the member talks to; empty (the card is hidden) until the read lands or when migration 288 is not applied.
+    private(set) var careTeam: CareTeam = .empty
 
     private let members: MemberService
     private let auth: AuthService
@@ -35,10 +37,12 @@ final class ProfileViewModel {
             async let planRead = profile.carePlan(patientId: member.patientId)
             async let accessRead = profile.access(patientId: member.patientId)
             async let scoresRead: MemberScores? = { try? await backend.memberScores(tzOffsetMinutes: offset) }()
+            async let teamRead: CareTeam = { CareTeam(members: (try? await backend.careTeam()) ?? []) }()
             plan = await planRead
             planLoading = false
             countdown = AccessCountdown.describe(await accessRead)
             scores = await scoresRead
+            careTeam = await teamRead
         } catch MemberService.MemberError.notRegistered {
             state = .empty
         } catch let error as AppError {
