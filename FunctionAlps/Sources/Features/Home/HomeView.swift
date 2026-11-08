@@ -109,7 +109,7 @@ struct HomeView: View {
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
                         // under the plan: a card that sits below the fold nudges nobody. Gone once they open it.
-                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources) }
+                        Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources, from: content.careTeam.firstName) }
                             .buttonStyle(.plain)
                     }
                     if TrackLogic.showsRoutine(trackDay: trackDay) {
@@ -136,7 +136,9 @@ struct HomeView: View {
                     }
 
                     ProtocolReviewCard()
-                    MessagesCard(unread: content.today.unreadClinicianMessages)
+                    MessagesCard(unread: content.today.unreadClinicianMessages, team: content.careTeam, last: content.lastMessage,
+                                 onOpen: { router.push(.messages) }, onDictate: { router.openMessages(dictate: true) })
+                        .id("showcase.messages")
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, FASpacing.screenTop)
@@ -156,6 +158,7 @@ struct HomeView: View {
                 try? await Task.sleep(for: .seconds(4))
                 proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
             }
+            .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }
         }

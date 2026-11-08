@@ -51,6 +51,10 @@ private struct ProfileScreen: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     profileCard(member).padding(.top, 6)
+                    if !model.careTeam.isEmpty {
+                        ProfileSectionLabel(title: String(localized: "profile.team", defaultValue: "Your care team"))
+                        CareTeamCard(team: model.careTeam) { router.profilePath.append(.messages) }
+                    }
                     accessStrip
                     ProfileSectionLabel(title: String(localized: "profile.trend", defaultValue: "Functional trend"), action: String(localized: "profile.trend.open", defaultValue: "Open Health ›")) { router.tab = .trends }
                     trendCard
