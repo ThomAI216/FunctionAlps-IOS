@@ -89,6 +89,8 @@ jobs:
           shootfr() { LANG_CODE=fr LOCALE_CODE=fr_CH shoot "$@"; }
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
+          shoot 01b-today-bottom today-bottom 14
+          shoot 01c-profile profile 12
           shoot 02-checkin checkin
           shoot 02b-checkin-mood checkin-mood
           shoot 03-checkin-done checkin-done 12

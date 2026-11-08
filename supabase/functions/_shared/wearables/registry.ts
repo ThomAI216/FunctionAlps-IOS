@@ -1,4 +1,5 @@
-// The seven direct vendors (owner decision 2026-09-04). A vendor is offered to members only when its
+// The seven direct vendors (owner decision 2026-09-04). Strava was assessed on 2026-11-06 and NOT added: its API Policy
+// (effective 2026-06-01) forbids storing its data beyond a 7-day cache, combining it, or showing it to anyone but the athlete. A vendor is offered to members only when its
 // `wearable_vendors.status` is `available` — flipped by the owner once the developer app is approved —
 // so a new vendor needs no app release.
 import type { VendorAdapter, VendorKey } from "./core.ts"

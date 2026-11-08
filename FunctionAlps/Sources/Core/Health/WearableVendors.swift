@@ -1,9 +1,11 @@
 import Foundation
 import SwiftUI
 
-/// The seven direct vendors (owner decision 2026-09-04: free, direct OAuth; no aggregator). The phone
-/// carries the copy; CM OS `wearable_vendors.status` says which are open to members today, so a vendor
-/// goes live with a row update, not a release. `sourceId` = `wearable_connections.data_source_id`.
+/// The seven direct vendors (owner decision 2026-09-04: free, direct OAuth; no aggregator).
+/// The phone carries the copy; CM OS `wearable_vendors.status` says which are open to members today, so a vendor
+/// goes live with a row update, not a release. A `wearable_vendors` row the phone has no copy for still gets a
+/// card (`catalogue(rows:)`), so a brand added server-side later needs no release either.
+/// `sourceId` = `wearable_connections.data_source_id`.
 struct WearableVendor: Identifiable, Sendable, Equatable {
     let key: String
     let name: String
@@ -59,6 +61,16 @@ struct WearableVendor: Identifiable, Sendable, Equatable {
                            adds: String(localized: "vendor.google.adds", defaultValue: "Daily HRV, sleep stages, temperature deviation"),
                            viaAppleHealth: String(localized: "vendor.google.relay", defaultValue: "Sleep with stages, steps, workouts, vitals from the Google Health app (no HRV)")),
         ]
+    }
+
+    /// Every card the Devices screen shows: the vendors above in their order, then any `wearable_vendors` row the
+    /// phone carries no copy for (a brand added server-side after this build) — name from the row, generic mark.
+    static func catalogue(rows: [WearableVendorRow]) -> [WearableVendor] {
+        let known = Set(all.map(\.key))
+        let extra = rows.filter { !known.contains($0.key) }.map {
+            WearableVendor(key: $0.key, name: $0.name, sourceId: $0.dataSourceId, symbol: "sensor.tag.radiowaves.forward", tintHex: 0x3F3F46, adds: "", viaAppleHealth: "")
+        }
+        return all + extra
     }
 
     static func vendor(_ key: String) -> WearableVendor? { all.first { $0.key == key } }

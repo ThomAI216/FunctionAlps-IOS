@@ -21,6 +21,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func memberProfile(patientId: String) async throws -> MemberProfile? { nil }
     func meals(patientId: String, since: Date) async throws -> [MealLog] { record("meals"); return [] }
     func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? { nil }
+    func careTeam() async throws -> [CareMember] { [] }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { 0 }
     func meal(id: String) async throws -> MealLog? { record("meal"); return storedMeal }
     func createPendingMeal(_ input: PendingMealInput) async throws -> String { record("create"); lastPending = input; return "row-1" }

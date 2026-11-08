@@ -36,7 +36,7 @@ Deno.test("golden: WHOOP-shaped rows → daily/epoch upserts with keys, provenan
   const fx = JSON.parse(await Deno.readTextFile(new URL("./fixtures/whoop_recovery_sample.json", import.meta.url))) as { rows: RowBatch }
   const { db, calls } = fakeDb()
   const counts = await persistRows(db, "patient-1", "whoop", fx.rows, "raw-1", "acc-1")
-  assertEquals(counts, { daily: 3, epoch: 1 })  // the duplicate HeartRateResting collapses on (day, type)
+  assertEquals(counts, { daily: 3, epoch: 1, deleted: 0 })  // the duplicate HeartRateResting collapses on (day, type); no deletions in this batch
   const daily = calls.find((c) => c.table === "wearable_daily" && c.op === "upsert")!
   assertEquals(daily.opts, { onConflict: "patient_id,data_source_id,day,data_type_id" })
   const rows = daily.rows as Record<string, unknown>[]

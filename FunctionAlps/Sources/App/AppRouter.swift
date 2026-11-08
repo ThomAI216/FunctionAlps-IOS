@@ -95,6 +95,15 @@ final class AppRouter {
         }
     }
 
+    /// Set by Home's mic: Messages opens with the composer focused and dictation started; consumed once.
+    var pendingDictation = false
+
+    /// Home's messages card: push Messages on the current stack (back returns to where the member was).
+    func openMessages(dictate: Bool = false) {
+        pendingDictation = dictate
+        push(.messages)
+    }
+
     /// From a message's "Find them in your library" and the Home nudge: the mini track, in the Library tab.
     func openSentTrack() {
         tab = .library
@@ -155,6 +164,7 @@ final class AppRouter {
             } else if let slug = rest.first, !slug.isEmpty {
                 libraryPath.append(.read(slug))
             }
+        case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
         case "results":

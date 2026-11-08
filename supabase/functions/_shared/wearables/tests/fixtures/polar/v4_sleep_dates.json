@@ -1,0 +1,4 @@
+{
+  "_note": "Shape = Polar v4 `/sleeps` WITHOUT features: \"the response contains only the dates where sleep data is available\" (Swagger `sleepListSleepsResponse`). Values illustrative.",
+  "nightSleeps": [ { "sleepDate": "2026-11-04" }, { "sleepDate": "2026-11-05" }, { "sleepDate": "2026-10-20" } ]
+}

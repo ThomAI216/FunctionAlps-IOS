@@ -183,6 +183,9 @@ protocol FunctionAlpsBackend: Sendable {
     func sendMessage(patientId: String, clinicId: String, body: String, context: MessageContext?) async throws -> String
     /// `member_mark_messages_read()` — stamps every unread clinician message.
     func markMessagesRead() async throws
+    /// `member_care_team()` (CM OS migration 288): the member's own team, first row first. Throws until 288 is applied;
+    /// the service fails soft to an empty team.
+    func careTeam() async throws -> [CareMember]
     /// The library items the practice sent with messages (`patient_message_resources`, approved rows under RLS).
     func messageResources() async throws -> [MessageResource]
     /// `member_mark_message_resource_opened(p_id)` — true when this call stamped `opened_at`.

@@ -385,6 +385,12 @@ enum ShowcaseData {
 
     // MARK: Messages — a question, the practitioner's answer, two resources sent with it (one opened)
 
+    /// The practice's two real people by name and title; no photo (the showcase has no network and bundles none), so the initials show.
+    static func careTeam() -> [CareMember] {
+        [CareMember(userId: "showcase-team-1", name: "Thomas Convent", firstName: "Thomas", title: "Coach", titleFr: "Coach", isPrimary: true),
+         CareMember(userId: "showcase-team-2", name: "Alessandra Ginsburg", firstName: "Alessandra", title: "Nutrition expert", titleFr: "Experte en nutrition")]
+    }
+
     static let replyMessageId = "showcase-msg-reply"
 
     static func messages() -> [PatientMessage] {

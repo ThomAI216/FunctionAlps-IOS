@@ -8,6 +8,7 @@ import { type AccountRow, LIVE_STATUSES, currentKeyVersion, json, rotateAccountT
 import { adapter } from "../_shared/wearables/registry.ts"
 import { drainQueue, enqueueAccountWindow } from "../_shared/wearables/worker.ts"
 import { polarRegisterWebhook } from "../_shared/wearables/polar.ts"
+import { vendorReadiness } from "../_shared/wearables/readiness.ts"
 import { errorSummary, log } from "../_shared/wearables/log.ts"
 
 const FN = "wearable-reconcile"
@@ -33,6 +34,14 @@ Deno.serve(async (req) => {
     return json({ probe, status: r.status, clientIdLength: clientId.length, secretLength: clientSecret.length, webhooks })
   }
   const db = serviceClient()
+  // Ops probe (`{"probe":"vendor-readiness"}`, 2026-11-06): per vendor, which secrets are SET (names → booleans),
+  // whether the OAuth authorisation URL builds with them, the status row, live accounts, last successful sync.
+  // Calls no vendor, writes nothing, returns no secret value (`_shared/wearables/readiness.ts`).
+  if (probe === "vendor-readiness") {
+    const r = await vendorReadiness(db)
+    log("info", "probe.vendor_readiness", { fn: FN, vendors: Object.keys(r.vendors).length })
+    return json({ probe, ...r })
+  }
   // Ops action (`{"probe":"polar-register-webhook"}`, optional `"force":true`): the backend registers Polar's
   // application webhook and keeps the once-shown signing key encrypted in the app-level subscription row.
   if (probe === "polar-register-webhook") {

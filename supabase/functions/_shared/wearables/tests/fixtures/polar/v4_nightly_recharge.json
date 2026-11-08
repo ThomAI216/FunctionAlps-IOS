@@ -1,0 +1,35 @@
+{
+  "_note": "Shape = Polar v4 Swagger `domainsnightlyrechargeListResponse` (https://www.polar.com/polar-api-v4/swagger.yaml, read 2026-11-06): the list is nested twice. Field names are official; the values are illustrative, not a captured member payload.",
+  "nightlyRechargeResults": {
+    "nightlyRechargeResults": [
+      {
+        "created": "2026-11-05T06:12:33.435Z",
+        "modified": "2026-11-05T06:12:33.435Z",
+        "ansStatus": 3.4,
+        "recoveryIndicator": 5,
+        "recoveryIndicatorSubLevel": 62,
+        "ansRate": 4,
+        "meanNightlyRecoveryRri": 1043,
+        "meanNightlyRecoveryRmssd": 46,
+        "meanNightlyRecoveryRespirationInterval": 4285,
+        "meanBaselineRri": 1010,
+        "sdBaselineRri": 41,
+        "meanBaselineRmssd": 42,
+        "sdBaselineRmssd": 6,
+        "meanBaselineRespirationInterval": 4200,
+        "sdBaselineRespirationInterval": 160,
+        "sleepTip": "tip-a",
+        "vitalityTip": "tip-b",
+        "exerciseTip": "tip-c",
+        "sleepResultDate": "2026-11-05"
+      },
+      {
+        "created": "2026-10-20T06:00:00.000Z",
+        "modified": "2026-10-20T06:00:00.000Z",
+        "recoveryIndicator": 2,
+        "meanNightlyRecoveryRmssd": 30,
+        "sleepResultDate": "2026-10-20"
+      }
+    ]
+  }
+}

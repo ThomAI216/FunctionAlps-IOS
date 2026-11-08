@@ -191,39 +191,82 @@ struct CheckinPulseCard: View {
     }
 }
 
-/// Home entry to the clinician thread — always rendered, the count is live.
+/// Home entry to the clinician thread, now the people behind it (Thomas, 2026-11-06): the first team member's photo,
+/// "your team", the name, the unread count, the last message as a soft quote, then "Read and reply" / "Write to <name>"
+/// and a round mic that opens Messages already dictating. Without a team (migration 288 not applied) it keeps the
+/// old wording with an initials-less disc.
 struct MessagesCard: View {
     let unread: Int
+    var team: CareTeam = .empty
+    var last: PatientMessage? = nil
+    let onOpen: () -> Void
+    let onDictate: () -> Void
+
+    private var name: String? { team.firstName }
 
     var body: some View {
         FACard {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle().fill(Color(red: 74 / 255, green: 138 / 255, blue: 92 / 255, opacity: 0.14))
-                    Image(systemName: "bubble.left").foregroundStyle(FAColor.forestSoft)
+            VStack(alignment: .leading, spacing: 12) {
+                Button(action: onOpen) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 12) {
+                            CareAvatar(member: team.first, size: 48)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text((team.first.flatMap { CareTeamLogic.title($0, french: CareTeamLogic.appIsFrench) } ?? String(localized: "home.messages.eyebrow", defaultValue: "Your team")).uppercased())
+                                    .font(FATypography.sans(10, .bold, relativeTo: .caption2)).tracking(1.2).foregroundStyle(FAColor.stone).lineLimit(1)
+                                Text(name ?? (unread > 0 ? String(localized: "home.messages.replied", defaultValue: "Your nutritionist replied") : String(localized: "home.messages.ask", defaultValue: "Ask your nutritionist")))
+                                    .font(FATypography.display(20, relativeTo: .title3)).foregroundStyle(FAColor.ink).lineLimit(1)
+                            }
+                            Spacer(minLength: 0)
+                            if unread > 0 {
+                                Text("\(unread)")
+                                    .font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(.white)
+                                    .padding(.horizontal, 6).frame(minWidth: 22, minHeight: 22)
+                                    .background(FAColor.forestSoft, in: Capsule())
+                                    .accessibilityLabel(String(localized: "home.messages.unreadBadge", defaultValue: "\(unread) unread"))
+                            }
+                        }
+                        if let last {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(lastLine(last)).font(FATypography.sans(11.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
+                                Text(last.text).font(FATypography.sans(13.5, relativeTo: .callout)).foregroundStyle(FAColor.ink).lineLimit(2).multilineTextAlignment(.leading)
+                            }
+                            .padding(.horizontal, 12).padding(.vertical, 9)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(FAColor.forestSoft.opacity(0.09), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        }
+                    }
                 }
-                .frame(width: 40, height: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(unread > 0 ? String(localized: "home.messages.replied", defaultValue: "Your nutritionist replied") : String(localized: "home.messages.ask", defaultValue: "Ask your nutritionist"))
-                        .font(FATypography.sans(15, .semibold, relativeTo: .headline))
-                        .foregroundStyle(FAColor.ink)
-                    Text(unread > 0 ? String(localized: "home.messages.read", defaultValue: "Tap to read") : String(localized: "home.messages.human", defaultValue: "A real person answers"))
-                        .font(FATypography.sans(13, relativeTo: .callout))
-                        .foregroundStyle(FAColor.inkSecondary)
+                .buttonStyle(.plain)
+
+                HStack(spacing: 10) {
+                    CarePill(title: pillTitle, action: onOpen)
+                    Button(action: onDictate) {
+                        Image(systemName: "mic").font(.system(size: 16, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
+                            .frame(width: 46, height: 46)
+                            .background(FAColor.forestSoft.opacity(0.14), in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String(localized: "messages.voice.start", defaultValue: "Dictate a message"))
                 }
-                Spacer()
-                if unread > 0 {
-                    Text("\(unread)")
-                        .font(FATypography.sans(12, .bold, relativeTo: .caption))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .frame(minWidth: 22, minHeight: 22)
-                        .background(FAColor.forestSoft, in: Capsule())
-                }
-                Image(systemName: "chevron.right").foregroundStyle(FAColor.inkSecondary)
+                Text(String(localized: "home.messages.humanDay", defaultValue: "A real person answers, usually within a day"))
+                    .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
             }
         }
-        .accessibilityElement(children: .combine)
+    }
+
+    private var pillTitle: String {
+        if unread > 0 { return String(localized: "home.messages.readReply", defaultValue: "Read and reply") }
+        if let name { return String(localized: "home.messages.writeTo", defaultValue: "Write to \(name)") }
+        return String(localized: "home.messages.write", defaultValue: "Write a message")
+    }
+
+    /// "Thomas replied · 2 hr. ago" / "You · yesterday".
+    private func lastLine(_ message: PatientMessage) -> String {
+        let when = CareTeamLogic.whenLabel(message.createdAt)
+        if message.mine { return String(localized: "home.messages.lastYou", defaultValue: "You · \(when)") }
+        let who = name ?? String(localized: "home.messages.practice", defaultValue: "Your nutritionist")
+        return String(localized: "home.messages.lastReply", defaultValue: "\(who) replied · \(when)")
     }
 }
 
