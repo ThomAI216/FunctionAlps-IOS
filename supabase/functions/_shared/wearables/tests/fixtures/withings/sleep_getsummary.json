@@ -1,5 +1,5 @@
 {
-  "_note": "SYNTHETIC — the corpus flags the exact Sleep v2 schema as an open blocker (vendors/withings.md §19/§30; pack 08_SLEEP.md 'Withings'); the shape follows the Withings Sleep v2 getsummary reference. VERIFY on the first live capture: (1) whether `sdnn_1`/`rmssd` are exposed by getsummary at all (else only the per-night `get` series carries them); (2) durations in seconds, `sleep_efficiency` as a percentage (the adapter also accepts a 0–1 fraction); (3) `hash_deviceid`, `model`, `modified` on the series entry; (4) `date` is the vendor-local night date. Whatever the answer, sdnn_1/rmssd are RAW-ONLY (strategy D4) and never reach 3100/3106/3112.",
+  "_note": "SYNTHETIC — the corpus flags the exact Sleep v2 schema as an open blocker (vendors/withings.md §19/§30; pack 08_SLEEP.md 'Withings'); the shape follows the Withings Sleep v2 getsummary reference. VERIFY on the first live capture: (1) 2026-11-06: the official getsummary data_fields (developer.withings.com/openapi.yaml) carry `rmssd_start_avg` / `rmssd_end_avg`; `sdnn_1` / `rmssd` exist only in the Sleep v2 GET series; (2) durations in seconds, `sleep_efficiency` as a percentage (the adapter also accepts a 0–1 fraction); (3) `hash_deviceid`, `model`, `modified` on the series entry; (4) `date` is the vendor-local night date. Whatever the answer, sdnn_1/rmssd are RAW-ONLY (strategy D4) and never reach 3100/3106/3112.",
   "status": 0,
   "body": {
     "series": [
@@ -29,10 +29,11 @@
           "hr_min": 47,
           "rr_average": 14,
           "snoring": 300,
+          "snoringepisodecount": 4,
           "breathing_disturbances_intensity": 5,
           "sleep_score": 81,
-          "sdnn_1": 62,
-          "rmssd": 48
+          "rmssd_start_avg": 62,
+          "rmssd_end_avg": 48
         }
       }
     ],

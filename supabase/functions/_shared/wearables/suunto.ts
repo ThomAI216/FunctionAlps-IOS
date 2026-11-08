@@ -7,14 +7,13 @@
 //     over the exact body, LOWERCASE HEX, event types WORKOUT_CREATED / ROUTE_CREATED / SUUNTO_247_*_CREATED,
 //     the 24/7 sleep field names (08_SLEEP.md "Suunto").
 //   VERIFY (partner portal / partner schema): PKCE + `state` support (§6), the refresh contract (§8), the
-//     deauthorize endpoint (§25), every pull endpoint, pagination and the ms-epoch window (§12/§13/§21),
-//     duration units (§19), `AvgHRV` semantics (§20), Balance/StressState scales (§18).
-// Rules applied here: unverified endpoints stay callable but tolerant (absent fields are skipped, never
-// written as zeros); durations are stored RAW with `details.unit_unverified`; `AvgHRV` / `HRV` are NEVER
-// written to 3100/3106/3112/3113 — they live in `details.avg_hrv_unverified` / `details.hrv_unverified`;
-// recovery Balance → 1000134 as text (no numeric scale in the corpus), StressState → 1000135 as a STRING
-// row (never coerced to a number, never 1000109); every row carries sourceRecordId/sourceResourceType.
-import { type DailyRow, type EpochRow, NAMES, RateLimitedError, type RowBatch, type TokenSet, UnauthorizedError, type VendorAdapter, type WebhookEvent, T, compact, dailyDate, dailyText, dayOfISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, unixOf, vendorClient } from "./core.ts"
+//     deauthorize endpoint (§25), `AvgHRV` semantics (§20), the StressState meaning (§18).
+// Rules applied here (updated 2026-11-06 against the APIZone reference — see the block above `chunkDays`): absent fields are
+// skipped, never written as zeros; sleep durations are seconds (`details.unit`); `AvgHRV` / `HRV` are NEVER written to
+// 3100/3106/3112/3113 — they live in `details.avg_hrv_unverified` / `details.hrv_unverified`; recovery Balance → 1000134 as a
+// 0–1 number, StressState → 1000135 as a STRING row (meaning undocumented, never 1000109); every row carries
+// sourceRecordId/sourceResourceType. Still to confirm in the partner portal: PKCE/`state`, the refresh contract, deauthorize.
+import { type DailyRow, type EpochRow, NAMES, RateLimitedError, type RowBatch, type TokenSet, UnauthorizedError, type VendorAdapter, VendorHttpError, type WebhookEvent, T, compact, dailyDate, dailyText, dayOfISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient } from "./core.ts"
 import { errorSummary, log } from "./log.ts"
 
 const AUTH = "https://cloudapi-oauth.suunto.com/oauth/authorize"
@@ -45,73 +44,94 @@ function epochText(startTs: string, id: number, text: string | null, extra: Part
 type Sample = { timestamp?: string; entryData?: Record<string, unknown> }
 const RES = { sleep: "247_sleep", recovery: "247_recovery", activity: "247_activity", dailyStats: "247_daily_activity_statistics", workout: "workout" } as const
 
-// MARK: - 24/7 sleep (field names VERIFIED on the public webhook page; units VERIFY — suunto.md §19)
+// ── 2026-11-06: rebuilt against Suunto's APIZone reference (SUUNTO 247 DATA API, SUUNTO WORKOUT API, the webhook page) ──
+// What the official pages pin, and this file follows:
+//   • `/247samples/{sleep,recovery,activity}?from&to` (epoch ms) and `/247samples/daily-activity-statistics?startdate&enddate`
+//     (ISO-8601): "Maximum fetch interval duration is 28 days" → 28-day chunks. Data "fetched from the API using UTC time".
+//   • daily statistics return `[{ Name: "stepcount" | "energyconsumption", Aggregation: "sum", Sources: [{ Samples:
+//     [{ TimeISO8601, Value }] }] }]`, energy "in joules" (the old call used from/to in ms and read fields that do not exist).
+//   • sleep durations are SECONDS and `Duration` is TIME IN BED: the webhook example spans 23:29 → 08:30 = 32 460 s = Duration,
+//     while Deep + Light + REM = 30 600 s. So asleep (2300) = Deep + Light + REM, in bed (2301) = Duration, latency 2307,
+//     wake after sleep onset 2308 (catalogue: "wake-after-sleep-onset"); WakeBeforeOffBed stays in details.
+//   • recovery `Balance` is a 0–1 number (examples 0.82, 0.85) → 1000134 numeric; `StressState` 1–3 (meaning undocumented) text.
+//   • workouts: `/v3/workouts?since&until&limit&offset&filter-by-modification-time` → `{ payload: [ … ] }`, heart rate in
+//     `hrdata.workoutAvgHR` / `workoutMaxHR`, `timeOffsetInMinutes` for the local day; `totalDistance` in metres and `totalTime` in
+//     seconds (the webhook example: 10 000 m in 3 600 s at avgSpeed 2.78 m/s). A WORKOUT_CREATED webhook carries the same object
+//     inline under `workout` — mapped there too.
+//   • AvgHRV / HRV stay raw (statistic undocumented — D4); MaxSpo2 is a maximum, not the average 3009 → raw.
+
+const DAY_MS = 86_400_000
+/** Inclusive day window → chunks of at most `max` days (Suunto: "Maximum fetch interval duration is 28 days"). */
+export function chunkDays(start: string, end: string, max = 28): { start: string; end: string }[] {
+  const out: { start: string; end: string }[] = []
+  let s = Date.parse(`${start}T00:00:00Z`)
+  const stop = Date.parse(`${end}T00:00:00Z`)
+  while (s <= stop && out.length < 60) {
+    const e = Math.min(s + (max - 1) * DAY_MS, stop)
+    out.push({ start: new Date(s).toISOString().slice(0, 10), end: new Date(e).toISOString().slice(0, 10) })
+    s = e + DAY_MS
+  }
+  return out
+}
+
+// MARK: - 24/7 sleep
 
 function mapSleep(samples: Sample[]): DailyRow[] {
   const rows: DailyRow[] = []
   for (const s of samples) {
     const e = s.entryData ?? {}
-    if (e.IsNap === true) continue                                   // 08_SLEEP: IsNap decides main-sleep eligibility
+    if (e.IsNap === true) continue                                   // IsNap decides main-sleep eligibility
     const endIso = str(e.BedtimeEnd) ?? str(e.DateTime) ?? s.timestamp
     if (!endIso) continue
     const day = dayOfISO(endIso), timezoneOffset = offsetMinutes(endIso.slice(19))
     const sleepId = str(e.SleepId)
     const prov: Partial<DailyRow> = { timezoneOffset, sourceRecordId: sleepId ?? endIso, sourceResourceType: RES.sleep }
-    // Raw-only vendor fields ride along in `details` on every row of the night (07_HRV: no 3100/3106/3112/3113 for AvgHRV;
-    // canonical-metric-map: SleepQualityScore UNVERIFIED scale → no 2201/1000105 until pinned).
     const base: Record<string, unknown> = {
-      sleep_id: sleepId,
-      avg_hrv_unverified: num(e.AvgHRV),                             // VERIFY: statistic (RMSSD? SDNN?), window, unit — suunto.md §20
-      avg_hrv_sample_count: num(e.AvgHRVSampleCount),
-      sleep_quality_score_unverified: num(e.SleepQualityScore),      // VERIFY: 0–100? — suunto.md §22
+      sleep_id: sleepId, unit: "seconds",
+      avg_hrv_unverified: num(e.AvgHRV), avg_hrv_sample_count: num(e.AvgHRVSampleCount),   // statistic undocumented → raw (D4)
+      sleep_quality_score_unverified: num(e.SleepQualityScore),
+      wake_before_off_bed_s: num(e.WakeBeforeOffBedDuration), max_spo2_fraction: num(e.MaxSpo2), feeling: num(e.Feeling),
     }
-    // VERIFY: duration unit (seconds? minutes?) — stored raw, never converted (suunto.md §19 "do not infer seconds from magnitudes").
-    const durations: [number, unknown][] = [
-      [T.MainSleepDuration, e.Duration], [T.Deep, e.DeepSleepDuration], [T.Light, e.LightSleepDuration], [T.REM, e.REMSleepDuration],
-      [T.Latency, e.SleepOnsetLatencyDuration], [T.Awake, e.WakeAfterSleepOnsetDuration], [T.AwakeAfterWakeup, e.WakeBeforeOffBedDuration],
+    const deep = num(e.DeepSleepDuration), light = num(e.LightSleepDuration), rem = num(e.REMSleepDuration)
+    const asleep = deep == null && light == null && rem == null ? null : (deep ?? 0) + (light ?? 0) + (rem ?? 0)
+    const values: [number, number | null][] = [
+      [T.MainSleepDuration, asleep], [T.InBed, num(e.Duration)], [T.Deep, deep], [T.Light, light], [T.REM, rem],
+      [T.Latency, num(e.SleepOnsetLatencyDuration)], [T.AwakeAfterWakeup, num(e.WakeAfterSleepOnsetDuration)],
+      [T.HeartRateSleep, num(e.HRAvg)], [T.HeartRateSleepLowest, num(e.HRMin)],
     ]
-    for (const [id, raw] of durations) {
-      const v = num(raw)
+    for (const [id, v] of values) {
       if (v == null) continue                                        // absent → skipped, never a zero
-      rows.push({ day, dataTypeId: id, dataTypeName: NAMES[id], value: v, valueType: Number.isInteger(v) ? "LONG" : "DOUBLE", details: { ...base, unit_unverified: true }, ...prov })
-    }
-    // bpm is unambiguous for HRAvg / HRMin (VERIFY that HRMin is the sleep minimum, not resting HR — no 3001 proxy is written).
-    for (const [id, raw] of [[T.HeartRateSleep, e.HRAvg], [T.HeartRateSleepLowest, e.HRMin]] as [number, unknown][]) {
-      const v = num(raw)
-      if (v == null) continue
       rows.push({ day, dataTypeId: id, dataTypeName: NAMES[id], value: v, valueType: Number.isInteger(v) ? "LONG" : "DOUBLE", details: base, ...prov })
     }
-    // Bedtime instants are ISO with offsets (suunto.md §21) — the only fully verified unit in the payload.
     rows.push(...compact([dailyDate(day, T.SleepStart, str(e.BedtimeStart), { details: base, ...prov }), dailyDate(day, T.SleepEnd, str(e.BedtimeEnd), { details: base, ...prov })]))
   }
   return rows
 }
 
-// MARK: - 24/7 recovery (Balance / StressState VERIFIED as field names; scales VERIFY — suunto.md §18, 13_STRESS, 14_RECOVERY)
+// MARK: - 24/7 recovery
 
 function mapRecovery(samples: Sample[]): RowBatch {
-  const epochRows: EpochRow[] = [], latest = new Map<string, { ts: string; bal: string | null; state: string | null; tz: number | null }>()
+  const epochRows: EpochRow[] = [], latest = new Map<string, { ts: string; bal: number | null; state: string | null; tz: number | null }>()
   for (const s of samples) {
     const e = s.entryData ?? {}, ts = s.timestamp, startTs = ts ? utcISO(ts) : null
     if (!ts || !startTs) continue
-    const bal = str(e.Balance), state = str(e.StressState), tz = offsetMinutes(ts.slice(19))
+    const bal = num(e.Balance), state = str(e.StressState), tz = offsetMinutes(ts.slice(19))
     if (bal == null && state == null) continue
-    const details = { balance_scale_unverified: true, stress_state_scale_unverified: true, balance_raw: e.Balance ?? null, stress_state_raw: e.StressState ?? null }
+    const details = { balance_scale: "0-1", stress_state_scale_unverified: true, stress_state_raw: e.StressState ?? null }
     const prov: Partial<EpochRow> = { timezoneOffset: tz, sourceRecordId: ts, sourceResourceType: RES.recovery, details }
-    // VERIFY: Balance has no documented numeric scale → text until pinned (catalogue declares 1000134 DOUBLE for the day it is).
-    epochRows.push(...compact([epochText(startTs, T.SuuntoRecoveryBalance, bal, prov), epochText(startTs, T.SuuntoStressState, state, prov)]))
+    epochRows.push(...compact([epoch(startTs, T.SuuntoRecoveryBalance, bal, { ...prov, valueType: "DOUBLE" }), epochText(startTs, T.SuuntoStressState, state, prov)]))
     const day = dayOfISO(ts), cur = latest.get(day)
     if (!cur || Date.parse(ts) >= Date.parse(cur.ts)) latest.set(day, { ts, bal, state, tz })
   }
   const daily: DailyRow[] = []
   for (const [day, l] of latest) {
-    const prov: Partial<DailyRow> = { timezoneOffset: l.tz, sourceRecordId: l.ts, sourceResourceType: RES.recovery, details: { balance_scale_unverified: true, stress_state_scale_unverified: true, sample_ts: l.ts } }
-    daily.push(...compact([dailyText(day, T.SuuntoRecoveryBalance, l.bal, prov), dailyText(day, T.SuuntoStressState, l.state, prov)]))
+    const prov: Partial<DailyRow> = { timezoneOffset: l.tz, sourceRecordId: l.ts, sourceResourceType: RES.recovery, details: { balance_scale: "0-1", stress_state_scale_unverified: true, sample_ts: l.ts, statistic: "latest_of_day" } }
+    daily.push(...compact([l.bal == null ? null : { day, dataTypeId: T.SuuntoRecoveryBalance, dataTypeName: NAMES[T.SuuntoRecoveryBalance], value: l.bal, valueType: "DOUBLE" as const, ...prov }, dailyText(day, T.SuuntoStressState, l.state, prov)]))
   }
   return { daily, epoch: epochRows }
 }
 
-// MARK: - 24/7 activity samples (VERIFY: field names are not in the public corpus — partner schema)
+// MARK: - 24/7 activity samples (~10 min: HR bpm, StepCount, EnergyConsumption joules, SpO2 0–1, HRExt, HRV)
 
 function mapActivity(samples: Sample[]): EpochRow[] {
   const rows: EpochRow[] = []
@@ -119,20 +139,72 @@ function mapActivity(samples: Sample[]): EpochRow[] {
     const e = s.entryData ?? {}, ts = s.timestamp, startTs = ts ? utcISO(ts) : null
     if (!ts || !startTs) continue
     const prov: Partial<EpochRow> = { timezoneOffset: offsetMinutes(ts.slice(19)), sourceRecordId: ts, sourceResourceType: RES.activity }
-    // Raw-only: HRV (07_HRV — never 3100), SpO2 (fraction vs percent VERIFY), EnergyConsumption (unit VERIFY).
-    const raw = { hrv_unverified: num(e.HRV), spo2_unverified: num(e.SpO2), energy_consumption_unverified: num(e.EnergyConsumption) }
+    const ext = (e.HRExt ?? {}) as Record<string, unknown>
+    const raw = { hrv_unverified: num(e.HRV), spo2_fraction: num(e.SpO2), energy_consumption_j: num(e.EnergyConsumption), hr_min: num(ext.Min), hr_max: num(ext.Max) }
     rows.push(...compact([
-      epoch(startTs, T.HeartRate, num(e.HR), { ...prov, details: raw }),         // bpm — VERIFY field name `HR`
-      epoch(startTs, T.Steps, num(e.StepCount), { ...prov, details: raw }),      // count — VERIFY field name `StepCount`
+      epoch(startTs, T.HeartRate, num(e.HR), { ...prov, details: raw }),
+      epoch(startTs, T.Steps, num(e.StepCount), { ...prov, details: raw }),
     ]))
   }
   return rows
 }
 
-// MARK: - Webhook event id (the public payload names no event id → VERIFY triple type|username|record)
+// MARK: - Daily statistics (the official `[{ Name, Aggregation, Sources: [{ Samples: [{ TimeISO8601, Value }] }] }]`)
+
+function mapDailyStats(list: unknown): DailyRow[] {
+  const perDay = new Map<string, { steps: number | null; energyJ: number | null }>()
+  for (const metric of (Array.isArray(list) ? list : []) as Record<string, unknown>[]) {
+    const name = String(metric.Name ?? "").toLowerCase()
+    if (name !== "stepcount" && name !== "energyconsumption") continue
+    for (const src of (Array.isArray(metric.Sources) ? metric.Sources : []) as Record<string, unknown>[]) {
+      for (const sm of (Array.isArray(src.Samples) ? src.Samples : []) as Record<string, unknown>[]) {
+        const t = str(sm.TimeISO8601), v = num(sm.Value)
+        if (!t || v == null) continue
+        const day = t.slice(0, 10), cur = perDay.get(day) ?? { steps: null, energyJ: null }
+        // Several sources (watches) for one day: keep the largest, never their sum (they overlap in time).
+        if (name === "stepcount") cur.steps = Math.max(cur.steps ?? 0, v)
+        else cur.energyJ = Math.max(cur.energyJ ?? 0, v)
+        perDay.set(day, cur)
+      }
+    }
+  }
+  const rows: DailyRow[] = []
+  for (const [day, d] of [...perDay].sort(([a], [b]) => a.localeCompare(b))) {
+    if (d.steps == null) continue
+    rows.push({ day, dataTypeId: T.Steps, dataTypeName: NAMES[T.Steps], value: d.steps, valueType: "LONG", sourceRecordId: `daily_stats:${day}`, sourceResourceType: RES.dailyStats,
+      details: { day_basis: "utc", energy_consumption_kcal: d.energyJ == null ? null : Math.round(d.energyJ / 4184) } })
+  }
+  return rows
+}
+
+// MARK: - Workouts (list item, single GET payload and WORKOUT_CREATED webhook share one shape)
+
+function mapWorkout(w: Record<string, unknown>): { day: string; rows: EpochRow[] } | null {
+  const startMs = num(w.startTime), key = str(w.workoutKey) ?? str(w.key)
+  if (!startMs || !key) return null
+  const off = num(w.timeOffsetInMinutes)
+  const startTs = new Date(startMs).toISOString(), day = new Date(startMs + (off ?? 0) * 60_000).toISOString().slice(0, 10)
+  const totalTime = num(w.totalTime), endTs = totalTime != null ? new Date(startMs + totalTime * 1000).toISOString() : null
+  const hr = (w.hrdata ?? {}) as Record<string, unknown>
+  const activityId = str(w.activityId)
+  const prov: Partial<EpochRow> = { sourceRecordId: key, sourceResourceType: RES.workout, timezoneOffset: off, endTs }
+  const raw = { workout_key: key, activity_id: activityId, total_time_s: totalTime, energy_consumption_unverified: num(w.energyConsumption), step_count: num(w.stepCount), total_ascent_m: num(w.totalAscent) }
+  return {
+    day,
+    rows: compact([
+      epochText(startTs, T.ActivityType, activityId ? `suunto_activity_${activityId}` : null, { ...prov, details: raw }),
+      epoch(startTs, T.CoveredDistance, num(w.totalDistance) || null, { ...prov, details: { ...raw, unit: "m" } }),
+      epoch(startTs, T.ElevationGain, num(w.totalAscent) || null, { ...prov, details: { ...raw, unit: "m" } }),
+      epoch(startTs, T.HeartRate, num(hr.workoutAvgHR), { ...prov, details: { ...raw, statistic: "workout_average", max_heart_rate: num(hr.workoutMaxHR) } }),
+    ]),
+  }
+}
+
+// MARK: - Webhook event id (no event id is documented → type|username|record)
 
 function recordKey(evt: Record<string, unknown>, samples: Sample[]): string | null {
-  const wk = str(evt.workoutKey) ?? str(evt.workoutid) ?? str(evt.workoutId) ?? str(evt.routeKey) ?? str(evt.routeid)
+  const workout = (evt.workout ?? {}) as Record<string, unknown>, route = (evt.route ?? {}) as Record<string, unknown>
+  const wk = str(workout.workoutKey) ?? str(route.id) ?? str(evt.workoutKey) ?? str(evt.workoutid)
   if (wk) return wk
   const sleepId = str(samples[0]?.entryData?.SleepId)
   if (sleepId) return sleepId
@@ -196,62 +268,51 @@ export const suunto: VendorAdapter = {
     const ev: WebhookEvent = { vendorUserId: user, kind: type, eventId: key ? `${type}|${user}|${key}` : null }
     const days = samples.map((s) => s.timestamp).filter((t): t is string => !!t).map((t) => dayOfISO(t)).sort()
     if (days.length) { ev.windowStart = days[0]; ev.windowEnd = days[days.length - 1] }
-    // 24/7 payloads carry the samples inline (§10, §16) — mapped here; the queued pull re-reads the window when the portal exposes it.
+    // Signed payloads carry the data inline (24/7 samples; the workout summary under `workout`) — mapped here.
     if (type === "SUUNTO_247_SLEEP_CREATED") ev.rows = { daily: mapSleep(samples), epoch: [] }
     else if (type === "SUUNTO_247_RECOVERY_CREATED") ev.rows = mapRecovery(samples)
     else if (type === "SUUNTO_247_ACTIVITY_CREATED") ev.rows = { daily: [], epoch: mapActivity(samples) }
-    // WORKOUT_CREATED / ROUTE_CREATED: pointer only — the queued pull fetches the workout.
+    else if (type === "WORKOUT_CREATED" && evt.workout && typeof evt.workout === "object") {
+      const w = mapWorkout(evt.workout as Record<string, unknown>)
+      if (w) { ev.rows = { daily: [], epoch: w.rows }; ev.windowStart = w.day; ev.windowEnd = w.day }
+    }
     return [ev]
   },
 
-  // VERIFY — suunto.md §12/§13: the exact pull endpoints, pagination and history limits come from the approved API Zone
-  // reference. Every path below is the pre-approval assumption: kept callable, each one optional (a 4xx/5xx on one path
-  // is logged and skipped), 401/429 propagate so the core refresh / backoff paths run. Window = ms epoch (§21, VERIFY).
+  // Pull endpoints and limits from the APIZone reference (2026-11-06 — see the block above `mapSleep`). Each path is optional
+  // for one sync: a 4xx is logged and skipped; 401 / 429 / 5xx (incl. 503 "Service capacity exceeded") propagate so the core
+  // refresh, backoff and retry paths run.
   async fetchRange(tokens, start, end, ctx) {
-    const from = unixOf(`${start}T00:00:00Z`) * 1000, to = unixOf(`${end}T23:59:59Z`) * 1000
     const h = headers(tokens)
     const get = async (path: string): Promise<unknown> => {
       try { return await getJSON(`${API}${path}`, h) }
       catch (e) {
-        if (e instanceof UnauthorizedError || e instanceof RateLimitedError) throw e
+        if (e instanceof UnauthorizedError || e instanceof RateLimitedError || (e instanceof VendorHttpError && e.status >= 500)) throw e
         log("warn", "suunto.pull_failed", { fn: FN, vendor: "suunto", account: ctx.accountId ?? null, path: path.split("?")[0], ...errorSummary(e) })
         return null
       }
     }
     const asList = (j: unknown): Sample[] => Array.isArray(j) ? j as Sample[] : Array.isArray((j as Record<string, unknown>)?.payload) ? (j as Record<string, unknown>).payload as Sample[] : []
 
-    const sleep = asList(await get(`/247samples/sleep?from=${from}&to=${to}`))          // VERIFY: path + response envelope
-    const recovery = mapRecovery(asList(await get(`/247samples/recovery?from=${from}&to=${to}`)))  // VERIFY: path + response envelope
-    const act = asList(await get(`/247samples/activity?from=${from}&to=${to}`))         // VERIFY: path + response envelope
-    const dailyRows: DailyRow[] = [...mapSleep(sleep), ...recovery.daily], epochRows: EpochRow[] = [...recovery.epoch, ...mapActivity(act)]
-
-    // VERIFY: daily activity statistics — path, field names (`stepcount` / `energyconsumption`) and energy unit.
-    for (const d of asList(await get(`/247/daily-activity-statistics?from=${from}&to=${to}`)) as Record<string, unknown>[]) {
-      const ts = str(d.timestamp) ?? str(d.date)
-      if (!ts) continue
-      const day = dayOfISO(ts), steps = num(d.stepcount ?? d.StepCount)
-      if (steps == null) continue
-      dailyRows.push({ day, dataTypeId: T.Steps, dataTypeName: NAMES[T.Steps], value: steps, valueType: "LONG", timezoneOffset: offsetMinutes(ts.slice(19)), sourceRecordId: day, sourceResourceType: RES.dailyStats, details: { energy_consumption_unverified: num(d.energyconsumption ?? d.EnergyConsumption) } })
+    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
+    for (const c of chunkDays(start, end, 28)) {
+      const from = Date.parse(`${c.start}T00:00:00Z`), to = Date.parse(`${c.end}T23:59:59.999Z`)
+      dailyRows.push(...mapSleep(asList(await get(`/247samples/sleep?from=${from}&to=${to}`))))
+      const rec = mapRecovery(asList(await get(`/247samples/recovery?from=${from}&to=${to}`)))
+      dailyRows.push(...rec.daily); epochRows.push(...rec.epoch)
+      epochRows.push(...mapActivity(asList(await get(`/247samples/activity?from=${from}&to=${to}`))))
+      dailyRows.push(...mapDailyStats(await get(`/247samples/daily-activity-statistics?startdate=${c.start}T00:00:00&enddate=${c.end}T23:59:59`)))
     }
 
-    // VERIFY: workouts — path `/v3/workouts?since=<ms>&limit=`, pagination, `startTime` (ms epoch in known examples, §21),
-    // `totalTime` / `totalDistance` / `energyConsumption` units, HR field name. Durations/distance stored raw + unit_unverified.
-    for (const w of asList(await get(`/v3/workouts?since=${from}&limit=100`)) as Record<string, unknown>[]) {
-      const startMs = num(w.startTime), key = str(w.workoutKey)
-      if (!startMs || !key) continue
-      const startTs = new Date(startMs).toISOString()
-      if (startTs.slice(0, 10) < start || startTs.slice(0, 10) > end) continue
-      const prov: Partial<EpochRow> = { sourceRecordId: key, sourceResourceType: RES.workout }
-      const activityId = str(w.activityId), raw = { workout_key: key, activity_id: activityId, total_time_unverified: num(w.totalTime), energy_consumption_unverified: num(w.energyConsumption) }
-      const distance = num(w.totalDistance), avgHr = num(w.avgHR ?? w.hrAvg)
-      epochRows.push(...compact([
-        epochText(startTs, T.ActivityType, activityId ? `suunto_activity_${activityId}` : null, { ...prov, details: raw }),
-        distance != null ? { startTs, dataTypeId: T.CoveredDistance, dataTypeName: NAMES[T.CoveredDistance], value: distance, valueType: Number.isInteger(distance) ? "LONG" : "DOUBLE", ...prov, details: { ...raw, unit_unverified: true } } as EpochRow : null,
-        epoch(startTs, T.HeartRate, avgHr, { ...prov, details: { ...raw, statistic: "workout_average" } }),
-      ]))
+    // Workouts by START time (filter-by-modification-time=false), every page.
+    const since = Date.parse(`${start}T00:00:00Z`) - DAY_MS, until = Date.parse(`${end}T00:00:00Z`) + 2 * DAY_MS, limit = 50
+    for (let offset = 0, page = 0; page < 20; page++, offset += limit) {
+      const list = asList(await get(`/v3/workouts?since=${since}&until=${until}&limit=${limit}&offset=${offset}&filter-by-modification-time=false`)) as unknown as Record<string, unknown>[]
+      for (const w of list) { const m = mapWorkout(w); if (m && m.day >= start && m.day <= end) epochRows.push(...m.rows) }
+      if (list.length < limit) break
     }
     return { daily: dailyRows, epoch: epochRows }
   },
 }
 
-export const _suuntoTest = { mapSleep, mapRecovery, mapActivity, jwtClaims, recordKey }
+export const _suuntoTest = { mapSleep, mapRecovery, mapActivity, mapDailyStats, mapWorkout, jwtClaims, recordKey, chunkDays }

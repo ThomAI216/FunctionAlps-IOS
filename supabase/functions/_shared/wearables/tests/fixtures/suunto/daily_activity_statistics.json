@@ -1,6 +1,16 @@
-{
-  "_note": "SYNTHETIC (not a live capture). VERIFY: the `/247/daily-activity-statistics` path, the field names (`stepcount`, `energyconsumption`) and the energy unit (raw in details only).",
-  "payload": [
-    { "timestamp": "2026-09-13T00:00:00+02:00", "stepcount": 8421, "energyconsumption": 9800000 }
-  ]
-}
+[
+  {
+    "Name": "stepcount",
+    "Aggregation": "sum",
+    "Sources": [
+      { "Source": "watch-1", "Samples": [ { "TimeISO8601": "2026-09-12T00:00:00Z", "Value": 6100 }, { "TimeISO8601": "2026-09-13T00:00:00Z", "Value": 8421 } ] },
+      { "Source": "watch-2", "Samples": [ { "TimeISO8601": "2026-09-13T00:00:00Z", "Value": 900 } ] }
+    ]
+  },
+  {
+    "Name": "energyconsumption",
+    "Aggregation": "sum",
+    "Sources": [ { "Source": "watch-1", "Samples": [ { "TimeISO8601": "2026-09-13T00:00:00Z", "Value": 9800000 } ] } ]
+  },
+  { "Name": "something-new", "Aggregation": "sum", "Sources": [ { "Samples": [ { "TimeISO8601": "2026-09-13T00:00:00Z", "Value": 5 } ] } ] }
+]

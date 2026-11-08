@@ -1,5 +1,5 @@
 {
-  "_note": "SYNTHETIC — whoop.md §12/§18 name the cycle resource and `score.strain`; `kilojoule`, `average_heart_rate`, `max_heart_rate` are VERIFY. Cycle 93845 starts the evening of 2026-09-12 (local) and is linked to sleep.json's main sleep, so its day key is the wake day 2026-09-13. Cycle 93846 has no `end` (still running) and must be skipped.",
+  "_note": "SYNTHETIC — whoop.md §12/§18 name the cycle resource and `score.strain`; `kilojoule`, `average_heart_rate`, `max_heart_rate` are VERIFY. Cycle 93845 starts the evening of 2026-09-12 (local) and is linked to sleep.json's main sleep, so its day key is the wake day 2026-09-13. Cycle 93846 has no `end` (still running) and must be skipped. `step_count` (official OpenAPI, added 2026-09-23) is per cycle; null when not worn.",
   "records": [
     {
       "id": 93845,
@@ -10,7 +10,8 @@
       "end": "2026-09-13T22:00:00.000Z",
       "timezone_offset": "+02:00",
       "score_state": "SCORED",
-      "score": { "strain": 14.3, "kilojoule": 9832.5, "average_heart_rate": 71, "max_heart_rate": 168 }
+      "score": { "strain": 14.3, "kilojoule": 9832.5, "average_heart_rate": 71, "max_heart_rate": 168 },
+      "step_count": 11234
     },
     {
       "id": 93846,

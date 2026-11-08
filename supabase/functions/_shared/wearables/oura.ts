@@ -13,7 +13,12 @@
 //   • Provenance: every row carries `sourceRecordId` = the Oura document `id`, `sourceResourceType` = collection.
 //   • Rate limit (§14): 5000 req / 5 min per token and per app; 429 → RateLimitedError(Retry-After).
 //   • AI boundary (§27, security/ai-data-boundaries.md): nothing here reaches a model — ai-policy.ts denies oura.
-import { type DailyRow, type EpochRow, type TokenSet, type VendorAdapter, type WebhookEvent, T, RateLimitedError, UnauthorizedError, VendorHttpError, compact, dailyDate, dailyMap, dayEndISO, dayStartISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
+//   • Deletions (2026-11-07, OpenAPI 1.43 `WebhookOperation` = create | update | delete): we subscribe to `delete` too, and a
+//     signed `delete` becomes a tombstone the webhook function applies to the rows of that one document. A sleep a pull
+//     returns as `type: "deleted"` is removed the same way (`RowBatch.deletions`).
+//   • Overnight heart rate is written ONCE, from the sleep document's `heart_rate` series (it has a document id, so a
+//     deletion can reach it); `/heartrate` samples with `source: "sleep"` repeat that night and are not written.
+import { type DailyRow, type EpochRow, type RowBatch, type TokenSet, type VendorAdapter, type WebhookEvent, T, RateLimitedError, UnauthorizedError, VendorHttpError, compact, dailyDate, dailyMap, dayEndISO, dayStartISO, env, epoch, getJSON, hmacSha256, num, offsetMinutes, timingSafeEqual, tokenPost, vendorClient, webhookUrl } from "./core.ts"
 import { errorSummary, log } from "./log.ts"
 
 const FN = "oura"
@@ -22,6 +27,11 @@ const TOKEN = "https://api.ouraring.com/oauth/token"
 const API = "https://api.ouraring.com/v2"
 // VERIFY: the data_type × event_type matrix must come from the pinned OpenAPI after app approval (§10, §30).
 const DATA_TYPES = ["sleep", "daily_sleep", "daily_readiness", "daily_activity", "daily_spo2", "daily_stress", "vo2_max", "workout"]
+/** OpenAPI 1.43 `WebhookOperation`. */
+const EVENT_TYPES = ["create", "update", "delete"] as const
+/** Webhook `data_type` → the collection our rows carry as `source_resource_type`. Only VO₂max differs: webhooks spell it
+ *  `vo2_max` (`ExtApiV2DataType`), the data path `/usercollection/vO2_max`. */
+const STORED_AS: Record<string, string> = Object.fromEntries(DATA_TYPES.map((t) => [t, t === "vo2_max" ? "vO2_max" : t]))
 
 /**
  * Oura API and MCP Agreement (effective 2026-06-08, §27): deletion within 72 hours in the described user-deletion
@@ -53,8 +63,12 @@ function retryAfterSeconds(headers: Headers): string | null {
   return String(Math.max(1, Math.ceil(reset > 1e9 ? reset - Date.now() / 1000 : reset)))
 }
 
+/** Oura (authentication docs, 2026-11): "All requests to the Oura API must include a non-empty User-Agent header" — else 403. */
+export const OURA_USER_AGENT = "FunctionAlps/1.0 (+https://functionalps.ch)"
+const UA = { "User-Agent": OURA_USER_AGENT }
+
 async function ouraGet(url: string, tokens: TokenSet): Promise<{ json: Record<string, unknown>; remaining: number | null; retryAfter: string | null }> {
-  const resp = await fetch(url, { headers: { Accept: "application/json", Authorization: `Bearer ${tokens.accessToken}` } })
+  const resp = await fetch(url, { headers: { Accept: "application/json", Authorization: `Bearer ${tokens.accessToken}`, ...UA } })
   const text = await resp.text()
   if (resp.status === 401) throw new UnauthorizedError(text.slice(0, 200))
   if (resp.status === 429) throw new RateLimitedError(retryAfterSeconds(resp.headers))
@@ -62,13 +76,23 @@ async function ouraGet(url: string, tokens: TokenSet): Promise<{ json: Record<st
   return { json: text ? JSON.parse(text) : {}, remaining: num(resp.headers.get(H_REMAINING)), retryAfter: retryAfterSeconds(resp.headers) }
 }
 
-/** All pages of a usercollection (§13: `data` + `next_token` until absent). A page that exhausts the quota with more to come stops here. */
+/**
+ * All pages of a usercollection (§13: `data` + `next_token` until absent). A page that exhausts the quota with more to come
+ * stops here. A 403 on ONE collection is skipped, not fatal: Oura documents 403 as "requires additional permissions or the
+ * user's Oura subscription has expired", and members may untick scopes on the consent page — the other collections still sync.
+ */
 async function pages(path: string, tokens: TokenSet, q: Record<string, string>): Promise<Record<string, unknown>[]> {
   const out: Record<string, unknown>[] = []
   let next = ""
   for (let i = 0; i < 20; i++) {
     const qs = new URLSearchParams({ ...q, ...(next ? { next_token: next } : {}) })
-    const { json, remaining, retryAfter } = await ouraGet(`${API}/usercollection/${path}?${qs}`, tokens)
+    let page: Awaited<ReturnType<typeof ouraGet>>
+    try { page = await ouraGet(`${API}/usercollection/${path}?${qs}`, tokens) }
+    catch (e) {
+      if (e instanceof VendorHttpError && e.status === 403) { log("warn", "oura.collection_forbidden", { fn: FN, vendor: "oura", path }); return out }
+      throw e
+    }
+    const { json, remaining, retryAfter } = page
     out.push(...((json.data as Record<string, unknown>[]) ?? []))
     next = (json.next_token as string) ?? ""
     if (!next) break
@@ -99,19 +123,22 @@ function phases(code: string | undefined, start: string | undefined, extra: Part
 export const oura: VendorAdapter = {
   key: "oura",
   name: "Oura",
-  pkce: "not_documented",  // §6: "PKCE: NOT DOCUMENTED" — no code_challenge is sent (core.sendsPKCE is false).
-  // §6 + 19_OAUTH_ACCOUNT_LIFECYCLE.md: minimal scopes, no `email`. `personal` is needed for personal_info → user id (§9).
-  scopes: ["personal", "daily", "heartrate", "workout", "spo2Daily"],
+  // Oura's authentication page (checked 2026-11-06) now documents PKCE: `code_challenge` "Recommended", method S256, and the
+  // verifier "Required if code_challenge was provided" at the token exchange.
+  pkce: "supported",
+  // Minimal scopes, no `email`. `personal` is needed for personal_info → user id (§9). The SpO2 scope is `spo2` — the
+  // earlier `spo2Daily` is not a documented scope (fixed 2026-11-06).
+  scopes: ["personal", "daily", "heartrate", "workout", "spo2"],
   reconcile: { nightlyDays: 3, weeklyDays: 14 },  // §17
 
-  authorizeURL({ clientId, redirectUri, state }) {
-    return `${AUTH}?${new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, scope: oura.scopes.join(" "), state })}`
+  authorizeURL({ clientId, redirectUri, state, codeChallenge }) {
+    return `${AUTH}?${new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, scope: oura.scopes.join(" "), state, ...(codeChallenge ? { code_challenge: codeChallenge, code_challenge_method: "S256" } : {}) })}`
   },
 
-  async exchangeCode({ code, redirectUri }) {
+  async exchangeCode({ code, redirectUri, codeVerifier }) {
     const { clientId, clientSecret } = vendorClient("oura")
-    const t = await tokenPost(TOKEN, { grant_type: "authorization_code", code, redirect_uri: redirectUri, client_id: clientId, client_secret: clientSecret })
-    const me = await getJSON(`${API}/usercollection/personal_info`, { Authorization: `Bearer ${t.access_token}` })
+    const t = await tokenPost(TOKEN, { grant_type: "authorization_code", code, redirect_uri: redirectUri, client_id: clientId, client_secret: clientSecret, ...(codeVerifier ? { code_verifier: codeVerifier } : {}) }, { headers: UA })
+    const me = await getJSON(`${API}/usercollection/personal_info`, { Authorization: `Bearer ${t.access_token}`, ...UA })
     // VERIFY: §9 — pin the exact personal_info identity property (name/type) on a live fixture; `id` is the documented guess.
     const vendorUserId = me.id == null ? "" : String(me.id)
     // §7: absolute expiry from `expires_in`; the 30 d fallback is only for a response without it.
@@ -120,14 +147,14 @@ export const oura: VendorAdapter = {
 
   async refresh(refreshToken) {
     const { clientId, clientSecret } = vendorClient("oura")
-    const t = await tokenPost(TOKEN, { grant_type: "refresh_token", refresh_token: refreshToken, client_id: clientId, client_secret: clientSecret })
+    const t = await tokenPost(TOKEN, { grant_type: "refresh_token", refresh_token: refreshToken, client_id: clientId, client_secret: clientSecret }, { headers: UA })
     return { accessToken: String(t.access_token), refreshToken: (t.refresh_token as string) ?? refreshToken, expiresAt: Math.floor(Date.now() / 1000) + (num(t.expires_in) ?? 2_592_000) }
   },
 
   async revoke(tokens) {
     // VERIFY: §25 — the revoke URL is documented, the HTTP method is not; POST is the guess. Best effort, never throws.
     try {
-      const r = await fetch(`https://api.ouraring.com/oauth/revoke?access_token=${encodeURIComponent(tokens.accessToken)}`, { method: "POST" })
+      const r = await fetch(`https://api.ouraring.com/oauth/revoke?access_token=${encodeURIComponent(tokens.accessToken)}`, { method: "POST", headers: UA })
       if (!r.ok) log("warn", "oura.revoke_failed", { fn: FN, vendor: "oura", status: r.status })
     } catch (e) { log("warn", "oura.revoke_failed", { fn: FN, vendor: "oura", ...errorSummary(e) }) }
   },
@@ -135,7 +162,7 @@ export const oura: VendorAdapter = {
   async afterConnect(tokens) {
     // Subscriptions are per application, not per user; ouraMaintain is a no-op unless the flag is on.
     try { await ouraMaintain() } catch (e) { log("warn", "oura.subscriptions_failed", { fn: FN, vendor: "oura", ...errorSummary(e) }) }
-    const me = await getJSON(`${API}/usercollection/personal_info`, { Authorization: `Bearer ${tokens.accessToken}` })
+    const me = await getJSON(`${API}/usercollection/personal_info`, { Authorization: `Bearer ${tokens.accessToken}`, ...UA })
     // §26: personal-scope responses are never logged; only these non-identifying fields land in account meta (no email, §9).
     return { meta: { age: num(me.age), biological_sex: me.biological_sex ?? null, weight_kg: num(me.weight), height_m: num(me.height) } }
   },
@@ -164,15 +191,26 @@ export const oura: VendorAdapter = {
     // documented (architecture/07-provenance-deduplication.md), so the dedupe key is the stable triple.
     // VERIFY: two `update` deliveries for the same object collapse into one receipt; fine while the pull window is 3 d.
     const dataType = String(e.data_type ?? ""), eventType = String(e.event_type ?? ""), objectId = e.object_id == null ? "" : String(e.object_id)
-    return [{ vendorUserId: String(e.user_id), kind: `${dataType}.${eventType}`, eventId: objectId ? `${dataType}.${eventType}.${objectId}` : null }]
+    const ev: WebhookEvent = { vendorUserId: String(e.user_id), kind: `${dataType}.${eventType}`, eventId: objectId ? `${dataType}.${eventType}.${objectId}` : null }
+    if (eventType === "delete") {
+      // A signed tombstone: the webhook function removes the rows stored from this one document. A type we never store, or
+      // no object id, leaves nothing to remove — and nothing to pull either.
+      const resourceType = STORED_AS[dataType]
+      if (!resourceType || !objectId) return []
+      return [{ ...ev, deleted: true, resourceId: objectId, resourceType }]
+    }
+    return [ev]
   },
 
   async fetchRange(tokens, start, end) {
     const q = { start_date: start, end_date: end }
-    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = []
+    const dailyRows: DailyRow[] = [], epochRows: EpochRow[] = [], deletions: NonNullable<RowBatch["deletions"]> = []
 
     for (const s of await pages("sleep", tokens, q)) {
       const type = String(s.type ?? ""), day = String(s.day), id = s.id
+      // `type: "deleted"` = "deleted sleep by user" (OpenAPI): never written, not even as nap epochs (2026-11-06), and the rows
+      // an earlier sync stored from it are removed (2026-11-07).
+      if (type === "deleted") { if (id != null) deletions.push({ recordId: String(id), resourceType: "sleep" }); continue }
       const tz = offsetMinutes(String(s.bedtime_start ?? ""))
       const P = prov("sleep", id, { timezoneOffset: tz })
       if (type === "long_sleep") {
@@ -203,9 +241,10 @@ export const oura: VendorAdapter = {
         [T.Steps]: num(a.steps),  // §22: identity, daily count.
         [T.ActiveBurnedCalories]: num(a.active_calories),
         [T.BurnedCalories]: num(a.total_calories),  // VERIFY: §22 — 1010 only after the documented unit (kcal) is pinned from the schema.
-        [T.CoveredDistance]: num(a.equivalent_walking_distance),
         [T.ActivityDuration]: (high + med + low) / 60, [T.ActivityHigh]: high / 60, [T.ActivityMid]: med / 60, [T.ActivityLow]: low / 60, [T.ActivitySedentary]: (num(a.sedentary_time) ?? 0) / 60 || null,
-      }, prov("daily_activity", a.id, { details: { score: num(a.score), average_met_minutes: num(a.average_met_minutes) } })))
+      // `equivalent_walking_distance` is "Equivalent walking distance of energy expenditure in meters" (OpenAPI), NOT distance
+      // covered — it stays in details and is never written to 1001 (fixed 2026-11-06).
+      }, prov("daily_activity", a.id, { details: { score: num(a.score), average_met_minutes: num(a.average_met_minutes), equivalent_walking_distance_m: num(a.equivalent_walking_distance) } })))
       epochRows.push(...series(T.MET, a.met as Record<string, unknown>, prov("daily_activity", a.id)))
     }
     for (const p of await pages("daily_spo2", tokens, q)) dailyRows.push(...dailyMap(String(p.day), { [T.SPO2]: num((p.spo2_percentage as Record<string, unknown>)?.average), [T.Breathing]: num(p.breathing_disturbance_index) }, prov("daily_spo2", p.id)))
@@ -223,15 +262,16 @@ export const oura: VendorAdapter = {
         epoch(startTs, T.CoveredDistance, num(w.distance), { ...P, details: { workout: true } }),
       ]))
     }
-    // Daytime heart rate (5-min-ish samples): ISO datetime range. Samples carry no document id → sourceRecordId null.
+    // Daytime heart rate: ISO datetime range. Samples carry no document id → sourceRecordId null. `source: "sleep"` samples
+    // (OpenAPI `PublicHeartRateSource`) repeat the night the sleep documents above already wrote: skipped (fixed 2026-11-07).
     try {
       const hr = await pages("heartrate", tokens, { start_datetime: dayStartISO(start), end_datetime: dayEndISO(end) })
-      epochRows.push(...compact(hr.map((h) => epoch(String(h.timestamp), T.HeartRate, num(h.bpm), { sourceResourceType: "heartrate", details: { source: h.source } }))))
+      epochRows.push(...compact(hr.filter((h) => h.source !== "sleep").map((h) => epoch(String(h.timestamp), T.HeartRate, num(h.bpm), { sourceResourceType: "heartrate", details: { source: h.source } }))))
     } catch (e) {
       if (e instanceof RateLimitedError || e instanceof UnauthorizedError) throw e
       log("warn", "oura.heartrate_failed", { fn: FN, vendor: "oura", ...errorSummary(e) })
     }
-    return { daily: dailyRows, epoch: epochRows }
+    return { daily: dailyRows, epoch: epochRows, deletions }
   },
 }
 
@@ -240,7 +280,7 @@ export const oura: VendorAdapter = {
 export interface OuraMaintainResult { created: number; renewed: number; skipped?: boolean }
 
 /**
- * Ensures every (data_type × create|update) subscription exists and renews those expiring within 7 days.
+ * Ensures every (data_type × create|update|delete) subscription exists and renews those expiring within 7 days.
  * Pure function of the flag: without `OURA_MAINTAIN_SUBSCRIPTIONS=1` nothing is fetched and `skipped: true` is returned.
  * VERIFY: the subscription endpoint paths/body below are the public rendering, not the pinned OpenAPI (§10 blocker).
  */
@@ -249,7 +289,7 @@ export async function ouraMaintain(): Promise<OuraMaintainResult> {
   const token = verificationToken()
   if (!token) return { created: 0, renewed: 0, skipped: true }
   const { clientId, clientSecret } = vendorClient("oura")
-  const h = { "x-client-id": clientId, "x-client-secret": clientSecret, "Content-Type": "application/json", Accept: "application/json" }
+  const h = { "x-client-id": clientId, "x-client-secret": clientSecret, "Content-Type": "application/json", Accept: "application/json", ...UA }
   const listResp = await fetch(`${API}/webhook/subscription`, { headers: h })
   if (listResp.status === 429) throw new RateLimitedError(retryAfterSeconds(listResp.headers))
   if (!listResp.ok) throw new VendorHttpError(listResp.status, "oura subscriptions list")
@@ -262,7 +302,7 @@ export async function ouraMaintain(): Promise<OuraMaintainResult> {
       if (r.ok) renewed++
     }
   }
-  for (const data_type of DATA_TYPES) for (const event_type of ["create", "update"]) {
+  for (const data_type of DATA_TYPES) for (const event_type of EVENT_TYPES) {
     if (existing.some((s) => s.data_type === data_type && s.event_type === event_type)) continue
     const r = await fetch(`${API}/webhook/subscription`, { method: "POST", headers: h, body: JSON.stringify({ callback_url: webhookUrl("oura"), verification_token: token, event_type, data_type }) })
     if (r.ok) created++

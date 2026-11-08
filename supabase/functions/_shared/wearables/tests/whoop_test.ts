@@ -35,6 +35,7 @@ async function withFetchStub<R>(fn: (calls: URL[]) => Promise<R>): Promise<R> {
 const ctx = { patientId: "patient-1", vendorUserId: "456", meta: {} }
 const SLEEP_ID = "6b1b2a4e-3c5f-4d2a-9e1f-0a1b2c3d4e5f"
 const WORKOUT_ID = "2d3e4f50-6172-4839-a0b1-c2d3e4f50617"
+const NAP_ID = "9f0e1d2c-3b4a-4596-8778-695a4b3c2d1e"
 
 Deno.test("adapter contract: PKCE not documented, reconcile 7/30, offline scope", () => {
   assertEquals(whoop.pkce, "not_documented")
@@ -73,29 +74,33 @@ Deno.test("golden: sleep + recovery + cycle + workout pages → exact daily/epoc
     [1000133, "WHOOPSleepPerformance", 88, "2026-09-13", SLEEP_ID],
     [T.SleepStart, "ThryveMainSleepStartTime", unixOf("2026-09-12T21:30:00Z"), "2026-09-13", SLEEP_ID],
     [T.SleepEnd, "ThryveMainSleepEndTime", unixOf("2026-09-13T05:30:00Z"), "2026-09-13", SLEEP_ID],
-    // cycle — keyed to the wake day of its linked sleep, not to its evening start (2026-09-12 local)
+    // cycle — keyed to the wake day of its linked sleep, not to its evening start (2026-09-12 local); steps per cycle
+    [T.Steps, "Steps", 11234, "2026-09-13", "93845"],
     [T.BurnedCalories, "BurnedCalories", 2350, "2026-09-13", "93845"],
     [T.HeartRate, "HeartRate", 71, "2026-09-13", "93845"],
     [T.StrainScore, "StrainScore", 14.3, "2026-09-13", "93845"],
-    // recovery — sourceRecordId = cycle id; RMSSD → 3106 only
-    [T.HeartRateResting, "HeartRateResting", 52, "2026-09-13", "93845"],
-    [T.SPO2, "SPO2", 96.4, "2026-09-13", "93845"],
-    [T.RmssdSleep, "RmssdSleep", 61.5, "2026-09-13", "93845"],
-    [T.SkinTemperature, "SkinTemperature", 33.4, "2026-09-13", "93845"],
-    [T.RecoveryScore, "RecoveryScore", 67, "2026-09-13", "93845"],
+    // recovery — sourceRecordId = the SLEEP id (WHOOP's recovery webhook id), so recovery.deleted finds these rows
+    [T.HeartRateResting, "HeartRateResting", 52, "2026-09-13", SLEEP_ID],
+    [T.SPO2, "SPO2", 96.4, "2026-09-13", SLEEP_ID],
+    [T.RmssdSleep, "RmssdSleep", 61.5, "2026-09-13", SLEEP_ID],
+    [T.SkinTemperature, "SkinTemperature", 33.4, "2026-09-13", SLEEP_ID],
+    [T.RecoveryScore, "RecoveryScore", 67, "2026-09-13", SLEEP_ID],
   ])
 
   const e = (r: EpochRow) => [r.dataTypeId, r.dataTypeName, r.value, r.startTs, r.sourceRecordId]
   assertEquals(rows.epoch.map(e), [
+    // the nap: one timed row of asleep seconds (40 min light), never the day's main-sleep ids
+    [T.MainSleepDuration, "ThryveMainSleepDuration", 2400, "2026-09-13T12:10:00.000Z", NAP_ID],
     [T.ActivityType, "ActivityType", 0, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.StrainScore, "StrainScore", 8.7, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.ActiveBurnedCalories, "ActiveBurnedCalories", 500, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.HeartRate, "HeartRate", 152, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.CoveredDistance, "CoveredDistance", 8120.5, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.ElevationGain, "ElevationGain", 64, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
-    [T.HRZoneLight, "HeartRateZoneLightDuration", 10, "2026-09-13T15:00:00.000Z", WORKOUT_ID],     // zones 1+2: 3 + 7 min
-    [T.HRZoneModerate, "HeartRateZoneModerateDuration", 15, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
-    [T.HRZoneIntense, "HeartRateZoneIntenseDuration", 16, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
+    // WHOOP's labels: zone 1 light (3 min) · zone 2 moderate (7) · zones 3+4 hard + very hard (15 + 16) · zone 5 maximum (3)
+    [T.HRZoneLight, "HeartRateZoneLightDuration", 3, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
+    [T.HRZoneModerate, "HeartRateZoneModerateDuration", 7, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
+    [T.HRZoneIntense, "HeartRateZoneIntenseDuration", 31, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
     [T.HRZoneMaximal, "HeartRateZoneMaximalDuration", 3, "2026-09-13T15:00:00.000Z", WORKOUT_ID],
   ])
 
@@ -117,10 +122,11 @@ Deno.test("golden: sleep + recovery + cycle + workout pages → exact daily/epoc
   assertEquals(sleepRow.details?.day_basis, "sleep_end_local")
   assertEquals(rows.daily.find((r) => r.dataTypeId === T.SleepStart)!.valueType, "DATE")
 
-  // Recovery: cycle id as record id, sleep id kept in details, RMSSD semantics flagged.
+  // Recovery: sleep id as record id, cycle id kept in details, RMSSD semantics flagged.
   const hrv = rows.daily.find((r) => r.dataTypeId === T.RmssdSleep)!
   assertEquals(hrv.sourceResourceType, "recovery")
   assertEquals(hrv.details?.sleep_id, SLEEP_ID)
+  assertEquals(hrv.details?.cycle_id, "93845")
   assertEquals(hrv.details?.statistic, "rmssd")
   assertEquals(hrv.details?.user_calibrating, false)
   assertEquals(hrv.valueType, "DOUBLE")
@@ -130,9 +136,12 @@ Deno.test("golden: sleep + recovery + cycle + workout pages → exact daily/epoc
   assertEquals(strain.sourceResourceType, "cycle")
   assertEquals(strain.details?.day_basis, "linked_sleep_end_local")
   assertEquals(strain.details?.max_heart_rate, 168)
+  assertEquals(rows.daily.find((r) => r.dataTypeId === T.Steps)!.details?.steps_window, "whoop_cycle")
 
-  // Workout: every epoch row carries the workout UUID + type + updated_at; zones carry the model + raw ms.
-  for (const r of rows.epoch) {
+  // Workout: every workout epoch row carries the workout UUID + type + updated_at; zones carry the model + raw ms.
+  const nap = rows.epoch.find((r) => r.sourceRecordId === NAP_ID)!
+  assertEquals([nap.endTs, nap.details?.nap, nap.sourceResourceType], ["2026-09-13T12:55:00.000Z", true, "sleep"])
+  for (const r of rows.epoch.filter((x) => x.sourceRecordId === WORKOUT_ID)) {
     assertEquals(r.sourceResourceType, "workout")
     assertEquals(r.sourceRecordId, WORKOUT_ID)
     assertEquals(r.sourceModifiedAt, "2026-09-13T15:50:00.000Z")
@@ -145,8 +154,9 @@ Deno.test("golden: sleep + recovery + cycle + workout pages → exact daily/epoc
   assertEquals(act.valueText, "running")
   assertEquals(act.valueType, "STRING")
   const light = rows.epoch.find((r) => r.dataTypeId === T.HRZoneLight)!
-  assertEquals(light.details?.zone_model, "whoop_percent_max_hr_6_buckets")
-  assertEquals(light.details?.buckets, ["zone_one", "zone_two"])
+  assertEquals(light.details?.zone_model, "whoop_labelled_zones_v2")
+  assertEquals(light.details?.buckets, ["zone_one"])
+  assertEquals(rows.epoch.find((r) => r.dataTypeId === T.HRZoneIntense)!.details?.buckets, ["zone_three", "zone_four"])
   assertEquals((light.details?.zone_durations_milli as Record<string, number>).zone_zero_milli, 60000)
 })
 
@@ -170,7 +180,20 @@ Deno.test("webhook: a valid signature with an OLD timestamp is accepted and carr
   const oldTs = String(Date.now() - 2 * 86_400_000)  // two days old — WHOOP retries for ~1 h and documents no replay window
   const req = await signedRequest(body, oldTs)
   const events = await whoop.parseWebhook(req, body, new URL(req.url))
-  assertEquals(events, [{ vendorUserId: "456", kind: "sleep.updated", eventId: "7d8e9fa0-b1c2-4d3e-8f4a-5b6c7d8e9fa0" }])
+  assertEquals(events, [{ vendorUserId: "456", kind: "sleep.updated", eventId: "7d8e9fa0-b1c2-4d3e-8f4a-5b6c7d8e9fa0", resourceId: "6b1b2a4e-3c5f-4d2a-9e1f-0a1b2c3d4e5f" }])
+})
+
+Deno.test("webhook: signed sleep / workout / recovery `.deleted` events become tombstones naming the record; updates never do", async () => {
+  for (const type of ["sleep.deleted", "workout.deleted", "recovery.deleted"]) {
+    const body = JSON.stringify({ user_id: 456, id: "rec-uuid-1", type, trace_id: `t-${type}` })
+    const req = await signedRequest(body, String(Date.now()))
+    const [ev] = await whoop.parseWebhook(req, body, new URL(req.url)) as { deleted?: boolean; resourceId?: string; resourceType?: string }[]
+    assertEquals([ev.deleted, ev.resourceId, ev.resourceType], [true, "rec-uuid-1", type.split(".")[0]])
+  }
+  const upd = JSON.stringify({ user_id: 456, id: "rec-uuid-1", type: "workout.updated", trace_id: "t-u" })
+  const req = await signedRequest(upd, String(Date.now()))
+  const [ev] = await whoop.parseWebhook(req, upd, new URL(req.url)) as { deleted?: boolean }[]
+  assertEquals(ev.deleted, undefined)
 })
 
 Deno.test("webhook: a fresh timestamp is accepted too, and a body without user_id is an empty ping", async () => {

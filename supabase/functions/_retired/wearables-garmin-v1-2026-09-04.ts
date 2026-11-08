@@ -1,5 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────────────────────────────
 // RETIRED 2026-09-14 — wearables strategy decision D6 (`.context/research/2026-09-14_wearables-implementation-strategy.md`).
+// SUPERSEDED 2026-11-06 — `_shared/wearables/garmin.ts` was rebuilt once the owner held an approved developer account:
+// conditions 1–2 below are met (OAuth from Garmin's public OAuth2 PKCE spec), 3 is met with our own secret in the
+// webhook URL (never the client-id header), 4–5 are still open (real push fixtures; agreement / AI review). Kept for
+// history only — nothing imports it.
 //
 // This is the Garmin adapter as it lived at `_shared/wearables/garmin.ts` from 2026-09-04 to 2026-09-14,
 // copied VERBATIM below this header (the `./core.ts` import is relative to its ORIGINAL location and is

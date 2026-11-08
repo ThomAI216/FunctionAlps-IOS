@@ -93,7 +93,13 @@ export interface EpochRow {
   sourceModifiedAt?: string | null
 }
 
-export interface RowBatch { daily: DailyRow[]; epoch: EpochRow[] }
+export interface RowBatch {
+  daily: DailyRow[]
+  epoch: EpochRow[]
+  /** Vendor records a PULL reports as gone (an Oura sleep with `type: "deleted"`): `persistRows` removes the rows stored
+   *  from each one (same scoping as a webhook tombstone) before it upserts. Idempotent — a second pass deletes nothing. */
+  deletions?: { recordId: string; resourceType?: string | null }[]
+}
 
 export interface WebhookEvent {
   vendorUserId: string
@@ -103,8 +109,11 @@ export interface WebhookEvent {
   eventId?: string | null
   /** The vendor record the event is about, when named (WHOOP sleep/workout id, Oura object_id…). */
   resourceId?: string | null
-  /** A deletion tombstone: the record named above no longer exists at the vendor (WHOOP `*.deleted`). */
+  /** A deletion tombstone: the record named above no longer exists at the vendor (WHOOP `*.deleted`). Only adapters
+   *  whose deliveries are SIGNED may set it — the webhook function deletes the stored rows on it. */
   deleted?: boolean
+  /** Which kind of record `resourceId` names (`sleep` | `recovery` | `workout`…) — matched against `source_resource_type`. */
+  resourceType?: string | null
   /** Inclusive day range to (re)pull; undefined = the last 3 days. */
   windowStart?: string
   windowEnd?: string
@@ -675,6 +684,11 @@ export async function audit(db: SupabaseClient, e: { patientId: string | null; v
 /** Upserts on the natural keys with provenance; a re-issued epoch (same source_record_id, moved start) supersedes the old row. */
 export async function persistRows(db: SupabaseClient, patientId: string, vendor: VendorKey, rows: RowBatch, rawEventId: string | null, accountId?: string | null) {
   const sourceId = VENDOR_SOURCE_IDS[vendor]
+  let deleted = 0
+  for (const d of rows.deletions ?? []) {
+    const r = await deleteVendorRecord(db, patientId, vendor, d.recordId, d.resourceType ?? null)
+    deleted += r.daily + r.epoch
+  }
   const prov = (r: DailyRow | EpochRow) => ({
     source_connection_id: accountId ?? null, source_resource_type: r.sourceResourceType ?? null, source_record_id: r.sourceRecordId ?? null,
     source_field: r.sourceField ?? null, source_device_id: r.sourceDeviceId ?? null, source_modified_at: r.sourceModifiedAt ?? null,
@@ -704,7 +718,7 @@ export async function persistRows(db: SupabaseClient, patientId: string, vendor:
     inserted.push(...((data ?? []) as typeof inserted))
   }
   await supersedeMovedEpochs(db, patientId, sourceId, inserted)
-  return { daily: uniqD.length, epoch: uniqE.length }
+  return { daily: uniqD.length, epoch: uniqE.length, deleted }
 }
 
 /** A vendor record that moved (same source_record_id, new start_ts) leaves its old row pointing at the new one. */
@@ -720,6 +734,25 @@ async function supersedeMovedEpochs(db: SupabaseClient, patientId: string, sourc
       await db.from("wearable_epoch").update({ superseded_by: n.id }).eq("id", o.id)
     }
   }
+}
+
+/**
+ * Applies a vendor deletion (2026-11-06): removes the stored daily and epoch rows that came from ONE vendor record —
+ * same member, same vendor source, `source_record_id` = the vendor's record id, and (when given) the same
+ * `source_resource_type`. Nothing from another source or another record is touched. Returns the counts; a PostgREST
+ * error is thrown, never swallowed (a delete without `.select` would report success for zero rows).
+ */
+export async function deleteVendorRecord(db: SupabaseClient, patientId: string, vendor: VendorKey, recordId: string, resourceType?: string | null): Promise<{ daily: number; epoch: number }> {
+  const sourceId = VENDOR_SOURCE_IDS[vendor]
+  const out = { daily: 0, epoch: 0 }
+  for (const table of ["wearable_daily", "wearable_epoch"] as const) {
+    let q = db.from(table).delete().eq("patient_id", patientId).eq("data_source_id", sourceId).eq("source_record_id", recordId)
+    if (resourceType) q = q.eq("source_resource_type", resourceType)
+    const { data, error } = await q.select("id")
+    if (error) throw new Error(`${table} delete: ${error.message}`)
+    out[table === "wearable_daily" ? "daily" : "epoch"] = data?.length ?? 0
+  }
+  return out
 }
 
 export type RawKind = "oauth_callback" | "vendor_webhook" | "vendor_api"

@@ -3,7 +3,7 @@
 // `ouraMaintain()` flag. `globalThis.fetch` is stubbed; nothing here talks to the network.
 import { assert, assertEquals, assertRejects } from "jsr:@std/assert@1"
 import { type RowBatch, RateLimitedError, T, hmacSha256 } from "../core.ts"
-import { OURA_DELETE_WITHIN_HOURS, oura, ouraMaintain } from "../oura.ts"
+import { OURA_DELETE_WITHIN_HOURS, OURA_USER_AGENT, oura, ouraMaintain } from "../oura.ts"
 
 const HRV_IDS = [T.Rmssd, T.RmssdSleep, T.RmssdSleepHighest, T.SDNN, T.SDRR]  // 3100 3106 3107 3112 3113
 const fixture = (name: string) => Deno.readTextFile(new URL(`./fixtures/oura/${name}.json`, import.meta.url))
@@ -62,7 +62,6 @@ Deno.test("golden: fixtures → exact daily rows; no HRV id; the nap does not fe
     [1000106, "SkinTemperatureDeviation", -0.2, "2026-09-13", "dr-1"],
     // daily_activity (seconds → minutes for the activity buckets)
     [1000, "Steps", 8421, "2026-09-13", "da-1"],
-    [1001, "CoveredDistance", 6900, "2026-09-13", "da-1"],
     [1010, "BurnedCalories", 2310, "2026-09-13", "da-1"],
     [1011, "ActiveBurnedCalories", 412, "2026-09-13", "da-1"],
     [1100, "ActivityDuration", 160, "2026-09-13", "da-1"],
@@ -166,16 +165,72 @@ Deno.test("429 → RateLimitedError carrying Retry-After; an exhausted X-RateLim
   } finally { f2.restore() }
 })
 
-Deno.test("adapter contract: pkce per corpus, reconcile 3/14, no email scope, the 72 h deletion bound", () => {
-  assertEquals(oura.pkce, "not_documented")
+Deno.test("adapter contract: PKCE supported (documented 2026-11), reconcile 3/14, documented scopes only, the 72 h deletion bound", () => {
+  assertEquals(oura.pkce, "supported")
+  // The scopes Oura's authentication page documents (2026-11-06): email personal daily heartrate workout tag session spo2.
+  const documented = ["email", "personal", "daily", "heartrate", "workout", "tag", "session", "spo2"]
+  for (const s of oura.scopes) assert(documented.includes(s), `undocumented Oura scope: ${s}`)
+  assert(oura.scopes.includes("spo2") && !oura.scopes.includes("spo2Daily"))
   assertEquals(oura.reconcile, { nightlyDays: 3, weeklyDays: 14 })
   assert(!oura.scopes.includes("email"))
   assert(oura.scopes.includes("personal"))  // personal_info → vendor user id
   assertEquals(OURA_DELETE_WITHIN_HOURS, 72)
-  const u = new URL(oura.authorizeURL({ clientId: "cid", redirectUri: "https://x/cb", state: "st", codeChallenge: "ignored" }))
+  const u = new URL(oura.authorizeURL({ clientId: "cid", redirectUri: "https://x/cb", state: "st", codeChallenge: "ch-1" }))
   assertEquals(u.origin + u.pathname, "https://cloud.ouraring.com/oauth/authorize")
   assertEquals(u.searchParams.get("scope"), oura.scopes.join(" "))
-  assertEquals(u.searchParams.get("code_challenge"), null)
+  assertEquals([u.searchParams.get("code_challenge"), u.searchParams.get("code_challenge_method")], ["ch-1", "S256"])
+})
+
+// MARK: - 2026-11-06 fixes, against Oura's authentication page and OpenAPI 1.43
+
+Deno.test("every Oura call carries a non-empty, identifying User-Agent (Oura: requests without one may get 403)", async () => {
+  const f = stubFetch(collectionsHandler)
+  try { await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(f.calls.length > 0)
+  for (const c of f.calls) assertEquals((c.init?.headers as Record<string, string>)["User-Agent"], OURA_USER_AGENT)
+  Deno.env.set("OURA_CLIENT_ID", "cid"); Deno.env.set("OURA_CLIENT_SECRET", "cs")
+  const g = stubFetch((url) => url.includes("/oauth/token") ? jsonResp({ access_token: "at-1", refresh_token: "rt-1", expires_in: 86400 }) : jsonResp({ id: "oura-user-1" }))
+  try { await oura.exchangeCode({ code: "c", redirectUri: "https://x/cb", codeVerifier: "v-1" }) } finally { g.restore() }
+  for (const c of g.calls) assertEquals((c.init?.headers as Record<string, string>)["User-Agent"], OURA_USER_AGENT)
+  assertEquals(new URLSearchParams(String(g.calls[0].init?.body)).get("code_verifier"), "v-1")
+})
+
+Deno.test("a 403 on one collection (scope unticked / subscription lapsed) is skipped; the others still sync", async () => {
+  const f = stubFetch((url) => url.includes("/usercollection/daily_spo2") ? new Response("forbidden", { status: 403 }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(out!.daily.some((r) => r.dataTypeId === T.SleepScore))
+  assert(!out!.daily.some((r) => r.dataTypeId === T.SPO2))
+})
+
+Deno.test("a sleep Oura marks `deleted` is never written, and equivalent walking distance is not distance covered", async () => {
+  const deleted = { id: "sl-del", type: "deleted", day: "2026-09-13", bedtime_start: "2026-09-12T23:00:00+02:00", bedtime_end: "2026-09-13T06:00:00+02:00", total_sleep_duration: 20000, heart_rate: { interval: 300, items: [55, 54], timestamp: "2026-09-12T23:00:00+02:00" }, sleep_phase_5_min: "1234" }
+  const f = stubFetch(async (url) => url.includes("/usercollection/sleep?") ? jsonResp({ data: [deleted], next_token: null }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  assert(![...out!.daily, ...out!.epoch].some((r) => r.sourceRecordId === "sl-del"))
+  // …and the rows an earlier sync stored from it are removed when this batch is saved (2026-11-07).
+  assertEquals(out!.deletions, [{ recordId: "sl-del", resourceType: "sleep" }])
+  assert(!out!.daily.some((r) => r.dataTypeId === T.CoveredDistance))
+  const activity = out!.daily.find((r) => r.dataTypeId === T.Steps)
+  assertEquals(activity?.details?.equivalent_walking_distance_m, 6900)
+})
+
+Deno.test("overnight heart rate is written once: `/heartrate` samples with source \"sleep\" are skipped, the sleep document's series stays", async () => {
+  const hr = [
+    { bpm: 51, source: "sleep", timestamp: "2026-09-12T21:12:30+00:00" },     // the same night the sleep document carries
+    { bpm: 72, source: "awake", timestamp: "2026-09-13T08:00:00+00:00" },
+    { bpm: 128, source: "workout", timestamp: "2026-09-13T17:00:00+00:00" },
+    { bpm: 60, source: "rest", timestamp: "2026-09-13T13:00:00+00:00" },
+  ]
+  const f = stubFetch((url) => url.includes("/usercollection/heartrate") ? jsonResp({ data: hr, next_token: null }) : collectionsHandler(url))
+  let out: RowBatch
+  try { out = await oura.fetchRange(tokens, "2026-09-13", "2026-09-13", ctx) } finally { f.restore() }
+  const fromFeed = out!.epoch.filter((r) => r.sourceResourceType === "heartrate")
+  assertEquals(fromFeed.map((r) => [r.value, r.details?.source]), [[72, "awake"], [128, "workout"], [60, "rest"]])
+  // the night's heart rate comes from the sleep document only, with its id (so a deletion can reach it)
+  const night = out!.epoch.filter((r) => r.dataTypeId === T.HeartRate && r.startTs < "2026-09-13T04:00:00.000Z")
+  assertEquals(night.map((r) => [r.value, r.sourceResourceType, r.sourceRecordId]), [[52, "sleep", "sl-long-1"], [50, "sleep", "sl-long-1"]])
 })
 
 // MARK: - Webhooks
@@ -196,6 +251,26 @@ Deno.test("parseWebhook: a correct uppercase-hex HMAC over timestamp+raw body �
     const req = await signedRequest("cs-test", webhookBody)
     const events = await oura.parseWebhook(req, webhookBody, new URL(req.url))
     assertEquals(events, [{ vendorUserId: "oura-user-1", kind: "sleep.update", eventId: "sleep.update.sl-long-1" }])
+  })
+})
+
+Deno.test("parseWebhook: a signed `delete` is a tombstone for that one document (VO₂max mapped to the collection we store); an unstored type is ignored", async () => {
+  await withEnv({ OURA_CLIENT_SECRET: "cs-test", OURA_WEBHOOK_VERIFICATION_TOKEN: "vt-test" }, async () => {
+    const parse = async (body: Record<string, unknown>) => { const raw = JSON.stringify(body); const req = await signedRequest("cs-test", raw); return await oura.parseWebhook(req, raw, new URL(req.url)) }
+    assertEquals(await parse({ event_type: "delete", data_type: "sleep", object_id: "sl-long-1", user_id: "oura-user-1" }),
+      [{ vendorUserId: "oura-user-1", kind: "sleep.delete", eventId: "sleep.delete.sl-long-1", deleted: true, resourceId: "sl-long-1", resourceType: "sleep" }])
+    const [vo2] = await parse({ event_type: "delete", data_type: "vo2_max", object_id: "v-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+    assertEquals([vo2.deleted, vo2.resourceId, vo2.resourceType], [true, "v-1", "vO2_max"])
+    for (const dt of ["daily_sleep", "daily_readiness", "daily_activity", "daily_spo2", "daily_stress", "workout"]) {
+      const [ev] = await parse({ event_type: "delete", data_type: dt, object_id: "x-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+      assertEquals([ev.deleted, ev.resourceType], [true, dt])
+    }
+    // a type we never store (tag) or a delete without an object id: nothing to remove, nothing to pull
+    assertEquals(await parse({ event_type: "delete", data_type: "tag", object_id: "t-1", user_id: "oura-user-1" }), [])
+    assertEquals(await parse({ event_type: "delete", data_type: "sleep", user_id: "oura-user-1" }), [])
+    // create / update stay pull triggers, never tombstones
+    const [upd] = await parse({ event_type: "update", data_type: "sleep", object_id: "sl-long-1", user_id: "oura-user-1" }) as Exclude<Awaited<ReturnType<typeof oura.parseWebhook>>, "challenge">
+    assertEquals([upd.deleted, upd.resourceId], [undefined, undefined])
   })
 })
 
@@ -263,13 +338,18 @@ Deno.test("ouraMaintain: flag on → lists, renews the expiring one, creates the
     })
     let res
     try { res = await ouraMaintain() } finally { f.restore() }
-    assertEquals(res, { created: 14, renewed: 1 })  // 8 data types × 2 − the 2 that exist
+    assertEquals(res, { created: 22, renewed: 1 })  // 8 data types × create|update|delete − the 2 that exist
     const renew = f.calls.filter((c) => c.url.includes("/webhook/subscription/renew/"))
     assertEquals(renew.map((c) => [c.url.split("/").pop(), c.init?.method]), [["sub-1", "PUT"]])
     const creates = f.calls.filter((c) => c.init?.method === "POST")
-    assertEquals(creates.length, 14)
+    assertEquals(creates.length, 22)
+    // every stored data type gets a `delete` subscription (2026-11-07), VO₂max under the webhook spelling
+    const deletes = creates.map((c) => JSON.parse(String(c.init?.body))).filter((b) => b.event_type === "delete").map((b) => b.data_type)
+    assertEquals(deletes.sort(), ["daily_activity", "daily_readiness", "daily_sleep", "daily_spo2", "daily_stress", "sleep", "vo2_max", "workout"])
     const body = JSON.parse(String(creates[0].init?.body))
-    assertEquals(body, { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "create", data_type: "daily_sleep" })
+    // sleep already has create + update, so its delete is the first one made; then daily_sleep create
+    assertEquals(body, { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "delete", data_type: "sleep" })
+    assertEquals(JSON.parse(String(creates[1].init?.body)), { callback_url: "https://proj.supabase.co/functions/v1/wearable-vendor-webhook/oura", verification_token: "vt-test", event_type: "create", data_type: "daily_sleep" })
     for (const c of f.calls) assertEquals((c.init?.headers as Record<string, string>)["x-client-secret"], "cs-test")
   })
 })
