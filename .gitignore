@@ -31,3 +31,6 @@ fastlane/test_output/
 
 # macOS
 .DS_Store
+
+# graphify: graph.html and GRAPH_REPORT.md are committed; graph.json is rebuilt by tools/graphify/build_graph.py
+/graphify-out/graph.json
