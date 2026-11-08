@@ -25,6 +25,8 @@ enum Route: Hashable {
     case trackCard(String, face: String)
     /// The Foundation Track's approved day-7 summary.
     case trackSummary
+    /// The Foundation Track's day as its own page (Home's track card opens it).
+    case trackDay
     case baseline
     case feedback
     case guide
@@ -119,7 +121,7 @@ final class AppRouter {
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
-    ///   foundation/summary (the approved day-7 summary)
+    ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -177,7 +179,18 @@ final class AppRouter {
         case "home": tab = .home; homePath = []
         case "foundation":
             tab = .home
-            homePath = parts.dropFirst().first == "summary" ? [.trackSummary] : []
+            switch parts.dropFirst().first {
+            case "summary": homePath = [.trackSummary]
+            case "day": homePath = [.trackDay]
+            default: homePath = []
+            }
+            #if DEBUG
+            // The showcase screenshots only: a track action's card and the day's read, pushed over Home as a tap would.
+            if Showcase.isOn, parts.count > 2 {
+                if parts[1] == "card" { homePath = [.trackCard(parts[2], face: parts.count > 3 ? parts[3] : "standard")] }
+                if parts[1] == "read" { homePath = [.read(parts[2])] }
+            }
+            #endif
         case "health": tab = .home; homePath = [.health]
         default: break   // e.g. wearables/callback — owned by the OAuth session, not a navigation
         }
@@ -229,6 +242,15 @@ final class AppRouter {
 
 /// Five stacks behind one floating glass pill (the system tab bar is hidden on every root).
 struct MainTabView: View {
+    /// The tabs the Foundation Track keeps locked for now (marked on the pill).
+    private var lockedTabs: Set<AppRouter.Tab> {
+        guard dependencies.track.status?.state == .active, dependencies.unlocks.phase == .known else { return [] }
+        var tabs: Set<AppRouter.Tab> = []
+        if !dependencies.unlocks.trendsOpen { tabs.insert(.trends) }
+        if !dependencies.unlocks.foodOpen { tabs.insert(.food) }
+        return tabs
+    }
+
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.scenePhase) private var scenePhase
     @State private var router = AppRouter()
@@ -244,7 +266,7 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.home)
 
             NavigationStack(path: $router.trendsPath) {
-                TrendsView()
+                TrendsTabRoot()
                     .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                 .navigationDestination(for: Route.self, destination: destination)
@@ -252,7 +274,7 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.trends)
 
             NavigationStack(path: $router.foodPath) {
-                FoodView()
+                FoodTabRoot()
                     .faSwipeBack()
                     .toolbar(.hidden, for: .tabBar)
                     .navigationDestination(for: Route.self, destination: destination)
@@ -278,16 +300,22 @@ struct MainTabView: View {
         .tint(FAColor.brand)
         .overlay(alignment: .bottom) {
             if !router.hidesTabBar {
-                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge])
+                FloatingTabBar(selection: $router.tab, badges: [.library: router.libraryBadge], locked: lockedTabs)
                     .padding(.bottom, 2)
             }
         }
         .environment(router)
         // The Library badge: what the practice sent and the member has not opened. One small read on each tab
         // change and whenever the app comes forward; the screens that open an item decrement it at once.
-        .task(id: router.tab) { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+        .task(id: router.tab) {
+            router.libraryBadge = await dependencies.messaging.unopenedSentCount()
+            await dependencies.unlocks.refresh()   // a check-in or a meal elsewhere may have opened Trends or Food
+        }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() } }
+            if phase == .active {
+                Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
+                Task { await dependencies.unlocks.refresh() }
+            }
         }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
         .onOpenURL { router.open($0) }
@@ -347,6 +375,7 @@ struct MainTabView: View {
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .trackSummary: TrackSummaryView()
+        case .trackDay: TrackDayPage()
         case .baseline: BaselineEditView()
         case .feedback: FeedbackView()
         case .guide: GuideView()

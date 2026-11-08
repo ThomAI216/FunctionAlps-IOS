@@ -217,6 +217,31 @@ struct FoundationTrackTests {
         #expect(all.last?.labelEn == "5 minutes outside")
     }
 
+    @Test("Home's card: welcome on day 1 until its questionnaire is in; then the day, with whether today's is sent")
+    func homeCard() {
+        let qs = [TrackQuestionnaire(id: "d1", day: 1, titleEn: "You"), TrackQuestionnaire(id: "d2", day: 2, titleEn: "Eat")]
+        #expect(TrackLogic.homeCard(day: 1, questionnaires: qs, submitted: []) == .welcome)
+        #expect(TrackLogic.homeCard(day: 1, questionnaires: qs, submitted: ["d1"]) == .day(questionnaireDone: true))
+        #expect(TrackLogic.homeCard(day: 2, questionnaires: qs, submitted: ["d1"]) == .day(questionnaireDone: false))
+        #expect(TrackLogic.homeCard(day: 7, questionnaires: qs, submitted: []) == .day(questionnaireDone: nil))
+        // A day 1 without any questionnaire at all is still a welcome.
+        #expect(TrackLogic.homeCard(day: 1, questionnaires: [], submitted: []) == .welcome)
+    }
+
+    @Test("Home during the track: no health plan without a plan, the routine from day 2, the banner on day 1")
+    func homeDuringTrack() {
+        #expect(TrackLogic.showsHealthPlan(trackDay: nil, hasPlan: nil))
+        #expect(TrackLogic.showsHealthPlan(trackDay: 3, hasPlan: true))
+        #expect(!TrackLogic.showsHealthPlan(trackDay: 3, hasPlan: false))
+        #expect(!TrackLogic.showsHealthPlan(trackDay: 1, hasPlan: nil))
+        #expect(!TrackLogic.showsRoutine(trackDay: 1))
+        #expect(TrackLogic.showsRoutine(trackDay: 2))
+        #expect(TrackLogic.showsRoutine(trackDay: nil))
+        #expect(TrackLogic.showsFeatureBanner(trackDay: 1))
+        #expect(!TrackLogic.showsFeatureBanner(trackDay: 2))
+        #expect(!TrackLogic.showsFeatureBanner(trackDay: nil))
+    }
+
     @Test("The card: today on days 1–14; after, 'done' until the last questionnaire is in; open questionnaires and calls")
     func card() {
         let qs = [TrackQuestionnaire(id: "d1", day: 1, titleEn: "You"), TrackQuestionnaire(id: "d2", day: 2, titleEn: "Eat"),

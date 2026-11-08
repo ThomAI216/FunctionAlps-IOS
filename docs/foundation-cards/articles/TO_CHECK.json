@@ -1,0 +1,114 @@
+{
+ "d01-introduction-to-functional-health.md": [
+  "“Most adults should sleep seven hours or more” comes from the AASM/SRS consensus (Watson 2015).",
+  "A safety line was added for people with medical conditions, pregnancy or regular medication.",
+  "You may replace this draft with your own."
+ ],
+ "d01-what-your-meal-photos-tell-us.md": [
+  "“People who keep a record tend to do better” rests on Burke 2011 (weight loss; the review rates its own evidence as weak); the article calls the evidence modest.",
+  "The list of what we look at in photos (plant variety, protein, kind of carbohydrate, meal rhythm, snacks) is the writer's framing: align it with what you actually review."
+ ],
+ "d01-your-functional-check-in-explained.md": [
+  "The sleep slider is described as rating “last night”: confirm that's how the app means it.",
+  "“Rating the day while it is still fresh is more accurate” rests on Shiffman 2008, a general review of real-time ratings."
+ ],
+ "d02-mindful-eating.md": [
+  "“Three breaths shift you into rest-and-digest” has no reference; worded as “many people find”.",
+  "No claim that water reduces hunger; “fullness signals take time to arrive” has no number.",
+  "The chewing evidence (Miquel-Kergoat 2015) is described as early."
+ ],
+ "d02-the-5-minute-walk-after-eating.md": [
+  "The 10-minutes-after-each-meal trial (Reynolds 2016) was in people with type 2 diabetes; the article says so. Our habit is 5 minutes.",
+  "The digestion evidence is one small study in healthy people (faster stomach emptying, no change in symptoms); hedged."
+ ],
+ "d03-little-and-often.md": [
+  "No reference for stretching before bed helping sleep; worded as “many people find it helps them settle”."
+ ],
+ "d03-exercise-snacks-small-signals-that-add-up.md": [
+  "Rewritten for any reader: the “replace a training day” experiment from the library version is gone.",
+  "The mortality link (Stamatakis 2022) is observational; the article says it shows a link, not cause. “Steadier blood sugar” is hedged as coming from small studies."
+ ],
+ "d04-light-sets-your-body-clock.md": [
+  "“Outdoor light is far stronger than indoor light, even on grey mornings” and “window glass takes some of it away” are general points not tied to one of the cited papers."
+ ],
+ "d04-the-3-2-1-rule.md": [
+  "Food: the reflux study (Fujiwara 2005) is case-control, so the article words it as a link.",
+  "Exercise: the meta-analysis found evening exercise generally doesn't harm sleep; only vigorous effort ending within about an hour of bed might. The 2 hours is presented as a safety margin."
+ ],
+ "d04-caffeine-and-your-sleep.md": [
+  "A 2023 meta-analysis estimates a usual cup of coffee about 8.8 hours before bed; with a bedtime near 23:00, 16:00 leaves 7 hours. The article calls 16:00 “a practical limit” and says earlier is better for early sleepers or sensitive people.",
+  "Maté and cocoa or dark chocolate listed as containing caffeine, and the few days of headache or tiredness when cutting back fast: no source given."
+ ],
+ "d05-breathe-the-time-you-give-yourself.md": [
+  "Evidence on Wim Hof-style breathing is described as limited: eight small trials, several mixing the breathing with cold exposure and meditation.",
+  "Added outside “What to do”: “Breathe normally for a moment between rounds”, and that tingling or a light head is common during the deep breaths. Check both match the Wim Hof video."
+ ],
+ "d05-three-good-things.md": [
+  "“The effects lasted for months” (Seligman 2005) is from the writer's memory of the paper (about six months); the abstract only says “lastingly”.",
+  "Wood 2009 (gratitude and sleep) is a one-time survey, so the article says “tend to”."
+ ],
+ "d12-the-power-of-walking.md": [
+  "The sitting studies mostly used 2–5 minute breaks every 20–30 minutes, not 10 minutes every 2 hours; this article doesn't make that distinction (“Sitting less” does).",
+  "The step-count links (heart risk, living longer) are observational and worded as links.",
+  "Walking and mood rests on lower depression scores in walking-group studies (Hanson 2015)."
+ ],
+ "d12-sitting-less.md": [
+  "Says openly that the studies used 2–5 minute breaks every 20–30 minutes, and presents our 10 minutes every 2 hours as an easier starting rhythm.",
+  "The 6–8 hours a day sitting threshold is from observational studies; worded as a link."
+ ],
+ "d13-habits-that-last.md": [
+  "“Around two months, from days to most of a year” and “self-chosen and morning habits get stronger” come from Singh 2024.",
+  "“Missing one day doesn't undo a habit” has no reference (the original source, Lally 2010, isn't on PubMed).",
+  "“Choose a few to keep” and “open your Trends” assume how the day-13 screen works: check against the app."
+ ],
+ "d14-what-a-personal-programme-adds.md": [
+  "No booking details, prices, number of sessions or specific tests are given; labs are described “where they would genuinely change the plan”.",
+  "The comparison borrowed from “Biological Recovery” (a plan as “the right materials”) is light; you may cut it.",
+  "No references: it makes no health claims."
+ ],
+ "d09-muscle-a-long-term-investment.md": [
+  "Momma 2022: 10–17% lower risk of early death, heart disease, diabetes and cancer; labelled as a link, not proof."
+ ],
+ "d09-the-benefits-of-exercise-snacks.md": [
+  "Stamatakis 2022: about 3 bursts a day of 1–2 minutes linked with lower risk of early death (no percentage given); observational.",
+  "Meng 2026 (21 trials, fitness) is very recent; Islam 2022 can replace it if you prefer older sources."
+ ],
+ "d10-your-evening-routine.md": [
+  "Balban 2023: breathwork beat mindfulness for mood and cyclic sighing (long breath out) did best; it doesn't show box breathing alone improving mood, so the article says “box breathing among the options” and suggests a longer breath out if the holds feel tight.",
+  "“3 h no food so digestion isn't working late” has no source; kept short, pointing to “The 3-2-1 rule”."
+ ],
+ "d10-nsdr-explained.md": [
+  "Ghai 2025: 73 studies, about 5,200 people; its authors say their effect sizes are probably inflated.",
+  "Links Huberman Lab's 10-minute NSDR and says plainly that NSDR does not replace sleep."
+ ],
+ "d11-connection-is-health.md": [
+  "Holt-Lunstad 2010: about 50% more likely to survive (148 studies, 300,000+ people); Valtorta 2016: 29% higher risk of heart disease and 32% of stroke. All labelled as links.",
+  "Added by the writer: if you feel low or alone most of the time, tell us or your doctor."
+ ],
+ "d11-the-habit-of-writing.md": [
+  "“The effect lasted months” (Seligman 2005) is from the writer's memory; the abstract only says “lastingly”.",
+  "Added by the writer: write on paper, so there's no screen in the last hour."
+ ],
+ "d06-the-power-of-habits.md": [
+  "Lally 2010 isn't on PubMed; its findings (about 66 days on average; missing the odd day doesn't set you back) are cited through Gardner, Lally & Wardle 2012. The 59–66 day range and the wide spread come from Singh 2024."
+ ],
+ "d06-the-power-of-compounding.md": [
+  "The “1% better every day = 37×” maths appears once, called “arithmetic, not biology… an illustration, not a promise”."
+ ],
+ "d07-your-day-on-one-page.md": [
+  "Leaves out Log a meal and the functional check-in (days 1–3 only in the actions card) and shows the 5-minute flow replacing the 3 minutes of movement: confirm both.",
+  "No reference for two lines kept from earlier articles: morning light setting the body clock, caffeine lasting for hours."
+ ],
+ "d08-protein-at-every-meal-and-why-it-matters.md": [
+  "“From middle age onwards muscle tends to decline” reads the sarcopenia consensus (Cruz-Jentoft 2019) in plain words.",
+  "Mamerow 2014 (protein spread across meals) had 8 participants; the text says it is small. No grams-per-kilo figures.",
+  "“Quark” as a breakfast protein: change to “séré” if you prefer. Safety line for kidney disease."
+ ],
+ "d08-complex-or-refined-carbs-why-it-matters.md": [
+  "“The afternoon dip has more than one cause (a natural lull in the body clock, a short night)” has no reference.",
+  "Fibre's links to heart disease, stroke, type 2 diabetes and bowel cancer are observational; the text says so. Rye bread and muesli as Swiss-friendly swaps."
+ ],
+ "d08-the-walk-after-every-meal.md": [
+  "Reynolds 2016 was in people with type 2 diabetes; the text says so."
+ ]
+}

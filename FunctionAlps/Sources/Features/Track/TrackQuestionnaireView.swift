@@ -34,9 +34,14 @@ struct TrackQuestionnaireView: View {
         .task {
             guard model == nil, let questionnaire = dependencies.track.questionnaire(questionnaireId) else { return }
             let m = TrackQuestionnaireModel(questionnaire: questionnaire, track: dependencies.track, members: dependencies.members,
-                                            wearables: dependencies.wearables, notifications: dependencies.notifications)
+                                            wearables: dependencies.wearables, notifications: dependencies.notifications,
+                                            profile: dependencies.profile)
             model = m
             await m.prepare()
+            await m.beginIfNeeded()
+            #if DEBUG
+            if ShowcaseTrack.questionnaireId == questionnaireId { await m.showcaseJump(to: ShowcaseTrack.questionnaireStep) }
+            #endif
         }
     }
 }
@@ -115,11 +120,13 @@ private struct TrackQuestionnaireFlow: View {
                                  ? String(localized: "track.questionnaire.send", defaultValue: "Send my answers")
                                  : String(localized: "track.questionnaire.continue", defaultValue: "Continue"),
                                  enabled: model.canContinue, busy: busy) { run { await model.next() } }
-                Button { model.back() } label: {
-                    Text(String(localized: "action.back", defaultValue: "Go back")).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
-                        .frame(maxWidth: .infinity).padding(.vertical, 12).contentShape(Rectangle())
+                if !model.isFirstPage {
+                    Button { model.back() } label: {
+                        Text(String(localized: "action.back", defaultValue: "Go back")).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                            .frame(maxWidth: .infinity).padding(.vertical, 12).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             case .done:
                 switch model.sending {
                 case .failed:
@@ -172,6 +179,8 @@ private struct TrackQuestionnaireFlow: View {
     private var page: some View {
         if let page = model.page {
             VStack(alignment: .leading, spacing: 26) {
+                // The first page opens with the questionnaire's title and why we ask (Thomas, 2026-11-06).
+                if model.isFirstPage { intro }
                 ForEach(page.questions) { question in
                     TrackQuestionView(question: question, model: model,
                                       onUpdateBaseline: { editingBaseline = true },

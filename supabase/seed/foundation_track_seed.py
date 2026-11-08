@@ -381,10 +381,14 @@ def day_actions(day):
 def day_card(day):
     d = CARD[day]
     today = d["today"] if isinstance(d["today"], str) else [{"label": k, "text": v} for k, v in d["today"]]
-    out = {"today": today, "try_label": d["try_label"], "tip": d["tip"],
+    out = {"today": today,
            "evolve": [{"when": w, "text": t} for w, t in d["evolve"]],
            "library": [{"kind": k, "title": t} | ({"slug": LIBRARY_SLUGS[t]} if t in LIBRARY_SLUGS else {})
                        for k, t, _ in d.get("library", [])]}
+    # A day may have no tip or "first thing to try" heading (day 1 since Thomas, 2026-11-06): the key is left out.
+    for key in ("try_label", "tip"):
+        if d.get(key):
+            out[key] = d[key]
     if d.get("pillar"):
         out["pillar"] = d["pillar"]
     return out

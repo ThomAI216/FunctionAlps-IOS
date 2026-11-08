@@ -22,7 +22,10 @@ struct HomeView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .mealCaptureHost(capture) { Task { await model?.load(refresh: true) } }
+        .mealCaptureHost(capture) {
+            Task { await model?.load(refresh: true) }
+            Task { await dependencies.unlocks.refresh() }   // the first meal opens Food
+        }
         .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
         .onChange(of: dependencies.track.reminders, initial: true) { _, plan in
             // The track moved (a new day, a module sent, the review unlocked): the day's reminders follow.
@@ -36,6 +39,14 @@ struct HomeView: View {
                 await m.load()
             }
         }
+        #if DEBUG
+        .task {
+            // The showcase opens a Foundation Track questionnaire over Home, as tapping its row on the day's card does.
+            guard let id = ShowcaseTrack.questionnaireId else { return }
+            for _ in 0..<40 where dependencies.track.questionnaire(id) == nil { try? await Task.sleep(for: .milliseconds(250)) }
+            questionnaire = TrackQuestionnaireRef(id: id)
+        }
+        #endif
         .onAppear {
             // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
             if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
@@ -53,6 +64,18 @@ struct HomeView: View {
                 await wearables.refreshSnapshot()
             }
         }
+    }
+
+    /// The member's day on the Foundation Track (1…14), nil off it or after it.
+    private var trackDay: Int? {
+        if case .today(let day) = dependencies.track.mode { return day }
+        return nil
+    }
+
+    /// Whether the member has a care plan; nil while the plan is still being read.
+    private var hasPlan: Bool? {
+        if case .loaded(let plan) = dependencies.habits.phase { return plan.header != nil }
+        return nil
     }
 
     @ViewBuilder
@@ -75,14 +98,26 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     FoundationTrackCard { questionnaire = TrackQuestionnaireRef(id: $0) }
-                    HealthPlanCard()
+                    // During the Foundation Track (Thomas, 2026-11-06): the day's read on Home, no "My health plan"
+                    // without a plan, the routine from day 2, and on day 1 a banner over the two squares.
+                    if let day = trackDay, let slug = dependencies.track.today?.readSlug {
+                        TrackHomeReadCard(slug: slug, day: day)
+                    }
+                    if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
+                        HealthPlanCard()
+                    }
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
                         // under the plan: a card that sits below the fold nudges nobody. Gone once they open it.
                         Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources, from: content.careTeam.firstName) }
                             .buttonStyle(.plain)
                     }
-                    PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                    if TrackLogic.showsRoutine(trackDay: trackDay) {
+                        PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                    }
+                    if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
+                        TrackFeatureBanner()
+                    }
 
                     HStack(spacing: 12) {
                         Button { capture.openPhotoChooser() } label: {
@@ -108,15 +143,44 @@ struct HomeView: View {
                 .padding(.horizontal, 18)
                 .padding(.top, FASpacing.screenTop)
                 .padding(.bottom, FASpacing.navBarClearance)
+                #if DEBUG
+                .background(alignment: .top) { ShowcasePageMarks() }
+                #endif
             }
             .refreshable {
                 await model.load(refresh: true)
                 await dependencies.track.load()
             }
             #if DEBUG
+            .task {
+                // The showcase frames one page of a long Home (the day's card runs over several screens).
+                guard ShowcaseTrack.isOn, ShowcaseTrack.page > 0 else { return }
+                try? await Task.sleep(for: .seconds(4))
+                proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
+            }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }
         }
     }
 }
+
+#if DEBUG
+/// Invisible marks every `step` points down Home's content, so the showcase can scroll to "page N" (there is no
+/// finger in the simulator). Drawn only in a showcase launch.
+struct ShowcasePageMarks: View {
+    static let step: CGFloat = 620
+
+    var body: some View {
+        if Showcase.isOn {
+            VStack(spacing: 0) {
+                ForEach(0..<24, id: \.self) { i in
+                    Color.clear.frame(height: Self.step).id("fa-page-\(i)")
+                }
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+}
+#endif

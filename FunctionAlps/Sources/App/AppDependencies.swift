@@ -32,6 +32,8 @@ final class AppDependencies {
     /// The Foundation Track (the 14-day start): status, days, questionnaires, answers and ticks — shared by Home's
     /// card, the questionnaire flow and the reminder plan.
     let track: TrackService
+    /// What the track unlocks by use: Trends after 3 days in a row, Food with the first meal.
+    let unlocks: UnlockService
     /// The domain seam, for screens that read a single server-computed object (Trends).
     let backend: any FunctionAlpsBackend
 
@@ -71,6 +73,7 @@ final class AppDependencies {
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.habits = HabitsService(backend: backend, auth: auth)
         self.track = TrackService(backend: backend, auth: auth)
+        self.unlocks = UnlockService(backend: backend)
         self.backend = backend
     }
 

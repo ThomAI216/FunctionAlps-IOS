@@ -14,6 +14,16 @@ Seeds `track_day`, `track_questionnaire`, `track_question` (migration `supabase/
 
 ## Decisions (Thomas, 2026-10-05/06)
 
+- **Leads run it automatically (Thomas, 2026-11-05).** A lead — a person the practice added from CLINICAL's
+  Add-a-patient card in Lead mode (`patients.care_stage = 'lead'`, 14 days of member-space access, CLINICAL migration
+  `20261104120000_leads_pathway`) — gets the track without a button: CLINICAL writes an invited row at Send
+  (`source 'lead'`, `started_at NULL`), and `member_start_track` enrols a lead who has no row at their first app open
+  (migration `supabase/migrations/20261105_foundation_track_leads.sql`). The app is unchanged: it already calls
+  `member_start_track` once per foreground. The members library opens for a live lead entitlement, so the day's read
+  is readable. Every day now has a `read_slug` (`supabase/sql/20261105_foundation_track_reads.sql`: fourteen articles
+  already published to members, one per day by pillar; Thomas may swap any). Videos per day still do not exist
+  (the foundation resource pack, CLINICAL `.claude/programmes/foundation-pack/`).
+  Both applied on CM OS 2026-11-06.
 - **Launched member by member (Thomas, 2026-10-12, with the first external build).** Nobody joins on their own: a
   member runs the track only once staff launch them from CLINICAL ("Launch Foundation Track"), and their 14 days start
   at their next app open. Done on the server: `app_track.launched_at` is NULL, so `member_start_track` enrols nobody

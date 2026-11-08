@@ -41,7 +41,7 @@ struct FoundationTrackCard: View {
                 EmptyView()
             case .today:
                 if let status = track.status {
-                    TrackTodayCard(status: status, day: track.today, onOpen: onOpen)
+                    TrackHomeCard(status: status, day: track.today)
                 }
             case .finished(let questionnaireId):
                 finished(questionnaireId.flatMap { track.questionnaire($0) })
@@ -63,63 +63,155 @@ struct FoundationTrackCard: View {
     }
 }
 
-/// Days 1…14: the day's whole card.
-private struct TrackTodayCard: View {
+/// Days 1…14 on Home (Thomas, 2026-11-06): a short card that opens the day as its own page (`TrackDayPage`).
+/// Day 1, before its questionnaire: "Welcome to your space", tap to start, and nothing else. After it (and on the
+/// other days): the day's title, today's questionnaire done or waiting, and the day's new actions ("Try your first
+/// action" on day 1), each ticked in place and opening its card.
+private struct TrackHomeCard: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     let status: TrackStatus
     let day: TrackDay?
-    let onOpen: (String) -> Void
 
     var body: some View {
         let track = dependencies.track
         let locale = track.locale
-        let title = day.flatMap { TrackLogic.text($0.titleEn, $0.titleFr, locale: locale) } ?? ""
-        let open = TrackLogic.openQuestionnaires(track.questionnaires, today: status.day, submitted: track.submitted)
-        let calls = TrackLogic.openCalls(status.calls)
+        let mode = TrackLogic.homeCard(day: status.day, questionnaires: track.questionnaires, submitted: track.submitted)
+        let todays = track.questionnaires.first { $0.day == status.day }
+        let newActions = (day?.actions ?? []).filter(\.isNew)
         FACard {
-            if let day, let card = TrackLogic.card(day, locale: locale) {
-                // The day card (track_day.card_*): the mockups' order, `docs/foundation-cards/build.py`.
-                TrackDayCardLayout(status: status, day: day, card: card, title: title, open: open, calls: calls, onOpen: onOpen)
-            } else {
-                plain(track: track, title: title, open: open, calls: calls)
+            VStack(alignment: .leading, spacing: 14) {
+                Button { router.push(.trackDay) } label: {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text((String(localized: "track.title", defaultValue: "Foundation Track") + " · "
+                              + String(localized: "track.dayOf", defaultValue: "Day \(status.day) of \(status.days)")).uppercased())
+                            .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.forestSoft)
+                        TrackDayDots(day: status.day, days: status.days)
+                        HStack(alignment: .center, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(mode == .welcome
+                                     ? String(localized: "track.home.welcome", defaultValue: "Welcome to your space")
+                                     : (day.flatMap { TrackLogic.text($0.titleEn, $0.titleFr, locale: locale) } ?? ""))
+                                    .font(FATypography.display(24, relativeTo: .title2)).foregroundStyle(FAColor.ink)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .accessibilityAddTraits(.isHeader)
+                                Text(subtitle(mode, todays: todays, locale: locale))
+                                    .font(FATypography.sans(14, relativeTo: .subheadline)).foregroundStyle(FAColor.inkSecondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right").font(.system(size: 14, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint(String(localized: "track.home.a11y.open", defaultValue: "Opens today's page"))
+
+                if case .day(let done) = mode {
+                    if done == true, let todays {
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(FAColor.accent).accessibilityHidden(true)
+                            Text(String(localized: "track.home.questionnaireDoneNamed",
+                                        defaultValue: "\(TrackLogic.text(todays.titleEn, todays.titleFr, locale: locale) ?? todays.titleEn): done"))
+                                .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                    if !newActions.isEmpty {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text((status.day == 1
+                                  ? String(localized: "track.home.firstAction", defaultValue: "Try your first action")
+                                  : String(localized: "track.new", defaultValue: "New today")).uppercased())
+                                .font(FATypography.sans(10, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.inkSecondary)
+                                .accessibilityAddTraits(.isHeader)
+                            ForEach(newActions) { TrackActionLine(action: $0, underTryLabel: true) }
+                        }
+                    }
+                }
             }
         }
     }
 
-    /// A day without its card text (or before the content is written): the title, the focus line, the video and
-    /// the actions — the layout the track started with.
-    private func plain(track: TrackService, title: String, open: [TrackQuestionnaire], calls: [TrackCall]) -> some View {
-        let locale = track.locale
-        return VStack(alignment: .leading, spacing: 14) {
-            TrackCardHeader(eyebrow: String(localized: "track.dayOf", defaultValue: "Day \(status.day) of \(status.days)"), title: title)
-            if let focus = day.flatMap({ TrackLogic.text($0.focusEn, $0.focusFr, locale: locale) }) {
-                Text(focus).font(FATypography.callout).foregroundStyle(FAColor.inkSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+    private func subtitle(_ mode: TrackLogic.HomeCard, todays: TrackQuestionnaire?, locale: String) -> String {
+        switch mode {
+        case .welcome:
+            return String(localized: "track.home.tapToStart", defaultValue: "Tap this card to start")
+        case .day(let done):
+            if done == false, let todays {
+                let title = TrackLogic.text(todays.titleEn, todays.titleFr, locale: locale) ?? todays.titleEn
+                return String(localized: "track.home.questionnaireWaiting", defaultValue: "Today's questionnaire: \(title)")
             }
-            if let day {
-                TrackDayVideo(day: day)
-                if !day.actions.isEmpty { TrackActionsList(groups: TrackLogic.grouped(day.actions)) }
-                if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
-            }
-            if track.summary != nil { TrackSummaryRow() }
-            if !open.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(open) { q in
-                        TrackQuestionnaireRow(questionnaire: q, isToday: q.day == status.day, inProgress: track.response(for: q.id) != nil) { onOpen(q.id) }
-                    }
-                }
-            }
-            if !calls.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(calls, id: \.self) { TrackCallButton(call: $0) }
-                }
-            }
-            if status.day >= TrackLogic.progressFromDay { TrackProgressRow(status: status) }
+            return String(localized: "track.home.openDay", defaultValue: "Open today's page")
         }
     }
 }
 
-/// The day's video, played in the card; the first play is the day's `video` activity.
+/// Home's "Today's read" (Thomas, 2026-11-06): the day's short read, with its title once the library answers.
+struct TrackHomeReadCard: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
+    let slug: String
+    let day: Int
+    @State private var title: String?
+
+    var body: some View {
+        Button {
+            let track = dependencies.track
+            Task { await track.readOpened(day: day) }
+            router.push(.read(slug))
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "book").font(.system(size: 17, weight: .semibold)).foregroundStyle(FAColor.forest)
+                    .frame(width: 44, height: 44)
+                    .background(FAColor.forestSoft.opacity(0.18), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "track.read.title", defaultValue: "Today's short read").uppercased())
+                        .font(FATypography.sans(10, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.forestSoft)
+                    Text(title ?? String(localized: "track.read.open", defaultValue: "Open in the library"))
+                        .font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+                    .accessibilityHidden(true)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .modifier(FAGlassSurface(cornerRadius: FACornerRadius.glass))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .task(id: slug) {
+            // The title only; a failed read keeps "Open in the library" (the reader handles its own states).
+            title = try? await dependencies.library.itemTitle(slug: slug)
+        }
+    }
+}
+
+/// Day 1's banner over the two squares (Thomas, 2026-11-06): the two things to try in the app first.
+struct TrackFeatureBanner: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "sparkles").font(.system(size: 15, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
+                .accessibilityHidden(true)
+            Text(String(localized: "track.home.banner", defaultValue: "Try the main features: log a meal and the functional check-in."))
+                .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14).padding(.vertical, 11)
+        .modifier(FAGlassSurface(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// The day's video, played in the card; the first play is the day's `video` activity. A day without a video shows
+/// nothing in its place (Thomas, 2026-11-06: no "coming soon" line; the videos arrive with their URLs).
 struct TrackDayVideo: View {
     @Environment(AppDependencies.self) private var dependencies
     let day: TrackDay
@@ -128,8 +220,10 @@ struct TrackDayVideo: View {
         let track = dependencies.track
         let url = TrackLogic.text(day.videoUrlEn, day.videoUrlFr, locale: track.locale)
             .flatMap { $0.lowercased().hasPrefix("https://") ? URL(string: $0) : nil }
-        TrackVideoView(url: url) { Task { await track.videoPlayed(day: day.day) } }
-            .id(day.day)
+        if let url {
+            TrackVideoView(url: url) { Task { await track.videoPlayed(day: day.day) } }
+                .id(day.day)
+        }
     }
 }
 

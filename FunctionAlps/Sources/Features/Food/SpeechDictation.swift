@@ -20,12 +20,16 @@ final class SpeechDictation: NSObject {
     var onFinal: ((String) -> Void)?
 
     private let transcribe: @Sendable (Data, String) async throws -> String
+    /// What the words are for: a meal (the describe field) or a questionnaire answer — only the error lines differ.
+    enum Purpose: Sendable { case meal, answer }
+    private let purpose: Purpose
     private var recorder: AVAudioRecorder?
     private var fileURL: URL?
     /// Recording stops itself after this long — a forgotten mic must not run for an hour.
     static let maxSeconds: TimeInterval = 90
 
-    init(transcribe: @escaping @Sendable (Data, String) async throws -> String) {
+    init(purpose: Purpose = .meal, transcribe: @escaping @Sendable (Data, String) async throws -> String) {
+        self.purpose = purpose
         self.transcribe = transcribe
     }
 
@@ -40,7 +44,9 @@ final class SpeechDictation: NSObject {
         error = nil
         let granted = await AVAudioApplication.requestRecordPermission()
         guard granted else {
-            error = String(localized: "food.voice.micDenied", defaultValue: "The microphone isn't allowed. You can enable it in Settings, or type your meal below.")
+            error = purpose == .meal
+                ? String(localized: "food.voice.micDenied", defaultValue: "The microphone isn't allowed. You can enable it in Settings, or type your meal below.")
+                : String(localized: "track.voice.micDenied", defaultValue: "The microphone isn't allowed. You can enable it in Settings, or type your answer.")
             return
         }
         do {
@@ -64,7 +70,9 @@ final class SpeechDictation: NSObject {
             listening = true
         } catch {
             Log.data.error("voice.start: \(String(describing: error), privacy: .public)")
-            self.error = String(localized: "food.voice.failed", defaultValue: "Couldn't start listening · type your meal below.")
+            self.error = purpose == .meal
+                ? String(localized: "food.voice.failed", defaultValue: "Couldn't start listening · type your meal below.")
+                : String(localized: "track.voice.failed", defaultValue: "Couldn't start listening · type your answer instead.")
             cleanUp()
         }
     }
@@ -90,7 +98,9 @@ final class SpeechDictation: NSObject {
             }
         } catch {
             Log.data.error("voice.transcribe: \(String(describing: error), privacy: .public)")
-            self.error = String(localized: "food.voice.transcribeFailed", defaultValue: "We couldn't write that down · try again or type your meal below.")
+            self.error = purpose == .meal
+                ? String(localized: "food.voice.transcribeFailed", defaultValue: "We couldn't write that down · try again or type your meal below.")
+                : String(localized: "track.voice.transcribeFailed", defaultValue: "We couldn't write that down · try again or type your answer.")
         }
     }
 

@@ -14,6 +14,9 @@ enum Showcase {
         case messages, sentTrack = "sent-track", personalTrack = "personal-track"
         /// The action-card anatomy for the content brief: one complete card from the top, middle and bottom, a breathing card, the bank.
         case card, cardMiddle = "card-middle", cardBottom = "card-bottom", cardBreath = "card-breath", bank
+        /// The Foundation Track, screen by screen, on real content (`ShowcaseTrack`): Home on a day, a questionnaire step,
+        /// a track action's card, the day's read, the approved day-7 summary.
+        case track, trackQuestionnaire = "track-q", trackCard = "track-card", trackRead = "track-read", trackSummary = "track-summary"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -40,7 +43,10 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire: "functionalps://home"
+        case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
+        case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
+        case .trackSummary: "functionalps://foundation/summary"
         case .profile: "functionalps://profile"
         case .checkin, .checkinMood: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"

@@ -28,12 +28,12 @@ struct ActionCardView: View {
     @State private var skipped = false
     @State private var busy = false
     @State private var writeFailed = false
+    /// The published-cards read has finished (success or not): until then a card missing from the bank may still turn up.
+    @State private var laddersTried = false
     /// "Towards next level" opened: the next level's card shows under it.
     @State private var showNext = false
     /// The server's answer to a level-up it refused, in words.
     @State private var levelNote: String?
-    /// The published-cards read has finished (success or not): until then a card missing from the bank may still turn up.
-    @State private var laddersTried = false
 
     var body: some View {
         let habits = dependencies.habits

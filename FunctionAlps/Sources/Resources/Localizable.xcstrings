@@ -2578,6 +2578,22 @@
         }
       }
     },
+    "careTeam.avatar.generic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your team"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre équipe"
+          }
+        }
+      }
+    },
     "careplan.actions": {
       "localizations": {
         "en": {
@@ -13351,13 +13367,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evening check-in"
+            "value": "Functional check-in"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check-in du soir"
+            "value": "Check-in fonctionnel"
           }
         }
       }
@@ -14050,6 +14066,22 @@
         }
       }
     },
+    "home.messages.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your team"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre équipe"
+          }
+        }
+      }
+    },
     "home.messages.hint": {
       "localizations": {
         "en": {
@@ -14082,6 +14114,70 @@
         }
       }
     },
+    "home.messages.humanDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A real person answers, usually within a day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une vraie personne vous répond, en général sous un jour"
+          }
+        }
+      }
+    },
+    "home.messages.lastReply": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ replied · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a répondu · %@"
+          }
+        }
+      }
+    },
+    "home.messages.lastYou": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous · %@"
+          }
+        }
+      }
+    },
+    "home.messages.practice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your nutritionist"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nutritionniste"
+          }
+        }
+      }
+    },
     "home.messages.read": {
       "localizations": {
         "en": {
@@ -14094,6 +14190,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Touchez pour lire"
+          }
+        }
+      }
+    },
+    "home.messages.readReply": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read and reply"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire et répondre"
           }
         }
       }
@@ -14126,6 +14238,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld message(s) non lu(s) de votre praticien·ne"
+          }
+        }
+      }
+    },
+    "home.messages.unreadBadge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld unread"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld non lu(s)"
+          }
+        }
+      }
+    },
+    "home.messages.write": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write a message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire un message"
+          }
+        }
+      }
+    },
+    "home.messages.writeTo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire à %@"
           }
         }
       }
@@ -14322,6 +14482,22 @@
         }
       }
     },
+    "home.pathway.count.by": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld resources curated for you by %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ressources choisies pour vous par %@"
+          }
+        }
+      }
+    },
     "home.pathway.count.one": {
       "localizations": {
         "en": {
@@ -14334,6 +14510,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 ressource sélectionnée pour vous"
+          }
+        }
+      }
+    },
+    "home.pathway.count.one.by": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 resource curated for you by %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ressource choisie pour vous par %@"
           }
         }
       }
@@ -16114,6 +16306,54 @@
         }
       }
     },
+    "lock.food.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph a meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographier un repas"
+          }
+        }
+      }
+    },
+    "lock.food.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photograph your next meal. From then on, Food shows what you eat, day after day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photographiez votre prochain repas. Ensuite, Alimentation montre ce que vous mangez, jour après jour."
+          }
+        }
+      }
+    },
+    "lock.food.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food opens with your first meal photo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation s'ouvre avec votre première photo de repas"
+          }
+        }
+      }
+    },
     "lock.notDefined": {
       "localizations": {
         "en": {
@@ -16126,6 +16366,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre praticienne le complète avec vous"
+          }
+        }
+      }
+    },
+    "lock.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld jours sur %2$lld"
+          }
+        }
+      }
+    },
+    "lock.trends.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do today's check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire le check-in du jour"
+          }
+        }
+      }
+    },
+    "lock.trends.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the app three days in a row, with a check-in or a meal photo, and your curves appear here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez l'app trois jours d'affilée, avec un check-in ou une photo de repas, et vos courbes apparaissent ici."
+          }
+        }
+      }
+    },
+    "lock.trends.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your trends open after 3 days in a row"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos tendances s'ouvrent après 3 jours d'affilée"
           }
         }
       }
@@ -18706,6 +19010,102 @@
         }
       }
     },
+    "messages.chip.feel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How I feel today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment je me sens aujourd’hui"
+          }
+        }
+      }
+    },
+    "messages.chip.feel.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today I feel "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd’hui, je me sens "
+          }
+        }
+      }
+    },
+    "messages.chip.meal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About a meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos d’un repas"
+          }
+        }
+      }
+    },
+    "messages.chip.meal.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I have a question about a meal: "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J’ai une question sur un repas : "
+          }
+        }
+      }
+    },
+    "messages.chip.plan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mon plan"
+          }
+        }
+      }
+    },
+    "messages.chip.plan.text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A question about my plan: "
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une question sur mon plan : "
+          }
+        }
+      }
+    },
     "messages.context.meal": {
       "localizations": {
         "en": {
@@ -18802,6 +19202,38 @@
         }
       }
     },
+    "messages.header.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · usually replies within a day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · répond en général sous un jour"
+          }
+        }
+      }
+    },
+    "messages.header.subNoTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usually replies within a day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répond en général sous un jour"
+          }
+        }
+      }
+    },
     "messages.her": {
       "localizations": {
         "en": {
@@ -18830,6 +19262,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Écrivez un message…"
+          }
+        }
+      }
+    },
+    "messages.placeholder.to": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to %@…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire à %@…"
           }
         }
       }
@@ -30194,6 +30642,38 @@
         }
       }
     },
+    "profile.team": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your care team"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre équipe de soins"
+          }
+        }
+      }
+    },
+    "profile.team.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message your team"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire à votre équipe"
+          }
+        }
+      }
+    },
     "profile.title": {
       "localizations": {
         "en": {
@@ -37714,6 +38194,22 @@
         }
       }
     },
+    "tab.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, locked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, verrouillé"
+          }
+        }
+      }
+    },
     "tab.profile": {
       "localizations": {
         "en": {
@@ -39730,6 +40226,22 @@
         }
       }
     },
+    "track.baseline.activityLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In an ordinary week, you are…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendant une semaine ordinaire, vous êtes…"
+          }
+        }
+      }
+    },
     "track.baseline.age": {
       "localizations": {
         "en": {
@@ -39742,6 +40254,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld ans"
+          }
+        }
+      }
+    },
+    "track.baseline.ageLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âge"
+          }
+        }
+      }
+    },
+    "track.baseline.choose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir"
           }
         }
       }
@@ -39762,6 +40306,22 @@
         }
       }
     },
+    "track.baseline.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few things about you, to set your starting point."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelques informations sur vous, pour fixer votre point de départ."
+          }
+        }
+      }
+    },
     "track.baseline.weight": {
       "localizations": {
         "en": {
@@ -39774,6 +40334,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ kg"
+          }
+        }
+      }
+    },
+    "track.baseline.weightLabel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poids"
           }
         }
       }
@@ -40094,6 +40670,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apple Santé n'est pas disponible sur cet appareil."
+          }
+        }
+      }
+    },
+    "track.home.a11y.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens today's page"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre la page du jour"
+          }
+        }
+      }
+    },
+    "track.home.banner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try the main features: log a meal and the functional check-in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez l'essentiel : photographier un repas et le check-in fonctionnel."
+          }
+        }
+      }
+    },
+    "track.home.firstAction": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try your first action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez votre première action"
+          }
+        }
+      }
+    },
+    "track.home.openDay": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open today's page"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir la page du jour"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireDone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire terminé"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireDoneNamed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ : terminé"
+          }
+        }
+      }
+    },
+    "track.home.questionnaireWaiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's questionnaire: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionnaire du jour : %@"
+          }
+        }
+      }
+    },
+    "track.home.tapToStart": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap this card to start"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez cette carte pour commencer"
+          }
+        }
+      }
+    },
+    "track.home.welcome": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to your space"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienvenue dans votre espace"
           }
         }
       }
@@ -40510,6 +41230,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "~%1$@–%2$@ g de protéines"
+          }
+        }
+      }
+    },
+    "track.read.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in the library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans la bibliothèque"
           }
         }
       }
@@ -41090,22 +41826,6 @@
         }
       }
     },
-    "track.video.soon": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Today's video is coming soon."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La vidéo du jour arrive bientôt."
-          }
-        }
-      }
-    },
     "track.video.watch": {
       "localizations": {
         "en": {
@@ -41118,6 +41838,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "La vidéo du jour · environ 1 minute"
+          }
+        }
+      }
+    },
+    "track.voice.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't start listening · type your answer instead."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de démarrer l'écoute · écrivez plutôt votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.micDenied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone isn't allowed. You can enable it in Settings, or type your answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le micro n'est pas autorisé. Vous pouvez l'activer dans Réglages, ou écrire votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.speak": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Say it instead"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dire plutôt"
+          }
+        }
+      }
+    },
+    "track.voice.stop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop, and write it down"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter et l'écrire"
+          }
+        }
+      }
+    },
+    "track.voice.transcribeFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't write that down · try again or type your answer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nous n'avons pas pu l'écrire · réessayez ou écrivez votre réponse."
+          }
+        }
+      }
+    },
+    "track.voice.writing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing it down…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transcription…"
           }
         }
       }
@@ -41790,6 +42606,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reconnecter"
+          }
+        }
+      }
+    },
+    "vendor.request.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If its app writes to Apple Health, connect Apple Health above and its data comes in with it. Otherwise tell us which device you use: the practice adds the ones members ask for most."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si son app écrit dans Apple Santé, connectez Apple Santé ci-dessus et ses données arrivent avec. Sinon, dites-nous quel appareil vous utilisez : le cabinet ajoute ceux que les membres demandent le plus."
+          }
+        }
+      }
+    },
+    "vendor.request.field": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your device's brand and model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marque et modèle de votre appareil"
+          }
+        }
+      }
+    },
+    "vendor.request.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand and model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marque et modèle"
+          }
+        }
+      }
+    },
+    "vendor.request.send": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask for this device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander cet appareil"
+          }
+        }
+      }
+    },
+    "vendor.request.thanks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you. The practice has your request."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci. Le cabinet a bien reçu votre demande."
+          }
+        }
+      }
+    },
+    "vendor.request.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't see your device?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre appareil n'est pas dans la liste ?"
           }
         }
       }
@@ -43278,470 +44190,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yoga"
-          }
-        }
-      }
-    },
-    "vendor.request.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Don't see your device?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre appareil n'est pas dans la liste ?"
-          }
-        }
-      }
-    },
-    "vendor.request.body": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If its app writes to Apple Health, connect Apple Health above and its data comes in with it. Otherwise tell us which device you use: the practice adds the ones members ask for most."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si son app écrit dans Apple Santé, connectez Apple Santé ci-dessus et ses données arrivent avec. Sinon, dites-nous quel appareil vous utilisez : le cabinet ajoute ceux que les membres demandent le plus."
-          }
-        }
-      }
-    },
-    "vendor.request.thanks": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thank you. The practice has your request."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Merci. Le cabinet a bien reçu votre demande."
-          }
-        }
-      }
-    },
-    "vendor.request.placeholder": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brand and model"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marque et modèle"
-          }
-        }
-      }
-    },
-    "vendor.request.field": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your device's brand and model"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marque et modèle de votre appareil"
-          }
-        }
-      }
-    },
-    "vendor.request.send": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ask for this device"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Demander cet appareil"
-          }
-        }
-      }
-    },
-    "home.messages.eyebrow": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your team"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre équipe"
-          }
-        }
-      }
-    },
-    "home.messages.unreadBadge": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld unread"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld non lu(s)"
-          }
-        }
-      }
-    },
-    "home.messages.lastReply": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ replied · %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ a répondu · %@"
-          }
-        }
-      }
-    },
-    "home.messages.lastYou": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You · %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous · %@"
-          }
-        }
-      }
-    },
-    "home.messages.practice": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your nutritionist"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre nutritionniste"
-          }
-        }
-      }
-    },
-    "home.messages.readReply": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Read and reply"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lire et répondre"
-          }
-        }
-      }
-    },
-    "home.messages.writeTo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write to %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écrire à %@"
-          }
-        }
-      }
-    },
-    "home.messages.write": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write a message"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écrire un message"
-          }
-        }
-      }
-    },
-    "home.messages.humanDay": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A real person answers, usually within a day"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une vraie personne vous répond, en général sous un jour"
-          }
-        }
-      }
-    },
-    "careTeam.avatar.generic": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your team"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre équipe"
-          }
-        }
-      }
-    },
-    "profile.team": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your care team"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre équipe de soins"
-          }
-        }
-      }
-    },
-    "profile.team.message": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Message your team"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écrire à votre équipe"
-          }
-        }
-      }
-    },
-    "messages.header.sub": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · usually replies within a day"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · répond en général sous un jour"
-          }
-        }
-      }
-    },
-    "messages.header.subNoTitle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usually replies within a day"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Répond en général sous un jour"
-          }
-        }
-      }
-    },
-    "messages.placeholder.to": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write to %@…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écrire à %@…"
-          }
-        }
-      }
-    },
-    "messages.chip.meal": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "About a meal"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "À propos d’un repas"
-          }
-        }
-      }
-    },
-    "messages.chip.meal.text": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I have a question about a meal: "
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "J’ai une question sur un repas : "
-          }
-        }
-      }
-    },
-    "messages.chip.feel": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How I feel today"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comment je me sens aujourd’hui"
-          }
-        }
-      }
-    },
-    "messages.chip.feel.text": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Today I feel "
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aujourd’hui, je me sens "
-          }
-        }
-      }
-    },
-    "messages.chip.plan": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "My plan"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mon plan"
-          }
-        }
-      }
-    },
-    "messages.chip.plan.text": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A question about my plan: "
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une question sur mon plan : "
-          }
-        }
-      }
-    },
-    "home.pathway.count.one.by": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 resource curated for you by %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 ressource choisie pour vous par %@"
-          }
-        }
-      }
-    },
-    "home.pathway.count.by": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld resources curated for you by %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld ressources choisies pour vous par %@"
           }
         }
       }

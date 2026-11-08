@@ -1,67 +1,166 @@
 import SwiftUI
 
-/// The day card in the mockups' order (`docs/foundation-cards/build.py`, `card_html`): the day and its dots, the
-/// pillar, the title, the video, Today, the infographic, the questionnaire with "Why we ask", the calls and the
-/// summary, the day's new actions under the card's own heading, the mini tip, the rest of the routine by moment,
-/// how it will evolve, the library, the short read, and from day 7 where the member stands.
+/// The day, as its own page (Thomas, 2026-11-06): Home holds a short card ("Welcome to your space" on day 1) and a
+/// tap opens this. The old long card is cut into separate cards, in the mockups' order: where you start (the day,
+/// its dots, the pillar, the title, the video when there is one, the day's text, the infographic) · today's
+/// questionnaire with "Why we ask" inside · the calls and the summary · the day's new actions, each a mini card ·
+/// the mini tip · the rest of the routine · how it will evolve · the library, the short read and, from day 7,
+/// where the member stands.
 ///
 /// Every word of content is the practice's (`track_day.card_*`, the questionnaire's intro, the actions); the app
-/// adds the section names only. New actions carry a "New" tag in words, never colour alone (rule 10).
-struct TrackDayCardLayout: View {
+/// adds the section names only. States (rule 5): the track is read with Home; off the track or still reading → a
+/// calm loading line; the content failed → the error with a retry.
+struct TrackDayPage: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @State private var questionnaire: TrackQuestionnaireRef?
+
+    var body: some View {
+        let track = dependencies.track
+        VStack(spacing: 0) {
+            CenteredHeader(title: String(localized: "track.title", defaultValue: "Foundation Track"), hairline: true)
+            if let message = track.contentError {
+                FAErrorState(title: String(localized: "track.error.title", defaultValue: "Couldn't load your day"), message: message) {
+                    Task { await track.retry() }
+                }
+                .frame(maxHeight: .infinity)
+            } else if let status = track.status, status.state == .active, let day = track.today {
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        TrackDayCards(status: status, day: day) { questionnaire = TrackQuestionnaireRef(id: $0) }
+                            .padding(.horizontal, 18).padding(.top, 14).padding(.bottom, FASpacing.navBarClearance)
+                            #if DEBUG
+                            .background(alignment: .top) { ShowcasePageMarks() }
+                            #endif
+                    }
+                    #if DEBUG
+                    .task {
+                        guard ShowcaseTrack.isOn, ShowcaseTrack.page > 0 else { return }
+                        try? await Task.sleep(for: .seconds(4))
+                        proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
+                    }
+                    #endif
+                }
+            } else {
+                FALoadingState().frame(maxHeight: .infinity)
+            }
+        }
+        .faWall()
+        .toolbar(.hidden, for: .navigationBar)
+        .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
+    }
+}
+
+/// The day's cards, one under the other.
+private struct TrackDayCards: View {
     @Environment(AppDependencies.self) private var dependencies
     let status: TrackStatus
     let day: TrackDay
-    let card: TrackDayCard
-    let title: String
-    let open: [TrackQuestionnaire]
-    let calls: [TrackCall]
     let onOpen: (String) -> Void
 
     var body: some View {
         let track = dependencies.track
         let locale = track.locale
+        let card = TrackLogic.card(day, locale: locale)
+        let title = TrackLogic.text(day.titleEn, day.titleFr, locale: locale) ?? ""
+        let open = TrackLogic.openQuestionnaires(track.questionnaires, today: status.day, submitted: track.submitted)
+        let todays = track.questionnaires.first { $0.day == status.day }
+        let calls = TrackLogic.openCalls(status.calls)
         let newActions = day.actions.filter(\.isNew)
         let routine = day.actions.filter { !$0.isNew }
-        VStack(alignment: .leading, spacing: 16) {
-            Group {
-                TrackDayHeader(day: status.day, days: status.days, pillar: card.pillar, title: title)
-                TrackDayVideo(day: day)
-                if let today = card.today { TrackTodaySection(today: today) }
-                if let image = TrackLogic.infographic(day, locale: locale) { TrackInfographic(url: image.url, alt: image.alt) }
-                if !open.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 12) {
+            // Where you start: the day, the dots, the title, the day's text.
+            FACard {
+                VStack(alignment: .leading, spacing: 14) {
+                    TrackDayHeader(day: status.day, days: status.days, pillar: card?.pillar, title: title)
+                    TrackDayVideo(day: day)
+                    if let today = card?.today {
+                        TrackTodaySection(today: today)
+                    } else if let focus = TrackLogic.text(day.focusEn, day.focusFr, locale: locale) {
+                        Text(focus).font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.ink2).lineSpacing(3)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let image = TrackLogic.infographic(day, locale: locale) { TrackInfographic(url: image.url, alt: image.alt) }
+                }
+            }
+            // Today's questionnaire, with "Why we ask" inside; earlier ones not sent yet; or today's, done.
+            if !open.isEmpty || todays.map({ track.submitted.contains($0.id) }) == true {
+                FACard {
+                    VStack(alignment: .leading, spacing: 10) {
                         ForEach(open) { q in
                             TrackQuestionnaireRow(questionnaire: q, isToday: q.day == status.day, inProgress: track.response(for: q.id) != nil) { onOpen(q.id) }
                             if q.day == status.day, let why = TrackLogic.text(q.introEn, q.introFr, locale: locale) {
                                 TrackWhyWeAsk(text: why)
                             }
                         }
+                        if let todays, track.submitted.contains(todays.id) { TrackQuestionnaireDone(questionnaire: todays) }
                     }
                 }
-                if !calls.isEmpty {
+            }
+            if !calls.isEmpty || track.summary != nil {
+                FACard {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(calls, id: \.self) { TrackCallButton(call: $0) }
+                        if track.summary != nil { TrackSummaryRow() }
                     }
                 }
-                if track.summary != nil { TrackSummaryRow() }
             }
-            Group {
-                if !newActions.isEmpty || card.tryLabel != nil {
-                    TrackTrySection(label: card.tryLabel, actions: newActions)
+            // The day's new actions, each a mini card of its own.
+            ForEach(newActions) { action in
+                FACard {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text((card?.tryLabel ?? (status.day == 1
+                              ? String(localized: "track.home.firstAction", defaultValue: "Try your first action")
+                              : String(localized: "track.new", defaultValue: "New today"))).uppercased())
+                            .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.forestSoft)
+                            .accessibilityAddTraits(.isHeader)
+                        TrackActionLine(action: action, underTryLabel: true)
+                    }
                 }
-                if let tip = card.tip { TrackTipBox(text: tip) }
-                if !routine.isEmpty {
+            }
+            if let tip = card?.tip { TrackTipBox(text: tip) }
+            if !routine.isEmpty {
+                FACard {
                     VStack(alignment: .leading, spacing: 6) {
                         TrackSectionTitle(text: String(localized: "track.card.routine", defaultValue: "Your routine"))
                         TrackActionsList(groups: TrackLogic.grouped(routine))
                     }
                 }
-                if !card.evolve.isEmpty { TrackEvolveList(steps: card.evolve) }
-                if !card.openableLibrary.isEmpty { TrackLibraryList(items: card.openableLibrary) }
-                if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
-                if status.day >= TrackLogic.progressFromDay { TrackProgressRow(status: status) }
+            }
+            if let steps = card?.evolve, !steps.isEmpty {
+                FACard { TrackEvolveList(steps: steps) }
+            }
+            let library = card?.openableLibrary ?? []
+            if !library.isEmpty || day.readSlug != nil || status.day >= TrackLogic.progressFromDay {
+                FACard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if !library.isEmpty { TrackLibraryList(items: library) }
+                        if let slug = day.readSlug { TrackReadRow(slug: slug, day: day.day) }
+                        if status.day >= TrackLogic.progressFromDay { TrackProgressRow(status: status) }
+                    }
+                }
             }
         }
+    }
+}
+
+/// Today's questionnaire, sent: said in words and with the mark (rule 10).
+private struct TrackQuestionnaireDone: View {
+    @Environment(AppDependencies.self) private var dependencies
+    let questionnaire: TrackQuestionnaire
+
+    var body: some View {
+        let title = TrackLogic.text(questionnaire.titleEn, questionnaire.titleFr, locale: dependencies.track.locale) ?? questionnaire.titleEn
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill").font(.system(size: 20)).foregroundStyle(FAColor.accent)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                Text(String(localized: "track.home.questionnaireDone", defaultValue: "Questionnaire done"))
+                    .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -77,8 +176,9 @@ struct TrackSectionTitle: View {
     }
 }
 
-/// "Foundation Track · Day N of 14", the fourteen dots, the pillar chip and the day's title.
-private struct TrackDayHeader: View {
+/// "Foundation Track · Day N of 14", the fourteen dots across the whole card (Thomas, 2026-11-06), the pillar chip
+/// and the day's title.
+struct TrackDayHeader: View {
     let day: Int
     let days: Int
     let pillar: String?
@@ -89,14 +189,7 @@ private struct TrackDayHeader: View {
             Text((String(localized: "track.title", defaultValue: "Foundation Track") + " · "
                   + String(localized: "track.dayOf", defaultValue: "Day \(day) of \(days)")).uppercased())
                 .font(FATypography.sans(10.5, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.forestSoft)
-            HStack(spacing: 4) {
-                ForEach(1...max(days, 1), id: \.self) { i in
-                    Circle()
-                        .fill(i <= day ? FAColor.forestSoft : FAColor.forestSoft.opacity(0.2))
-                        .frame(width: 6, height: 6)
-                }
-            }
-            .accessibilityHidden(true)   // the eyebrow says the day in words
+            TrackDayDots(day: day, days: days)
             if let pillar {
                 Text(pillar)
                     .font(FATypography.label).foregroundStyle(FAColor.forestDark)
@@ -110,13 +203,33 @@ private struct TrackDayHeader: View {
     }
 }
 
-/// Today: what it is · why it matters · how we use it (days 1–5), or one paragraph.
+/// The fourteen days as dots spread across the card's width, the days reached filled (the eyebrow says the day in
+/// words, so VoiceOver skips them).
+struct TrackDayDots: View {
+    let day: Int
+    let days: Int
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(1...max(days, 1), id: \.self) { i in
+                Circle()
+                    .fill(i <= day ? FAColor.forestSoft : FAColor.forestSoft.opacity(0.2))
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(maxWidth: 18)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// The day's text: its labelled parts (why it matters · how we use it), or one paragraph. No "Today" heading
+/// (Thomas, 2026-11-06): the card itself is the day.
 private struct TrackTodaySection: View {
     let today: TrackDayCard.Today
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TrackSectionTitle(text: String(localized: "track.card.today", defaultValue: "Today"))
             switch today {
             case .paragraph(let text):
                 Text(text).font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.ink2).lineSpacing(3)

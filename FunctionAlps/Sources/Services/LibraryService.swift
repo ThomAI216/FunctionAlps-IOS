@@ -43,6 +43,11 @@ struct LibraryService: Sendable {
         return LibraryLogic.reader(slug: slug, bundle: loaded, row: row)
     }
 
+    /// An item's title alone (Home's "Today's read" card); nil when the library has no such item.
+    func itemTitle(slug: String) async throws -> String? {
+        try await backend.libraryItem(slug: slug)?.title
+    }
+
     /// Same rule as the members `completeLesson`: only the first open lesson of an unlocked track.
     func completeLesson(patientId: String, trackSlug: String, contentSlug: String) async -> LibraryLogic.CompleteOutcome {
         let loaded = await bundle(patientId: patientId)
