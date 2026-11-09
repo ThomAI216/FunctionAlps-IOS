@@ -311,7 +311,7 @@ Deno.serve(async (req: Request) => {
     const ident = await identifyMeal(input)
 
     if (!ident.ok) {
-      const patch = failurePatch(ident, attempts)
+      const patch = failurePatch(ident, attempts, new Date(), raw.logged_at)
       await writeMealPatch(db, raw.id, patch, "retry:failure", { onlyIfInFlight: true })
       if (patch.analysis_status === "needs_input") needs_input++
       else failed++
