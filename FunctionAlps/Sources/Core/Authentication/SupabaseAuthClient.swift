@@ -53,18 +53,6 @@ struct SupabaseAuthClient: Sendable {
         _ = try? await transport.send(request)
     }
 
-    /// RPC `email_exists(p_email)` under the publishable key (no session yet). nil = could not tell.
-    func emailExists(_ email: String) async -> Bool? {
-        struct Body: Encodable { let pEmail: String }
-        var headers = baseHeaders()
-        headers["Content-Type"] = "application/json"
-        let url = environment.supabaseURL.appending(path: "rest/v1/rpc/email_exists")
-        guard let request = try? HTTPRequest.json(.post, url, headers: headers, body: Body(pEmail: email)) else { return nil }
-        guard let response = try? await transport.send(request), response.isSuccess else { return nil }
-        let text = String(decoding: response.body, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-        return text == "true" ? true : text == "false" ? false : nil
-    }
-
     func refresh(refreshToken: String) async throws -> AuthSession {
         struct Body: Encodable { let refreshToken: String }
         let url = endpoint("token", query: [URLQueryItem(name: "grant_type", value: "refresh_token")])
