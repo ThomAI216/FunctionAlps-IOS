@@ -1,6 +1,6 @@
 ## AI-assisted analysis
 
-FunctionAlps runs on AI. Your meal photographs and logs are analysed automatically to produce your food scores, your patterns and your reports, and the same is true of the assessment on our website. Because every core feature depends on it, the health-data consent covers it — and because you cannot have the service without it, you deserve a straight account of what it does, where it runs, and where it falls short.
+FunctionAlps runs on AI. Your meal photographs and logs are analysed automatically to produce your food scores, your patterns and your reports, and the same is true of the assessment on our website. Because every core feature depends on it, the health-data consent covers it, and because you cannot have the service without it, you deserve a straight account of what it does, where it runs, and where it falls short.
 
 ### 1. What the AI does
 
@@ -16,7 +16,7 @@ FunctionAlps runs on AI. Your meal photographs and logs are analysed automatical
 This is the most automatic part of the app, so it is worth setting out step by step. It is not one model inventing a number.
 
 - The model looks at your photograph or reads your description, and identifies which foods are present and roughly how much of each.
-- Each identified food is then matched against published food composition databases — the United States Department of Agriculture’s Standard Reference collection, the French food composition table CIQUAL published by ANSES, and, for branded and barcoded products, Open Food Facts.
+- Each identified food is then matched against published food composition databases: the United States Department of Agriculture’s Standard Reference collection, the French food composition table CIQUAL published by ANSES, and, for branded and barcoded products, Open Food Facts.
 - The nutritional figures come from those reference tables, not from the model’s own recollection. The model’s job is to say what the food is; the database supplies what is in it.
 - Your macronutrients, micronutrients and meal scores are then calculated from those figures by fixed rules in our own code, not written by the model.
 
@@ -24,7 +24,7 @@ This is the most automatic part of the app, so it is worth setting out step by s
 
 Setting the steps out makes it clear where each step can go wrong, and we would rather you knew than trusted it blindly.
 
-The model can misidentify a food, or mistake the portion — portion estimation from a photograph is genuinely hard and is the model’s own judgement, not a measurement. The match to a reference food can select the wrong entry, for instance a raw form where you ate a cooked one. And the reference data itself has limits: the USDA and CIQUAL tables are published averages rather than facts about the particular apple you ate, while Open Food Facts is contributed by the public and its accuracy and completeness vary from one product to the next.
+The model can misidentify a food, or mistake the portion: portion estimation from a photograph is genuinely hard and is the model’s own judgement, not a measurement. The match to a reference food can select the wrong entry, for instance a raw form where you ate a cooked one. And the reference data itself has limits: the USDA and CIQUAL tables are published averages rather than facts about the particular apple you ate, while Open Food Facts is contributed by the public and its accuracy and completeness vary from one product to the next.
 
 Errors compound along that chain. Treat every figure as an estimate with meaningful uncertainty around it, and never as a measurement.
 
@@ -34,7 +34,7 @@ You can correct any food or portion the app got wrong, and your correction is re
 
 Identifying the foods in a meal photograph or description runs on OpenAI, in the United States. Everything else runs on Infomaniak’s sovereign infrastructure in Geneva, Switzerland. Both process your data strictly on our instructions, under a data processing agreement, and may not use it for their own purposes.
 
-Apart from the meal photographs and descriptions sent to OpenAI to identify the foods, your health data is not sent to OpenAI, Google, Anthropic, Meta or any other general-purpose AI provider. It is not used to train AI models — ours, OpenAI’s, Infomaniak’s, or anyone else’s. It is not sold, and it never reaches advertisers or insurers.
+Apart from the meal photographs and descriptions sent to OpenAI to identify the foods, your health data is not sent to OpenAI, Google, Anthropic, Meta or any other general-purpose AI provider. It is not used to train AI models: ours, OpenAI’s, Infomaniak’s, or anyone else’s. It is not sold, and it never reaches advertisers or insurers.
 
 ### 5. What is actually sent, and the honest limits of de-identification
 
@@ -50,13 +50,13 @@ The AI produces observations, estimates and patterns. It never produces a diagno
 
 It can be confidently wrong. In ordinary use it will sometimes misidentify a food, misjudge a portion, miss part of a plate it could not see, or describe a pattern that is not really there. Nutritional figures are estimates derived from images and words, not laboratory measurements, and can be materially off.
 
-Treat every number as approximate and every observation as a prompt for your own judgement — not a conclusion, and never a reason to change medication. For anything medical, consult a qualified professional who has examined you. In an emergency, contact your local emergency services, not the app.
+Treat every number as approximate and every observation as a prompt for your own judgement: not a conclusion, and never a reason to change medication. For anything medical, consult a qualified professional who has examined you. In an emergency, contact your local emergency services, not the app.
 
-### 7. Human review — what is reviewed, and what is not
+### 7. Human review: what is reviewed, and what is not
 
 Written interpretations in your weekly and monthly reports are reviewed and approved by a qualified practitioner before they are released to you.
 
-Everything else the AI produces — meal identification, portion and nutrient estimates, meal scores, pattern observations, daily report text and website assessment summaries — is generated automatically and reaches you without an individual human check. We would rather tell you that plainly than imply a level of oversight that is not there. Automatically generated material is labelled where you see it.
+Everything else the AI produces (meal identification, portion and nutrient estimates, meal scores, pattern observations, daily report text and website assessment summaries) is generated automatically and reaches you without an individual human check. We would rather tell you that plainly than imply a level of oversight that is not there. Automatically generated material is labelled where you see it.
 
 ### 8. No automated decisions about you
 
@@ -68,11 +68,11 @@ It does profile you, in the legal sense: it analyses your data to evaluate aspec
 
 There is no manual mode. Meal analysis, your scores, your patterns and your reports are all AI-produced, so a version of FunctionAlps with AI switched off has nothing to show you.
 
-So we do not ask you to “consent to AI” separately. That would be a fictitious choice, because refusing it would mean having no service — and a consent you cannot refuse is not one. AI is part of the description of what the service is, and the processing it performs is covered by your consent to health-data processing.
+So we do not ask you to “consent to AI” separately. That would be a fictitious choice, because refusing it would mean having no service, and a consent you cannot refuse is not one. AI is part of the description of what the service is, and the processing it performs is covered by your consent to health-data processing.
 
 ### 10. If you no longer want this processing
 
-Withdrawing your consent to health-data processing ends this processing, AI analysis included, in Privacy & Data — in the app or on the members dashboard. Withdrawal takes effect immediately and does not affect the lawfulness of what was done beforehand.
+Withdrawing your consent to health-data processing ends this processing, AI analysis included, in Privacy & Data, in the app or on the members dashboard. Withdrawal takes effect immediately and does not affect the lawfulness of what was done beforehand.
 
 FunctionAlps is then disabled until you consent again, or delete your account. Nothing else is taken away: your data is not deleted by withdrawing, and you can still export it or ask for it to be erased.
 

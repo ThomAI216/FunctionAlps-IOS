@@ -16,7 +16,7 @@ Optional, and you can say no. FunctionAlps works exactly the same either way.
 
 ### Why
 
-So your practitioner can see whether FunctionAlps is actually helping you — for example, noticing that you have not managed to open it for a couple of weeks and checking in, rather than assuming you stopped caring.
+So your practitioner can see whether FunctionAlps is actually helping you, for example, noticing that you have not managed to open it for a couple of weeks and checking in, rather than assuming you stopped caring.
 
 ### Who sees it
 

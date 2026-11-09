@@ -5,7 +5,7 @@ Optional. If you agree, we may email you occasionally about new programmes, arti
 ### What to expect
 
 - Never more than roughly once a month.
-- Nothing to do with the service messages we must send you about your account or these documents, or with the emails that deliver a result you asked for — those are not marketing and are not covered by this choice.
+- Nothing to do with the service messages we must send you about your account or these documents, or with the emails that deliver a result you asked for: those are not marketing and are not covered by this choice.
 - Every email has an unsubscribe link.
 - Your health data is never used to target these, and we never share your address with anyone else.
 

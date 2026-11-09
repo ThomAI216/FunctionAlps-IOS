@@ -16,7 +16,7 @@ Facultatif, et vous pouvez refuser. FunctionAlps fonctionne exactement de la mê
 
 ### Pourquoi
 
-Pour que votre praticienne puisse voir si FunctionAlps vous est réellement utile — par exemple constater que vous n’avez pas réussi à l’ouvrir depuis quinze jours et prendre de vos nouvelles, plutôt que de supposer que vous vous en êtes désintéressé.
+Pour que votre praticienne puisse voir si FunctionAlps vous est réellement utile, par exemple constater que vous n’avez pas réussi à l’ouvrir depuis quinze jours et prendre de vos nouvelles, plutôt que de supposer que vous vous en êtes désintéressé.
 
 ### Qui y a accès
 
