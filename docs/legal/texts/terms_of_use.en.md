@@ -40,12 +40,16 @@ Our website also offers a short self-assessment questionnaire. It works the same
 
 FunctionAlps is not a medical service and does not practise medicine. It does not diagnose, treat, cure, prevent or monitor any disease, injury or disability. Nothing we show you (in the app, on the members dashboard, in a website assessment or in an email) is a medical opinion, a prescription, or a substitute for consulting a qualified health professional who has examined you.
 
-- It is not a medical device, and it is not intended by us to be used for any medical purpose within the meaning of the Swiss Medical Devices Ordinance or EU Regulation 2017/745. Do not use it as one.
+- It is not a medical device. We do not give it any medical purpose within the meaning of the Swiss Federal Act on Medicinal Products and Medical Devices (Therapeutic Products Act, TPA), the Swiss Medical Devices Ordinance (MedDO) or Regulation (EU) 2017/745 on medical devices. That is a deliberate choice, and it is why FunctionAlps carries no CE marking: that marking is reserved for medical devices, and putting it on a service that is not one would be misleading. Do not use it as a medical device.
 - It is not a diagnostic tool. A score, a flag or an observation is a description of what you told us, not a finding about your health.
 - It is not a monitoring service. Nobody is watching your data in real time, and no alarm reaches anyone if your entries change or stop.
 - It is not an emergency or crisis service. See section 5.
 - It is not a pharmacy or supplement advisory service. Do not start, stop or change any medication or supplement on the basis of anything FunctionAlps shows you.
 - Its nutritional figures are estimates derived from photographs and descriptions, not laboratory measurements, and they can be materially wrong.
+
+**Your test results and medical documents.** You can keep medical documents in FunctionAlps, such as laboratory test results, and share them with your care team. FunctionAlps stores them, displays them, passes them to your care team and, only if you separately consent, puts them in date order without interpreting them. It draws no diagnosis, no risk assessment and no treatment recommendation from them.
+
+What makes software a medical device is the medical purpose given to it by whoever provides it (for example diagnosing, monitoring a disease or guiding treatment), not the kind of data it holds. Software that only stores, displays, passes on or faithfully restates health information is not a medical device for that reason alone. Interpreting your results is for your doctor or your practitioner.
 
 ### 5. Emergencies and urgent symptoms
 
@@ -73,7 +77,7 @@ We may need to contact you about the service itself: security, changes to these 
 
 When you log a meal, a check-in, a symptom, a supplement or a message (in the app or on the members dashboard, it makes no difference which) we store it, analyse it, and use it to produce your scores, patterns and reports. Answers you give in a website assessment are handled the same way, and so are readings from Apple Health or from a linked wearable account; the Privacy Policy, section 9a, describes them. The Privacy Policy describes this processing in detail, including who can see it and how long we keep it.
 
-Some features send your data to service providers acting on our instructions, in particular our AI provider in Switzerland, and our database, hosting and email providers. These are listed in the Privacy Policy.
+Some features send your data to service providers acting on our instructions, in particular our AI provider in Switzerland (Infomaniak), OpenAI in the United States for recognising the foods in your meals and nothing else, and our database, hosting and email providers. They are listed in section 11 of the Privacy Policy, and its section 8b sets out exactly what is sent to OpenAI and what is not.
 
 ### 9. AI-generated content, and its limits
 
@@ -123,7 +127,7 @@ FunctionAlps (its software, design, text, branding and the scoring and analysis 
 
 Reports and other output generated for you are yours to keep, use and share for your own purposes, including with your own health professionals.
 
-Our nutritional figures are derived from third-party food composition data, which we acknowledge with thanks: the United States Department of Agriculture’s Standard Reference collection; the CIQUAL food composition table published by ANSES (France); and Open Food Facts for branded and barcoded products, whose database is made available by its contributors under the Open Database Licence. Those sources retain their own rights in their data, and each is used under its own terms.
+Many of our nutritional figures are derived from third-party food composition data, which we acknowledge with thanks: the United States Department of Agriculture’s Standard Reference collection; the CIQUAL food composition table published by ANSES (France); and Open Food Facts for branded and barcoded products, whose database is made available by its contributors under the Open Database Licence. Those sources retain their own rights in their data, and each is used under its own terms.
 
 ### 14. Fees
 

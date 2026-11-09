@@ -25,7 +25,7 @@ L’analyse est effectuée sur notre propre infrastructure, par notre fournisseu
 
 FunctionAlps recourt à l’IA pour des parties définies du service : identifier les aliments sur une photographie ou dans une description, estimer les portions, convertir la voix en texte, noter les repas, détecter des tendances, rédiger vos rapports et rédiger la synthèse d’un questionnaire du site internet. Votre accord ici couvre ce traitement : ce n’est pas une décision distincte, car il n’existe aucune version du service qui fonctionne sans lui.
 
-L’identification des aliments sur une photo ou une description de repas s’exécute chez OpenAI, aux États-Unis ; le reste de l’analyse s’exécute sur l’infrastructure d’Infomaniak à Genève, en Suisse. En dehors de ces photos et descriptions de repas, vos données ne sont transmises ni à OpenAI, ni à Google, ni à Anthropic, ni à aucun autre fournisseur d’IA généraliste, et elles ne servent jamais à entraîner les modèles de quiconque.
+L’identification des aliments sur une photo ou une description de repas s’exécute chez OpenAI, aux États-Unis, sans votre nom ni aucun identifiant vous concernant (Déclaration de confidentialité, section 8b) ; le reste de l’analyse s’exécute sur l’infrastructure d’Infomaniak à Genève, en Suisse. En dehors de ces photos et descriptions de repas, vos données ne sont transmises ni à OpenAI, ni à Google, ni à Anthropic, ni à aucun autre fournisseur d’IA généraliste, et elles ne servent jamais à entraîner les modèles de quiconque.
 
 Nous détachons votre nom, votre adresse électronique et vos coordonnées avant tout envoi pour analyse. Nous ne prétendons pas pour autant que le résultat soit anonyme : une photographie peut montrer un visage ou une pièce, et un texte libre ou un enregistrement vocal peut contenir un nom. Il s’agit toujours de vos données personnelles, avec l’ensemble des protections et des droits qui s’y attachent.
 
@@ -75,4 +75,4 @@ Le retrait ne supprime pas vos données. Vous pouvez consentir à nouveau et rep
 
 Vous pouvez à tout moment consulter, corriger, exporter ou supprimer vos données de santé, limiter le traitement ou vous y opposer, et saisir le Préposé fédéral à la protection des données et à la transparence ou, dans l’EEE, votre autorité locale de protection des données. La Déclaration de confidentialité détaille chaque droit, la manière de l’exercer et les délais que nous respectons.
 
-Pour toute question : data@functionalps.ch.
+Pour toute question : thomas@functionalps.ch.

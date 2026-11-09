@@ -17,7 +17,7 @@ C’est la partie la plus automatique de l’application ; elle mérite donc d�
 
 - Le modèle examine votre photographie ou lit votre description, et identifie quels aliments sont présents et en quelle quantité approximative.
 - Chaque aliment identifié est ensuite rapproché de tables de composition alimentaire publiées : la collection Standard Reference du Département de l’agriculture des États-Unis, la table CIQUAL publiée par l’ANSES, et, pour les produits de marque et à code-barres, Open Food Facts.
-- Les valeurs nutritionnelles proviennent de ces tables de référence, et non de la mémoire du modèle. Le rôle du modèle est de dire ce qu’est l’aliment ; la base de données fournit ce qu’il contient.
+- Les valeurs nutritionnelles de chaque aliment (pour 100 g) proviennent de ces tables de référence, ou sont estimées par le modèle d’OpenAI à partir du seul nom de l’aliment, sans photo et sans rien qui vous concerne. Lorsque vous avez corrigé un aliment, ses valeurs proviennent toujours des tables de référence. Une valeur estimée par le modèle est une estimation, et non une donnée publiée.
 - Vos macronutriments, micronutriments et scores de repas sont ensuite calculés à partir de ces valeurs par des règles fixes inscrites dans notre propre code, et non rédigées par le modèle.
 
 ### 3. Où l’erreur s’introduit, et elle s’introduit
@@ -38,7 +38,7 @@ En dehors des photos et descriptions de repas transmises à OpenAI pour identifi
 
 ### 5. Ce qui est réellement transmis, et les limites honnêtes de la dépersonnalisation
 
-Avant tout envoi pour analyse, nous détachons vos identifiants directs : votre nom, votre adresse électronique et vos coordonnées ne sont pas joints à ce qui parvient au modèle. Ce qui est transmis, c’est le repas, la photographie, les chiffres et les réponses de vos bilans.
+Avant tout envoi pour analyse, nous détachons vos identifiants directs : votre nom, votre adresse électronique et vos coordonnées ne sont pas joints à ce qui parvient au modèle. À OpenAI, nous n’envoyons que la photo et la description du repas, puis le nom des aliments reconnus ; la Déclaration de confidentialité, section 8b, le décrit étape par étape. À Infomaniak, en Suisse, nous envoyons ce dont l’analyse a besoin : vos repas, les chiffres et les réponses de vos bilans.
 
 Nous tenons à être francs sur les limites de cette mesure, car elles sont réelles. Une photographie peut montrer votre visage, vos mains, votre cuisine ou un document posé sur la table. Une note libre ou un enregistrement vocal peut contenir un nom, un lieu ou un détail qui vous identifie. La dépersonnalisation réduit sensiblement le risque ; elle ne transforme pas vos données en données anonymes.
 
@@ -78,4 +78,4 @@ FunctionAlps est alors désactivée jusqu’à ce que vous consentiez à nouveau
 
 ### 11. Questions
 
-Toute question sur le fonctionnement de l’IA, sur ce qu’elle a reçu ou sur ce qu’elle a produit à votre sujet : data@functionalps.ch. Vous avez le droit d’obtenir une explication du traitement et de demander la correction ou la suppression de ce qu’il a produit.
+Toute question sur le fonctionnement de l’IA, sur ce qu’elle a reçu ou sur ce qu’elle a produit à votre sujet : thomas@functionalps.ch. Vous avez le droit d’obtenir une explication du traitement et de demander la correction ou la suppression de ce qu’il a produit.

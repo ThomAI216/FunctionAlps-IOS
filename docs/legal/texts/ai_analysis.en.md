@@ -17,7 +17,7 @@ This is the most automatic part of the app, so it is worth setting out step by s
 
 - The model looks at your photograph or reads your description, and identifies which foods are present and roughly how much of each.
 - Each identified food is then matched against published food composition databases: the United States Department of Agriculture’s Standard Reference collection, the French food composition table CIQUAL published by ANSES, and, for branded and barcoded products, Open Food Facts.
-- The nutritional figures come from those reference tables, not from the model’s own recollection. The model’s job is to say what the food is; the database supplies what is in it.
+- The nutritional figures for each food (per 100 g) come from those reference tables, or are estimated by the OpenAI model from the name of the food alone, with no photograph and nothing about you. Where you have corrected a food, its figures always come from the reference tables. A figure estimated by the model is an estimate, not published data.
 - Your macronutrients, micronutrients and meal scores are then calculated from those figures by fixed rules in our own code, not written by the model.
 
 ### 3. Where error enters, and it does
@@ -38,7 +38,7 @@ Apart from the meal photographs and descriptions sent to OpenAI to identify the 
 
 ### 5. What is actually sent, and the honest limits of de-identification
 
-Before anything is sent for analysis, we detach your directly identifying information: your name, email address and contact details are not attached to what goes to the model. What is sent is the meal, the photograph, the numbers, and the check-in answers themselves.
+Before anything is sent for analysis, we detach your directly identifying information: your name, email address and contact details are not attached to what goes to the model. To OpenAI we send only the meal photograph and description, and then the names of the recognised foods; the Privacy Policy, section 8b, sets this out step by step. To Infomaniak, in Switzerland, we send what the analysis needs: your meals, the numbers and your check-in answers.
 
 We want to be straightforward about the limits of that, because they are real. A photograph can show your face, your hands, your kitchen or a document on the table. A free-text note or a voice recording can contain your name, a place, or a detail that identifies you. De-identification substantially reduces the risk; it does not turn your data into anonymous data.
 
@@ -78,4 +78,4 @@ FunctionAlps is then disabled until you consent again, or delete your account. N
 
 ### 11. Questions
 
-Anything about how the AI works, what it received, or what it produced about you: data@functionalps.ch. You have the right to an explanation of the processing, and to ask us to correct or delete what it produced.
+Anything about how the AI works, what it received, or what it produced about you: thomas@functionalps.ch. You have the right to an explanation of the processing, and to ask us to correct or delete what it produced.

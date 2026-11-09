@@ -40,12 +40,16 @@ Notre site internet propose également un court questionnaire d’auto-évaluati
 
 FunctionAlps n’est pas un service médical et n’exerce pas la médecine. Elle ne diagnostique, ne traite, ne guérit, ne prévient ni ne surveille aucune maladie, blessure ou infirmité. Rien de ce que nous vous montrons (dans l’application, sur le tableau de bord membres, dans un questionnaire du site internet ou dans un courriel) ne constitue un avis médical, une prescription, ni un substitut à la consultation d’un professionnel de santé qualifié vous ayant examiné.
 
-- Ce n’est pas un dispositif médical, et nous ne la destinons à aucune finalité médicale au sens de l’Ordonnance suisse sur les dispositifs médicaux ou du Règlement (UE) 2017/745. Ne l’utilisez pas comme tel.
+- Ce n’est pas un dispositif médical. Nous ne lui attribuons aucune finalité médicale au sens de la loi fédérale sur les médicaments et les dispositifs médicaux (loi sur les produits thérapeutiques, LPTh), de l’ordonnance sur les dispositifs médicaux (ODim) ou du règlement (UE) 2017/745 relatif aux dispositifs médicaux. C’est un choix délibéré, et c’est pourquoi FunctionAlps ne porte pas de marquage CE : ce marquage est réservé aux dispositifs médicaux, et l’apposer sur un service qui n’en est pas un serait trompeur. Ne l’utilisez pas comme un dispositif médical.
 - Ce n’est pas un outil de diagnostic. Un score, un signalement ou une observation décrit ce que vous nous avez indiqué, et non une constatation sur votre santé.
 - Ce n’est pas un service de surveillance. Personne ne consulte vos données en temps réel, et aucune alerte n’est déclenchée si vos saisies changent ou s’interrompent.
 - Ce n’est pas un service d’urgence. Voir la section 5.
 - Ce n’est ni une pharmacie ni un service de conseil en compléments alimentaires. Ne commencez, n’arrêtez et ne modifiez aucun médicament ni complément sur la base de ce que FunctionAlps vous montre.
 - Ses valeurs nutritionnelles sont des estimations issues de photographies et de descriptions, et non des mesures de laboratoire ; elles peuvent être sensiblement erronées.
+
+**Vos résultats d’analyses et vos documents médicaux.** Vous pouvez conserver dans FunctionAlps des documents médicaux, comme des résultats d’analyses de laboratoire, et les partager avec votre équipe de soins. FunctionAlps les conserve, les affiche, les transmet à votre équipe de soins et, uniquement si vous y consentez séparément, les met en ordre par date sans les interpréter. Elle n’en tire aucun diagnostic, aucune évaluation de risque et aucune recommandation de traitement.
+
+Ce qui fait d’un logiciel un dispositif médical, c’est la finalité médicale que lui donne celui qui le met à disposition (par exemple diagnostiquer, surveiller une maladie ou orienter un traitement), et non le type de données qu’il contient. Un logiciel qui se limite à conserver, afficher, transmettre ou restituer fidèlement des informations de santé n’est pas, de ce seul fait, un dispositif médical. L’interprétation de vos résultats revient à votre médecin ou à votre praticienne.
 
 ### 5. Urgences et symptômes urgents
 
@@ -73,7 +77,7 @@ Nous pouvons devoir vous contacter au sujet du service lui-même (sécurité, mo
 
 Lorsque vous enregistrez un repas, un bilan, un symptôme, un complément ou un message (dans l’application ou sur le tableau de bord membres, peu importe) nous le conservons, l’analysons et l’utilisons pour produire vos scores, vos tendances et vos rapports. Les réponses données dans un questionnaire du site internet sont traitées de la même manière, tout comme les mesures provenant d’Apple Santé ou d’un compte d’objet connecté lié ; la Déclaration de confidentialité, section 9a, les décrit. La Déclaration de confidentialité décrit ce traitement en détail.
 
-Certaines fonctionnalités transmettent vos données à des prestataires agissant sur nos instructions, en particulier notre fournisseur d’IA en Suisse, ainsi que nos prestataires d’hébergement, de base de données et de courrier électronique. Ils sont énumérés dans la Déclaration de confidentialité.
+Certaines fonctionnalités transmettent vos données à des prestataires agissant sur nos instructions, en particulier notre fournisseur d’IA en Suisse (Infomaniak), OpenAI aux États-Unis pour la seule reconnaissance des aliments de vos repas, ainsi que nos prestataires d’hébergement, de base de données et de courrier électronique. Ils sont énumérés à la section 11 de la Déclaration de confidentialité, et sa section 8b décrit précisément ce qui est transmis à OpenAI et ce qui ne l’est pas.
 
 ### 9. Contenus générés par l’IA et leurs limites
 
@@ -123,7 +127,7 @@ FunctionAlps (ses logiciels, sa conception, ses textes, sa marque ainsi que les 
 
 Les rapports et autres résultats produits pour vous vous appartiennent : vous pouvez les conserver, les utiliser et les partager, y compris avec vos propres professionnels de santé.
 
-Nos valeurs nutritionnelles proviennent de données de composition alimentaire de tiers, que nous remercions : la collection Standard Reference du Département de l’agriculture des États-Unis (USDA) ; la table de composition nutritionnelle CIQUAL publiée par l’ANSES (France) ; et Open Food Facts pour les produits de marque et à code-barres, dont la base est mise à disposition par ses contributeurs sous licence Open Database Licence. Ces sources conservent leurs propres droits sur leurs données, et chacune est utilisée selon ses propres conditions.
+Une grande partie de nos valeurs nutritionnelles provient de données de composition alimentaire de tiers, que nous remercions : la collection Standard Reference du Département de l’agriculture des États-Unis (USDA) ; la table de composition nutritionnelle CIQUAL publiée par l’ANSES (France) ; et Open Food Facts pour les produits de marque et à code-barres, dont la base est mise à disposition par ses contributeurs sous licence Open Database Licence. Ces sources conservent leurs propres droits sur leurs données, et chacune est utilisée selon ses propres conditions.
 
 ### 14. Frais
 

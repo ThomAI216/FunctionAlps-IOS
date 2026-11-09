@@ -5,7 +5,7 @@ La présente déclaration explique quelles données personnelles FunctionAlps co
 ### 1. En bref
 
 - Nous traitons ce que vous enregistrez (repas et photographies, bilans, symptômes, compléments, mesures) pour vous montrer comment votre corps réagit à votre alimentation. Peu importe que vous l’ayez saisi dans l’application ou sur le tableau de bord membres : c’est un seul et même dossier.
-- Les photos et descriptions de vos repas sont transmises à OpenAI, aux États-Unis, pour identifier les aliments et estimer les portions. Tout le reste est analysé par Infomaniak, fournisseur suisse, sur une infrastructure située à Genève, et n’est transmis ni à OpenAI, ni à Google, ni à Anthropic, ni à aucun autre fournisseur d’IA généraliste. Aucune de vos données ne sert à entraîner les modèles de quiconque.
+- Les photos et descriptions de vos repas sont transmises à OpenAI, aux États-Unis, pour identifier les aliments et estimer les portions, sans votre nom ni aucun identifiant qui permettrait à OpenAI de savoir qu’elles viennent de vous (voir la section 8b). Tout le reste est analysé par Infomaniak, fournisseur suisse, sur une infrastructure située à Genève, et n’est transmis ni à OpenAI, ni à Google, ni à Anthropic, ni à aucun autre fournisseur d’IA généraliste. Aucune de vos données ne sert à entraîner les modèles de quiconque.
 - Si vous utilisez la saisie vocale, l’enregistrement est transcrit par Infomaniak puis traité comme toute autre saisie.
 - Si vous connectez Apple Santé sur votre iPhone, nous lisons les mesures que vous autorisez (pas, sommeil, fréquence cardiaque et données similaires, y compris ce que votre Apple Watch a enregistré) et rien n’y est écrit en retour. Voir la section 9a.
 - Si vous liez un compte d’objet connecté (Oura, WHOOP, Polar, Garmin, Withings, Suunto ou Google Fitbit), nous recevons les mesures que ce service détient à votre sujet, au moyen d’un identifiant d’accès que vous pouvez révoquer à tout moment. Voir aussi la section 9a.
@@ -87,7 +87,7 @@ Si vous le retirez, nous ne pouvons plus fournir FunctionAlps, car le traitement
 
 ### 8. Traitement par IA, profilage et décisions automatisées
 
-L’identification des aliments sur une photo ou une description de repas, et l’estimation de leurs portions, sont effectuées par un modèle d’IA exploité par OpenAI aux États-Unis. L’estimation des nutriments, la notation des repas, la détection de tendances et la rédaction des rapports sont effectuées par des modèles d’IA exploités par Infomaniak sur une infrastructure située à Genève, en Suisse.
+L’identification des aliments sur une photo ou une description de repas, et l’estimation de leurs portions, sont effectuées par un modèle d’IA exploité par OpenAI aux États-Unis. Les valeurs nutritionnelles de chaque aliment reconnu proviennent de nos tables de référence ou sont estimées par ce même modèle d’OpenAI à partir du seul nom de l’aliment. La section 8b décrit précisément ces deux étapes. La notation des repas suit des règles fixes inscrites dans notre propre code. La détection de tendances et la rédaction des rapports sont effectuées par des modèles d’IA exploités par Infomaniak sur une infrastructure située à Genève, en Suisse.
 
 Il s’agit d’un profilage au sens du RGPD : nous analysons vos données pour évaluer des aspects de votre santé et de vos habitudes. Nous ne prenons toutefois aucune décision produisant des effets juridiques vous concernant ou vous affectant de manière significative au sens de l’article 22 du RGPD. Rien dans FunctionAlps ne décide quoi que ce soit à votre sujet ; le service décrit et suggère, et toute décision qui en découle vous appartient, ou appartient à votre praticienne.
 
@@ -108,6 +108,22 @@ Ce que deviennent vos réponses : nous les évaluons au moyen de règles fixes �
 Vos réponses sont des données de santé, et nous recueillons votre consentement explicite sur le questionnaire lui-même avant toute réponse. La synthèse est générée automatiquement et personne ne la contrôle individuellement avant qu’elle vous parvienne. Elle ne constitue ni un diagnostic ni un avis médical.
 
 Si vous créez ensuite un compte FunctionAlps avec la même adresse électronique, nous pouvons y rattacher l’évaluation afin que vous ne la perdiez pas. À défaut, elle est conservée pendant la durée indiquée à la section 13 puis supprimée. Vous pouvez nous demander de la supprimer plus tôt à thomas@functionalps.ch, sans avoir besoin d’un compte pour cela.
+
+### 8b. Photos de repas et OpenAI : ce qui est transmis exactement
+
+Une seule fonction de FunctionAlps fait appel à un fournisseur établi hors d’Europe : reconnaître les aliments sur la photo ou dans la description d’un repas. Voici précisément comment elle se déroule.
+
+1. Vous photographiez ou décrivez un repas. Avant l’envoi, l’application réenregistre la photo en image compressée, ce qui en retire les métadonnées que contient un fichier photo (lieu, date, modèle de l’appareil). Si vous décrivez le repas à voix haute, l’enregistrement est transcrit par Infomaniak en Suisse ; l’audio n’est jamais envoyé à OpenAI.
+2. Nos serveurs envoient à OpenAI uniquement : la ou les photos du repas (quatre au plus), le texte de votre description si vous en avez écrit ou dicté une, et nos instructions d’analyse. Aucun nom, aucune adresse électronique, aucun numéro de téléphone, aucune date de naissance, aucun identifiant de compte ou de membre, et aucune autre donnée de votre dossier (bilans, symptômes, mesures, documents médicaux) n’accompagne cet envoi. La demande est faite par nos serveurs, au nom de FunctionAlps : OpenAI ne reçoit ni votre adresse IP ni aucun moyen de savoir de qui provient la photo.
+3. OpenAI renvoie une simple liste : le nom du plat, les aliments reconnus, une estimation de leur poids en grammes et quelques caractéristiques de préparation (par exemple frit ou industriel). Cette réponse ne contient aucune information personnelle.
+4. Nous rattachons cette liste à votre repas, dans votre dossier conservé dans l’Union européenne. C’est seulement chez nous que le résultat est relié à vous.
+5. Pour les valeurs nutritionnelles, seul le nom de chaque aliment reconnu (par exemple « riz complet cuit ») peut être envoyé à OpenAI, sans photo, sans description et sans rien qui vous concerne. Lorsque vous avez corrigé un aliment, ou si OpenAI ne répond pas, les valeurs proviennent de nos tables de référence.
+
+**Ce qu’OpenAI fait de ces données.** OpenAI agit comme notre sous-traitant, sur nos instructions, dans le cadre d’un accord de traitement des données. Il n’utilise pas ce qu’il reçoit pour entraîner ses modèles. Il peut le conserver jusqu’à 30 jours, dans le seul but de détecter les abus, puis le supprime. Nous ne lui demandons pas de conserver nos échanges.
+
+**Pourquoi nous ne disons pas « anonyme ».** Une photo de repas peut montrer, sans que vous le vouliez, un visage, une main, un reflet, une pièce de votre logement ou un document posé sur la table, et une description peut contenir un nom ou un lieu. OpenAI ne reçoit aucun moyen de relier la photo à vous, mais nous ne pouvons pas garantir que son contenu ne permette jamais de reconnaître quelqu’un. Nous la traitons donc comme une donnée personnelle, et comme une donnée de santé puisqu’elle fait partie de votre suivi nutritionnel, avec toutes les garanties qui s’y attachent. Le plus sûr : cadrez l’assiette, et rien d’autre.
+
+Les garanties qui encadrent ce transfert vers les États-Unis sont décrites à la section 12.
 
 ### 9. Enregistrements vocaux
 
@@ -141,7 +157,7 @@ Nous faisons appel à un petit nombre de prestataires, chacun agissant sur nos i
 
 - Supabase : base de données, authentification et stockage de fichiers. Hébergement dans l’Union européenne (Stockholm, Suède).
 - Infomaniak : analyse par IA, transcription vocale et messagerie transactionnelle. Suisse (Genève).
-- OpenAI : identification des aliments sur les photos et descriptions de vos repas. États-Unis. OpenAI peut conserver ce qu’il reçoit jusqu’à 30 jours pour détecter les abus, puis le supprime, et ne l’utilise pas pour entraîner ses modèles.
+- OpenAI : reconnaissance des aliments sur les photos et descriptions de vos repas, et valeurs nutritionnelles à partir du seul nom des aliments reconnus, sans aucun identifiant vous concernant (section 8b). États-Unis. OpenAI peut conserver ce qu’il reçoit jusqu’à 30 jours pour détecter les abus, puis le supprime, et ne l’utilise pas pour entraîner ses modèles.
 - Google ou Apple : uniquement si vous choisissez l’une de ces connexions, et alors seulement pour vous authentifier.
 - Apple : pour les notifications, si vous les autorisez sur votre iPhone : Apple délivre la notification et ne reçoit que le jeton de votre appareil ; le texte ne contient jamais de données de santé.
 - Vercel : héberge l’application web et le tableau de bord membres et en distribue les fichiers par un réseau mondial ; il voit les données techniques de votre connexion, dont votre adresse IP, et rien de ce que vous enregistrez.

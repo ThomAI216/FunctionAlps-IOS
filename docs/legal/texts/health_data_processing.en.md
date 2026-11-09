@@ -25,7 +25,7 @@ The analysis is carried out on our own infrastructure, by our AI provider in Swi
 
 FunctionAlps uses AI for defined parts of the service: identifying foods in a photograph or description, estimating portions, converting voice to text, scoring meals, detecting patterns, drafting your reports, and writing the summary of a website assessment. Agreeing here covers that processing: it is not a separate decision, because there is no version of the service that works without it.
 
-Identifying the foods in a meal photograph or description runs on OpenAI in the United States; the rest of the analysis runs on Infomaniak’s infrastructure in Geneva, Switzerland. Apart from those meal photographs and descriptions, your data is not sent to OpenAI, Google, Anthropic or any other general-purpose AI provider, and it is never used to train anyone’s models.
+Identifying the foods in a meal photograph or description runs on OpenAI in the United States, without your name or any identifier about you (Privacy Policy, section 8b); the rest of the analysis runs on Infomaniak’s infrastructure in Geneva, Switzerland. Apart from those meal photographs and descriptions, your data is not sent to OpenAI, Google, Anthropic or any other general-purpose AI provider, and it is never used to train anyone’s models.
 
 We remove your name, email address and contact details before anything is sent for analysis. We do not claim the result is anonymous: a photograph can show a face or a room, and free text or a voice recording can carry a name. It stays your personal data, with every protection and right attached.
 
@@ -75,4 +75,4 @@ Withdrawing does not delete your data. You can give consent again and pick up wh
 
 You can see, correct, export or delete your health data at any time, restrict or object to processing, and complain to the Swiss Federal Data Protection and Information Commissioner or, in the EEA, your local data protection authority. The Privacy Policy explains each right, how to use it, and the deadlines we work to.
 
-Questions about any of this: data@functionalps.ch.
+Questions about any of this: thomas@functionalps.ch.
