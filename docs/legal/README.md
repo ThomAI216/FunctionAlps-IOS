@@ -13,6 +13,7 @@ in place, because a member's acceptance points at the exact text they read.
 | `tools/build_migration.py` | Generates the SQL that publishes `texts/` as version N+1 |
 | `pending/*.sql` | Generated SQL that has **not** been applied yet |
 | `EXPERT_BRIEF_2026-11.md` | The brief for the legal review of the 2026-11 revision (French) |
+| `EU_BRUSSELS_ANALYSIS_2026-11.md` | EU-level retention rules, and what a Brussels company would change |
 
 ## The 2026-11-09 revision
 
