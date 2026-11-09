@@ -172,8 +172,10 @@ export function sanitiseError(err: unknown, code = "UNKNOWN"): string {
 // WHICH UPSTREAM IDENTIFIES THE MEAL. Infomaniak unless the operator sets the secret
 // MEAL_AI_PROVIDER=openai. It is an explicit switch, never inferred from OPENAI_API_KEY
 // merely existing: a key set for something else must not move member meals to another
-// provider. Flip it only once the published consents (privacy_policy, ai_analysis,
-// health_data_processing) name OpenAI — until then they promise the opposite.
+// provider. LIVE SETTING: openai, since 2026-09-26 (resolution_meta.model on the rows).
+// Thomas's decision, 2026-11-09: the meal photo and the food names may go to OpenAI,
+// never anything identifying — no name, no patient id, no member note. Keep it that way:
+// the request below carries the image and the words about food, nothing else.
 // Both speak the same Chat Completions contract; the prompt and the parse are shared.
 export type IdentifyProvider = "infomaniak" | "openai"
 export const IDENTIFY_PROVIDER: IdentifyProvider =
