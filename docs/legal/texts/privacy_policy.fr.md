@@ -167,7 +167,7 @@ Nous faisons appel à un petit nombre de prestataires, chacun agissant sur nos i
 
 Vos données sont conservées et traitées dans l’Union européenne et en Suisse, à une exception près : les photos et descriptions de vos repas sont transmises à OpenAI, aux États-Unis, pour identifier les aliments, avec les garanties décrites au paragraphe suivant. L’Union européenne et la Suisse se reconnaissent mutuellement un niveau de protection adéquat, et la Suisse bénéficie d’une décision d’adéquation de la Commission européenne. Les fichiers de l’application web sont distribués par le réseau mondial de Vercel, qui ne voit que vos données de connexion ; tout ce que vous enregistrez est conservé dans l’UE et en Suisse comme décrit.
 
-Lorsqu’un prestataire ou sa société mère est établi hors de Suisse ou de l’EEE, les transferts sont encadrés par des garanties appropriées : les clauses contractuelles types de la Commission européenne, dans la version reconnue par les autorités suisses, assorties de mesures techniques complémentaires telles que le chiffrement en transit et au repos. Vous pouvez nous demander le détail des garanties applicables à un prestataire déterminé.
+Lorsqu’un prestataire ou sa société mère est établi hors de Suisse ou de l’EEE, les transferts sont encadrés par des garanties appropriées : les clauses contractuelles types de la Commission européenne, dans la version reconnue par les autorités suisses, assorties de mesures techniques complémentaires telles que le chiffrement en transit et au repos. C’est le cas d’OpenAI. Les États-Unis ne sont reconnus comme offrant un niveau de protection adéquat que pour les entreprises certifiées au Data Privacy Framework (UE–États-Unis et Suisse–États-Unis), et OpenAI ne l’est pas. Le transfert de vos photos et descriptions de repas repose donc sur les clauses contractuelles types intégrées à notre accord de traitement des données avec OpenAI, complétées par les mesures décrites à la section 8b : aucun identifiant transmis, conservation limitée à 30 jours, aucune utilisation pour l’entraînement. Vous pouvez nous demander le détail des garanties applicables à un prestataire déterminé.
 
 ### 13. Durées de conservation
 
@@ -175,17 +175,19 @@ Nous ne conservons les données que le temps nécessaire à la finalité pour la
 
 - Données de compte et de profil : tant que votre compte est actif.
 - Repas, bilans, symptômes et compléments : tant que votre compte est actif, afin que votre historique et vos tendances vous restent accessibles.
-- Enregistrements vocaux : l’audio n’est conservé que le temps nécessaire à la production et à la vérification de la transcription, puis supprimé ; la transcription suit l’élément auquel elle se rattache.
+- Dictée vocale dans l’application (repas, bilans, messages) : l’audio n’est jamais enregistré sur nos serveurs. Il est transmis à Infomaniak pour être transcrit, puis écarté dès que le texte est revenu ; le texte suit l’élément auquel il se rattache.
+- Notes vocales que vous déposez dans Analyses, sur le tableau de bord membres : l’audio est conservé avec la note jusqu’à ce que vous la supprimiez ou supprimiez votre compte.
 - Mesures d’objets connectés : tant que votre compte est actif, comme le reste de votre dossier ; les envois bruts de votre téléphone sont conservés avec elles afin qu’une valeur puisse toujours être rattachée à ce que le téléphone a transmis.
 - Identifiants d’accès des comptes d’objets connectés liés : jusqu’à ce que vous dissociez le compte, le révoquiez chez le fournisseur ou supprimiez votre compte ; supprimés immédiatement ensuite.
 - Copies brutes de ce qu’un compte d’objet connecté lié a transmis : 30 jours après sa dissociation, ou immédiatement si vous nous demandez de supprimer ces mesures.
 - Rapports et interprétations générés : 12 mois, ou jusqu’à ce que vous les supprimiez.
 - Auto-évaluations du site internet et leurs synthèses : 12 mois à compter du jour où vous avez rempli le questionnaire, ou jusqu’à ce que vous nous demandiez leur suppression, ou jusqu’à leur rattachement à un compte, après quoi elles en suivent le sort.
 - Messages : tant que votre compte est actif.
-- Journaux techniques et de sécurité : une durée courte, adaptée au diagnostic et à l’investigation des incidents, et au maximum 12 mois.
-- Après suppression de votre compte : l’ensemble de vos données personnelles est effacé dans les 30 jours.
-- Traces de consentement : conservées après suppression aussi longtemps que la loi l’exige, car elles constituent la preuve de la licéité du traitement. Elles ne contiennent aucune donnée de santé.
-- Documents que votre praticienne doit conserver : conservés par elle, séparément de FunctionAlps, pendant la durée exigée par le droit suisse.
+- Journaux techniques et de sécurité : 12 mois à compter de chaque événement, puis supprimés, y compris après la suppression de votre compte. Cette durée correspond au minimum d’un an que l’article 4 de l’ordonnance sur la protection des données (OPDo) prévoit pour la journalisation des traitements de données sensibles.
+- Après suppression de votre compte : l’ensemble de vos données personnelles est effacé dans les 30 jours, à l’exception des éléments énumérés ci-dessous.
+- Traces de consentement : 10 ans après la suppression de votre compte, soit le délai de prescription de 10 ans du droit suisse (articles 60 et 127 du Code des obligations), car elles constituent la preuve de la licéité du traitement. Elles ne contiennent aucune donnée de santé.
+- Pièces comptables, si vous avez effectué un paiement : 10 ans à compter de la fin de l’exercice concerné (article 958f du Code des obligations). Elles ne contiennent aucune donnée de santé.
+- Dossier tenu par votre praticienne : conservé par elle, séparément de votre compte, pendant 20 ans après la fin de votre suivi, durée minimale fixée par l’article 32 de la loi valaisanne sur la santé, puis détruits.
 
 ### 14. Comment nous protégeons vos données
 

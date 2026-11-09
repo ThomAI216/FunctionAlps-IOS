@@ -18,7 +18,7 @@ Encrypted in transit and at rest, on servers in the European Union, under the Sw
 
 ### 4. Deleting a file or a note
 
-You can delete any file or note from your space at any time, and it is removed at once. If your care team has already saved it to your clinical record, that copy is kept for the period Swiss law requires practitioners to keep medical records, and is then destroyed.
+You can delete any file or note from your space at any time, and it is removed at once. If your care team has already saved it to your clinical record, that copy is kept for 20 years after your follow-up ends, the minimum set by Article 32 of the Valais Health Act, and is then destroyed.
 
 ### 5. Withdrawing this consent
 

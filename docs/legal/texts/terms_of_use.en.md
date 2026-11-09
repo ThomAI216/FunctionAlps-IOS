@@ -155,7 +155,14 @@ If we end your access, we will tell you why, unless the law prevents us, and you
 
 Deleting your account permanently erases your personal data from FunctionAlps, within the timescale set out in the Privacy Policy.
 
-Two things survive deletion, and you should know this before you delete. First, records your practitioner is legally required to keep are retained by them for the retention period the law requires, separately from FunctionAlps. Second, we keep minimal records of your consents and of certain security and accounting events for as long as the law requires us to: this is what lets us prove we handled your data correctly.
+A few things survive deletion, each for a set period, and you should know this before you delete:
+
+- Your practitioner’s record. If a practitioner has followed you, what they recorded in your file is kept by them, separately from your account, for 20 years after your follow-up with them ends, the minimum set by Article 32 of the Valais Health Act, and are then destroyed.
+- Your consent history (which text, which version, which language, which day): 10 years after your account is deleted, the 10-year limitation period of Swiss law (Articles 60 and 127 of the Code of Obligations). It contains no health data; it lets us prove we processed your data lawfully.
+- Security logs: 12 months from each event, then deleted.
+- Accounting records, if you made a payment: 10 years from the end of the financial year concerned (Article 958f of the Code of Obligations). They contain no health data.
+
+Section 13 of the Privacy Policy lists every period.
 
 Export your data first if you want a copy. After deletion, we cannot recover it.
 

@@ -155,7 +155,14 @@ Si nous mettons fin à votre accès, nous vous en indiquerons le motif, sauf si 
 
 La suppression de votre compte efface définitivement vos données personnelles de FunctionAlps, dans le délai indiqué dans la Déclaration de confidentialité.
 
-Deux éléments y survivent, et il faut le savoir avant de supprimer. D’une part, les documents que votre praticienne est légalement tenue de conserver sont conservés par elle, séparément de FunctionAlps, pendant la durée exigée par la loi. D’autre part, nous conservons un registre minimal de vos consentements et de certains événements de sécurité et de comptabilité aussi longtemps que la loi l’impose : c’est ce qui nous permet de prouver que nous avons traité vos données correctement.
+Quelques éléments y survivent, pour une durée précise, et il faut le savoir avant de supprimer :
+
+- Le dossier de votre praticienne. Si vous avez été suivi·e par une praticienne, les éléments qu’elle a consignés dans votre dossier sont conservés par elle, séparément de votre compte, pendant 20 ans après la fin de votre suivi, durée minimale fixée par l’article 32 de la loi valaisanne sur la santé, puis détruits.
+- L’historique de vos consentements (quel texte, quelle version, quelle langue, quel jour) : 10 ans après la suppression de votre compte, soit le délai de prescription de 10 ans du droit suisse (articles 60 et 127 du Code des obligations). Il ne contient aucune donnée de santé ; il nous permet de prouver que nous avons traité vos données licitement.
+- Les journaux de sécurité : 12 mois à compter de chaque événement, puis supprimés.
+- Les pièces comptables, si vous avez effectué un paiement : 10 ans à compter de la fin de l’exercice concerné (article 958f du Code des obligations). Elles ne contiennent aucune donnée de santé.
+
+La Déclaration de confidentialité, section 13, reprend chaque durée.
 
 Exportez vos données au préalable si vous souhaitez en garder une copie. Après suppression, nous ne pouvons plus les restituer.
 

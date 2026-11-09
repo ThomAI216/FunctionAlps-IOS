@@ -61,7 +61,7 @@ Where a pattern or a flagged symptom may deserve attention, a summary may be rev
 
 While your account is active, so your own history and trends stay available to you. If you delete your account, your health data is erased within 30 days.
 
-Two things survive: records your practitioner is legally required to keep, which are retained by them separately from FunctionAlps for the period Swiss law requires; and the record of this consent itself, which contains no health data and exists to prove we processed yours lawfully.
+Two things survive: the record your practitioner keeps, kept by them separately from your account for 20 years after your follow-up with them ends, the minimum set by Article 32 of the Valais Health Act, and are then destroyed; and the record of this consent itself, which contains no health data, exists to prove we processed yours lawfully, and is kept for 10 years after your account is deleted (the limitation period in Articles 60 and 127 of the Code of Obligations).
 
 ### 8. Withdrawing
 

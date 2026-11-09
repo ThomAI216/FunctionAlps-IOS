@@ -18,7 +18,7 @@ Chiffrés pendant le transfert et au repos, sur des serveurs situés dans l'Unio
 
 ### 4. Supprimer un fichier ou une note
 
-Vous pouvez supprimer à tout moment un fichier ou une note de votre espace, et il est retiré immédiatement. Si votre équipe de soins l'a déjà enregistré dans votre dossier médical, cette copie est conservée aussi longtemps que le droit suisse oblige les praticiens à conserver les dossiers médicaux, puis détruite.
+Vous pouvez supprimer à tout moment un fichier ou une note de votre espace, et il est retiré immédiatement. Si votre équipe de soins l'a déjà enregistré dans votre dossier médical, cette copie est conservée 20 ans après la fin de votre suivi, durée minimale fixée par l’article 32 de la loi valaisanne sur la santé, puis détruite.
 
 ### 5. Retirer ce consentement
 

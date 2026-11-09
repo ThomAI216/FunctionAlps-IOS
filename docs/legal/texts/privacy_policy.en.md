@@ -167,7 +167,7 @@ We rely on a small number of providers, each acting on our instructions under a 
 
 Your data is stored and processed in the European Union and in Switzerland, with one exception: your meal photographs and meal descriptions are sent to OpenAI in the United States to identify the foods, under the safeguards described in the next paragraph. The European Union and Switzerland are each recognised by the other as providing an adequate level of data protection, and Switzerland is recognised as adequate by the European Commission. The web app’s files are delivered by Vercel’s global network, which sees only your connection data; everything you log is stored in the EU and Switzerland as described.
 
-Where a provider or its parent is established outside Switzerland or the EEA, transfers are protected by appropriate safeguards: the European Commission’s Standard Contractual Clauses, in the version recognised by the Swiss authorities, together with supplementary technical measures such as encryption in transit and at rest. You can ask us for details of the safeguards applying to any specific provider.
+Where a provider or its parent is established outside Switzerland or the EEA, transfers are protected by appropriate safeguards: the European Commission’s Standard Contractual Clauses, in the version recognised by the Swiss authorities, together with supplementary technical measures such as encryption in transit and at rest. That is the case for OpenAI. The United States is recognised as providing an adequate level of protection only for companies certified under the Data Privacy Framework (EU-US and Swiss-US), and OpenAI is not. The transfer of your meal photographs and descriptions therefore relies on the Standard Contractual Clauses in our data processing agreement with OpenAI, together with the measures described in section 8b: no identifier sent, retention limited to 30 days, no use for training. You can ask us for details of the safeguards applying to any specific provider.
 
 ### 13. How long we keep your data
 
@@ -175,17 +175,19 @@ We keep data only as long as it serves the purpose it was collected for:
 
 - Account and profile data: while your account is active.
 - Meals, check-ins, symptoms and supplements: while your account is active, so your own history and trends remain available to you.
-- Voice recordings: the audio is retained only as long as needed to produce and verify the transcript, and is then deleted; the transcript follows the entry it belongs to.
+- Voice dictation in the app (meals, check-ins, messages): the audio is never saved on our servers. It is sent to Infomaniak to be transcribed and discarded as soon as the text comes back; the text follows the entry it belongs to.
+- Voice notes you leave in Analyses, on the members dashboard: the audio is kept with the note until you delete it or delete your account.
 - Wearable readings: while your account is active, like the rest of your record; the raw submissions from your phone are kept alongside them so that a value can always be traced back to what the phone sent.
 - Access credentials for linked wearable accounts: until you unlink the account, revoke it at the vendor, or delete your account; then deleted immediately.
 - Raw copies of what a linked wearable account sent: 30 days after you unlink it, or right away when you ask us to delete those readings.
 - Generated reports and interpretations: 12 months, or until you delete them.
 - Website assessments and their summaries: 12 months from the day you took the assessment, or until you ask us to delete them, or until they are connected to an account, after which they follow that account.
 - Messages: while your account is active.
-- Technical and security logs: a short period appropriate to diagnosing and investigating incidents, and no longer than 12 months.
-- After you delete your account: all your personal data is erased within 30 days.
-- Consent records: retained after deletion for as long as the law requires, because they are the proof that we processed your data lawfully. They contain no health data.
-- Records your practitioner must keep: retained by them, separately from FunctionAlps, for the period Swiss law requires.
+- Technical and security logs: 12 months from each event, then deleted, including after your account is deleted. That matches the one-year minimum that Article 4 of the Swiss Data Protection Ordinance (DPO) sets for logging the processing of sensitive data.
+- After you delete your account: all your personal data is erased within 30 days, except for the items listed below.
+- Consent records: 10 years after your account is deleted, the 10-year limitation period of Swiss law (Articles 60 and 127 of the Code of Obligations), because they are the proof that we processed your data lawfully. They contain no health data.
+- Accounting records, if you made a payment: 10 years from the end of the financial year concerned (Article 958f of the Code of Obligations). They contain no health data.
+- The record your practitioner keeps: kept by them, separately from your account, for 20 years after your follow-up with them ends, the minimum set by Article 32 of the Valais Health Act, and are then destroyed.
 
 ### 14. How we protect your data
 

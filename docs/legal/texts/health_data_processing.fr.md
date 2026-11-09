@@ -61,7 +61,7 @@ Lorsqu’une tendance ou un symptôme signalé mérite attention, un résumé pe
 
 Tant que votre compte est actif, afin que votre historique et vos tendances vous restent accessibles. Si vous supprimez votre compte, vos données de santé sont effacées dans les 30 jours.
 
-Deux éléments y survivent : les documents que votre praticienne est légalement tenue de conserver, conservés par elle séparément de FunctionAlps pendant la durée exigée par le droit suisse ; et la trace du présent consentement, qui ne contient aucune donnée de santé et sert à prouver que nous avons traité les vôtres licitement.
+Deux éléments y survivent : le dossier tenu par votre praticienne, conservé par elle séparément de votre compte pendant 20 ans après la fin de votre suivi, durée minimale fixée par l’article 32 de la loi valaisanne sur la santé, puis détruits ; et la trace du présent consentement, qui ne contient aucune donnée de santé, sert à prouver que nous avons traité les vôtres licitement et est conservée 10 ans après la suppression de votre compte (délai de prescription des articles 60 et 127 du Code des obligations).
 
 ### 8. Retrait
 
