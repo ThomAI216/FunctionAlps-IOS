@@ -6,7 +6,7 @@
 //      honoured), for up to six hours, before the member is asked.
 import { assert, assertEquals } from "jsr:@std/assert@1"
 
-type Call = { model: string; messages: unknown }
+type Call = { url: string; auth: string; model: string; messages: unknown; temperature: unknown }
 
 const OK_CONTENT = JSON.stringify({
   dish_name: "Toast",
@@ -30,9 +30,15 @@ async function identifyWith(
   const mod = await import(`../meal-analysis.ts?rl=${tag}`)
   const calls: Call[] = []
   const realFetch = globalThis.fetch
-  globalThis.fetch = (async (_input: string | URL | Request, init?: RequestInit) => {
-    const body = JSON.parse(String(init?.body)) as { model: string; messages: unknown }
-    calls.push({ model: body.model, messages: body.messages })
+  globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body)) as { model: string; messages: unknown; temperature?: unknown }
+    calls.push({
+      url: String(input),
+      auth: new Headers(init?.headers).get("Authorization") ?? "",
+      model: body.model,
+      messages: body.messages,
+      temperature: body.temperature,
+    })
     return answer(body.model)
   }) as typeof fetch
   try {
@@ -76,6 +82,8 @@ Deno.test("a text meal rate-limited on the chat model falls back to the vision m
 Deno.test("both sovereign models rate-limited: retryable, flagged, Retry-After carried, both named", async () => {
   const { calls, result } = await identifyWith(IK, "both", () => tooMany("120"))
   assertEquals(calls.length, 2)
+  // A sovereign primary NEVER spills to OpenAI, however busy Geneva is.
+  assert(calls.every((c) => c.url.startsWith("https://api.infomaniak.com/")))
   assertEquals(result.ok, false)
   assertEquals(result.permanent, false)
   assertEquals(result.rateLimited, true)
@@ -106,10 +114,41 @@ Deno.test("SOVEREIGN_VISION_FALLBACK_MODEL='' switches the fallback off", async 
   assertEquals(result.retryAfterS, null)
 })
 
-Deno.test("the fallback is never OpenAI: MEAL_AI_PROVIDER=openai gets one provider and no second model", async () => {
+// 2026-11-08: the live provider was OpenAI (MEAL_AI_PROVIDER=openai since 2026-09-26) and it
+// answered 429 to every photo for 36 hours. The fallback goes TOWARDS the consents.
+Deno.test("MEAL_AI_PROVIDER=openai: a 429 from OpenAI sends the photo to Infomaniak's vision model, in Infomaniak's body shape", async () => {
   const { calls, result } = await identifyWith(
     { MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", INFOMANIAK_AI_API_KEY: "ik" },
-    "openai",
+    "openai-fallback",
+    (model) => model === "gpt-5.4-mini" ? tooMany() : ok(),
+  )
+  assertEquals(calls.length, 2)
+  assertEquals(calls[0].url, "https://api.openai.com/v1/chat/completions")
+  assertEquals(calls[0].auth, "Bearer sk")
+  assert(calls[1].url.startsWith("https://api.infomaniak.com/2/ai/"))
+  assertEquals(calls[1].auth, "Bearer ik")
+  assertEquals(calls[1].model, "google/gemma-4-31B-it")
+  assertEquals(calls[1].temperature, 0.2)
+  assertEquals(calls[1].messages, calls[0].messages)
+  assert(result.ok)
+  assertEquals(result.model, "google/gemma-4-31B-it")
+})
+
+Deno.test("MEAL_AI_PROVIDER=openai: a text meal falls back to Infomaniak's chat model", async () => {
+  const { calls, result } = await identifyWith(
+    { MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", INFOMANIAK_AI_API_KEY: "ik" },
+    "openai-text",
+    (model) => model === "gpt-5.4-mini" ? new Response("down", { status: 503 }) : ok(),
+    { description: "two eggs and toast" },
+  )
+  assertEquals(calls.map((c) => c.model), ["gpt-5.4-mini", "Qwen/Qwen3.8-27B-FP8"])
+  assert(result.ok)
+})
+
+Deno.test("MEAL_AI_PROVIDER=openai without an Infomaniak key: no second door, the 429 is reported as such", async () => {
+  const { calls, result } = await identifyWith(
+    { MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", INFOMANIAK_AI_API_KEY: undefined },
+    "openai-nokey",
     () => tooMany(),
   )
   assertEquals(calls.length, 1)

@@ -180,25 +180,28 @@ export const IDENTIFY_PROVIDER: IdentifyProvider =
   (Deno.env.get("MEAL_AI_PROVIDER") ?? "").trim().toLowerCase() === "openai" ? "openai" : "infomaniak"
 
 const PRODUCT = Deno.env.get("INFOMANIAK_AI_PRODUCT_ID") ?? Deno.env.get("INFOMANIAK_PRODUCT_ID") ?? "108797"
-const UPSTREAM = IDENTIFY_PROVIDER === "openai"
-  ? {
-    base: "https://api.openai.com/v1",
-    key: Deno.env.get("OPENAI_API_KEY"),
-    keyName: "OPENAI_API_KEY",
-    // One model for photos and words: gpt-5.4-mini reads images, and its default
-    // reasoning effort is `none`, which keeps a photo answer to a few seconds.
-    textModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
-    visionModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
-  }
-  : {
-    base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
-    key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
-    keyName: "INFOMANIAK_AI_API_KEY",
-    // Full id, never the `qwen3` alias: that pointed at Qwen3.5-122B, retired by Infomaniak
-    // on 2026-11-23. Qwen3.8 thinks by default, hence reasoning_effort "none" below.
-    textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "Qwen/Qwen3.8-27B-FP8",
-    visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
-  }
+type Upstream = { base: string; key: string | undefined; keyName: string; textModel: string; visionModel: string; openai: boolean }
+const OPENAI_UPSTREAM: Upstream = {
+  base: "https://api.openai.com/v1",
+  key: Deno.env.get("OPENAI_API_KEY"),
+  keyName: "OPENAI_API_KEY",
+  // One model for photos and words: gpt-5.4-mini reads images, and its default
+  // reasoning effort is `none`, which keeps a photo answer to a few seconds.
+  textModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+  visionModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+  openai: true,
+}
+const SOVEREIGN_UPSTREAM: Upstream = {
+  base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
+  key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
+  keyName: "INFOMANIAK_AI_API_KEY",
+  // Full id, never the `qwen3` alias: that pointed at Qwen3.5-122B, retired by Infomaniak
+  // on 2026-11-23. Qwen3.8 thinks by default, hence reasoning_effort "none" below.
+  textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "Qwen/Qwen3.8-27B-FP8",
+  visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
+  openai: false,
+}
+const UPSTREAM: Upstream = IDENTIFY_PROVIDER === "openai" ? OPENAI_UPSTREAM : SOVEREIGN_UPSTREAM
 const API_KEY = UPSTREAM.key
 const TEXT_MODEL = UPSTREAM.textModel
 
@@ -218,22 +221,30 @@ export const PRICING_SOURCE: PricingSource = !PRICING_KEY
   : IDENTIFY_PROVIDER === "openai" ? "openai" : "database"
 const PRICING_MODEL = Deno.env.get("OPENAI_PRICING_MODEL") ?? Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini"
 const VISION_MODEL = UPSTREAM.visionModel
-const BASE = UPSTREAM.base
 
-// THE SECOND SOVEREIGN MODEL. When the primary answers 429 or 5xx, the SAME request
-// goes once more to another model on the SAME Infomaniak product — Qwen3.8 reads
-// images too (CLINICAL lib/sovereign/models.ts), and gemma reads text. Still Swiss,
-// still inside the consents: this is a second model, never a second provider, which
-// is why the OpenAI tier gets none. An empty env value switches it off; a value
-// equal to the primary is ignored (it would be the same dice).
-function fallbackFor(envName: string, fallback: string, primary: string): string | null {
-  if (IDENTIFY_PROVIDER === "openai") return null
-  const raw = Deno.env.get(envName)
-  const v = raw === undefined ? fallback : raw.trim()
-  return v && v !== primary ? v : null
+// THE FALLBACK IS ALWAYS SOVEREIGN. When the primary answers 429 or 5xx, the SAME
+// request goes once more to a model on the Infomaniak product:
+//   - primary Infomaniak → the OTHER Infomaniak model (Qwen3.8 reads images too, per
+//     CLINICAL lib/sovereign/models.ts; gemma reads text). A second model, same provider.
+//   - primary OpenAI (MEAL_AI_PROVIDER=openai) → Infomaniak's own model for that input.
+//     That is the direction the published consents allow; the reverse — a sovereign
+//     primary spilling to OpenAI when Geneva is busy — never happens here.
+// 2026-11-08: OpenAI answered 429 to every photo for 36 hours and there was no second
+// door. SOVEREIGN_VISION_FALLBACK_MODEL / SOVEREIGN_TEXT_FALLBACK_MODEL override the
+// model; an empty value switches the fallback off; a value equal to a sovereign primary
+// is ignored (same dice). No Infomaniak key, no fallback.
+type Target = { upstream: Upstream; model: string }
+function fallbackTarget(kind: "vision" | "text"): Target | null {
+  const sovereignPrimary = kind === "vision" ? SOVEREIGN_UPSTREAM.visionModel : SOVEREIGN_UPSTREAM.textModel
+  const secondSovereign = kind === "vision" ? "Qwen/Qwen3.8-27B-FP8" : "google/gemma-4-31B-it"
+  const raw = Deno.env.get(kind === "vision" ? "SOVEREIGN_VISION_FALLBACK_MODEL" : "SOVEREIGN_TEXT_FALLBACK_MODEL")
+  const model = raw === undefined ? (UPSTREAM.openai ? sovereignPrimary : secondSovereign) : raw.trim()
+  if (!model || !SOVEREIGN_UPSTREAM.key) return null
+  if (!UPSTREAM.openai && model === sovereignPrimary) return null
+  return { upstream: SOVEREIGN_UPSTREAM, model }
 }
-const VISION_FALLBACK_MODEL = fallbackFor("SOVEREIGN_VISION_FALLBACK_MODEL", "Qwen/Qwen3.8-27B-FP8", UPSTREAM.visionModel)
-const TEXT_FALLBACK_MODEL = fallbackFor("SOVEREIGN_TEXT_FALLBACK_MODEL", "google/gemma-4-31B-it", UPSTREAM.textModel)
+const VISION_FALLBACK = fallbackTarget("vision")
+const TEXT_FALLBACK = fallbackTarget("text")
 
 export const IDENTIFY_CONFIGURED = Boolean(API_KEY)
 /** The refusal both entry points return when the selected provider has no key. */
@@ -344,7 +355,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   const userParts = buildIdentifyUserParts({ description, imageUrls, statedItems: stated })
 
   let model = imageUrls.length ? VISION_MODEL : TEXT_MODEL
-  const fallbackModel = imageUrls.length ? VISION_FALLBACK_MODEL : TEXT_FALLBACK_MODEL
+  const fallback = imageUrls.length ? VISION_FALLBACK : TEXT_FALLBACK
 
   // RELIABILITY IS PRIORITISED OVER LATENCY here, by explicit decision.
   //
@@ -383,8 +394,8 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   const HEDGE_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_MS") ?? (openai ? "10000" : "1800"))
   const HEDGE_2_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_2_MS") ?? (openai ? "Infinity" : "3600"))
 
-  const payloadFor = (m: string) =>
-    openai
+  const payloadFor = (m: string, toOpenAI: boolean) =>
+    toOpenAI
       ? {
         model: m,
         messages: [
@@ -415,11 +426,11 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   // MODEL_DEADLINE_MS no matter how many attempts are in flight.
   const deadline = startedAt + MODEL_DEADLINE_MS
 
-  // One hedged race against ONE model. `won` is per race, so the fallback race
-  // below starts with its own hedges rather than inheriting a settled flag.
-  const raceModel = (m: string, delays: number[]): Promise<Response> => {
+  // One hedged race against ONE target (upstream + model). `won` is per race, so the
+  // fallback race below starts with its own hedges rather than inheriting a settled flag.
+  const raceModel = (t: Target, delays: number[]): Promise<Response> => {
     let won = false
-    const payload = payloadFor(m)
+    const payload = payloadFor(t.model, t.upstream.openai)
     const attempt = async (delayMs: number): Promise<Response> => {
       if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs))
       // The primary already came back — do not add a pointless second call to an
@@ -431,9 +442,9 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
       const ac = new AbortController()
       const timer = setTimeout(() => ac.abort(), remaining)
       try {
-        const r = await fetch(`${BASE}/chat/completions`, {
+        const r = await fetch(`${t.upstream.base}/chat/completions`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${t.upstream.key}`, "Content-Type": "application/json" },
           body: JSON.stringify(payload),
           signal: ac.signal,
         })
@@ -460,25 +471,25 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   // The primary's refusal, kept for the error text when the fallback fails too.
   let primaryRefusal: { model: string; status: number } | null = null
   try {
-    resp = await raceModel(model, delays)
-    // 429 or 5xx from the primary: the same request, once, to the second
-    // sovereign model — while there is budget for it. A 4xx that is not 429
-    // means the REQUEST is wrong and would be just as wrong there.
+    resp = await raceModel({ upstream: UPSTREAM, model }, delays)
+    // 429 or 5xx from the primary: the same request, once, to the sovereign
+    // fallback — while there is budget for it. A 4xx that is not 429 means the
+    // REQUEST is wrong and would be just as wrong there.
     const worthFallback = !resp.ok && (resp.status === 429 || resp.status >= 500)
-    if (worthFallback && fallbackModel && deadline - Date.now() > 1000) {
+    if (worthFallback && fallback && deadline - Date.now() > 1000) {
       primaryRefusal = { model, status: resp.status }
       try {
-        const second = await raceModel(fallbackModel, [0])
+        const second = await raceModel(fallback, [0])
         // Carry the longer Retry-After forward when both refuse.
         const ra1 = resp.headers.get("retry-after"), ra2 = second.headers.get("retry-after")
         resp = second
         if (!second.ok && ra1 && (!ra2 || Number(ra1) > Number(ra2))) {
           resp = new Response(await second.text(), { status: second.status, headers: { "retry-after": ra1 } })
         }
-        model = fallbackModel
+        model = fallback.model
       } catch (e) {
         // The fallback hung or had no budget: the primary's answer stands.
-        console.log(`[identify] fallback ${fallbackModel} did not answer: ${String(e).slice(0, 120)}`)
+        console.log(`[identify] fallback ${fallback.model} did not answer: ${String(e).slice(0, 120)}`)
       }
     }
   } catch (e) {
