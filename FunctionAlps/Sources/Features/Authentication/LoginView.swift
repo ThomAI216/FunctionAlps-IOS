@@ -151,11 +151,11 @@ struct LoginView: View {
                 .autocorrectionDisabled()
                 .submitLabel(.continue)
                 .focused($focus, equals: .email)
-                .onSubmit { Task { await model.continueWithEmail() } }
+                .onSubmit { model.continueWithEmail() }
         }
         errorLine(model)
         gradientButton(String(localized: "action.continue", defaultValue: "Continue"), busy: model.isSubmitting, enabled: model.canContinue) {
-            Task { await model.continueWithEmail() }
+            model.continueWithEmail()
         }
         .padding(.top, 18)
         Text(String(localized: "login.swiss2", defaultValue: "A Swiss company · your data stays private."))
@@ -187,6 +187,8 @@ struct LoginView: View {
         .padding(.top, 18)
         linkButton(String(localized: "login.forgot", defaultValue: "Forgot password?")) { model.show(.forgot) }
             .padding(.top, 12)
+        linkButton(String(localized: "login.noAccount", defaultValue: "New here? Create your account")) { model.show(.signup) }
+            .padding(.top, 8)
     }
 
     @ViewBuilder

@@ -42,6 +42,8 @@ Launch
 - **Errors:** GoTrue `invalid_credentials`/`invalid_grant` → `.invalidCredentials`; `email_not_confirmed`, 422, 429 → user-safe validation messages; nothing technical is shown (PRD §43).
 - **Not in M1, planned:** sign-up (+ `patient-register`), Google via `ASWebAuthenticationSession` + `functionalps://` callback + PKCE code exchange, password reset with a native `updateUser` screen, the consent and access gates, Face ID local unlock (PRD §18), `AppState`-driven refresh pause/resume.
 
+- **iOS login screen (2026-11-09):** Google · Apple · or the email → **always** the password step ("Forgot password?", "New here? Create your account"). The password is the one the member set in the app, on the members site or from a dashboard invite: one Supabase account. The app does **not** call `email_exists`: CLINICAL migration 276 (2026-11-03) closed it to the publishable key because it told anyone whether an address is a client, and the app's old "exists? → sign in, else sign up" sent every returning member to sign-up after that (seen with a member who had registered on the members site the day before). Sign-up with an address that already has an account still answers "check your inbox" (GoTrue hides it); telling the person would reopen the same leak, so that is an owner decision.
+
 ## 3. Security notes carried into the design
 - No secret leaves the server: the app holds the publishable key and the member's JWT only (PRD §30/§36).
 - Ownership is enforced by RLS keyed on `patients.auth_user_id`; the client never passes a `patient_id` it did not obtain from the backend for the signed-in user.
