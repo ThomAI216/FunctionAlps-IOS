@@ -45,12 +45,23 @@ struct CarePlanView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .task {
-            if let member = try? await dependencies.members.currentMember() {
-                detail = await dependencies.profile.carePlan(patientId: member.patientId)
-            }
-        }
+        // Re-run when the day's plan finishes loading: a single `.task` could be cancelled while the page is
+        // being pushed (a deep link lands here at launch) and then never run again, leaving every clinician
+        // block — approach, goals, supplements, tests, review — off the page.
+        .task(id: planLoaded) { await loadDetail() }
         .task { await dependencies.habits.loadNextCall() }
+    }
+
+    private var planLoaded: Bool {
+        if case .loaded = dependencies.habits.phase { return true }
+        return false
+    }
+
+    private func loadDetail() async {
+        guard detail == nil else { return }
+        guard let member = try? await dependencies.members.currentMember() else { return }
+        let loaded = await dependencies.profile.carePlan(patientId: member.patientId)
+        if !Task.isCancelled, let loaded { detail = loaded }
     }
 
     /// Every area is the clinician's; one not written yet is blurred (owner, 2026-10-02). Before the first plan the
