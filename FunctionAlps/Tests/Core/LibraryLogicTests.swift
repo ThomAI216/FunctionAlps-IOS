@@ -105,6 +105,31 @@ struct LibraryLogicTests {
         #expect(LibraryLogic.completionCheck(bundle: bundle, trackSlug: "demo-gut-reset", contentSlug: "demo-gut-reset-3") == nil)
         #expect(LibraryLogic.completionCheck(bundle: bundle, trackSlug: "demo-gut-reset", contentSlug: "demo-gut-reset-4") == .notCurrent)
     }
+
+    @Test func resourceCardRowDecodesAndPlainArticleHasNoCard() throws {
+        let cardJSON = """
+        {"title":"Protein at breakfast","tags":[],"body_md":"Body","locked":false,"template":"resource_card",
+         "kicker":"Guide · Nutrition","summary":"Start the day with protein.",
+         "structured":{"card":{"version":1,"format":"practical_guide","pillars":["nutrition"],
+           "sources":[{"title":"A study","url":"https://example.org/s"},{"title":"No link"}],
+           "safety":"Check with your practitioner.","assets":[{"url":"https://example.org/a.png","alt_text":"Plate"}]}}}
+        """
+        let row = try JSON.decode(LibraryGetRow.self, from: Data(cardJSON.utf8))
+        let card = try #require(row.card)
+        #expect(row.template == "resource_card" && card.format == "practical_guide" && card.pillars == ["nutrition"])
+        #expect(card.kicker == "Guide · Nutrition" && card.summary == "Start the day with protein.")
+        #expect(card.sources.count == 2 && card.sources[0].url == "https://example.org/s" && card.sources[1].url == nil)
+        #expect(card.safety == "Check with your practitioner." && card.assets.first?.altText == "Plate")
+        let result = try #require(LibraryLogic.reader(slug: "protein-at-breakfast", bundle: nil, row: row))
+        #expect(result.card == card)
+
+        let plainJSON = """
+        {"title":"Plain","tags":["pillar:gut"],"body_md":"Body","locked":false,"template":"article","structured":{"blocks":[]}}
+        """
+        let plain = try JSON.decode(LibraryGetRow.self, from: Data(plainJSON.utf8))
+        #expect(plain.card == nil && plain.bodyMd == "Body")
+        #expect(LibraryLogic.reader(slug: "plain", bundle: nil, row: plain)?.card == nil)
+    }
 }
 
 @Suite("Meal tips and flags")
