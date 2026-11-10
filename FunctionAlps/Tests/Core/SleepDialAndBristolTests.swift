@@ -83,6 +83,21 @@ struct SleepDialMathTests {
     }
 }
 
+@Suite("Check-in colours — yellow, orange, then red only when really low")
+struct CheckinColorStepTests {
+    @Test("Green at the top, then blue, purple, yellow, orange, red at the bottom")
+    func steps() {
+        #expect(CheckinEngine.stateColorStep(100) == 0)
+        #expect(CheckinEngine.stateColorStep(75) == 1)
+        #expect(CheckinEngine.stateColorStep(50) == 2)
+        #expect(CheckinEngine.stateColorStep(40) == 3)
+        #expect(CheckinEngine.stateColorStep(22) == 4)
+        #expect(CheckinEngine.stateColorStep(5) == 5)
+        #expect(CheckinEngine.stateColorStep(-10) == 5)
+        #expect(FunctionalSliderView.ramp.count == 6 && FunctionalSliderView.rampText.count == 6)
+    }
+}
+
 @Suite("Bristol chart — the tappable table")
 struct BristolChartTests {
     @Test("Each row's middle answers its own type, 1 to 7")
@@ -129,6 +144,36 @@ struct GlassFrostTests {
         #expect(FAGlassSurface.frost(for: .gradient(.sageFog)) < FAGlassSurface.frost)
         if let photo = FAWalls.all.first(where: { if case .photo = $0 { true } else { false } }) {
             #expect(FAGlassSurface.frost(for: photo) == 0.60)
+        }
+    }
+}
+
+@Suite("Bon appétit — the phrase after a validated meal")
+struct BonAppetitTests {
+    @Test("Never the same phrase twice in a row, whatever the dice")
+    func neverTwice() {
+        let count = BonAppetit.phrases.count
+        #expect(count >= 6)
+        for last in 0..<count {
+            for roll in 0..<50 {
+                let pick = BonAppetit.pick(count: count, last: last, roll: roll)
+                #expect(pick != last)
+                #expect((0..<count).contains(pick))
+            }
+        }
+    }
+
+    @Test("First time (or a stale index): any phrase; one phrase only: that one")
+    func edges() {
+        #expect((0..<8).contains(BonAppetit.pick(count: 8, last: nil, roll: 13)))
+        #expect((0..<8).contains(BonAppetit.pick(count: 8, last: 42, roll: -5)))
+        #expect(BonAppetit.pick(count: 1, last: 0, roll: 3) == 0)
+    }
+
+    @Test("Every phrase has a title and a line")
+    func filled() {
+        for p in BonAppetit.phrases {
+            #expect(!p.title.isEmpty && !p.line.isEmpty)
         }
     }
 }

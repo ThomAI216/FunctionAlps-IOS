@@ -2018,6 +2018,278 @@
         }
       }
     },
+    "bonappetit.1.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logged. Now enjoy it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est noté. Maintenant, savourez."
+          }
+        }
+      }
+    },
+    "bonappetit.1.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon appétit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon appétit"
+          }
+        }
+      }
+    },
+    "bonappetit.2.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sit down, slow down, taste it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asseyez-vous, ralentissez, goûtez."
+          }
+        }
+      }
+    },
+    "bonappetit.2.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enjoy your meal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon repas"
+          }
+        }
+      }
+    },
+    "bonappetit.3.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slowly, and with pleasure."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lentement, et avec plaisir."
+          }
+        }
+      }
+    },
+    "bonappetit.3.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Savour every bite"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Savourez chaque bouchée"
+          }
+        }
+      }
+    },
+    "bonappetit.4.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put the phone down · the meal is in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posez le téléphone · le repas est noté."
+          }
+        }
+      }
+    },
+    "bonappetit.4.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take your time"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenez votre temps"
+          }
+        }
+      }
+    },
+    "bonappetit.5.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few slow breaths, then the first bite."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelques respirations lentes, puis la première bouchée."
+          }
+        }
+      }
+    },
+    "bonappetit.5.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon appétit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon appétit"
+          }
+        }
+      }
+    },
+    "bonappetit.6.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chew slowly · enjoy the moment."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mâchez lentement · profitez du moment."
+          }
+        }
+      }
+    },
+    "bonappetit.6.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enjoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régalez-vous"
+          }
+        }
+      }
+    },
+    "bonappetit.7.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enjoy it, and the rest of your day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Savourez-le, et le reste de votre journée."
+          }
+        }
+      }
+    },
+    "bonappetit.7.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good food, good day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bon repas, belle journée"
+          }
+        }
+      }
+    },
+    "bonappetit.8.line": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enjoy it with all your senses."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profitez-en avec tous vos sens."
+          }
+        }
+      }
+    },
+    "bonappetit.8.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time to eat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À table"
+          }
+        }
+      }
+    },
+    "bonappetit.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goes back to Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revient à l'accueil"
+          }
+        }
+      }
+    },
     "capture.done.kicker": {
       "localizations": {
         "en": {
@@ -37678,6 +37950,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "D'après %@ · l'heure du coucher n'a pas été enregistrée · touchez Ajuster"
+          }
+        }
+      }
+    },
+    "sleep.syncing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing last night from your wearable…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation de votre nuit depuis votre appareil…"
           }
         }
       }

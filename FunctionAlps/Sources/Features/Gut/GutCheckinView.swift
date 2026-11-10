@@ -274,7 +274,7 @@ struct GutDimensionCard: View {
                     Spacer()
                     Text(score.map(String.init) ?? "·")
                         .font(FATypography.headline)
-                        .foregroundStyle(score.map { FunctionalSliderView.ramp[CheckinEngine.stateRampIndex(Double($0))] } ?? FAColor.inkMuted)
+                        .foregroundStyle(score.map { FunctionalSliderView.textColor(for: Double($0)) } ?? FAColor.inkMuted)
                         .monospacedDigit()
                 }
                 .padding(.bottom, 14)

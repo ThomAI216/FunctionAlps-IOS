@@ -20,6 +20,10 @@ enum Showcase {
         /// The daily functional check-in rework (owner, 2026-11-10): the sleep dial, a wearable's night, the stool card,
         /// the red-flag card with the voice note, the Bristol chart open over the stool card.
         case checkinSleep = "checkin-sleep", checkinWearable = "checkin-wearable", checkinStool = "checkin-stool", checkinNote = "checkin-note", bristolChart = "bristol-chart"
+        /// The dial with the moon held under the finger.
+        case checkinSleepDrag = "checkin-sleep-drag"
+        /// The moment after a validated meal ("Bon appétit"), over Home.
+        case bonAppetit = "bon-appetit"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -34,7 +38,7 @@ enum Showcase {
     /// The two "check-in in progress" shots (Energy & focus, then the whole Mood card): the same filled-in evening.
     static var isCheckinInProgress: Bool {
         switch screen {
-        case .checkin, .checkinMood, .checkinSleep, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
+        case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
         default: false
         }
     }
@@ -54,12 +58,12 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit: "functionalps://home"
         case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
         case .trackSummary: "functionalps://foundation/summary"
         case .profile: "functionalps://profile"
-        case .checkin, .checkinMood, .checkinSleep, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
+        case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"
         case .trends: "functionalps://trends"

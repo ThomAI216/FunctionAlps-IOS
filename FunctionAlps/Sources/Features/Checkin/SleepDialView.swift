@@ -41,6 +41,7 @@ struct SleepDialView: View {
                 centre
                     .frame(width: (radius - ring) * 1.6)
                     .position(center)
+                    .animation(.easeInOut(duration: 0.15), value: dragging)
                 knob(.bed, minutes: bed, systemImage: "moon.fill", center: center, radius: radius, size: ring - 2)
                 knob(.wake, minutes: wake, systemImage: "sun.max.fill", center: center, radius: radius, size: ring - 2)
             }
@@ -48,13 +49,28 @@ struct SleepDialView: View {
             .coordinateSpace(name: "sleepDial")
         }
         .aspectRatio(1, contentMode: .fit)
+        #if DEBUG
+        .onAppear { if Showcase.screen == .checkinSleepDrag { dragging = .bed } }
+        #endif
         .sensoryFeedback(.selection, trigger: bed)
         .sensoryFeedback(.selection, trigger: wake)
     }
 
     private var centre: some View {
         VStack(spacing: 2) {
-            if isSet {
+            if let dragging {
+                // Under the finger: the handle's own time, moving 5 minutes at a time (owner, 2026-11-10).
+                Text(dragging == .bed ? String(localized: "sleep.bedtime", defaultValue: "Bedtime") : String(localized: "sleep.wake", defaultValue: "Wake"))
+                    .font(FATypography.sans(10.5, .semibold, relativeTo: .caption2)).foregroundStyle(accent)
+                Text(Self.clock(dragging == .bed ? bed : wake))
+                    .font(FATypography.display(24, relativeTo: .title2)).foregroundStyle(FAColor.ink)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.snappy(duration: 0.15), value: dragging == .bed ? bed : wake)
+                Text(SleepDialMath.durationLabel(SleepSpecials.windowMinutes(bed: Self.clock(bed), wake: Self.clock(wake)) ?? 0))
+                    .font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
+                    .monospacedDigit()
+            } else if isSet {
                 Text(SleepDialMath.durationLabel(SleepSpecials.windowMinutes(bed: Self.clock(bed), wake: Self.clock(wake)) ?? 0))
                     .font(FATypography.display(20, relativeTo: .title3)).foregroundStyle(FAColor.ink)
                     .monospacedDigit()
@@ -89,16 +105,20 @@ struct SleepDialView: View {
 
     private func knob(_ handle: Handle, minutes: Int, systemImage: String, center: CGPoint, radius: CGFloat, size: CGFloat) -> some View {
         let label = handle == .bed ? String(localized: "sleep.bedtime", defaultValue: "Bedtime") : String(localized: "sleep.wake", defaultValue: "Wake")
+        let active = dragging == handle
         return ZStack {
+            // The grab halo: the handle swells under the finger so it can be seen round the thumb.
+            Circle().fill(accent.opacity(active ? 0.22 : 0)).scaleEffect(active ? 1.45 : 1)
             Circle().fill(Color.white)
             Image(systemName: systemImage)
                 .font(.system(size: size * 0.46, weight: .semibold))
                 .foregroundStyle(accent)
         }
         .frame(width: size, height: size)
-        .shadow(color: .black.opacity(dragging == handle ? 0.25 : 0.14), radius: dragging == handle ? 5 : 2.5, y: 1)
-        .scaleEffect(dragging == handle ? 1.12 : 1)
-        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: dragging == handle)
+        .shadow(color: .black.opacity(active ? 0.28 : 0.14), radius: active ? 6 : 2.5, y: 1)
+        .scaleEffect(active ? 1.5 : 1)
+        .zIndex(active ? 1 : 0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: active)
         .position(SleepDialMath.point(minutes: minutes, center: center, radius: radius))
         .highPriorityGesture(
             DragGesture(minimumDistance: 0, coordinateSpace: .named("sleepDial"))

@@ -49,6 +49,25 @@ final class CheckinMomentViewModel {
         recordedNight = night
     }
 
+    /// True while a wearable sync runs for last night: the sleep card says it is looking.
+    private(set) var syncingNight = false
+
+    private func useRecordedNight(_ night: WearableNight) {
+        if CheckinEngine.sleepIsUnanswered(answers[.sleep]) { applyWearableNight(night) } else { recordedNight = night }
+    }
+
+    /// Nothing recorded yet: the night may be on the ring but not synced. Sync the vendor accounts in the
+    /// background while the dial is on screen; when the night arrives it takes the card, unless the member has
+    /// started answering the night by hand in the meantime — then it only sits beside their answer.
+    private func syncNight(patientId: String, wearables: WearableService) {
+        Task {
+            guard await wearables.mayHaveNight(patientId: patientId) else { return }
+            syncingNight = true
+            defer { syncingNight = false }
+            if let night = await wearables.lastNightAfterSync(patientId: patientId) { useRecordedNight(night) }
+        }
+    }
+
     /// The moments that ask about last night: the morning, and the daily functional check-in (owner,
     /// 2026-11-10: "at the top we are lacking the sleep").
     var asksSleep: Bool { sections.contains(.sleep) }
@@ -71,11 +90,17 @@ final class CheckinMomentViewModel {
                 // The night was already told this morning: the daily check-in starts from those answers.
                 answers[.sleep] = CheckinEngine.answersFromMoment(morning)[.sleep] ?? .empty
             }
-            if asksSleep, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
+            if asksSleep, let wearables {
                 // Last night from Apple Health on this phone, else from a wearable that synced server-side.
                 // It fills only a night nobody has answered yet; an answered one keeps the member's times.
                 // Neither source → the member slides the dial themselves.
-                if CheckinEngine.sleepIsUnanswered(answers[.sleep]) { applyWearableNight(night) } else { recordedNight = night }
+                if let night = await wearables.lastNightAnySource(patientId: member.patientId) {
+                    useRecordedNight(night)
+                } else {
+                    syncNight(patientId: member.patientId, wearables: wearables)
+                }
+                // Apple Health on this phone: push the night to CM OS now too, so the practice sees it this morning.
+                if wearables.isConnected { Task { await wearables.sync() } }
             }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.prefill")

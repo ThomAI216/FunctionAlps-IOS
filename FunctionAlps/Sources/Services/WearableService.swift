@@ -164,6 +164,23 @@ final class WearableService {
         return WearableNightAssembler.night(from: rows, on: today, fallback: calendar.timeZone)
     }
 
+    /// Last night for a check-in when the quick read found nothing: the night may be recorded but not yet synced
+    /// (owner, 2026-11-10: "it needs to be pushed, synced in the morning"). Asks each live vendor account for its
+    /// last three days now ("Sync now", drained inline server-side), then reads again. Nil when the member has no
+    /// live vendor account or the vendor still has nothing for last night.
+    func lastNightAfterSync(patientId: String, now: Date = Date()) async -> WearableNight? {
+        let accounts = await vendorAccounts(patientId: patientId)
+        guard accounts.contains(where: \.isLive) else { return nil }
+        await syncVendorsNow()
+        return await lastNightAnySource(patientId: patientId, now: now)
+    }
+
+    /// The member has a live vendor account or Apple Health on this phone — a night may still arrive.
+    func mayHaveNight(patientId: String) async -> Bool {
+        if isConnected { return true }
+        return await vendorAccounts(patientId: patientId).contains(where: \.isLive)
+    }
+
     // MARK: The member's own Apple Health view (Home card + the Apple Health page)
 
     /// Today next to the last seven days, read straight from HealthKit — fresh, and there before the first

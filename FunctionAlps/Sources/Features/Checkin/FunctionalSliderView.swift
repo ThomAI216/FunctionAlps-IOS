@@ -2,19 +2,32 @@ import SwiftUI
 
 /// Continuous 0–100 slider, higher = better: red (left) → green (right) veil, a 5-word state
 /// translation above the bar, the score on the right. The thumb carries the FunctionAlps mark in the state's
-/// colour — red, orange, purple, blue, green as the value moves (owner, 2026-10-12: the logo, not mountains; the yellow became an orange on 2026-11-10 — it couldn't be read on the glass). Untouched = NO thumb and "Tap to rate": a thumb parked
+/// colour — red, orange, yellow, purple, blue, green as the value moves (owner, 2026-10-12: the logo, not mountains; 2026-11-10: the warm side yellow → orange → red, red only when really low, the yellow's text a deeper gold so it reads). Untouched = NO thumb and "Tap to rate": a thumb parked
 /// at centre read as an answer, members left it there, tapped Save and nothing was recorded (2026-09-28).
 struct FunctionalSliderView: View {
     let spec: SliderSpec
     @Binding var value: Double?
     @State private var dragging = false
 
-    static let ramp: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xD9692B), Color(hex: 0xDB5A4B)]
+    /// Green · blue · purple · yellow · orange · red, by `CheckinEngine.stateColorStep` (owner, 2026-11-10).
+    static let ramp: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xE0B12A), Color(hex: 0xE07A2E), Color(hex: 0xD2463A)]
+    /// The same steps for TEXT (the word, the score): the yellow deepened to a gold that reads on the glass —
+    /// the bright yellow couldn't be read (owner, 2026-11-10).
+    static let rampText: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xA97C07), Color(hex: 0xD2651E), Color(hex: 0xD2463A)]
     private static let grey = Color(hex: 0x9CA3AF)
+
+    /// The fill colour of a 0–100 read.
+    static func color(for v: Double) -> Color { ramp[CheckinEngine.stateColorStep(v)] }
+    /// The text colour of a 0–100 read.
+    static func textColor(for v: Double) -> Color { rampText[CheckinEngine.stateColorStep(v)] }
 
     private var color: Color {
         guard let value else { return Self.grey }
-        return Self.ramp[CheckinEngine.stateRampIndex(value)]
+        return Self.color(for: value)
+    }
+    private var textColor: Color {
+        guard let value else { return Self.grey }
+        return Self.textColor(for: value)
     }
     private var word: String? {
         guard let value else { return nil }
@@ -29,12 +42,12 @@ struct FunctionalSliderView: View {
                 Spacer()
                 Text(value.map { "\(Int($0))" } ?? "·")
                     .font(FATypography.headline)
-                    .foregroundStyle(value == nil ? FAColor.inkMuted : color)
+                    .foregroundStyle(value == nil ? FAColor.inkMuted : textColor)
                     .monospacedDigit()
             }
             Text(word ?? String(localized: "checkin.slider.tapToRate", defaultValue: "Tap to rate"))
                 .font(FATypography.label)
-                .foregroundStyle(word == nil ? FAColor.inkMuted : color)
+                .foregroundStyle(word == nil ? FAColor.inkMuted : textColor)
             GeometryReader { geo in
                 let width = geo.size.width
                 let pos = CGFloat(min(100, max(0, value ?? 50))) / 100 * width
@@ -51,7 +64,7 @@ struct FunctionalSliderView: View {
                         ZStack {
                             Circle().fill(FAColor.cream)
                             Circle().strokeBorder(color, lineWidth: 1.5)
-                            FAMarkGlyph(color: color, size: thumb * 0.68)
+                            FAMarkGlyph(color: textColor, size: thumb * 0.68)
                         }
                         .frame(width: thumb, height: thumb)
                         .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
@@ -74,7 +87,7 @@ struct FunctionalSliderView: View {
             .frame(height: 38)
             .animation(.easeOut(duration: 0.12), value: dragging)
             HStack {
-                Text(spec.lowLabel).font(FATypography.caption).foregroundStyle(Self.ramp[4])
+                Text(spec.lowLabel).font(FATypography.caption).foregroundStyle(Self.ramp[5])
                 Spacer()
                 Text(spec.highLabel).font(FATypography.caption).foregroundStyle(Self.ramp[0])
             }

@@ -9,6 +9,8 @@ struct DimensionCardView: View {
     var hiddenModules: Set<String> = []
     /// The night a wearable or Apple Health recorded (sleep card only) — shown as recorded instead of the dial.
     var recordedNight: WearableNight? = nil
+    /// A wearable sync for last night is running (sleep card only).
+    var lookingForNight = false
 
     private var accent: Color { Color(hex: spec.accentHex) }
     private var score: Int? { CheckinEngine.dimensionOverall(spec.key, answers) }
@@ -23,14 +25,14 @@ struct DimensionCardView: View {
                     Spacer()
                     Text(score.map(String.init) ?? "·")
                         .font(FATypography.headline)
-                        .foregroundStyle(score.map { FunctionalSliderView.ramp[CheckinEngine.stateRampIndex(Double($0))] } ?? FAColor.inkMuted)
+                        .foregroundStyle(score.map { FunctionalSliderView.textColor(for: Double($0)) } ?? FAColor.inkMuted)
                         .monospacedDigit()
                 }
                 .padding(.bottom, 10)
                 .accessibilityElement(children: .combine)
 
                 if spec.hasSleepInputs {
-                    SleepInputsView(specials: $answers.specials, accent: accent, recorded: recordedNight)
+                    SleepInputsView(specials: $answers.specials, accent: accent, recorded: recordedNight, lookingForNight: lookingForNight)
                         .padding(.bottom, 4)
                     ForEach(spec.sliders) { slider in
                         FunctionalSliderView(spec: slider, value: sliderBinding(slider.key))

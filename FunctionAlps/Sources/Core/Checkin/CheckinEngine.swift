@@ -298,6 +298,19 @@ enum CheckinEngine {
         }
     }
 
+    /// The colour step the check-in paints a 0–100 read with, higher = better: 0 green · 1 blue · 2 purple ·
+    /// 3 yellow · 4 orange · 5 red. Owner, 2026-11-10: the warm side goes yellow, then orange, and red only when
+    /// it is really low. `stateRampIndex` (the JS port, 5 steps) stays as it was for everything else.
+    static func stateColorStep(_ v: Double) -> Int {
+        let c = clamp(v)
+        if c >= 87.5 { return 0 }
+        if c >= 62.5 { return 1 }
+        if c >= 45 { return 2 }
+        if c >= 30 { return 3 }
+        if c >= 12.5 { return 4 }
+        return 5
+    }
+
     /// The 5-step state ramp index (0 = green … 4 = red) for a 0–100 value, higher = better.
     static func stateRampIndex(_ v: Double) -> Int {
         4 - jsRound(clamp(v) / 100 * 4)

@@ -112,7 +112,7 @@ private struct CheckinMomentScreen: View {
         switch section {
         case .sleep:
             sectionLabel(String(localized: "checkin.lastNight", defaultValue: "Last night"))
-            DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep), recordedNight: model.recordedNight)
+            DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep), recordedNight: model.recordedNight, lookingForNight: model.syncingNight)
         case .intent:
             catalogCard([CatalogSection(group: .dayIntent, title: String(localized: "checkin.intent", defaultValue: "How are you walking into the day?"), accent: Color(hex: 0x6366F1))])
         case .priority:

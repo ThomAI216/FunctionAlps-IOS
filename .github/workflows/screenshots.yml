@@ -100,12 +100,15 @@ jobs:
           # sliders, the stool card, the Bristol chart, the red-flag card with the voice note.
           shoot 01-today today 12
           shoot 30-checkin-sleep checkin-sleep 10
+          shoot 30b-checkin-sleep-drag checkin-sleep-drag 10
           shoot 31-checkin-wearable checkin-wearable 10
           shoot 02-checkin checkin
           shoot 32-checkin-stool checkin-stool 11
           shoot 33-bristol-chart bristol-chart 13
           shoot 34-checkin-note checkin-note 11
           shootfr 30-checkin-sleep-fr checkin-sleep 10
+          shoot 35-bon-appetit bon-appetit 10
+          shootfr 35-bon-appetit-fr bon-appetit 10
           if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12

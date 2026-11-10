@@ -12,6 +12,8 @@ struct SleepInputsView: View {
     let accent: Color
     /// The night a wearable or Apple Health recorded, when one did.
     var recorded: WearableNight? = nil
+    /// A wearable sync for last night is running: say so above the dial, the recorded night replaces it on arrival.
+    var lookingForNight = false
 
     @State private var adjusting = false
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -34,6 +36,15 @@ struct SleepInputsView: View {
             .animation(.easeInOut(duration: 0.22), value: adjusting)
         } else {
             let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10)) : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
+            if lookingForNight {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small).tint(accent)
+                    Text(String(localized: "sleep.syncing", defaultValue: "Syncing last night from your wearable…"))
+                        .font(FATypography.sans(11.5, .medium, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                }
+                .padding(.bottom, 8)
+                .transition(.opacity)
+            }
             layout {
                 VStack(spacing: 6) {
                     SleepDialView(bed: bedMinutes, wake: wakeMinutes, isSet: specials.durationMin != nil, accent: accent, onChange: setNight)
