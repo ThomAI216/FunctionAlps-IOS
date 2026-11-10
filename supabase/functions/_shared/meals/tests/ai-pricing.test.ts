@@ -83,7 +83,7 @@ Deno.test("one call per distinct food, in order; a food that fails comes back nu
 })
 
 async function loadMealAnalysis(env: Record<string, string | undefined>, tag: string) {
-  for (const k of ["MEAL_AI_PROVIDER", "MEAL_PRICING", "OPENAI_API_KEY", "OPENAI_PRICING_MODEL", "OPENAI_MEAL_MODEL"]) {
+  for (const k of ["MEAL_AI_PROVIDER", "MEAL_PRICING", "OPENAI_API_KEY", "OPENAI_PRICING_MODEL", "OPENAI_MEAL_MODEL", "INFOMANIAK_AI_API_KEY", "SOVEREIGN_PRICING_MODEL"]) {
     const v = env[k]
     if (v === undefined) Deno.env.delete(k)
     else Deno.env.set(k, v)
@@ -91,16 +91,54 @@ async function loadMealAnalysis(env: Record<string, string | undefined>, tag: st
   return await import(`../meal-analysis.ts?pricing=${tag}`)
 }
 
-Deno.test("MEAL_PRICING: unset follows the identification provider; explicit wins; no key means the database", async () => {
-  assertEquals((await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk" }, "follow")).PRICING_SOURCE, "openai")
-  assertEquals((await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", MEAL_PRICING: "database" }, "db")).PRICING_SOURCE, "database")
-  assertEquals((await loadMealAnalysis({ OPENAI_API_KEY: "sk" }, "infomaniak")).PRICING_SOURCE, "database")
-  assertEquals((await loadMealAnalysis({ OPENAI_API_KEY: "sk", MEAL_PRICING: "OpenAI" }, "explicit")).PRICING_SOURCE, "openai")
-  assertEquals((await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", MEAL_PRICING: "openai" }, "nokey")).PRICING_SOURCE, "database")
+Deno.test("MEAL_PRICING: sovereign by default, even with OpenAI identification; OpenAI only when asked by name", async () => {
+  // Thomas, 2026-11-10: pricing is sovereign. It no longer follows MEAL_AI_PROVIDER.
+  assertEquals((await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", INFOMANIAK_AI_API_KEY: "ik" }, "follow")).PRICING_SOURCE, "sovereign")
+  assertEquals((await loadMealAnalysis({ INFOMANIAK_AI_API_KEY: "ik" }, "plain")).PRICING_SOURCE, "sovereign")
+  assertEquals((await loadMealAnalysis({ MEAL_PRICING: "database", INFOMANIAK_AI_API_KEY: "ik" }, "db")).PRICING_SOURCE, "database")
+  assertEquals((await loadMealAnalysis({ OPENAI_API_KEY: "sk", MEAL_PRICING: "OpenAI", INFOMANIAK_AI_API_KEY: "ik" }, "explicit")).PRICING_SOURCE, "openai")
+  assertEquals((await loadMealAnalysis({ MEAL_PRICING: "openai", INFOMANIAK_AI_API_KEY: "ik" }, "nokey")).PRICING_SOURCE, "sovereign")
+  assertEquals((await loadMealAnalysis({ OPENAI_API_KEY: "sk" }, "noik")).PRICING_SOURCE, "database")
+})
+
+Deno.test("priceMeal, sovereign: the table and Infomaniak price the meal; the model's own list is kept in resolution_meta", async () => {
+  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", INFOMANIAK_AI_API_KEY: "ik" }, "sovereign-meal")
+  const realFetch = globalThis.fetch
+  const urls: string[] = []
+  globalThis.fetch = (async (url: string | URL | Request) => {
+    urls.push(String(url))
+    const content = JSON.stringify({ foods: [{ i: 1, ref: "Rice, brown, cooked", parts: null, kcal: 123 }] })
+    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 })
+  }) as typeof fetch
+  try {
+    const rice = { id: "rice", name: "Rice, brown, long-grain, cooked", name_fr: "Riz complet, cuit", category: "Cereal Grains and Pasta", energy_kcal: 123, protein_g: 2.7, carbs_g: 25.6, fat_g: 1, fiber_g: 1.6, magnesium_mg: 39 }
+    const db = {
+      rpc: (_fn: string, args: { q_terms: string[] }) =>
+        Promise.resolve({ data: args.q_terms.map((t) => ({ term: t, id: "rice", name: rice.name, energy_kcal: 123, sim: 0.8 })), error: null }),
+      from: (_table: string) => ({ select: () => ({ in: () => Promise.resolve({ data: [rice], error: null }) }) }),
+    }
+    const priced = await mod.priceMeal(db, [{ name: "cooked brown rice", estimated_grams: 200, flags: ["whole_grain"] }])
+    assert(urls.length > 0 && urls.every((u) => u.startsWith("https://api.infomaniak.com/")))
+    assertEquals(priced.items[0].basis, "matched")
+    assertEquals(priced.items[0].food_item_id, "rice")
+    assertEquals(priced.items[0].name, "cooked brown rice")
+    assertEquals(priced.totals.kcal, 246)
+    assertEquals(Math.round(priced.micros.magnesium_mg), 78)
+    assertEquals(priced.pricing.source, "sovereign")
+    assertEquals(priced.pricing.model, "Qwen/Qwen3.8-27B-FP8")
+    assertEquals(priced.pricing.counts, { matched: 1, decomposed: 0, ai: 0, unpriced: 0 })
+    const meta = mod.completionPatch(
+      { dish_name: "Rice", items: [{ name: "cooked brown rice", estimated_grams: 200, flags: [] }], model: "gpt-5.4-mini", confidence: 0.9, duplicates_dropped: 0, elapsed_ms: 2000 },
+      priced, 1, null,
+    ).resolution_meta
+    assertEquals(meta.identified, [{ name: "cooked brown rice", grams: 200 }])
+  } finally {
+    globalThis.fetch = realFetch
+  }
 })
 
 Deno.test("priceMeal on OpenAI: every food priced, totals and scores from those numbers, the source recorded", async () => {
-  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk" }, "price")
+  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", MEAL_PRICING: "openai" }, "price")
   const realFetch = globalThis.fetch
   globalThis.fetch = (async (_url: string | URL | Request, init?: RequestInit) => {
     const food = JSON.parse(String(init?.body)).messages[1].content as string
@@ -164,7 +202,7 @@ function fakeDb(answer: (table: string, filters: Record<string, unknown>, op: st
 }
 
 Deno.test("a food the member corrected, and a placeholder, are the resolver's — never sent to OpenAI", async () => {
-  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk" }, "pinned")
+  const mod = await loadMealAnalysis({ MEAL_AI_PROVIDER: "openai", OPENAI_API_KEY: "sk", MEAL_PRICING: "openai" }, "pinned")
   const asked: string[] = []
   const realFetch = globalThis.fetch
   const g = globalThis as unknown as { Supabase?: unknown }
