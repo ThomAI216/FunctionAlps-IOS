@@ -26,6 +26,10 @@ enum Showcase {
         case bonAppetit = "bon-appetit"
         /// "My health plan" scrolled to the goals and to the supplements (owner, 2026-11-10).
         case careplanMiddle = "careplan-middle", careplanBottom = "careplan-bottom"
+        /// The Trends rework (owner-validated mockup v2, 2026-11-10): the page from its middle and its bottom, the Energy row
+        /// opened in place, and the pages behind it — Sleep, Digestion, a device (Oura), the patterns the practitioner shared.
+        case trendsMiddle = "trends-middle", trendsBottom = "trends-bottom", trendsEnergyOpen = "trends-energy-open"
+        case trendsSleep = "trends-sleep", trendsDigestion = "trends-digestion", trendsDevice = "trends-device", trendsPatterns = "trends-patterns"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -41,6 +45,14 @@ enum Showcase {
     static var isCheckinInProgress: Bool {
         switch screen {
         case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
+        default: false
+        }
+    }
+
+    /// The Trends screenshots: the sample member also has an Oura ring, 35 days of check-ins and two validated patterns.
+    static var isTrends: Bool {
+        switch screen {
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns: true
         default: false
         }
     }
@@ -68,7 +80,11 @@ enum Showcase {
         case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"
-        case .trends: "functionalps://trends"
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen: "functionalps://trends"
+        case .trendsSleep: "functionalps://trends/signal/sleep"
+        case .trendsDigestion: "functionalps://trends/signal/digestion"
+        case .trendsDevice: "functionalps://trends/device/\(ShowcaseData.trendsDeviceKey)"
+        case .trendsPatterns: "functionalps://trends/patterns"
         case .scores: "functionalps://scores"
         case .careplan, .careplanMiddle, .careplanBottom: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"

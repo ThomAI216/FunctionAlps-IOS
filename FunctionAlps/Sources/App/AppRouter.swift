@@ -60,6 +60,11 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    // Trends rework (2026-11-10): one signal's page, one device's page (`TrendsEngine.appleHealthKey` or a vendor key),
+    // and the patterns the practitioner shared.
+    case trendSignal(TrendSignal)
+    case trendDevice(String)
+    case trendPatterns
 }
 
 @MainActor
@@ -119,7 +124,7 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
@@ -139,7 +144,17 @@ final class AppRouter {
         case "food":
             tab = .food; foodPath = []
             pendingCapture = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "capture" && $0.value == "1" } ?? false
-        case "trends": tab = .trends; trendsPath = []
+        case "trends":
+            // trends · trends/signal/<sleep|energy|focus|mood|stress|digestion> · trends/device/<apple_health|oura|…> · trends/patterns
+            tab = .trends; trendsPath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "signal", rest.count > 1, let signal = TrendSignal(rawValue: rest[1]) {
+                trendsPath = [.trendSignal(signal)]
+            } else if rest.first == "device", rest.count > 1, !rest[1].isEmpty {
+                trendsPath = [.trendDevice(rest[1])]
+            } else if rest.first == "patterns" {
+                trendsPath = [.trendPatterns]
+            }
         case "scores": tab = .trends; trendsPath = [.scores]
         case "action":
             // action/<habitId> — one action of the plan, on its card (a reminder can open it).
@@ -404,6 +419,9 @@ struct MainTabView: View {
         case .labResults: LabResultsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
+        case .trendSignal(let signal): TrendSignalDetailView(signal: signal)
+        case .trendDevice(let key): WearableSourceDetailView(deviceKey: key)
+        case .trendPatterns: MemberPatternsView()
         }
     }
 }

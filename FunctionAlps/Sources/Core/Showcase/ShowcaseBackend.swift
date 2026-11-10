@@ -29,7 +29,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         return Bundle.main.url(forResource: "plate-demo", withExtension: "jpg") ?? URL(fileURLWithPath: "/dev/null")
     }
     func removeMealPhotos(paths: [String]) async throws {}
-    func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] { ShowcaseData.dailyCheckins(includeToday: eveningDone).filter { $0.day >= since } }
+    func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] {
+        (Showcase.isTrends ? ShowcaseData.trendCheckins() : ShowcaseData.dailyCheckins(includeToday: eveningDone)).filter { $0.day >= since }
+    }
     func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores { guard let s = ShowcaseData.scores() else { throw AppError.notFound }; return s }
     func libraryStage() async throws -> RelationshipStage { .active }
     func libraryRaw(patientId: String) async throws -> LibraryRaw { ShowcaseData.libraryRaw() }
@@ -40,7 +42,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func showEpisode(slug: String) async throws -> ShowEpisode? { ShowcaseData.showEpisode(slug: slug) }
     func showProgress(patientId: String) async throws -> [ShowProgressRow] { ShowcaseData.showProgress() }
     func mealReaction(mealId: String) async throws -> MealReaction? { nil }
-    func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { [:] }
+    func mealReactions(patientId: String, since: Date) async throws -> [String: MealReaction] { Showcase.isTrends ? ShowcaseData.trendMealReactions() : [:] }
     func saveMealReaction(_ write: MealReactionWrite) async throws {}
     func registerPatient(firstName: String, lastName: String, email: String) async throws -> RegisterOutcome { .patient(id: ShowcaseData.patientId) }
     func stampOnboardingComplete(patientId: String) async throws -> Date { Date() }
@@ -51,10 +53,14 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func updateMealAnalysis(mealId: String, draft: MealDraft) async throws {}
     func foodAliasTarget(foodItemId: String) async throws -> FoodAliasTarget? { nil }
     func upsertFoodAlias(_ row: FoodAliasRow) async throws -> FoodAliasWrite { .inserted }
-    func userPatterns(patientId: String) async throws -> [UserPattern] { [] }
+    func userPatterns(patientId: String) async throws -> [UserPattern] { Showcase.isTrends ? ShowcaseData.sharedPatterns() : [] }
     func activeProtocols(patientId: String) async throws -> ProtocolData { .none }
     func subscribeMeal(id: String, onRow: @escaping @Sendable (MealLog) -> Void, onLifecycle: @escaping @Sendable (RealtimeLifecycle) -> Void) -> RealtimeSubscription { .inert }
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] { Showcase.isTrends ? ShowcaseData.trendGutDays().filter { $0.day >= since } : [] }
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] {
+        Showcase.isTrends ? ShowcaseData.trendMoments().filter { $0.key >= since } : [:]
+    }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { ShowcaseData.gutHistory().filter { $0.day >= since && $0.day < before } }
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? { nil }
@@ -90,9 +96,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dataCount(table: String, patientId: String) async throws -> Int { 0 }
     func dataRows(table: String, patientId: String) async throws -> Data { Data("[]".utf8) }
     func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count, connection: nil) }
-    func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
+    func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { Showcase.isTrends ? ShowcaseData.ouraDaily(since: since) : [] }
     func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] {
-        screen == .checkinWearable ? ShowcaseData.ouraNight(day: since) : []
+        if Showcase.isTrends { return ShowcaseData.ouraNights(since: since) }
+        return screen == .checkinWearable ? ShowcaseData.ouraNight(day: since) : []
     }
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan {
@@ -119,7 +126,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func wearableConnections(patientId: String) async throws -> [WearableConnectionRow] { [] }
     func wearableVendors() async throws -> [WearableVendorRow] { [] }
     func vendorConnectStart(vendor: String) async throws -> VendorConnectStart { VendorConnectStart(url: URL(string: "https://example.test")!, vendor: vendor) }
-    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { [] }
+    func wearableVendorAccounts(patientId: String) async throws -> [WearableVendorAccountRow] { Showcase.isTrends ? ShowcaseData.ouraAccounts() : [] }
     func vendorDisconnect(vendor: String, erase: Bool) async throws {}
     func vendorSyncNow() async throws {}
     func startTrack(code: String) async throws {}

@@ -240,16 +240,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct PatternRow: Decodable, Sendable {
         let kind: String?; let subject: String?; let reaction: String?; let direction: String?
         let effect: Double?; let nObs: Int?; let consistency: Double?; let tier: String?
+        let clinicianReviewedAt: Date?
     }
 
+    /// Only clinician-validated rows come back (RLS). `clinician_reviewed_at` dates "Shared 8 Nov"; a database
+    /// that does not carry the column yet fails the whole select, so the plain list is the fallback.
     func userPatterns(patientId: String) async throws -> [UserPattern] {
-        let rows: [PatternRow] = try await rest.select("nb_user_patterns", query: [
-            PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier"),
-            PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24),
-        ])
+        let base = [PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24)]
+        let rows: [PatternRow]
+        do {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier,clinician_reviewed_at")] + base)
+        } catch AppError.validation {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier")] + base)
+        }
         return rows.map {
             UserPattern(kind: $0.kind ?? "pattern", subject: $0.subject ?? "", reaction: $0.reaction ?? "", direction: $0.direction ?? "worse",
-                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint")
+                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint",
+                        reviewedAt: $0.clinicianReviewedAt)
         }
     }
 
@@ -576,6 +583,32 @@ struct SupabaseBackend: FunctionAlpsBackend {
             PG.order("submitted_at"),
         ])
         return rows.compactMap(\.model)
+    }
+
+    private struct MomentDayRow: Decodable, Sendable {
+        let checkinDate: String
+        let moment: MomentRow
+        private enum CodingKeys: String, CodingKey { case checkinDate }
+        init(from decoder: any Decoder) throws {
+            moment = try MomentRow(from: decoder)
+            checkinDate = try decoder.container(keyedBy: CodingKeys.self).decode(String.self, forKey: .checkinDate)
+        }
+    }
+
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] {
+        let rows: [MomentDayRow] = try await rest.select("patient_checkin_moments", query: [
+            PG.select(Self.momentColumns + ",checkin_date"),
+            PG.eq("patient_id", patientId),
+            PG.gte("checkin_date", since),
+            PG.order("checkin_date"),
+            PG.limit(400),
+        ])
+        var out: [String: [CheckinMoment]] = [:]
+        for row in rows {
+            guard let moment = row.moment.model else { continue }
+            out[row.checkinDate, default: []].append(moment)
+        }
+        return out
     }
 
     private struct SubmitCheckinBody: Encodable, Sendable {
@@ -1409,6 +1442,27 @@ struct SupabaseBackend: FunctionAlpsBackend {
             URLQueryItem(name: "intelligence_completed_at", value: "not.is.null"), PG.order("checkin_date", descending: false), PG.limit(31),
         ])
         return rows.map(\.day)
+    }
+
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] {
+        // Raw JSON for the same reason as `gutToday`: `gut_detail` keeps its keys verbatim.
+        let data = try await rest.selectRaw("patient_daily_checkins", query: [
+            PG.select(Self.gutColumns + ",stool_type,gut_detail"), PG.eq("patient_id", patientId), PG.gte("checkin_date", since),
+            URLQueryItem(name: "intelligence_completed_at", value: "not.is.null"), PG.order("checkin_date", descending: false), PG.limit(60),
+        ])
+        guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        return rows.compactMap { row -> GutDay? in
+            guard let day = row["checkin_date"] as? String else { return nil }
+            let int = { (k: String) -> Int? in (row[k] as? NSNumber)?.intValue }
+            let decoded = GutDetailCodec.decode(row["gut_detail"])
+            return GutDay(
+                day: day, comfort: int("gut_comfort"), stool: int("gut_stool"), reactions: int("gut_reactions"), overall: int("gut_overall"),
+                stoolQuality: int("stool_quality"), stoolFrequency: int("stool_frequency"),
+                completedAt: (row["intelligence_completed_at"] as? String).flatMap(ISO8601.parse),
+                bristol: int("stool_type") ?? decoded?.answers[.stool]?.specials.bristol,
+                symptoms: decoded?.answers[.comfort]?.pills["symptoms"] ?? []
+            )
+        }
     }
 
     func upsertGutCheckin(patientId: String, day: String, write w: GutCheckinWrite) async throws {

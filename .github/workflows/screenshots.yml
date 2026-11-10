@@ -113,6 +113,16 @@ jobs:
           shoot 07-care-plan careplan 12
           shoot 07c-care-plan-middle careplan-middle 12
           shoot 07d-care-plan-bottom careplan-bottom 12
+          # Trends, reworked (2026-11-10, owner-validated mockup v2): the page from its top, middle and bottom, the Energy
+          # row opened in place, then the pages behind it — Sleep, Digestion, a device (Oura) and the shared patterns.
+          shoot 40-trends trends 14
+          shoot 41-trends-middle trends-middle 14
+          shoot 42-trends-bottom trends-bottom 14
+          shoot 43-trends-energy-open trends-energy-open 14
+          shoot 44-trends-sleep trends-sleep 12
+          shoot 45-trends-digestion trends-digestion 12
+          shoot 46-trends-device trends-device 12
+          shoot 47-trends-patterns trends-patterns 12
           if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
