@@ -33,6 +33,11 @@ struct FunctionAlpsApp: App {
                     .environment(dependencies)
                     .environment(dependencies.state)
                     .tint(FAColor.brand)
+                    #if DEBUG
+                    .overlay {
+                        if Showcase.screen == .bonAppetit { BonAppetitView(phrase: BonAppetit.phrases[0], onDone: {}, holds: true) }
+                    }
+                    #endif
             } else {
                 // A build with missing xcconfig values must fail loudly, never ship half-configured.
                 FAErrorState(

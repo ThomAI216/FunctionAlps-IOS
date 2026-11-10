@@ -240,16 +240,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct PatternRow: Decodable, Sendable {
         let kind: String?; let subject: String?; let reaction: String?; let direction: String?
         let effect: Double?; let nObs: Int?; let consistency: Double?; let tier: String?
+        let clinicianReviewedAt: Date?
     }
 
+    /// Only clinician-validated rows come back (RLS). `clinician_reviewed_at` dates "Shared 8 Nov"; a database
+    /// that does not carry the column yet fails the whole select, so the plain list is the fallback.
     func userPatterns(patientId: String) async throws -> [UserPattern] {
-        let rows: [PatternRow] = try await rest.select("nb_user_patterns", query: [
-            PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier"),
-            PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24),
-        ])
+        let base = [PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24)]
+        let rows: [PatternRow]
+        do {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier,clinician_reviewed_at")] + base)
+        } catch AppError.validation {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier")] + base)
+        }
         return rows.map {
             UserPattern(kind: $0.kind ?? "pattern", subject: $0.subject ?? "", reaction: $0.reaction ?? "", direction: $0.direction ?? "worse",
-                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint")
+                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint",
+                        reviewedAt: $0.clinicianReviewedAt)
         }
     }
 
@@ -576,6 +583,32 @@ struct SupabaseBackend: FunctionAlpsBackend {
             PG.order("submitted_at"),
         ])
         return rows.compactMap(\.model)
+    }
+
+    private struct MomentDayRow: Decodable, Sendable {
+        let checkinDate: String
+        let moment: MomentRow
+        private enum CodingKeys: String, CodingKey { case checkinDate }
+        init(from decoder: any Decoder) throws {
+            moment = try MomentRow(from: decoder)
+            checkinDate = try decoder.container(keyedBy: CodingKeys.self).decode(String.self, forKey: .checkinDate)
+        }
+    }
+
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] {
+        let rows: [MomentDayRow] = try await rest.select("patient_checkin_moments", query: [
+            PG.select(Self.momentColumns + ",checkin_date"),
+            PG.eq("patient_id", patientId),
+            PG.gte("checkin_date", since),
+            PG.order("checkin_date"),
+            PG.limit(400),
+        ])
+        var out: [String: [CheckinMoment]] = [:]
+        for row in rows {
+            guard let moment = row.moment.model else { continue }
+            out[row.checkinDate, default: []].append(moment)
+        }
+        return out
     }
 
     private struct SubmitCheckinBody: Encodable, Sendable {
@@ -1320,15 +1353,26 @@ struct SupabaseBackend: FunctionAlpsBackend {
         // The column means "when this member FIRST finished" — never moved once set.
         if let existing: Stamp = try? await rest.selectOne("nb_patient_app_profiles", query: [PG.select("onboarding_completed_at"), PG.eq("patient_id", patientId), PG.limit(1)]), let at = existing.onboardingCompletedAt { return at }
         let now = Date()
-        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String }
-        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String }
-        let body = Body(onboardingCompletedAt: ISO8601.string(now), onboardingSource: "app_baseline")
-        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
-        if touched.isEmpty {
-            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: body.onboardingSource)]) }
-            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        do {
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: "app_baseline")
+        } catch AppError.forbidden {
+            // `onboarding_source` is descriptive only — a column grant missing for it (live 2026-10-16) must
+            // never keep a member in onboarding. The stamp alone is what the gate reads.
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: nil)
         }
         return now
+    }
+
+    private func writeOnboardingStamp(patientId: String, at date: Date, source: String?) async throws {
+        // Optionals encode as absent keys, so `source: nil` writes `onboarding_completed_at` alone.
+        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String? }
+        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String? }
+        let body = Body(onboardingCompletedAt: ISO8601.string(date), onboardingSource: source)
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
+        if touched.isEmpty {
+            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: source)]) }
+            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        }
     }
 
     func confirmAdult(dateOfBirth: String) async throws -> Bool {
@@ -1411,6 +1455,27 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.map(\.day)
     }
 
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] {
+        // Raw JSON for the same reason as `gutToday`: `gut_detail` keeps its keys verbatim.
+        let data = try await rest.selectRaw("patient_daily_checkins", query: [
+            PG.select(Self.gutColumns + ",stool_type,gut_detail"), PG.eq("patient_id", patientId), PG.gte("checkin_date", since),
+            URLQueryItem(name: "intelligence_completed_at", value: "not.is.null"), PG.order("checkin_date", descending: false), PG.limit(60),
+        ])
+        guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        return rows.compactMap { row -> GutDay? in
+            guard let day = row["checkin_date"] as? String else { return nil }
+            let int = { (k: String) -> Int? in (row[k] as? NSNumber)?.intValue }
+            let decoded = GutDetailCodec.decode(row["gut_detail"])
+            return GutDay(
+                day: day, comfort: int("gut_comfort"), stool: int("gut_stool"), reactions: int("gut_reactions"), overall: int("gut_overall"),
+                stoolQuality: int("stool_quality"), stoolFrequency: int("stool_frequency"),
+                completedAt: (row["intelligence_completed_at"] as? String).flatMap(ISO8601.parse),
+                bristol: int("stool_type") ?? decoded?.answers[.stool]?.specials.bristol,
+                symptoms: decoded?.answers[.comfort]?.pills["symptoms"] ?? []
+            )
+        }
+    }
+
     func upsertGutCheckin(patientId: String, day: String, write w: GutCheckinWrite) async throws {
         let stamp = ISO8601.string(w.completedAt)
         var row: ColumnPatch = [
@@ -1442,22 +1507,61 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
+    /// The member's plan as the clinician's Plan page lays it out, member-safe — the members web `getMemberCarePlan`
+    /// read for read: the plan, its patient-visible approved items, the active patient-visible goals, the supplement
+    /// plans behind the supplement items, and the tests actually ordered. Every clinical filter is applied twice (RLS
+    /// and here). Only patient-safe columns: never `rationale`, `gate_criteria`, test `notes`. Each extra fails soft.
     func carePlan(patientId: String) async throws -> CarePlan? {
-        // RLS scopes care_plans to `patient_id = current_member_patient_id()`; the newest active plan wins.
+        // RLS scopes care_plans to `patient_id = current_member_patient_id()` (with no status gate — hence the filter);
+        // the newest active plan wins.
         let plans: [CarePlanRow] = try await rest.select("care_plans", query: [
-            PG.select("id,title,start_date,status"), PG.eq("status", "active"),
+            PG.select("id,title,start_date,status,objective_line,approach_md,review_date"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
             PG.order("start_date", descending: true), PG.limit(1),
         ])
         guard let plan = plans.first else { return nil }
+        let visible = "in.(patient_visible,patient_visible_after_approval)"
         // Curriculum rows pass the RLS gate but are the personalised space's sub-courses, not
         // instructions. `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
         let items: [CarePlanItemRow] = try await rest.select("care_plan_items", query: [
-            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order"),
+            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order,item_kind,cadence,frequency_text,dose_value,dose_unit"),
             PG.eq("care_plan_id", plan.id),
+            URLQueryItem(name: "visibility_class", value: visible),
+            URLQueryItem(name: "status", value: "in.(pushed_to_app,approved)"),
             PG.or("item_kind.is.null,item_kind.neq.curriculum"),
             PG.order("sort_order"),
         ])
-        return CarePlanLogic.assemble(plan: plan, items: items)
+        let rest = self.rest
+        let goals = await soft { () -> [CarePlanGoalRow] in
+            try await rest.select("care_plan_goals", query: [
+                PG.select("id,statement,phase_key,baseline_value,target_value,target_unit,cadence_text,sort_order"),
+                PG.eq("care_plan_id", plan.id), PG.eq("status", "active"),
+                URLQueryItem(name: "visibility_class", value: visible), PG.order("sort_order"),
+            ])
+        } ?? []
+        let supplementIds = items.filter(\.isSupplement).map(\.id)
+        var supplementPlans: [SupplementPlanRow] = []
+        if !supplementIds.isEmpty {
+            let ids = supplementIds.joined(separator: ",")
+            supplementPlans = await soft { () -> [SupplementPlanRow] in
+                try await rest.select("supplement_plans", query: [
+                    PG.select("care_plan_item_id,dosage_text,frequency_text,status"),
+                    URLQueryItem(name: "care_plan_item_id", value: "in.(\(ids))"),
+                ])
+            } ?? []
+        }
+        // `test_orders` RLS scopes rows to the member but does not gate on status: this filter is what keeps a
+        // `proposed` (never ordered) test from being announced. Asserted in `CarePlanLogic.testState`'s tests.
+        let tests = await soft { () -> [TestOrderRow] in
+            try await rest.select("test_orders", query: [
+                PG.select("id,test_type,status,ordered_at,diagnostic_tests(name,short_name)"), PG.eq("patient_id", patientId),
+                URLQueryItem(name: "status", value: "in.(ordered,pending,received,reviewed)"),
+                PG.order("ordered_at", descending: true),
+            ])
+        } ?? []
+        let expectations = await soft { () -> [CarePlanExpectationsRow] in
+            try await rest.select("care_plans", query: [PG.select("expectations_md"), PG.eq("id", plan.id), PG.limit(1)])
+        }?.first?.expectationsMd
+        return CarePlanLogic.assemble(plan: plan, items: items, goals: goals, supplementPlans: supplementPlans, tests: tests, expectations: expectations)
     }
 
     // MARK: Lab results (get_member_lab_results)

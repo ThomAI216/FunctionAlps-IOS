@@ -53,7 +53,8 @@ targets:
         CFBundleLocalizations: [en, fr]
         UILaunchScreen:
           UIColorName: LaunchBackground
-        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # Landscape is declared only so a library video can turn; `AppDelegate` keeps every other screen portrait (`PlayerOrientation`).
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UIRequiresFullScreen: true
         CFBundleIconName: AppIcon
         CFBundleURLTypes:

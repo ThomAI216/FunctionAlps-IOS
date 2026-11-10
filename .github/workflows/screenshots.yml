@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       set:
-        description: "showcase (the members showcase) or track (the Foundation Track, every screen)"
+        description: "showcase (the members showcase), checkin (only the daily check-in) or track (the Foundation Track, every screen)"
         default: showcase
 
 # Queue, never cancel: a later push without "[screens]" also starts this workflow (its job is skipped), and
@@ -27,7 +27,7 @@ defaults:
 jobs:
   shoot:
     name: Shoot the showcase screens
-    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]')
+    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]') || contains(github.event.head_commit.message, '[checkin-screens]')
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -76,6 +76,9 @@ jobs:
           xcrun simctl install "$UDID" "$APP"
 
       - name: Shoot
+        env:
+          # "[checkin-screens]" in the message (or set = checkin by hand): only the daily check-in set, a few minutes.
+          ONLY_CHECKIN: ${{ (contains(github.event.head_commit.message, '[checkin-screens]') || inputs.set == 'checkin') && '1' || '0' }}
         run: |
           UDID=${{ steps.sim.outputs.udid }}
           BUNDLE=com.functionalps.patient
@@ -93,6 +96,34 @@ jobs:
             echo "shot $1"
           }
           shootfr() { LANG_CODE=fr LOCALE_CODE=fr_CH shoot "$@"; }
+          # The daily functional check-in (2026-11-10): Home's glass, last night on the dial and from a ring, the
+          # sliders, the stool card, the Bristol chart, the red-flag card with the voice note.
+          shoot 01-today today 12
+          shoot 30-checkin-sleep checkin-sleep 10
+          shoot 30b-checkin-sleep-drag checkin-sleep-drag 10
+          shoot 31-checkin-wearable checkin-wearable 10
+          shoot 02-checkin checkin
+          shoot 32-checkin-stool checkin-stool 11
+          shoot 33-bristol-chart bristol-chart 13
+          shoot 34-checkin-note checkin-note 11
+          shootfr 30-checkin-sleep-fr checkin-sleep 10
+          shoot 35-bon-appetit bon-appetit 10
+          shootfr 35-bon-appetit-fr bon-appetit 10
+          # My health plan (2026-11-10): objective + approach, goals + journey, supplements + tests + review.
+          shoot 07-care-plan careplan 12
+          shoot 07c-care-plan-middle careplan-middle 12
+          shoot 07d-care-plan-bottom careplan-bottom 12
+          # Trends, reworked (2026-11-10, owner-validated mockup v2): the page from its top, middle and bottom, the Energy
+          # row opened in place, then the pages behind it — Sleep, Digestion, a device (Oura) and the shared patterns.
+          shoot 40-trends trends 14
+          shoot 41-trends-middle trends-middle 14
+          shoot 42-trends-bottom trends-bottom 14
+          shoot 43-trends-energy-open trends-energy-open 14
+          shoot 44-trends-sleep trends-sleep 12
+          shoot 45-trends-digestion trends-digestion 12
+          shoot 46-trends-device trends-device 12
+          shoot 47-trends-patterns trends-patterns 12
+          if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
           shoot 01b-today-bottom today-bottom 14
@@ -108,6 +139,16 @@ jobs:
           shoot 07b-action-card action 10
           shoot 08-library library 14
           shoot 09-symptoms symptoms
+          # The new Library and the habit screens (Foundation Track v2, 2026-11-10).
+          shoot 30-library-home library 14
+          shoot 31-library-locked library-locked 12
+          shoot 32-library-search library-search 12
+          shoot 33-library-read library-read 12
+          shoot 34-library-watch library-watch 12
+          shoot 35-habits habits 12
+          shoot 36-habit-open habit-open 12
+          shoot 37-habit-page habit-page 12
+          shoot 38-habit-first habit-first 12
           shoot 11-article article 10
           # The practice's answer with resources, and the mini track it points to (2026-11-05).
           shoot 12-messages messages 10

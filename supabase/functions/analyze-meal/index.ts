@@ -46,6 +46,7 @@ import {
   type PricedMeal,
 } from "../_shared/meals/meal-analysis.ts"
 import { bytesToBase64, photoPathsFor } from "../_shared/meals/identify-parts.ts"
+import { isPhotoOnlyInput, withMealHabits } from "../_shared/meals/habits.ts"
 import { sanitiseStatedItems } from "../_shared/meals/stated-items.ts"
 
 // Same bucket the client uploads to and the retry worker reads from.
@@ -150,10 +151,11 @@ Deno.serve(async (req: Request) => {
   let claimed = false
   let patientId: string | null = null
   let storedPhotos: string[] = []
+  let loggedAt: string | null = null
   if (db && mealLogId) {
     const { data: row } = await db
       .from("nb_meal_logs")
-      .select("analysis_attempts, patient_id, photo_url, photo_urls")
+      .select("analysis_attempts, patient_id, photo_url, photo_urls, logged_at")
       .eq("id", mealLogId)
       .maybeSingle()
     const prior = (row?.analysis_attempts as number | null) ?? 0
@@ -162,6 +164,7 @@ Deno.serve(async (req: Request) => {
     // stub of a retry budget for its second.
     attempts = reanalyze ? 1 : prior + 1
     patientId = (row?.patient_id as string | null) ?? null
+    loggedAt = (row?.logged_at as string | null) ?? null
     storedPhotos = photoPathsFor({
       photo_url: row?.photo_url as string | null,
       photo_urls: row?.photo_urls as string[] | null,
@@ -204,18 +207,19 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── 2. IDENTIFY (hedged, 3 attempts, one shared 9 s deadline) ─────────────
-  const ident = await identifyMeal({
+  const identifyInput = {
     imageBase64,
     imageBase64s: reanalyzeImages.length ? reanalyzeImages : imageBase64s,
     imageUrl,
     description,
     statedItems,
-  })
+  }
+  const ident = await identifyMeal(identifyInput)
 
   // ── 6. IDENTIFICATION FAILED ──────────────────────────────────────────────
   if (!ident.ok) {
     if (db && mealLogId && claimed) {
-      await writeMealPatch(db, mealLogId, failurePatch(ident, attempts), "analyze-meal:failure", {
+      await writeMealPatch(db, mealLogId, failurePatch(ident, attempts, new Date(), loggedAt), "analyze-meal:failure", {
         onlyIfInFlight: true,
       })
     }
@@ -241,14 +245,24 @@ Deno.serve(async (req: Request) => {
     )
   }
 
+  // ── 2b. HABITS — photo meals only ─────────────────────────────────────────
+  //
+  // The corrections this member keeps making (the same fix on two meals) are applied HERE: after identification,
+  // before WRITE 1 and pricing, so the confirm screen shows them and the numbers include them. Each item a habit
+  // added or changed carries `from_habit: true`. A text or voice meal is passed through untouched — the member said
+  // what they ate — and so is any call without a row: `patientId` comes off the meal row read under the caller's JWT
+  // above, never off the request. loadHabits never throws; a failed read is a meal without habits, not a lost meal.
+  // `meal` keeps the model's own list beside the new one, for resolution_meta.identified. See _shared/meals/habits.ts.
+  const meal = await withMealHabits(db, ident, { patientId, photo: isPhotoOnlyInput(identifyInput), mealLogId })
+
   // ── 3. WRITE 1 of 2 — identification ──────────────────────────────────────
   //
   // Names and grams land NOW, unpriced, and the row flips to `pricing`. The
   // patient's realtime subscription fires here, so the confirm screen can show
   // WHAT it saw while the numbers are still being fetched — which is most of the
   // perceived speed.
-  if (db && mealLogId && ident.items.length) {
-    await writeMealPatch(db, mealLogId, identificationPatch(ident), "analyze-meal:identification")
+  if (db && mealLogId && meal.items.length) {
+    await writeMealPatch(db, mealLogId, identificationPatch(meal), "analyze-meal:identification")
   }
 
   // ── 4. PRICE ──────────────────────────────────────────────────────────────
@@ -257,7 +271,7 @@ Deno.serve(async (req: Request) => {
   // model. An empty identification skips the resolver entirely rather than paying
   // for a client and an embedding session it would not use.
   let priced: PricedMeal = emptyPriced()
-  if (ident.items.length) {
+  if (meal.items.length) {
     if (!Deno.env.get("SUPABASE_URL") || !Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
       return json({ error: "server misconfigured: SUPABASE_SERVICE_ROLE_KEY missing" }, 500)
     }
@@ -265,7 +279,7 @@ Deno.serve(async (req: Request) => {
       // The service-role client reads the reference plane, as it always has.
       // `patientId` is what scopes tier 0a to this patient's own pantry — it came
       // off the meal row under the caller's JWT above, never off the request.
-      priced = await priceMeal(createServiceRoleClient(), ident.items, patientId)
+      priced = await priceMeal(createServiceRoleClient(), meal.items, patientId)
     } catch (e) {
       // Pricing touches no external network — it reads our own Postgres and
       // embeds inside this runtime. A throw here is a BUG, not a dice roll, so
@@ -277,7 +291,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── 5. WRITE 2 of 2 — prices, totals, scores, complete ────────────────────
-  if (db && mealLogId && ident.items.length) {
+  if (db && mealLogId && meal.items.length) {
     // Protocol Lens. Read under the caller's JWT like everything else here: the
     // own-rows policy on nb_patient_protocols is what makes patient_id safe to
     // take from the row rather than re-derive. The id is the one already read at
@@ -290,7 +304,7 @@ Deno.serve(async (req: Request) => {
     await writeMealPatch(
       db,
       mealLogId,
-      completionPatch(ident, priced, attempts, protocolFlags),
+      completionPatch(meal, priced, attempts, protocolFlags),
       "analyze-meal:completion",
     )
   }
@@ -300,20 +314,20 @@ Deno.serve(async (req: Request) => {
   // makes `checkedAnalysis` null every response and the confirm screen falls back
   // to the labelled sample for every meal.
   return json({
-    dish_name: ident.dish_name,
+    dish_name: meal.dish_name,
     items: priced.items,
     totals: priced.totals,
     micros: priced.micros,
     scores: priced.scores,
-    duplicates_dropped: ident.duplicates_dropped,
-    confidence: ident.confidence,
+    duplicates_dropped: meal.duplicates_dropped,
+    confidence: meal.confidence,
     // ADDITIVE, 2026-08-04. The row is the nudge's source of truth — confirm
     // gates on the watched row, not on this body — but normalizeMealAnalysis
     // reads these two keys at the client boundary, and a field the client parses
     // that the server never sends is a contract that quietly lies: it would
     // report `full` for every meal forever. Older clients ignore unknown keys.
-    coverage: ident.coverage,
-    coverage_note: ident.coverage_note,
-    model: ident.model,
+    coverage: meal.coverage,
+    coverage_note: meal.coverage_note,
+    model: meal.model,
   })
 })

@@ -34,7 +34,9 @@ final class AppDependencies {
     let track: TrackService
     /// What the track unlocks by use: Trends after 3 days in a row, Food with the first meal.
     let unlocks: UnlockService
-    /// The domain seam, for screens that read a single server-computed object (Trends).
+    /// The Trends tab and its detail pages: one shared read of the member's own logs, with the window they chose.
+    let trends: TrendsService
+    /// The domain seam, for screens that read a single server-computed object.
     let backend: any FunctionAlpsBackend
 
     init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore, backendOverride: (any FunctionAlpsBackend)? = nil) {
@@ -65,7 +67,8 @@ final class AppDependencies {
         self.profile = ProfileService(backend: backend)
         self.messaging = MessagingService(backend: backend)
         self.account = AccountService(backend: backend)
-        self.wearables = WearableService(backend: backend)
+        let wearables = WearableService(backend: backend)
+        self.wearables = wearables
         self.notifications = NotificationService(backend: backend)
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
@@ -74,6 +77,7 @@ final class AppDependencies {
         self.habits = HabitsService(backend: backend, auth: auth)
         self.track = TrackService(backend: backend, auth: auth)
         self.unlocks = UnlockService(backend: backend)
+        self.trends = TrendsService(backend: backend, auth: auth, wearables: wearables)
         self.backend = backend
     }
 

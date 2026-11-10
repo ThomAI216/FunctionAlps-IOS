@@ -20,12 +20,54 @@ struct CarePlan: Sendable, Equatable {
         var id: String { category }
     }
 
+    /// A goal the clinician set, with — where they wrote them — where the member starts and where they aim.
+    struct Goal: Sendable, Equatable, Identifiable {
+        let id: String
+        let statement: String
+        /// The phase it belongs to; nil = the whole plan.
+        let phaseKey: String?
+        let baseline: Double?
+        let target: Double?
+        let unit: String?
+        let cadence: String?
+    }
+
+    /// What · how much · when · why (the "why" is the point).
+    struct Supplement: Sendable, Equatable, Identifiable {
+        let id: String
+        let name: String
+        let dosage: String?
+        let timing: String?
+        let why: String?
+    }
+
+    /// A test that was actually ordered (a `proposed` order never reaches the member).
+    struct Test: Sendable, Equatable, Identifiable {
+        enum State: String, Sendable { case ordered, processing, resulted }
+        let id: String
+        let name: String
+        let state: State
+    }
+
     let title: String
     /// "September 2026" or "" when the plan has no start date.
     let startDate: String
     let practitioner: String
     let goals: [String]
     let sections: [Section]
+    // The clinician's plan page, member-safe (owner, 2026-11-10: "more about the objective, the journey, the
+    // priorities"): the same blocks as CLINICAL → patient → Plan, the members web `getMemberCarePlan` reads.
+    /// `care_plans.objective_line` — the one sentence the app leads with.
+    var objectiveLine: String? = nil
+    /// `care_plans.approach_md` — the clinician's "how we'll get there", in their words.
+    var approach: String? = nil
+    var planGoals: [Goal] = []
+    var supplements: [Supplement] = []
+    var tests: [Test] = []
+    /// `care_plans.review_date`, formatted ("12 December 2026").
+    var reviewDate: String? = nil
+    /// `care_plans.expectations_md` — what to expect between now and the review.
+    var expectations: String? = nil
 }
 
 /// One `care_plans` row the member may read.
@@ -34,6 +76,46 @@ struct CarePlanRow: Decodable, Sendable, Equatable {
     let title: String?
     let startDate: String?
     let status: String?
+    var objectiveLine: String? = nil
+    var approachMd: String? = nil
+    var reviewDate: String? = nil
+}
+
+/// `care_plans.expectations_md`, read on its own: the column is newer than some schemas, and a missing column
+/// must only hide the block, never the plan.
+struct CarePlanExpectationsRow: Decodable, Sendable, Equatable {
+    let expectationsMd: String?
+}
+
+/// One `care_plan_goals` row (RLS: own, active, patient-visible — filtered again in the query).
+struct CarePlanGoalRow: Decodable, Sendable, Equatable {
+    let id: String
+    let statement: String?
+    let phaseKey: String?
+    let baselineValue: Double?
+    let targetValue: Double?
+    let targetUnit: String?
+    let cadenceText: String?
+}
+
+/// One `supplement_plans` row: the clinician's own words for how much and when.
+struct SupplementPlanRow: Decodable, Sendable, Equatable {
+    let carePlanItemId: String?
+    let dosageText: String?
+    let frequencyText: String?
+    let status: String?
+}
+
+/// One `test_orders` row with its catalogue name (`notes` is clinician-internal and never selected).
+struct TestOrderRow: Decodable, Sendable, Equatable {
+    struct Catalog: Decodable, Sendable, Equatable {
+        let name: String?
+        let shortName: String?
+    }
+    let id: String
+    let testType: String?
+    let status: String
+    let diagnosticTests: Catalog?
 }
 
 /// One `care_plan_items` row (RLS already limits to patient-visible + pushed/approved).
@@ -46,6 +128,14 @@ struct CarePlanItemRow: Decodable, Sendable, Equatable {
     let patientSafeExplanation: String?
     let status: String?
     let sortOrder: Int?
+    var itemKind: String? = nil
+    var cadence: String? = nil
+    var frequencyText: String? = nil
+    var doseValue: Double? = nil
+    var doseUnit: String? = nil
+
+    /// A supplement line — it has its own card, never the "plan in detail" list.
+    var isSupplement: Bool { itemKind == "supplement_plan" || domain == "supplementation" }
 }
 
 /// Pure rules — the Expo `buildSections` / `buildGoals` / `uiStatus` / `itemText`, line for line.
@@ -91,7 +181,7 @@ enum CarePlanLogic {
     static func buildSections(_ rows: [CarePlanItemRow]) -> [CarePlan.Section] {
         var order: [String] = []
         var byLabel: [String: (meta: DomainMeta, items: [CarePlan.Item])] = [:]
-        for (i, row) in rows.enumerated() {
+        for (i, row) in rows.enumerated() where !row.isSupplement {
             let text = itemText(row)
             guard !text.isEmpty else { continue }
             let meta = domainMeta[row.domain ?? ""] ?? fallbackMeta
@@ -135,15 +225,105 @@ enum CarePlanLogic {
         return out.string(from: date)
     }
 
-    static func assemble(plan: CarePlanRow, items: [CarePlanItemRow]) -> CarePlan {
+    static func assemble(plan: CarePlanRow, items: [CarePlanItemRow], goals: [CarePlanGoalRow] = [], supplementPlans: [SupplementPlanRow] = [],
+                         tests: [TestOrderRow] = [], expectations: String? = nil) -> CarePlan {
         let title = (plan.title ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        return CarePlan(
+        var out = CarePlan(
             title: title.isEmpty ? String(localized: "careplan.fallbackTitle", defaultValue: "Care plan") : title,
             startDate: formatStartDate(plan.startDate),
             practitioner: String(localized: "careplan.practitioner", defaultValue: "Your practitioner"),
-            goals: buildGoals(items),
+            goals: buildGoals(items.filter { !$0.isSupplement }),
             sections: buildSections(items)
         )
+        out.objectiveLine = trimmed(plan.objectiveLine)
+        out.approach = trimmed(plan.approachMd)
+        out.planGoals = buildPlanGoals(goals)
+        out.supplements = buildSupplements(items.filter(\.isSupplement), plans: supplementPlans)
+        out.tests = buildTests(tests)
+        out.reviewDate = formatDay(plan.reviewDate)
+        out.expectations = trimmed(expectations)
+        return out
+    }
+
+    static func trimmed(_ raw: String?) -> String? {
+        guard let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return nil }
+        return t
+    }
+
+    static func buildPlanGoals(_ rows: [CarePlanGoalRow]) -> [CarePlan.Goal] {
+        rows.compactMap { row in
+            guard let statement = trimmed(row.statement) else { return nil }
+            return CarePlan.Goal(id: row.id, statement: statement, phaseKey: trimmed(row.phaseKey), baseline: row.baselineValue,
+                                 target: row.targetValue, unit: trimmed(row.targetUnit), cadence: trimmed(row.cadenceText))
+        }
+    }
+
+    /// The goals that apply now: plan-wide ones and the current phase's. No current phase (no start date, or the
+    /// arc has run out) → every goal, rather than an empty block (the members web `goalsForPhase`).
+    static func goalsNow(_ goals: [CarePlan.Goal], currentPhase: String?) -> [CarePlan.Goal] {
+        guard let currentPhase else { return goals }
+        return goals.filter { $0.phaseKey == nil || $0.phaseKey == currentPhase }
+    }
+
+    /// "5 → 8 /10" — where the member starts and where the plan aims, when the clinician wrote them.
+    static func goalRange(_ goal: CarePlan.Goal) -> String? {
+        func n(_ v: Double) -> String { v == v.rounded() ? String(Int(v)) : String(format: "%.1f", v) }
+        let unit = goal.unit.map { " \($0)" } ?? ""
+        switch (goal.baseline, goal.target) {
+        case let (b?, t?): return "\(n(b)) → \(n(t))\(unit)"
+        case let (nil, t?): return String(localized: "careplan.goal.target", defaultValue: "Target \(n(t))\(unit)")
+        default: return nil
+        }
+    }
+
+    /// Supplements with their plan row's dosage and timing. A plan the clinician STOPPED or PAUSED drops the
+    /// supplement: the item can outlive the decision, and showing it as current would change what someone swallows.
+    static func buildSupplements(_ items: [CarePlanItemRow], plans: [SupplementPlanRow]) -> [CarePlan.Supplement] {
+        var byItem: [String: SupplementPlanRow] = [:]
+        for plan in plans { if let id = plan.carePlanItemId { byItem[id] = plan } }
+        return items.compactMap { item in
+            let plan = byItem[item.id]
+            if let status = plan?.status, status != "active", status != "planned" { return nil }
+            guard let name = trimmed(item.title) ?? trimmed(item.instructionText) else { return nil }
+            let dose = [item.doseValue.map { $0 == $0.rounded() ? String(Int($0)) : String($0) }, trimmed(item.doseUnit)]
+                .compactMap { $0 }.joined(separator: " ")
+            return CarePlan.Supplement(id: item.id, name: name, dosage: trimmed(plan?.dosageText) ?? trimmed(dose),
+                                       timing: trimmed(plan?.frequencyText) ?? trimmed(item.cadence) ?? trimmed(item.frequencyText),
+                                       why: trimmed(item.patientSafeExplanation))
+        }
+    }
+
+    /// `ordered` → ordered · `pending`/`received` → processing · `reviewed` → resulted. `proposed` (an AI
+    /// suggestion never ordered) and `cancelled` never reach the member.
+    static func testState(_ status: String) -> CarePlan.Test.State? {
+        switch status {
+        case "ordered": .ordered
+        case "pending", "received": .processing
+        case "reviewed": .resulted
+        default: nil
+        }
+    }
+
+    static func buildTests(_ rows: [TestOrderRow]) -> [CarePlan.Test] {
+        rows.compactMap { row in
+            guard let state = testState(row.status),
+                  let name = trimmed(row.diagnosticTests?.name) ?? trimmed(row.testType) else { return nil }
+            return CarePlan.Test(id: row.id, name: name, state: state)
+        }
+    }
+
+    /// "2026-12-12" → "12 December 2026".
+    static func formatDay(_ raw: String?, locale: Locale = .current) -> String? {
+        guard let raw, !raw.isEmpty else { return nil }
+        let parser = DateFormatter()
+        parser.calendar = Calendar(identifier: .gregorian)
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.dateFormat = "yyyy-MM-dd"
+        guard let date = parser.date(from: String(raw.prefix(10))) else { return nil }
+        let out = DateFormatter()
+        out.locale = locale
+        out.setLocalizedDateFormatFromTemplate("d MMMM yyyy")
+        return out.string(from: date)
     }
 }
 

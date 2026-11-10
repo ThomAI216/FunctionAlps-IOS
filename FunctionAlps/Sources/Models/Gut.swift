@@ -10,6 +10,10 @@ struct GutDay: Sendable, Equatable {
     let stoolQuality: Int?
     let stoolFrequency: Int?
     let completedAt: Date?
+    /// Bristol type 1–7 (`stool_type`) — only on the Trends read (`gutDays`).
+    var bristol: Int? = nil
+    /// The comfort symptoms ticked (`gut_detail.answers.comfort.pills.symptoms`) — only on the Trends read.
+    var symptoms: [String] = []
 }
 
 /// Today's saved gut check-in, read back for editing (`gut_detail.answers` + `.notes`).

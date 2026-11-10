@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// The Library tab — layout v2's order, vertical: next live → plan header → chip rail → The show (this week's
-/// episodes) → Priority for you → Continue (experiments, then tracks) → Tracks → Foundations → Supplements (mockups
-/// "Library on the Phone", 2026-08-16, and "iOS app — Library tab", 2026-10-03).
+/// The Library tab (Thomas, 2026-11-10, the approved mockup): search at the top, then the Foundation Track day by
+/// day, the reads tied to the member's habits, the videos that play in the app; below them, whatever the practice
+/// prescribed (personal tracks, what it sent, priority tracks). No show, no pillar or topic lists, no tracks grid,
+/// no supplements in this release.
 struct LibraryView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: LibraryViewModel?
@@ -21,7 +22,8 @@ struct LibraryView: View {
         .navigationTitle(String(localized: "library.title", defaultValue: "Library"))
         .task {
             if model == nil {
-                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, shows: dependencies.shows, messaging: dependencies.messaging)
+                let m = LibraryViewModel(library: dependencies.library, members: dependencies.members, track: dependencies.track,
+                                         habits: dependencies.habits, messaging: dependencies.messaging)
                 model = m
                 await m.load()
             }
@@ -32,247 +34,215 @@ struct LibraryView: View {
 private struct LibraryScreen: View {
     @Bindable var model: LibraryViewModel
     @Environment(AppRouter.self) private var router
-    @Environment(AppDependencies.self) private var dependencies
-    @Environment(\.openURL) private var openURL
+    @FocusState private var searchFocused: Bool
+    @State private var softLock: LibrarySoftLock?
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
+                LazyVStack(alignment: .leading, spacing: 0) {
                     header
-                    Section {
-                        sections
-                    } header: {
-                        chipRail(proxy)
+                    LibrarySearchField(text: $model.query, focused: $searchFocused).padding(.bottom, 14)
+                    switch model.phase {
+                    case .loading:
+                        FALoadingState().frame(minHeight: 240)
+                    case .failed(let message):
+                        FACard {
+                            FAErrorState(title: String(localized: "library.error.title", defaultValue: "Couldn't load the library"), message: message) {
+                                Task { await model.load() }
+                            }
+                        }
+                    case .unauthorized:
+                        FACard {
+                            FAEmptyState(title: String(localized: "library.unauthorized.title", defaultValue: "Please sign in again"),
+                                         message: String(localized: "library.unauthorized.message", defaultValue: "Your session ended. Sign in to see your library."),
+                                         systemImage: "lock")
+                        }
+                    case .loaded:
+                        if model.isSearching { searchResults } else { content(proxy) }
                     }
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
+            .scrollDismissesKeyboard(.interactively)
             .refreshable { await model.load() }
         }
+        .sheet(item: $softLock) { lock in
+            LibrarySoftLockSheet(lock: lock, today: model.today, dayTitle: model.dayTitle(lock.day))
+        }
+        .onAppear { Task { await model.refreshRead() } }
+        #if DEBUG
+        .task(id: model.phase) { await showcaseSoftLock() }
+        #endif
     }
 
-    // MARK: Header + plan
+    // MARK: Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(String(localized: "library.title", defaultValue: "Library"))
-                .font(FATypography.display(28, relativeTo: .largeTitle))
-                .foregroundStyle(FAColor.ink)
-            if !model.bundle.live {
-                Text(String(localized: "library.sample", defaultValue: "Sample preview · sign in to see your own library"))
-                    .font(FATypography.sans(11, .semibold, relativeTo: .caption))
-                    .foregroundStyle(FAColor.inkSecondary)
-            }
-            if let show = model.show {
-                ShowLiveCard(snapshot: show.snapshot).padding(.top, 12)
-            }
-            if let plan = model.bundle.plan {
-                planCard(plan).padding(.top, 12)
-            }
+            Text(String(localized: "library.title", defaultValue: "Library").uppercased())
+                .font(FATypography.sans(10, .bold, relativeTo: .caption)).tracking(1.4).foregroundStyle(FAColor.inkSecondary)
+            Text(String(localized: "library.tagline", defaultValue: "Learn at your pace"))
+                .font(FATypography.display(28, relativeTo: .largeTitle)).foregroundStyle(FAColor.ink)
+                .accessibilityAddTraits(.isHeader)
         }
         .padding(.top, 26)
-        .padding(.bottom, 10)
+        .padding(.bottom, 12)
     }
 
-    /// The reason this library is personal — absorbs the desktop nav's ring + week.
-    private func planCard(_ plan: PlanHeader) -> some View {
-        FACard {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 12) {
-                    ActivityRing(pct: model.pct, color: FAColor.forest, size: 52, strokeWidth: 6, hashedTrack: false, raised: false, trackColor: Color.black.opacity(0.08)) {
-                        Text("\(Int((model.pct * 100).rounded()))%").font(FATypography.display(12, relativeTo: .caption)).foregroundStyle(FAColor.ink)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text((String(localized: "library.plan.kicker", defaultValue: "Your care plan") + (model.week.map { String(localized: "library.plan.week", defaultValue: " · Week \($0)") } ?? "")).uppercased())
-                            .font(FATypography.sans(9, .bold, relativeTo: .caption2)).tracking(1.2).foregroundStyle(FALibraryColor.gold)
-                        Text(plan.title).font(FATypography.display(16, relativeTo: .headline)).foregroundStyle(FAColor.ink).lineLimit(2)
-                        Text(String(localized: "library.plan.lessons", defaultValue: "\(model.doneTotal) of \(model.lessonTotal) lessons"))
-                            .font(FATypography.sans(10.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                    }
-                }
-                if !plan.objectives.isEmpty {
-                    FlowLayout(spacing: 6) {
-                        ForEach(plan.objectives.prefix(3), id: \.self) { o in
-                            Text(o).font(FATypography.sans(10, .bold, relativeTo: .caption2)).foregroundStyle(FAColor.forest).lineLimit(1)
-                                .padding(.horizontal, 9).padding(.vertical, 4)
-                                .background(FAColor.forest.opacity(0.1), in: Capsule())
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: Chip rail (sticky — the whole left nav, one thumb row)
-
-    private func chipRail(_ proxy: ScrollViewProxy) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 7) {
-                ForEach(LibraryViewModel.Section.allCases) { section in
-                    if (section == .priority && model.priority.isEmpty && model.sent.isEmpty) || (section == .show && model.showPresentation != .live) { EmptyView() } else {
-                        let on = model.active == section
-                        Button {
-                            model.active = section
-                            withAnimation(.easeInOut(duration: 0.35)) { proxy.scrollTo(section.id, anchor: .top) }
-                        } label: {
-                            HStack(spacing: 5) {
-                                Text(section.title).font(FATypography.sans(11, .bold, relativeTo: .caption)).foregroundStyle(on ? FAColor.cream : Color(hex: 0x4A4A42))
-                                if let n = model.count(section) {
-                                    Text("\(n)").font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(on ? FAColor.cream.opacity(0.7) : Color(hex: 0x4A4A42, opacity: 0.55))
-                                }
-                            }
-                            .padding(.horizontal, 12).padding(.vertical, 7)
-                            .background(on ? FAColor.forest : Color.white.opacity(0.66), in: Capsule())
-                            .overlay { Capsule().strokeBorder(on ? FAColor.forest : Color(hex: 0x1A1A16, opacity: 0.1), lineWidth: 1) }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            .padding(.vertical, 6)
-        }
-        .background(Color.clear)
-    }
-
-    // MARK: Sections
+    // MARK: Home
 
     @ViewBuilder
-    private var sections: some View {
-        let b = model.bundle
-        // The show: owner, 2026-11-05, "in the library for now, remove the show as coming soon totally". Only a LIVE
-        // show (ShowFeature off) still renders; while it is coming soon, nothing of it is on the page.
-        if let show = model.show {
-            showSection(show)
-        }
-        // "Your Pathway" in Priority's place (owner, 2026-11-05): what the practice sent, then the priority tracks.
-        if !model.sent.isEmpty || !model.personal.isEmpty || !model.priority.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                LibrarySectionHead(title: PathwayCopy.title, note: PathwayCopy.eyebrow.lowercased())
-                ForEach(model.personal) { track in
-                    PersonalTrackCard(track: track, unopened: PersonalTrackLogic.unopened(track, openedSlugs: model.openedSlugs).count) {
-                        router.libraryPath.append(.personalTrack(track.id))
-                    }
-                }
-                if !model.sent.isEmpty {
-                    SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
-                }
-                if !model.priority.isEmpty {
-                    Veiled(open: b.access.tracks) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(model.priority) { t in
-                                    TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
-                                }
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-            }
-            .padding(.top, 8)
-            .id(LibraryViewModel.Section.priority.id)
-        }
-
-        let experiments = model.show?.experiments ?? []
-        let tracksInProgress = b.access.tracks ? model.inProgress : []
-        if !experiments.isEmpty || !tracksInProgress.isEmpty {
-            let count = experiments.count + tracksInProgress.count
-            VStack(alignment: .leading, spacing: 0) {
-                LibrarySectionHead(title: String(localized: "library.continue.title", defaultValue: "Continue"), note: String(localized: "library.continue.note", defaultValue: "\(count) in progress"))
-                VStack(spacing: 10) {
-                    ForEach(experiments) { row in
-                        ShowExperimentRowView(row: row, covers: model.covers, marking: model.markingSlug == row.slug) {
-                            router.libraryPath.append(.episode(row.slug))
-                        } onMark: {
-                            Task { await model.markToday(row) }
-                        }
-                    }
-                    ForEach(tracksInProgress) { t in continueRow(t) }
-                }
-            }
-            .padding(.top, 18)
-        }
-
-        VStack(alignment: .leading, spacing: 0) {
-            LibrarySectionHead(title: String(localized: "library.section.tracks", defaultValue: "Tracks"), note: "\(b.tracks.count)")
-            Veiled(open: b.access.tracks) {
-                Grid2(items: LibraryLogic.visibleItems(b.tracks, expanded: model.expanded.contains(.tracks))) { t in
-                    TrackCard(track: t) { open(t) }
-                }
-                MoreToggle(label: LibraryLogic.toggleLabel(total: b.tracks.count, expanded: model.expanded.contains(.tracks), noun: String(localized: "library.noun.tracks", defaultValue: "tracks")), expanded: model.expanded.contains(.tracks)) { model.toggle(.tracks) }
+    private func content(_ proxy: ScrollViewProxy) -> some View {
+        let groups = model.dayGroups
+        let reads = model.habitReads
+        let videos = model.videos
+        if groups.isEmpty && reads.isEmpty && videos.isEmpty && !model.hasPrescribed {
+            FACard {
+                FAEmptyState(title: String(localized: "library.empty.title", defaultValue: "Nothing here yet"),
+                             message: String(localized: "library.empty.message", defaultValue: "New reads appear here as they are published."))
             }
         }
-        .padding(.top, 18)
-        .id(LibraryViewModel.Section.tracks.id)
-
-        if !model.foundations.isEmpty {
-            resourceSection(.foundations, items: model.foundations, open: b.access.foundations, noun: String(localized: "library.noun.resources", defaultValue: "resources"))
+        if !groups.isEmpty || !reads.isEmpty || !videos.isEmpty {
+            LibraryChipRail(active: reads.isEmpty && model.anchor == .forYou ? .track : model.anchor, showForYou: !reads.isEmpty, showWatch: !videos.isEmpty) { anchor in
+                model.anchor = anchor
+                withAnimation(.easeInOut(duration: 0.35)) { proxy.scrollTo(anchor.rawValue, anchor: .top) }
+            }
+            .padding(.bottom, 14)
         }
-        if !model.supplements.isEmpty {
-            resourceSection(.supplements, items: model.supplements, open: b.access.supplements, noun: String(localized: "library.noun.supplements", defaultValue: "supplements"))
-        }
+        if !groups.isEmpty { trackSection(groups).id(LibraryViewModel.Anchor.track.rawValue) }
+        if !reads.isEmpty { habitsSection(reads).id(LibraryViewModel.Anchor.forYou.rawValue) }
+        if !videos.isEmpty { watchSection(videos).id(LibraryViewModel.Anchor.watch.rawValue) }
+        if model.hasPrescribed { prescribedSection }
     }
 
-    /// "This week's episodes" — or, while no replay of the week exists yet (before the launch, early in a week),
-    /// the week from the schedule as day tiles.
-    private func showSection(_ show: ShowLibraryState) -> some View {
-        let snap = show.snapshot
-        let hasEpisodes = !snap.thisWeek.isEmpty
+    private func trackSection(_ groups: [LibraryDayGroup]) -> some View {
+        let totals = FoundationLibraryLogic.readTotals(groups)
         return VStack(alignment: .leading, spacing: 0) {
-            ShowSectionHead(
-                title: snap.preLaunch && !hasEpisodes
-                    ? String(localized: "show.firstWeekTitle", defaultValue: "The first week")
-                    : String(localized: "show.thisWeekTitle", defaultValue: "This week's episodes"),
-                subtitle: hasEpisodes
-                    ? String(localized: "show.thisWeekSub", defaultValue: "Each one with its replay, research, article, one-week experiment and FAQ.")
-                    : String(localized: "show.weekEmpty", defaultValue: "Each episode lands here after it airs, with everything that goes with it.")
-            )
+            LibrarySectionHead(title: String(localized: "library.track.title", defaultValue: "Your Foundation Track"),
+                               note: String(localized: "library.track.progress", defaultValue: "\(totals.read) of \(totals.total) read"))
+            ScrollViewReader { rail in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 10) {
+                        ForEach(groups) { group in
+                            LibraryDayCard(group: group) { open(group) }.id(group.day)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+                                .task(id: model.today) {
+                    // Two days before today, like the mockup: the member lands on what is current, with the last reads behind.
+                    guard let today = model.today, let first = groups.first(where: { $0.day >= today - 2 }) else { return }
+                    rail.scrollTo(first.day, anchor: .leading)
+                }
+            }
+        }
+        .padding(.bottom, 20)
+    }
+
+    private func habitsSection(_ reads: [LibraryHabitRead]) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            LibrarySectionHead(title: String(localized: "library.habits.title", defaultValue: "For your habits"),
+                               note: String(localized: "library.habits.note", defaultValue: "tied to what you do now"))
+            LibraryReadGrid(items: reads) { read in
+                LibraryReadCard(kicker: read.habitTitle, title: read.article.title) { router.libraryPath.append(.read(read.article.slug)) }
+            }
+        }
+        .padding(.bottom, 20)
+    }
+
+    private func watchSection(_ videos: [LibraryVideo]) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            LibrarySectionHead(title: String(localized: "library.watch.title", defaultValue: "Watch"),
+                               note: String(localized: "library.watch.note", defaultValue: "plays in the app"))
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 10) {
-                    if hasEpisodes {
-                        ForEach(snap.thisWeek) { ep in
-                            ShowEpisodeTile(episode: ep, isToday: ShowLogic.zonedDay(ep.startsAt, timeZone: show.library.clock.timezone) == snap.today,
-                                            covers: model.covers) {
-                                router.libraryPath.append(.episode(ep.slug))
-                            }
-                        }
-                    } else {
-                        ForEach(snap.days) { day in
-                            ShowDayTile(day: day, onPress: dayAction(day))
-                        }
+                // A little space between the tiles, not much (Thomas, 2026-11-10).
+                HStack(alignment: .top, spacing: 8) {
+                    ForEach(videos) { video in
+                        LibraryVideoTile(video: video) { router.libraryPath.append(.libraryVideo(video)) }.frame(width: 190)
                     }
                 }
                 .padding(.vertical, 2)
             }
         }
-        .padding(.top, 8)
-        .id(LibraryViewModel.Section.show.id)
+        .padding(.bottom, 20)
     }
 
-    private func dayAction(_ day: ShowSnapshot.WeekDay) -> (() -> Void)? {
-        if let episode = day.episode {
-            return { router.libraryPath.append(.episode(episode.slug)) }
-        }
-        if day.upcoming != nil {
-            return { openURL(ShowLogic.eventsURL) }
-        }
-        return nil
-    }
+    // MARK: Search
 
-    private func resourceSection(_ section: LibraryViewModel.Section, items: [LibResource], open: Bool, noun: String) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            LibrarySectionHead(title: section.title, note: "\(items.count)")
-            Veiled(open: open) {
-                Grid2(items: LibraryLogic.visibleItems(items, expanded: model.expanded.contains(section))) { r in
-                    ResourceCard(resource: r) { router.libraryPath.append(.read(r.slug)) }
+    private var searchResults: some View {
+        LibrarySearchResultsView(
+            query: model.query, results: model.searchResults, today: model.today,
+            onTopic: { model.query = $0.name },
+            onArticle: { openArticle($0) },
+            onHabit: { habit in
+                switch habit.target {
+                case .habit(let id): router.libraryPath.append(.action(id))
+                case .trackCard(let id, let face): router.libraryPath.append(.trackCard(id, face: face))
                 }
-                MoreToggle(label: LibraryLogic.toggleLabel(total: items.count, expanded: model.expanded.contains(section), noun: noun), expanded: model.expanded.contains(section)) { model.toggle(section) }
+            },
+            onVideo: { router.libraryPath.append(.libraryVideo($0)) }
+        )
+    }
+
+    // MARK: Opening
+
+    /// A day open to the member: its only read, or the page of its reads. A day still to come only says when it opens.
+    private func open(_ group: LibraryDayGroup) {
+        guard group.isOpenable else {
+            softLock = LibrarySoftLock(day: group.day, titles: group.reads.map(\.title))
+            return
+        }
+        if group.reads.count == 1, let only = group.reads.first {
+            router.libraryPath.append(.read(only.slug))
+        } else {
+            router.libraryPath.append(.libraryDay(group.day))
+        }
+    }
+
+    private func openArticle(_ article: LibraryArticle) {
+        if let day = FoundationLibraryLogic.opensOn(article, today: model.today) {
+            softLock = LibrarySoftLock(day: day, titles: [article.title])
+        } else {
+            router.libraryPath.append(.read(article.slug))
+        }
+    }
+
+    // MARK: What the practice prescribed (kept)
+
+    @ViewBuilder
+    private var prescribedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            LibrarySectionHead(title: PathwayCopy.title, note: PathwayCopy.eyebrow.lowercased())
+            ForEach(model.personal) { track in
+                PersonalTrackCard(track: track, unopened: PersonalTrackLogic.unopened(track, openedSlugs: model.openedSlugs).count) {
+                    router.libraryPath.append(.personalTrack(track.id))
+                }
+            }
+            if !model.sent.isEmpty {
+                SentTrackCard(items: model.sent) { router.libraryPath.append(.sentTrack) }
+            }
+            if !model.priority.isEmpty, let access = model.bundle?.access {
+                Veiled(open: access.tracks) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            ForEach(model.priority) { t in
+                                TrackCard(track: t, coverHeight: 96) { open(t) }.frame(width: 250)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            if !model.continuing.isEmpty {
+                VStack(spacing: 10) {
+                    ForEach(model.continuing) { t in continueRow(t) }
+                }
+                .padding(.top, 8)
             }
         }
-        .padding(.top, 18)
-        .id(section.id)
+        .padding(.top, 4)
     }
 
     /// The resume card: cover strip · pillar kicker · next lesson · "Lesson n of N · resume".
@@ -304,4 +274,14 @@ private struct LibraryScreen: View {
         guard t.state != .locked else { return }
         router.libraryPath.append(.track(t.slug))
     }
+
+    #if DEBUG
+    /// The showcase's soft-lock shot: the sheet opens by itself on the day after today.
+    private func showcaseSoftLock() async {
+        guard Showcase.screen == .libraryLocked, model.phase == .loaded else { return }
+        try? await Task.sleep(for: .seconds(1.2))
+        guard let today = model.today, let group = model.dayGroups.first(where: { $0.day == today + 1 }) else { return }
+        softLock = LibrarySoftLock(day: group.day, titles: group.reads.map(\.title))
+    }
+    #endif
 }

@@ -95,7 +95,7 @@ enum GutSchema {
 
     static var reactions: GutDimensionSpec {
         GutDimensionSpec(
-            key: .reactions, title: String(localized: "gut.reactions.title", defaultValue: "Food reactions"), accentHex: 0xF59E0B,
+            key: .reactions, title: String(localized: "gut.reactions.title", defaultValue: "Food reactions"), accentHex: 0xC2410C,
             slider: SliderSpec(key: "reactions", label: String(localized: "gut.reactions.slider", defaultValue: "How did food sit?"),
                                lowLabel: String(localized: "gut.reactions.low", defaultValue: "Reacted a lot"), highLabel: String(localized: "gut.reactions.high", defaultValue: "All sat well"),
                                words: [String(localized: "gut.reactions.w0", defaultValue: "Reacted"), String(localized: "gut.reactions.w1", defaultValue: "Touchy"), String(localized: "gut.reactions.w2", defaultValue: "Okay"), String(localized: "gut.reactions.w3", defaultValue: "Mostly fine"), String(localized: "gut.reactions.w4", defaultValue: "All good")]),
@@ -124,6 +124,25 @@ enum GutSchema {
             PillOption(key: "5", label: String(localized: "gut.bristol.5", defaultValue: "5 Soft blobs")), PillOption(key: "6", label: String(localized: "gut.bristol.6", defaultValue: "6 Mushy")),
             PillOption(key: "7", label: String(localized: "gut.bristol.7", defaultValue: "7 Liquid")),
         ]
+    }
+
+    /// "4 Smooth" — the pill's own words for a type; "" outside 1–7.
+    static func bristolLabel(_ type: Int) -> String {
+        bristolOptions.first { $0.key == String(type) }?.label ?? ""
+    }
+
+    /// The chart's own description of a type (the Bristol Stool Form Scale), for VoiceOver on the chart.
+    static func bristolDescription(_ type: Int) -> String {
+        switch type {
+        case 1: String(localized: "gut.bristol.desc.1", defaultValue: "Type 1 · Separate hard lumps, like nuts (hard to pass)")
+        case 2: String(localized: "gut.bristol.desc.2", defaultValue: "Type 2 · Sausage-shaped but lumpy")
+        case 3: String(localized: "gut.bristol.desc.3", defaultValue: "Type 3 · Like a sausage but with cracks on its surface")
+        case 4: String(localized: "gut.bristol.desc.4", defaultValue: "Type 4 · Like a sausage or snake, smooth and soft")
+        case 5: String(localized: "gut.bristol.desc.5", defaultValue: "Type 5 · Soft blobs with clear-cut edges (passed easily)")
+        case 6: String(localized: "gut.bristol.desc.6", defaultValue: "Type 6 · Fluffy pieces with ragged edges, a mushy stool")
+        case 7: String(localized: "gut.bristol.desc.7", defaultValue: "Type 7 · Watery, no solid pieces, entirely liquid")
+        default: ""
+        }
     }
 
     /// The modules that apply to these answers (`selectPills`).

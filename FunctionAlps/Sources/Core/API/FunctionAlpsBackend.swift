@@ -41,6 +41,9 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// Today's saved moments, oldest first.
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment]
+    /// The member's moments from `since` (YYYY-MM-DD) to today, by day — Trends reads focus, the pills and the
+    /// check-in's own sleep clock from them. Default: none (test stubs that do not model Trends).
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]]
     /// One row per (patient, day, slot); re-saving a slot edits it.
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws
     /// What the day row already holds (read before the summary write — no-wipe).
@@ -134,6 +137,9 @@ protocol FunctionAlpsBackend: Sendable {
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead?
     /// Days with a gut check-in in [since, before) (YYYY-MM-DD), oldest first — the 14-day dashboard.
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay]
+    /// Days with a gut check-in from `since` to today, WITH the Bristol type and the symptoms ticked — Trends'
+    /// Digestion page. Default: none.
+    func gutDays(patientId: String, since: String) async throws -> [GutDay]
     /// The Expo `saveGutCheckinV2` upsert on (patient_id, checkin_date); every listed column explicit.
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws
 
@@ -421,3 +427,9 @@ struct FoodAliasRow: Sendable, Equatable {
 }
 
 enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
+
+/// Reads only Trends needs: a backend that does not model them answers "nothing logged", never an error.
+extension FunctionAlpsBackend {
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
+}

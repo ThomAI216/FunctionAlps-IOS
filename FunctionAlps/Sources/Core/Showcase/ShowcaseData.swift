@@ -59,8 +59,31 @@ enum ShowcaseData {
         // Different reads on purpose (owner): mood good, energy in the middle, focus drained.
         m.energyBody = 52; m.energyMind = 22; m.energyStability = 45; m.energyOverall = 45
         m.moodScore = 84; m.stressScore = 40
-        m.pills = ["worst_dip": ["afternoon"], "flavour_pos": ["content", "motivated"], "drivers": ["sleep", "movement"]]
+        m.pills = ["worst_dip": ["afternoon"], "flavour_pos": ["content", "motivated"], "drivers": ["sleep", "movement"],
+                   "kept_up": ["mind_racing", "screen"], "woke_why": ["bathroom", "thirst"]]
+        // Last night, set on the dial: a late, broken night (shows the follow-up questions).
+        m.sleepBedTime = "23:20"; m.sleepWakeTime = "06:45"; m.sleepDurationMin = 445
+        m.sleepLatencyBand = "30_60"; m.sleepWakeCount = "1_2"; m.sleepRefreshed = 48
         return m
+    }
+
+    /// Last night as an Oura ring filed it (the catalogue's sleep rows, `wearable_daily`): in bed 23:05 → 06:50 local
+    /// (UTC+1), asleep 7 h 02, 12 minutes to fall asleep, one wake-up.
+    static func ouraNight(day: String) -> [WearableNightRow] {
+        let tz = 60
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: tz * 60)!
+        let parts = day.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3, let wake = cal.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2], hour: 6, minute: 50)) else { return [] }
+        let bed = wake.addingTimeInterval(-(7 * 3600 + 45 * 60))
+        func row(_ type: Int, _ value: Double) -> WearableNightRow {
+            WearableNightRow(day: day, dataTypeId: type, dataSourceId: 1_000_018, value: value, timezoneOffset: tz)
+        }
+        return [
+            row(WearableNightAssembler.start, bed.timeIntervalSince1970), row(WearableNightAssembler.end, wake.timeIntervalSince1970),
+            row(WearableNightAssembler.duration, 7 * 3600 + 2 * 60), row(WearableNightAssembler.latency, 12 * 60),
+            row(WearableNightAssembler.interruptions, 1),
+        ]
     }
 
     static func gutHistory() -> [GutDay] {
@@ -326,7 +349,8 @@ enum ShowcaseData {
         return plan
     }
 
-    static let carePlan = CarePlan(
+    static let carePlan: CarePlan = {
+        var plan = CarePlan(
         title: "Care plan", startDate: "", practitioner: "",
         goals: ["Steady energy from morning to evening", "Sleep through the night"],
         sections: [
@@ -347,7 +371,41 @@ enum ShowcaseData {
                 CarePlan.Item(id: "s8", text: "Work in 90-minute blocks with a 5-minute break outside", status: .active),
             ]),
         ]
-    )
+        )
+        plan.approach = """
+        We start with your body clock. A steady wake time and morning light settle your sleep, and steadier sleep is what lets your energy hold through the afternoon.
+
+        Then we build capacity: **protein at every meal**, strength training twice a week and a short walk after lunch.
+
+        Once energy is steadier, we work on focus and on how your body handles food through the day.
+        """
+        plan.planGoals = [
+            CarePlan.Goal(id: "g1", statement: "Wake at the same time every day", phaseKey: "p1", baseline: nil, target: nil, unit: nil, cadence: "every morning"),
+            CarePlan.Goal(id: "g2", statement: "Rate your energy at 3 pm higher", phaseKey: "p2", baseline: 4, target: 7, unit: "/10", cadence: "every evening"),
+            CarePlan.Goal(id: "g3", statement: "Protein at every main meal", phaseKey: "p2", baseline: nil, target: nil, unit: nil, cadence: "daily"),
+            CarePlan.Goal(id: "g4", statement: "Strength training twice a week", phaseKey: "p2", baseline: nil, target: 2, unit: "sessions a week", cadence: nil),
+            CarePlan.Goal(id: "g5", statement: "Sleep through the night five days out of seven", phaseKey: nil, baseline: nil, target: 5, unit: "nights a week", cadence: nil),
+        ]
+        plan.supplements = [
+            CarePlan.Supplement(id: "u1", name: "Magnesium glycinate", dosage: "300 mg", timing: "evening, with dinner",
+                                why: "To help your muscles and nervous system unwind before sleep."),
+            CarePlan.Supplement(id: "u2", name: "Vitamin D3", dosage: "2000 IU", timing: "morning, with food",
+                                why: "Your winter level was low; this brings it back towards the range we aim for."),
+            CarePlan.Supplement(id: "u3", name: "Omega-3", dosage: "1 g EPA + DHA", timing: "with lunch",
+                                why: "Supports steady energy and a calm inflammatory balance."),
+        ]
+        plan.tests = [
+            CarePlan.Test(id: "t1", name: "Thyroid panel", state: .ordered),
+            CarePlan.Test(id: "t2", name: "Vitamin D and ferritin", state: .resulted),
+        ]
+        plan.reviewDate = "4 December 2026"
+        plan.expectations = """
+        In the next two weeks most people notice falling asleep more easily. Energy tends to follow after three to four weeks.
+
+        Some days will be harder than others; that is normal. We look at the whole picture together at the review.
+        """
+        return plan
+    }()
 
     // MARK: Library (real topic covers — public practice content, not member data)
 

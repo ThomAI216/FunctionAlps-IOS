@@ -33,6 +33,7 @@ import { scoreMeal, type MealScores } from "./meal-scores.ts"
 import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
 import { aliasKey, isPlaceholder, resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
 import { priceItemsWithOpenAI } from "./ai-pricing.ts"
+import { priceSovereign, type Candidate, type ReferenceDb, type SovereignCounts, type SovereignTarget } from "./sovereign-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
 import { buildIdentifyUserParts, MAX_IDENTIFY_IMAGES } from "./identify-parts.ts"
@@ -66,6 +67,18 @@ declare const Supabase: { ai: { Session: new (model: string) => EmbeddingSession
 // patient — who always knows what they ate — closes it.
 export const RETRY_BACKOFF_S = [5, 15, 45, 120, 300, 900, 1800, 3600] as const
 export const MAX_ATTEMPTS = 8
+
+// A RATE-LIMITED upstream (HTTP 429) is the one failure the schedule above is wrong
+// for. It is not a bad roll of the dice: the same answer comes back for every roll
+// until the quota resets, and 2026-11-08/09 showed what that does — Infomaniak's
+// vision model answered 429 to every photo for 36 hours, each meal spent its eight
+// attempts in ~111 minutes and parked at needs_input, and nobody was told. So a
+// rate-limited attempt is HANDED BACK (it bought no information), the next try
+// waits at least RATE_LIMIT_RETRY_S (or the upstream's Retry-After, whichever is
+// longer), and the wait is bounded by wall-clock time since the meal was logged,
+// not by the attempt count: after RATE_LIMIT_MAX_WAIT_MS the member is asked.
+export const RATE_LIMIT_RETRY_S = 900
+export const RATE_LIMIT_MAX_WAIT_MS = 6 * 3600_000
 
 /** Seconds until the next attempt, indexed by attempts already spent, clamped
  *  to the last entry. Never null — exhaustion is the CALLER'S decision
@@ -160,53 +173,90 @@ export function sanitiseError(err: unknown, code = "UNKNOWN"): string {
 // WHICH UPSTREAM IDENTIFIES THE MEAL. Infomaniak unless the operator sets the secret
 // MEAL_AI_PROVIDER=openai. It is an explicit switch, never inferred from OPENAI_API_KEY
 // merely existing: a key set for something else must not move member meals to another
-// provider. Flip it only once the published consents (privacy_policy, ai_analysis,
-// health_data_processing) name OpenAI — until then they promise the opposite.
+// provider. LIVE SETTING: openai, since 2026-09-26 (resolution_meta.model on the rows).
+// Thomas's decision, 2026-11-09: the meal photo and the food names may go to OpenAI,
+// never anything identifying — no name, no patient id, no member note. Keep it that way:
+// the request below carries the image and the words about food, nothing else.
 // Both speak the same Chat Completions contract; the prompt and the parse are shared.
 export type IdentifyProvider = "infomaniak" | "openai"
 export const IDENTIFY_PROVIDER: IdentifyProvider =
   (Deno.env.get("MEAL_AI_PROVIDER") ?? "").trim().toLowerCase() === "openai" ? "openai" : "infomaniak"
 
 const PRODUCT = Deno.env.get("INFOMANIAK_AI_PRODUCT_ID") ?? Deno.env.get("INFOMANIAK_PRODUCT_ID") ?? "108797"
-const UPSTREAM = IDENTIFY_PROVIDER === "openai"
-  ? {
-    base: "https://api.openai.com/v1",
-    key: Deno.env.get("OPENAI_API_KEY"),
-    keyName: "OPENAI_API_KEY",
-    // One model for photos and words: gpt-5.4-mini reads images, and its default
-    // reasoning effort is `none`, which keeps a photo answer to a few seconds.
-    textModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
-    visionModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
-  }
-  : {
-    base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
-    key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
-    keyName: "INFOMANIAK_AI_API_KEY",
-    // Full id, never the `qwen3` alias: that pointed at Qwen3.5-122B, retired by Infomaniak
-    // on 2026-11-23. Qwen3.8 thinks by default, hence reasoning_effort "none" below.
-    textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "Qwen/Qwen3.8-27B-FP8",
-    visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
-  }
+type Upstream = { base: string; key: string | undefined; keyName: string; textModel: string; visionModel: string; openai: boolean }
+const OPENAI_UPSTREAM: Upstream = {
+  base: "https://api.openai.com/v1",
+  key: Deno.env.get("OPENAI_API_KEY"),
+  keyName: "OPENAI_API_KEY",
+  // One model for photos and words: gpt-5.4-mini reads images, and its default
+  // reasoning effort is `none`, which keeps a photo answer to a few seconds.
+  textModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+  visionModel: Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini",
+  openai: true,
+}
+const SOVEREIGN_UPSTREAM: Upstream = {
+  base: `https://api.infomaniak.com/2/ai/${PRODUCT}/openai/v1`,
+  key: Deno.env.get("INFOMANIAK_AI_API_KEY"),
+  keyName: "INFOMANIAK_AI_API_KEY",
+  // Full id, never the `qwen3` alias: that pointed at Qwen3.5-122B, retired by Infomaniak
+  // on 2026-11-23. Qwen3.8 thinks by default, hence reasoning_effort "none" below.
+  textModel: Deno.env.get("SOVEREIGN_CHAT_MODEL") ?? "Qwen/Qwen3.8-27B-FP8",
+  visionModel: Deno.env.get("SOVEREIGN_VISION_MODEL") ?? "google/gemma-4-31B-it",
+  openai: false,
+}
+const UPSTREAM: Upstream = IDENTIFY_PROVIDER === "openai" ? OPENAI_UPSTREAM : SOVEREIGN_UPSTREAM
 const API_KEY = UPSTREAM.key
 const TEXT_MODEL = UPSTREAM.textModel
 
-// WHICH SOURCE PRICES THE IDENTIFIED FOODS (owner, 2026-10-12, for testing: "make all the process on OpenAI").
-//   openai   — OpenAI gives each distinct food's nutrients per 100 g, in parallel (ai-pricing.ts); a food it cannot
-//              price falls back to the reference database. No in-process embeddings, so no CPU-time kill.
-//   database — the reference database ladder (food-resolver.ts), as before.
-// MEAL_PRICING picks; unset, it follows MEAL_AI_PROVIDER (OpenAI identification → OpenAI pricing). Without
-// OPENAI_API_KEY it is always the database. Only food names leave Supabase on this path, never anything about the member.
-export type PricingSource = "openai" | "database"
+// WHICH SOURCE PRICES THE IDENTIFIED FOODS.
+//   sovereign — THE DEFAULT (Thomas, 2026-11-10: "put everything in a sovereign environment"). The numbers come from
+//               our reference plane (USDA SR Legacy + CIQUAL, nb_food_items); Infomaniak models only say what each
+//               food is (sovereign-pricing.ts). No food name leaves Switzerland.
+//   openai    — OpenAI's per-100 g estimates (ai-pricing.ts). Only on an explicit MEAL_PRICING=openai, with its key.
+//   database  — the reference database ladder alone (food-resolver.ts). MEAL_PRICING=database, or no Infomaniak key.
+// It no longer follows MEAL_AI_PROVIDER: identification may use OpenAI (Thomas, 2026-11-09), pricing stays sovereign.
+export type PricingSource = "sovereign" | "openai" | "database"
 const PRICING_CHOICE = (Deno.env.get("MEAL_PRICING") ?? "").trim().toLowerCase()
 const PRICING_KEY = Deno.env.get("OPENAI_API_KEY")
-export const PRICING_SOURCE: PricingSource = !PRICING_KEY
+export const PRICING_SOURCE: PricingSource = PRICING_CHOICE === "openai" && PRICING_KEY
+  ? "openai"
+  : PRICING_CHOICE === "database" || !Deno.env.get("INFOMANIAK_AI_API_KEY")
   ? "database"
-  : PRICING_CHOICE === "openai" || PRICING_CHOICE === "database"
-  ? PRICING_CHOICE
-  : IDENTIFY_PROVIDER === "openai" ? "openai" : "database"
+  : "sovereign"
 const PRICING_MODEL = Deno.env.get("OPENAI_PRICING_MODEL") ?? Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini"
 const VISION_MODEL = UPSTREAM.visionModel
-const BASE = UPSTREAM.base
+
+// THE FALLBACK IS ALWAYS SOVEREIGN. When the primary answers 429 or 5xx, the SAME
+// request goes once more to a model on the Infomaniak product:
+//   - primary Infomaniak → the OTHER Infomaniak model (Qwen3.8 reads images too, per
+//     CLINICAL lib/sovereign/models.ts; gemma reads text). A second model, same provider.
+//   - primary OpenAI (MEAL_AI_PROVIDER=openai) → Infomaniak's own model for that input.
+//     That is the direction the published consents allow; the reverse — a sovereign
+//     primary spilling to OpenAI when Geneva is busy — never happens here.
+// 2026-11-08: OpenAI answered 429 to every photo for 36 hours and there was no second
+// door. SOVEREIGN_VISION_FALLBACK_MODEL / SOVEREIGN_TEXT_FALLBACK_MODEL override the
+// model; an empty value switches the fallback off; a value equal to a sovereign primary
+// is ignored (same dice). No Infomaniak key, no fallback.
+type Target = { upstream: Upstream; model: string }
+function fallbackTarget(kind: "vision" | "text"): Target | null {
+  const sovereignPrimary = kind === "vision" ? SOVEREIGN_UPSTREAM.visionModel : SOVEREIGN_UPSTREAM.textModel
+  const secondSovereign = kind === "vision" ? "Qwen/Qwen3.8-27B-FP8" : "google/gemma-4-31B-it"
+  const raw = Deno.env.get(kind === "vision" ? "SOVEREIGN_VISION_FALLBACK_MODEL" : "SOVEREIGN_TEXT_FALLBACK_MODEL")
+  const model = raw === undefined ? (UPSTREAM.openai ? sovereignPrimary : secondSovereign) : raw.trim()
+  if (!model || !SOVEREIGN_UPSTREAM.key) return null
+  if (!UPSTREAM.openai && model === sovereignPrimary) return null
+  return { upstream: SOVEREIGN_UPSTREAM, model }
+}
+const VISION_FALLBACK = fallbackTarget("vision")
+const TEXT_FALLBACK = fallbackTarget("text")
+
+// The two Infomaniak models the sovereign pricing asks, in order: Qwen 3.8 (text), then gemma as the second door.
+// SOVEREIGN_PRICING_MODEL overrides the first.
+const SOVEREIGN_PRICING_TARGETS: SovereignTarget[] = SOVEREIGN_UPSTREAM.key
+  ? [...new Set([Deno.env.get("SOVEREIGN_PRICING_MODEL")?.trim() || SOVEREIGN_UPSTREAM.textModel, SOVEREIGN_UPSTREAM.visionModel])]
+    .filter(Boolean)
+    .map((model) => ({ base: SOVEREIGN_UPSTREAM.base, key: SOVEREIGN_UPSTREAM.key as string, model }))
+  : []
 
 export const IDENTIFY_CONFIGURED = Boolean(API_KEY)
 /** The refusal both entry points return when the selected provider has no key. */
@@ -260,7 +310,9 @@ export type IdentifyInput = {
    */
   statedItems?: StatedItem[]
 }
-export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[] }
+/** `from_habit` is set only by the habits step (habits.ts) on an item a member's habit added or changed — never by
+ *  the model. Absent means the photo said it. */
+export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[]; from_habit?: boolean }
 
 export type IdentifySuccess = {
   ok: true
@@ -277,6 +329,14 @@ export type IdentifySuccess = {
   coverage_note: string | null
   model: string
   elapsed_ms: number
+  /** Set by the habits step (habits.ts withMealHabits) on a PHOTO meal: the model's own list, before any habit
+   *  touched `items`. completionPatch records THIS as `resolution_meta.identified`, never the post-habit list, or
+   *  the learner would read its own habits back as the member's corrections. Absent on text/voice meals. */
+  model_items?: IdentifiedItem[]
+  /** The habit rule keys applied to `items` (`[]` when none). Recorded as `resolution_meta.habits_applied` — it is how
+   *  the learner tells "the member kept the habit" from "the member undid it", and its presence is what lets a meal
+   *  into the learner at all. Absent on text/voice meals. */
+  habits_applied?: string[]
 }
 
 export type IdentifyFailure = {
@@ -292,6 +352,11 @@ export type IdentifyFailure = {
   /** `true` => do not retry: the request itself is wrong and eight more rolls
    *  just burn the budget. A hang, a 5xx or a 429 is transient by definition. */
   permanent: boolean
+  /** The upstream said 429 (primary or fallback). The schedule treats this as
+   *  "wait", not "try again": see RATE_LIMIT_RETRY_S. */
+  rateLimited: boolean
+  /** Seconds the upstream asked us to wait (`Retry-After`), when it said. */
+  retryAfterS: number | null
   elapsed_ms: number
 }
 
@@ -311,7 +376,8 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
     : base64s.slice(0, MAX_IDENTIFY_IMAGES).map((b) => `data:image/jpeg;base64,${b}`)
   const userParts = buildIdentifyUserParts({ description, imageUrls, statedItems: stated })
 
-  const model = imageUrls.length ? VISION_MODEL : TEXT_MODEL
+  let model = imageUrls.length ? VISION_MODEL : TEXT_MODEL
+  const fallback = imageUrls.length ? VISION_FALLBACK : TEXT_FALLBACK
 
   // RELIABILITY IS PRIORITISED OVER LATENCY here, by explicit decision.
   //
@@ -350,72 +416,104 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
   const HEDGE_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_MS") ?? (openai ? "10000" : "1800"))
   const HEDGE_2_AFTER_MS = Number(Deno.env.get("ANALYZE_MEAL_HEDGE_2_MS") ?? (openai ? "Infinity" : "3600"))
 
-  const payload = openai
-    ? {
-      model,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: userParts },
-      ],
-      // No temperature: the GPT-5 family rejects anything but the default.
-      // json_object guarantees one JSON object, which the parse below expects.
-      response_format: { type: "json_object" },
-      reasoning_effort: "none",
-    }
-    : {
-      model,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: userParts },
-      ],
-      temperature: 0.2,
-      stream: false,
-      // Qwen quirk (mirrors chatbot-message / generate-periodic-report):
-      // disable thinking-mode so the JSON lands in message.content.
-      reasoning_effort: "none",
-    }
+  const payloadFor = (m: string, toOpenAI: boolean) =>
+    toOpenAI
+      ? {
+        model: m,
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: userParts },
+        ],
+        // No temperature: the GPT-5 family rejects anything but the default.
+        // json_object guarantees one JSON object, which the parse below expects.
+        response_format: { type: "json_object" },
+        reasoning_effort: "none",
+      }
+      : {
+        model: m,
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: userParts },
+        ],
+        temperature: 0.2,
+        stream: false,
+        // Qwen quirk (mirrors chatbot-message / generate-periodic-report):
+        // disable thinking-mode so the JSON lands in message.content.
+        reasoning_effort: "none",
+      }
 
   const startedAt = Date.now()
   // ONE shared wall-clock deadline for both attempts. The hedge does not get its
   // own budget on top — it inherits whatever is left, so the ceiling is
   // MODEL_DEADLINE_MS no matter how many attempts are in flight.
   const deadline = startedAt + MODEL_DEADLINE_MS
-  let won = false
 
-  const attempt = async (delayMs: number): Promise<Response> => {
-    if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs))
-    // The primary already came back — do not add a pointless second call to an
-    // upstream that is struggling. (Promise.any has resolved; this rejection is
-    // absorbed by the race.)
-    if (won) throw new Error(`hedge not needed (+${delayMs}ms)`)
-    const remaining = deadline - Date.now()
-    if (remaining <= 0) throw new Error(`no budget left for attempt (+${delayMs}ms)`)
-    const ac = new AbortController()
-    const timer = setTimeout(() => ac.abort(), remaining)
-    try {
-      const r = await fetch(`${BASE}/chat/completions`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: ac.signal,
-      })
-      // Read the body inside the deadline, so a slow stream cannot outlive it —
-      // and so whichever attempt wins the race is FULLY materialised, never a
-      // header-only response whose stream is still tied to a dying connection.
-      const text = await r.text()
-      won = true
-      return new Response(text, { status: r.status })
-    } finally {
-      clearTimeout(timer)
+  // One hedged race against ONE target (upstream + model). `won` is per race, so the
+  // fallback race below starts with its own hedges rather than inheriting a settled flag.
+  const raceModel = (t: Target, delays: number[]): Promise<Response> => {
+    let won = false
+    const payload = payloadFor(t.model, t.upstream.openai)
+    const attempt = async (delayMs: number): Promise<Response> => {
+      if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs))
+      // The primary already came back — do not add a pointless second call to an
+      // upstream that is struggling. (Promise.any has resolved; this rejection is
+      // absorbed by the race.)
+      if (won) throw new Error(`hedge not needed (+${delayMs}ms)`)
+      const remaining = deadline - Date.now()
+      if (remaining <= 0) throw new Error(`no budget left for attempt (+${delayMs}ms)`)
+      const ac = new AbortController()
+      const timer = setTimeout(() => ac.abort(), remaining)
+      try {
+        const r = await fetch(`${t.upstream.base}/chat/completions`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${t.upstream.key}`, "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: ac.signal,
+        })
+        // Read the body inside the deadline, so a slow stream cannot outlive it —
+        // and so whichever attempt wins the race is FULLY materialised, never a
+        // header-only response whose stream is still tied to a dying connection.
+        const text = await r.text()
+        won = true
+        // Only Retry-After survives the copy: it is the one header the schedule reads.
+        const retryAfter = r.headers.get("retry-after")
+        return new Response(text, { status: r.status, headers: retryAfter ? { "retry-after": retryAfter } : undefined })
+      } finally {
+        clearTimeout(timer)
+      }
     }
+    return Promise.any(delays.map((d) => attempt(d)))
   }
 
+  // A hedge scheduled at or past the deadline could never run — leave it out
+  // rather than park a timer that outlives the request.
+  const delays = [0, HEDGE_AFTER_MS, HEDGE_2_AFTER_MS].filter((d, i) => i === 0 || d < MODEL_DEADLINE_MS)
+
   let resp: Response
+  // The primary's refusal, kept for the error text when the fallback fails too.
+  let primaryRefusal: { model: string; status: number } | null = null
   try {
-    // A hedge scheduled at or past the deadline could never run — leave it out
-    // rather than park a timer that outlives the request.
-    const delays = [0, HEDGE_AFTER_MS, HEDGE_2_AFTER_MS].filter((d, i) => i === 0 || d < MODEL_DEADLINE_MS)
-    resp = await Promise.any(delays.map((d) => attempt(d)))
+    resp = await raceModel({ upstream: UPSTREAM, model }, delays)
+    // 429 or 5xx from the primary: the same request, once, to the sovereign
+    // fallback — while there is budget for it. A 4xx that is not 429 means the
+    // REQUEST is wrong and would be just as wrong there.
+    const worthFallback = !resp.ok && (resp.status === 429 || resp.status >= 500)
+    if (worthFallback && fallback && deadline - Date.now() > 1000) {
+      primaryRefusal = { model, status: resp.status }
+      try {
+        const second = await raceModel(fallback, [0])
+        // Carry the longer Retry-After forward when both refuse.
+        const ra1 = resp.headers.get("retry-after"), ra2 = second.headers.get("retry-after")
+        resp = second
+        if (!second.ok && ra1 && (!ra2 || Number(ra1) > Number(ra2))) {
+          resp = new Response(await second.text(), { status: second.status, headers: { "retry-after": ra1 } })
+        }
+        model = fallback.model
+      } catch (e) {
+        // The fallback hung or had no budget: the primary's answer stands.
+        console.log(`[identify] fallback ${fallback.model} did not answer: ${String(e).slice(0, 120)}`)
+      }
+    }
   } catch (e) {
     const elapsed = Date.now() - startedAt
     // An honest, fast, RETRYABLE failure — not a gateway 504 the app cannot
@@ -437,6 +535,8 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
       },
       technical: sanitiseError(details, "UPSTREAM_TIMEOUT"),
       permanent: false,
+      rateLimited: false,
+      retryAfterS: null,
       elapsed_ms: elapsed,
     }
   }
@@ -446,13 +546,24 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
     // A 4xx that is not 429 means the request itself is wrong. A 5xx or a 429 is
     // transient and worth another dice roll.
     const permanent = resp.status >= 400 && resp.status < 500 && resp.status !== 429
+    const rateLimited = resp.status === 429 || primaryRefusal?.status === 429
+    const retryAfterRaw = Number(resp.headers.get("retry-after") ?? "")
+    const retryAfterS = Number.isFinite(retryAfterRaw) && retryAfterRaw > 0 ? Math.round(retryAfterRaw) : null
+    // Status codes and model ids only — never `raw` — so this stays safe for the
+    // row. When the second model refused too, the text names it: an operator
+    // reading analysis_last_error must see that BOTH sovereign models said no.
+    const where = primaryRefusal
+      ? `vision model returned HTTP ${primaryRefusal.status}; fallback ${model} HTTP ${resp.status}`
+      : `vision model returned HTTP ${resp.status}`
     return {
       ok: false,
       response: { status: 502, body: { error: "Vision model error", status: resp.status, details: raw.slice(0, 500) } },
       // Note what is NOT here: `raw`. The caller gets the body, the database
       // gets the status code.
-      technical: sanitiseError(`vision model returned HTTP ${resp.status}`, "UPSTREAM_HTTP"),
+      technical: sanitiseError(where, "UPSTREAM_HTTP"),
       permanent,
+      rateLimited,
+      retryAfterS,
       elapsed_ms: Date.now() - startedAt,
     }
   }
@@ -503,6 +614,8 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
       // the identical input parses fine on the next attempt. Retryable.
       technical: sanitiseError(e, "PARSE_ERROR"),
       permanent: false,
+      rateLimited: false,
+      retryAfterS: null,
       elapsed_ms: Date.now() - startedAt,
     }
   }
@@ -580,7 +693,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
 // and the query embedding is produced by `Supabase.ai` INSIDE the Edge Runtime.
 // That is why the worker never retries this half — a throw here is a bug, not
 // a dice roll.
-export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[] }
+export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[]; from_habit?: boolean }
 export type MealTotals = { kcal: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number }
 export type PricedMeal = {
   items: MergedItem[]
@@ -590,7 +703,16 @@ export type PricedMeal = {
   scores: MealScores
   /** Where the numbers came from (`resolution_meta.pricing`): the source, its model, how long, how many foods fell
    *  back to the database. Absent on an empty meal. */
-  pricing?: { source: PricingSource; model: string | null; ms: number; fallback: number; pinned: number }
+  pricing?: {
+    source: PricingSource
+    model: string | null
+    ms: number
+    /** Foods that went down the resolver's ladder because this source could not price them. */
+    fallback: number
+    pinned: number
+    /** Sovereign only: how each food was priced. */
+    counts?: SovereignCounts
+  }
 }
 
 /** A fresh object every call — the result is handed straight to JSON.stringify
@@ -603,6 +725,50 @@ export function emptyPriced(): PricedMeal {
     totals: { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 },
     micros: {},
     scores: scoreMeal([]),
+  }
+}
+
+/** Indexes priced by the resolver whatever the source: placeholders, and the names this member corrected (tier 0a).
+ *  One query finds the corrections among this meal's names; an error just means none are pinned. */
+async function pinnedIndexes(
+  db: SupabaseClient,
+  asked: Array<{ name: string; grams: number }>,
+  patientId: string | null,
+): Promise<Set<number>> {
+  const pinned = new Set<number>()
+  asked.forEach((it, i) => {
+    if (isPlaceholder(it.name)) pinned.add(i)
+  })
+  if (!patientId) return pinned
+  const keys = [...new Set(asked.map((it) => aliasKey(it.name)).filter(Boolean))]
+  if (!keys.length) return pinned
+  try {
+    const { data } = await db.from("nb_patient_food_aliases").select("alias_norm")
+      .eq("patient_id", patientId).in("alias_norm", keys)
+    const corrected = new Set(((data ?? []) as Array<{ alias_norm: string }>).map((r) => r.alias_norm))
+    asked.forEach((it, i) => {
+      if (corrected.has(aliasKey(it.name))) pinned.add(i)
+    })
+  } catch {
+    // The ladder still reads tier 0a for anything that falls back; a lost lookup is never a lost meal.
+  }
+  return pinned
+}
+
+/** The reference plane as the sovereign pricing reads it: candidates in one RPC, then the chosen rows. PostgREST
+ *  errors are values here — a failed read throws, and priceSovereign treats it as "the table had nothing". */
+function referenceDb(db: SupabaseClient): ReferenceDb {
+  return {
+    async candidates(terms) {
+      const { data, error } = await db.rpc("match_food_reference", { q_terms: terms, per_term: 6 })
+      if (error) throw new Error(error.message)
+      return ((data ?? []) as Array<Candidate & { sim: number | string }>).map((c) => ({ ...c, sim: Number(c.sim) }))
+    },
+    async rows(ids) {
+      const { data, error } = await db.from("nb_food_items").select("*").in("id", ids)
+      if (error) throw new Error(error.message)
+      return (data ?? []) as Array<Record<string, unknown>>
+    },
   }
 }
 
@@ -642,38 +808,30 @@ export async function priceMeal(
   let resolved: ResolvedItem[]
   let fallback = 0
   let pinnedCount = 0
-  if (PRICING_SOURCE === "openai" && PRICING_KEY) {
-    // PINNED FIRST, by the resolver, never by OpenAI: a placeholder ("dinner items") is not a food, and a food this
+  let pricingModel: string | null = null
+  let counts: SovereignCounts | undefined
+  if ((PRICING_SOURCE === "openai" && PRICING_KEY) || (PRICING_SOURCE === "sovereign" && SOVEREIGN_PRICING_TARGETS.length)) {
+    // PINNED FIRST, by the resolver, never by a model: a placeholder ("dinner items") is not a food, and a food this
     // member corrected is priced from the row THEY chose (tier 0a — a hit costs one indexed read, no embedding).
-    // One query finds the member's corrections among this meal's names; an error just means no pinned corrections.
-    const pinned = new Set<number>()
-    asked.forEach((it, i) => {
-      if (isPlaceholder(it.name)) pinned.add(i)
-    })
-    if (patientId) {
-      const keys = [...new Set(asked.map((it) => aliasKey(it.name)).filter(Boolean))]
-      if (keys.length) {
-        try {
-          const { data } = await db.from("nb_patient_food_aliases").select("alias_norm")
-            .eq("patient_id", patientId).in("alias_norm", keys)
-          const corrected = new Set(((data ?? []) as Array<{ alias_norm: string }>).map((r) => r.alias_norm))
-          asked.forEach((it, i) => {
-            if (corrected.has(aliasKey(it.name))) pinned.add(i)
-          })
-        } catch {
-          // The ladder below still reads tier 0a for anything that falls back; a lost lookup is never a lost meal.
-        }
-      }
-    }
+    const pinned = await pinnedIndexes(db, asked, patientId)
     pinnedCount = pinned.size
     const open = asked.flatMap((_, i) => (pinned.has(i) ? [] : [i]))
-    const ai = await priceItemsWithOpenAI(open.map((i) => asked[i]), { apiKey: PRICING_KEY, model: PRICING_MODEL })
+    let ai: Array<ResolvedItem | null>
+    if (PRICING_SOURCE === "sovereign") {
+      const s = await priceSovereign(open.map((i) => asked[i]), SOVEREIGN_PRICING_TARGETS, referenceDb(db))
+      ai = s.resolved
+      pricingModel = s.model
+      counts = s.counts
+    } else {
+      ai = await priceItemsWithOpenAI(open.map((i) => asked[i]), { apiKey: PRICING_KEY as string, model: PRICING_MODEL })
+      pricingModel = PRICING_MODEL
+    }
     const out: Array<ResolvedItem | null> = asked.map(() => null)
     open.forEach((i, k) => {
       out[i] = ai[k]
     })
-    // The pinned foods, and any food OpenAI could not price (timeout, bad answer, "not a food"), go to the database
-    // ladder together: a few items stay well inside the CPU budget that eight in a row exhaust.
+    // The pinned foods, and any food the model path could not price (timeout, bad answer, "not a food"), go to the
+    // database ladder together: a few items stay well inside the CPU budget that eight in a row exhaust.
     const missing = out.flatMap((r, i) => (r ? [] : [i]))
     fallback = missing.length - pinnedCount
     if (missing.length) {
@@ -688,10 +846,11 @@ export async function priceMeal(
   }
   const pricing = {
     source: PRICING_SOURCE,
-    model: PRICING_SOURCE === "openai" ? PRICING_MODEL : null,
+    model: pricingModel,
     ms: Date.now() - startedAt,
     fallback,
     pinned: pinnedCount,
+    ...(counts ? { counts } : {}),
   }
 
   // MERGE, by index. The resolver returns items in the order it was given them.
@@ -709,6 +868,9 @@ export async function priceMeal(
       ...r,
       name: identified[i]?.name ?? r.name,
       ...(flags.length ? { flags } : {}),
+      // The habits mark rides from identification to the row the app reads, like the flags: only when true, so an
+      // ordinary item never carries a `from_habit: false` the app would have to interpret.
+      ...(identified[i]?.from_habit ? { from_habit: true } : {}),
     }
   })
 
@@ -746,9 +908,9 @@ export async function priceMeal(
     }
   }
 
-  // The rules engine sees the PRICED macros — the reference database's, or under
-  // MEAL_PRICING=openai OpenAI's per-100 g estimate scaled to the portion — never
-  // the identification model's guesses (it is told not to give any).
+  // The rules engine sees the PRICED macros — the reference database's (directly, or
+  // chosen by the sovereign path), an Infomaniak or OpenAI per-100 g estimate where
+  // no row fits — never the identification model's guesses (it is told not to give any).
   return { items, resolved, totals, micros, scores: scoreMeal(items), pricing }
 }
 
@@ -808,6 +970,12 @@ export function completionPatch(
     resolved_foods: priced.resolved,
     resolution_meta: {
       model: ident.model,
+      // WHAT THE MODEL SAW, kept apart from ai_identified_foods: that column is rewritten here (priced items) and again
+      // by the app when the member edits the meal. This is the only record of the model's own list — what the meal
+      // model review judges, and what learning the member's habits compares their edits against.
+      // On a photo meal the habits step has already rewritten ident.items; model_items is the list the model returned.
+      identified: (ident.model_items ?? ident.items).map((it) => ({ name: it.name, grams: it.estimated_grams })),
+      ...(ident.habits_applied ? { habits_applied: ident.habits_applied } : {}),
       confidence: ident.confidence,
       duplicates_dropped: ident.duplicates_dropped,
       identify_ms: ident.elapsed_ms,
@@ -856,9 +1024,28 @@ export function retryLaterPatch(
   reason: unknown,
   attempts: number,
   code: string,
-  opts: { permanent?: boolean; now?: Date } = {},
+  opts: { permanent?: boolean; now?: Date; rateLimited?: boolean; retryAfterS?: number | null; loggedAt?: string | null } = {},
 ): MealPatch {
   const now = opts.now ?? new Date()
+
+  // RATE-LIMITED: the attempt bought nothing, so it is handed back, and the wait is
+  // long and bounded by the clock, not the counter. `loggedAt` unknown (an older
+  // caller) falls through to the attempt budget — never an unbounded wait.
+  const sinceLogged = opts.loggedAt ? now.getTime() - Date.parse(opts.loggedAt) : NaN
+  if (opts.rateLimited && opts.permanent !== true && Number.isFinite(sinceLogged)) {
+    if (sinceLogged < RATE_LIMIT_MAX_WAIT_MS) {
+      const waitS = Math.max(RATE_LIMIT_RETRY_S, opts.retryAfterS ?? 0)
+      return {
+        analysis_status: "queued",
+        analysis_last_error: sanitiseError(reason, code),
+        analysis_next_retry_at: new Date(now.getTime() + waitS * 1000).toISOString(),
+        analysis_started_at: null,
+        analysis_attempts: Math.max(0, attempts - 1),
+      }
+    }
+    return needsInputPatch(reason instanceof Error ? reason.message : String(reason), code)
+  }
+
   const exhausted = opts.permanent === true || attempts >= MAX_ATTEMPTS
   return {
     analysis_status: exhausted ? "needs_input" : "queued",
@@ -872,8 +1059,14 @@ export function retryLaterPatch(
  *  sanitiseError inside retryLaterPatch is the second gate —
  *  `ident.response.body` may quote model output and is the one thing that must
  *  never reach this column. */
-export function failurePatch(ident: IdentifyFailure, attempts: number, now: Date = new Date()): MealPatch {
-  return retryLaterPatch(ident.technical, attempts, "IDENTIFY_FAILED", { permanent: ident.permanent, now })
+export function failurePatch(ident: IdentifyFailure, attempts: number, now: Date = new Date(), loggedAt: string | null = null): MealPatch {
+  return retryLaterPatch(ident.technical, attempts, "IDENTIFY_FAILED", {
+    permanent: ident.permanent,
+    now,
+    rateLimited: ident.rateLimited,
+    retryAfterS: ident.retryAfterS,
+    loggedAt,
+  })
 }
 
 /** Terminal, and deliberately not an error state: this is the point where the

@@ -65,8 +65,8 @@ struct FoundationTrackCard: View {
 
 /// Days 1…14 on Home (Thomas, 2026-11-06): a short card that opens the day as its own page (`TrackDayPage`).
 /// Day 1, before its questionnaire: "Welcome to your space", tap to start, and nothing else. After it (and on the
-/// other days): the day's title, today's questionnaire done or waiting, and the day's new actions ("Try your first
-/// action" on day 1), each ticked in place and opening its card.
+/// other days): the day's title and today's questionnaire done or waiting. The actions have their own card, by moment
+/// (`TrackActionsCard`, Thomas 2026-11-07).
 private struct TrackHomeCard: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
@@ -78,7 +78,6 @@ private struct TrackHomeCard: View {
         let locale = track.locale
         let mode = TrackLogic.homeCard(day: status.day, questionnaires: track.questionnaires, submitted: track.submitted)
         let todays = track.questionnaires.first { $0.day == status.day }
-        let newActions = (day?.actions ?? []).filter(\.isNew)
         FACard {
             VStack(alignment: .leading, spacing: 14) {
                 Button { router.push(.trackDay) } label: {
@@ -118,16 +117,6 @@ private struct TrackHomeCard: View {
                                 .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
                         }
                         .accessibilityElement(children: .combine)
-                    }
-                    if !newActions.isEmpty {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text((status.day == 1
-                                  ? String(localized: "track.home.firstAction", defaultValue: "Try your first action")
-                                  : String(localized: "track.new", defaultValue: "New today")).uppercased())
-                                .font(FATypography.sans(10, .bold, relativeTo: .caption2)).tracking(0.9).foregroundStyle(FAColor.inkSecondary)
-                                .accessibilityAddTraits(.isHeader)
-                            ForEach(newActions) { TrackActionLine(action: $0, underTryLabel: true) }
-                        }
                     }
                 }
             }

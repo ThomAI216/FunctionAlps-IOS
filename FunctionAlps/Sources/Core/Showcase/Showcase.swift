@@ -17,6 +17,24 @@ enum Showcase {
         /// The Foundation Track, screen by screen, on real content (`ShowcaseTrack`): Home on a day, a questionnaire step,
         /// a track action's card, the day's read, the approved day-7 summary.
         case track, trackQuestionnaire = "track-q", trackCard = "track-card", trackRead = "track-read", trackSummary = "track-summary"
+        /// The daily functional check-in rework (owner, 2026-11-10): the sleep dial, a wearable's night, the stool card,
+        /// the red-flag card with the voice note, the Bristol chart open over the stool card.
+        case checkinSleep = "checkin-sleep", checkinWearable = "checkin-wearable", checkinStool = "checkin-stool", checkinNote = "checkin-note", bristolChart = "bristol-chart"
+        /// The dial with the moon held under the finger.
+        case checkinSleepDrag = "checkin-sleep-drag"
+        /// The moment after a validated meal ("Bon appétit"), over Home.
+        case bonAppetit = "bon-appetit"
+        /// "My health plan" scrolled to the goals and to the supplements (owner, 2026-11-10).
+        case careplanMiddle = "careplan-middle", careplanBottom = "careplan-bottom"
+        /// The Trends rework (owner-validated mockup v2, 2026-11-10): the page from its middle and its bottom, the Energy row
+        /// opened in place, and the pages behind it — Sleep, Digestion, a device (Oura), the patterns the practitioner shared.
+        case trendsMiddle = "trends-middle", trendsBottom = "trends-bottom", trendsEnergyOpen = "trends-energy-open"
+        case trendsSleep = "trends-sleep", trendsDigestion = "trends-digestion", trendsDevice = "trends-device", trendsPatterns = "trends-patterns"
+        /// The new Library (2026-11-10): the soft-lock sheet, search results, a read with Practice it, a video in the app's player.
+        /// (`library` itself is its home.)
+        case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
+        /// The habit screens (2026-11-10): the moment card, a row opened a little, a habit's page with a streak, a page on its first day.
+        case habits, habitOpen = "habit-open", habitPage = "habit-page", habitFirst = "habit-first"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -29,7 +47,23 @@ enum Showcase {
     static var isOn: Bool { screen != nil }
 
     /// The two "check-in in progress" shots (Energy & focus, then the whole Mood card): the same filled-in evening.
-    static var isCheckinInProgress: Bool { screen == .checkin || screen == .checkinMood }
+    static var isCheckinInProgress: Bool {
+        switch screen {
+        case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
+        default: false
+        }
+    }
+
+    /// The Trends screenshots: the sample member also has an Oura ring, 35 days of check-ins and two validated patterns.
+    static var isTrends: Bool {
+        switch screen {
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns: true
+        default: false
+        }
+    }
+
+    /// The daily check-in shots whose digestion is filled in (the stool card, the note, the chart).
+    static var isDigestionShot: Bool { screen == .checkinStool || screen == .checkinNote || screen == .bristolChart }
 
     /// Scrolls a screen to the part the screenshot frames (there is no finger in the simulator): only for `on`.
     @MainActor
@@ -43,22 +77,29 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen: "functionalps://home"
+        case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"
         case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
         case .trackSummary: "functionalps://foundation/summary"
         case .profile: "functionalps://profile"
-        case .checkin, .checkinMood: "functionalps://checkin/evening"
+        case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"
-        case .trends: "functionalps://trends"
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen: "functionalps://trends"
+        case .trendsSleep: "functionalps://trends/signal/sleep"
+        case .trendsDigestion: "functionalps://trends/signal/digestion"
+        case .trendsDevice: "functionalps://trends/device/\(ShowcaseData.trendsDeviceKey)"
+        case .trendsPatterns: "functionalps://trends/patterns"
         case .scores: "functionalps://scores"
-        case .careplan: "functionalps://careplan"
+        case .careplan, .careplanMiddle, .careplanBottom: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
         case .card, .cardMiddle, .cardBottom: "functionalps://action/\(ShowcaseData.anatomyHabitId)"
         case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"
         case .bank: "functionalps://bank"
-        case .library: "functionalps://library"
+        case .library, .libraryLocked, .librarySearch: "functionalps://library"
+        case .libraryRead: "functionalps://library/\(ShowcaseLibrary.readSlug)"
+        case .libraryWatch: "functionalps://library/watch"
         case .messages: "functionalps://messages"
         case .sentTrack: "functionalps://library/sent"
         case .personalTrack: "functionalps://library/track/\(ShowcaseData.personalTrackId)"

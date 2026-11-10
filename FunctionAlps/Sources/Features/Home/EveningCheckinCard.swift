@@ -22,7 +22,6 @@ private struct CheckinCurvesCard: View {
     let now: MomentSlot
 
     private var done: Bool { CheckinEngine.slotIsDone(today.moments, .evening) }
-    private var isNow: Bool { now == .evening }
 
     /// mood · sleep · energy · calmness · digestion — today's reads, each with its accent (the curve's colour), and
     /// where its pill sits on the card (fractions of the width and height), scattered rather than in rows.
@@ -66,8 +65,7 @@ private struct CheckinCurvesCard: View {
 
     private var status: String {
         if done { return String(localized: "home.carousel.done", defaultValue: "Done · tap to adjust") }
-        if isNow { return String(localized: "home.carousel.now", defaultValue: "It's time · about a minute") }
-        return String(localized: "home.carousel.evening.sub", defaultValue: "How the day landed, before bed")
+        return String(localized: "home.carousel.daily.sub", defaultValue: "Your night and your day · about a minute")
     }
 
     /// One marker pill: its colour dot, the name and today's read (— until the check-in is done).

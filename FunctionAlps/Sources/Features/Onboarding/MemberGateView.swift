@@ -45,7 +45,7 @@ struct MemberGateView: View {
                 GateMessageView(
                     symbol: "person.crop.circle.badge.questionmark",
                     title: String(localized: "gate.notRegistered.title", defaultValue: "We couldn't find your membership"),
-                    message: String(localized: "gate.notRegistered.body", defaultValue: "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to data@functionalps.ch and we'll sort it out."),
+                    message: String(localized: "gate.notRegistered.body", defaultValue: "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to thomas@functionalps.ch and we'll sort it out."),
                     primary: String(localized: "action.retry", defaultValue: "Try again"),
                     onPrimary: { Task { await resolve() } },
                     secondary: String(localized: "profile.signOut", defaultValue: "Sign out"),
@@ -57,7 +57,7 @@ struct MemberGateView: View {
                 GateMessageView(
                     symbol: "person.crop.circle.badge.exclamationmark",
                     title: String(localized: "gate.registeredElsewhere.title", defaultValue: "This email already has an account"),
-                    message: String(localized: "gate.registeredElsewhere.body", defaultValue: "You registered before with \(MemberService.signInMethodPhrase(providers: providers)). Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to data@functionalps.ch."),
+                    message: String(localized: "gate.registeredElsewhere.body", defaultValue: "You registered before with \(MemberService.signInMethodPhrase(providers: providers)). Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to thomas@functionalps.ch."),
                     primary: String(localized: "profile.signOut", defaultValue: "Sign out"),
                     onPrimary: { Task { await dependencies.auth.signOut() } },
                     secondary: String(localized: "action.retry", defaultValue: "Try again"),

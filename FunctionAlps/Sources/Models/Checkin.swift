@@ -31,7 +31,9 @@ enum MomentSlot: String, Sendable, Hashable, CaseIterable {
         switch self {
         case .morning: String(localized: "slot.morning", defaultValue: "Morning")
         case .midday: String(localized: "slot.midday", defaultValue: "Midday")
-        case .evening: String(localized: "slot.evening", defaultValue: "Evening")
+        // The `evening` slot is the DAILY functional check-in (owner, 2026-11-10: "it's not evening, it's
+        // just the daily functional check-in"). The row's slot value stays `evening` — only the name changed.
+        case .evening: String(localized: "slot.daily", defaultValue: "Functional check-in")
         }
     }
 }

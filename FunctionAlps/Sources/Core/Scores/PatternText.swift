@@ -12,6 +12,8 @@ struct UserPattern: Sendable, Equatable {
     var nObs: Int
     var consistency: Double?    // 0–1
     var tier: String            // confirmed (>=5 obs, >=70 % consistent) | hint
+    /// `clinician_reviewed_at` — when a practitioner validated the row (members only receive validated rows).
+    var reviewedAt: Date? = nil
 }
 
 enum PatternText {
