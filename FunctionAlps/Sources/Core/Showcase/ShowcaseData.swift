@@ -59,8 +59,31 @@ enum ShowcaseData {
         // Different reads on purpose (owner): mood good, energy in the middle, focus drained.
         m.energyBody = 52; m.energyMind = 22; m.energyStability = 45; m.energyOverall = 45
         m.moodScore = 84; m.stressScore = 40
-        m.pills = ["worst_dip": ["afternoon"], "flavour_pos": ["content", "motivated"], "drivers": ["sleep", "movement"]]
+        m.pills = ["worst_dip": ["afternoon"], "flavour_pos": ["content", "motivated"], "drivers": ["sleep", "movement"],
+                   "kept_up": ["mind_racing", "screen"], "woke_why": ["bathroom", "thirst"]]
+        // Last night, set on the dial: a late, broken night (shows the follow-up questions).
+        m.sleepBedTime = "23:20"; m.sleepWakeTime = "06:45"; m.sleepDurationMin = 445
+        m.sleepLatencyBand = "30_60"; m.sleepWakeCount = "1_2"; m.sleepRefreshed = 48
         return m
+    }
+
+    /// Last night as an Oura ring filed it (the catalogue's sleep rows, `wearable_daily`): in bed 23:05 → 06:50 local
+    /// (UTC+1), asleep 7 h 02, 12 minutes to fall asleep, one wake-up.
+    static func ouraNight(day: String) -> [WearableNightRow] {
+        let tz = 60
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: tz * 60)!
+        let parts = day.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3, let wake = cal.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2], hour: 6, minute: 50)) else { return [] }
+        let bed = wake.addingTimeInterval(-(7 * 3600 + 45 * 60))
+        func row(_ type: Int, _ value: Double) -> WearableNightRow {
+            WearableNightRow(day: day, dataTypeId: type, dataSourceId: 1_000_018, value: value, timezoneOffset: tz)
+        }
+        return [
+            row(WearableNightAssembler.start, bed.timeIntervalSince1970), row(WearableNightAssembler.end, wake.timeIntervalSince1970),
+            row(WearableNightAssembler.duration, 7 * 3600 + 2 * 60), row(WearableNightAssembler.latency, 12 * 60),
+            row(WearableNightAssembler.interruptions, 1),
+        ]
     }
 
     static func gutHistory() -> [GutDay] {

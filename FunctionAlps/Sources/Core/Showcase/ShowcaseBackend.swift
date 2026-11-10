@@ -91,7 +91,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dataRows(table: String, patientId: String) async throws -> Data { Data("[]".utf8) }
     func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count, connection: nil) }
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
-    func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] { [] }
+    func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] {
+        screen == .checkinWearable ? ShowcaseData.ouraNight(day: since) : []
+    }
     func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan {
         // A lead has no prescribed plan: the track's own actions are the day's actions.
@@ -135,7 +137,11 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func actionCards(ids: [String]) async throws -> [ActionCardRow] { ShowcaseTrack.cards.filter { ids.contains($0.id) } }
     func trackSummary(code: String, day: Int) async throws -> TrackSummary? { ShowcaseTrack.isOn ? ShowcaseTrack.summary() : nil }
     func notificationData(id: String) async throws -> JSONValue? { nil }
-    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { Showcase.isCheckinInProgress || eveningDone ? [ShowcaseData.eveningMoment()] : [] }
+    func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] {
+        // The wearable shot is a first check-in of the day, so the ring's night fills the card.
+        if screen == .checkinWearable { return [] }
+        return Showcase.isCheckinInProgress || eveningDone ? [ShowcaseData.eveningMoment()] : []
+    }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}

@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       set:
-        description: "showcase (the members showcase) or track (the Foundation Track, every screen)"
+        description: "showcase (the members showcase), checkin (only the daily check-in) or track (the Foundation Track, every screen)"
         default: showcase
 
 # Queue, never cancel: a later push without "[screens]" also starts this workflow (its job is skipped), and
@@ -27,7 +27,7 @@ defaults:
 jobs:
   shoot:
     name: Shoot the showcase screens
-    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]')
+    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]') || contains(github.event.head_commit.message, '[checkin-screens]')
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -76,6 +76,9 @@ jobs:
           xcrun simctl install "$UDID" "$APP"
 
       - name: Shoot
+        env:
+          # "[checkin-screens]" in the message (or set = checkin by hand): only the daily check-in set, a few minutes.
+          ONLY_CHECKIN: ${{ (contains(github.event.head_commit.message, '[checkin-screens]') || inputs.set == 'checkin') && '1' || '0' }}
         run: |
           UDID=${{ steps.sim.outputs.udid }}
           BUNDLE=com.functionalps.patient
@@ -93,6 +96,17 @@ jobs:
             echo "shot $1"
           }
           shootfr() { LANG_CODE=fr LOCALE_CODE=fr_CH shoot "$@"; }
+          # The daily functional check-in (2026-11-10): Home's glass, last night on the dial and from a ring, the
+          # sliders, the stool card, the Bristol chart, the red-flag card with the voice note.
+          shoot 01-today today 12
+          shoot 30-checkin-sleep checkin-sleep 10
+          shoot 31-checkin-wearable checkin-wearable 10
+          shoot 02-checkin checkin
+          shoot 32-checkin-stool checkin-stool 11
+          shoot 33-bristol-chart bristol-chart 13
+          shoot 34-checkin-note checkin-note 11
+          shootfr 30-checkin-sleep-fr checkin-sleep 10
+          if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
           shoot 01b-today-bottom today-bottom 14

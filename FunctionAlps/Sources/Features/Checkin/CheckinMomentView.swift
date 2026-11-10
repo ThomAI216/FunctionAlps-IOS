@@ -100,6 +100,9 @@ private struct CheckinMomentScreen: View {
         #if DEBUG
         .task { await Showcase.scroll(proxy, to: "showcase.energy", on: .checkin) }
         .task { await Showcase.scroll(proxy, to: "showcase.mood", on: .checkinMood) }
+        .task { await Showcase.scroll(proxy, to: "showcase.stool", on: .checkinStool) }
+        .task { await Showcase.scroll(proxy, to: "showcase.stool", on: .bristolChart) }
+        .task { await Showcase.scroll(proxy, to: "showcase.flags", on: .checkinNote, anchor: .center) }
         #endif
         }
     }
@@ -185,8 +188,10 @@ private struct DigestionSections: View {
         VStack(alignment: .leading, spacing: FASpacing.md) {
             ForEach(GutSchema.dimensions) { spec in
                 GutDimensionCard(spec: spec, answers: binding(spec.key), ratedMeals: spec.key == .reactions ? model.ratedMeals : [])
+                    .id("showcase.\(spec.key.rawValue)")
             }
             GutRedFlagsCard(flags: $model.redFlags)
+                .id("showcase.flags")
             noteBlock
         }
     }

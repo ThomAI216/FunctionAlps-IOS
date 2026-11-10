@@ -17,6 +17,9 @@ enum Showcase {
         /// The Foundation Track, screen by screen, on real content (`ShowcaseTrack`): Home on a day, a questionnaire step,
         /// a track action's card, the day's read, the approved day-7 summary.
         case track, trackQuestionnaire = "track-q", trackCard = "track-card", trackRead = "track-read", trackSummary = "track-summary"
+        /// The daily functional check-in rework (owner, 2026-11-10): the sleep dial, a wearable's night, the stool card,
+        /// the red-flag card with the voice note, the Bristol chart open over the stool card.
+        case checkinSleep = "checkin-sleep", checkinWearable = "checkin-wearable", checkinStool = "checkin-stool", checkinNote = "checkin-note", bristolChart = "bristol-chart"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -29,7 +32,15 @@ enum Showcase {
     static var isOn: Bool { screen != nil }
 
     /// The two "check-in in progress" shots (Energy & focus, then the whole Mood card): the same filled-in evening.
-    static var isCheckinInProgress: Bool { screen == .checkin || screen == .checkinMood }
+    static var isCheckinInProgress: Bool {
+        switch screen {
+        case .checkin, .checkinMood, .checkinSleep, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
+        default: false
+        }
+    }
+
+    /// The daily check-in shots whose digestion is filled in (the stool card, the note, the chart).
+    static var isDigestionShot: Bool { screen == .checkinStool || screen == .checkinNote || screen == .bristolChart }
 
     /// Scrolls a screen to the part the screenshot frames (there is no finger in the simulator): only for `on`.
     @MainActor
@@ -48,7 +59,7 @@ enum Showcase {
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
         case .trackSummary: "functionalps://foundation/summary"
         case .profile: "functionalps://profile"
-        case .checkin, .checkinMood: "functionalps://checkin/evening"
+        case .checkin, .checkinMood, .checkinSleep, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"
         case .trends: "functionalps://trends"

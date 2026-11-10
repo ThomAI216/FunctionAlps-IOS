@@ -64,6 +64,16 @@ final class GutCheckinViewModel {
             if answers[.reactions]?.specials.reactionsScore == nil {
                 answers[.reactions, default: .empty].specials.reactionsScore = GutEngine.mealReactionsScore(todayMeals.compactMap { reactions[$0.id] })
             }
+            #if DEBUG
+            if Showcase.isDigestionShot {
+                answers[.comfort] = GutAnswers(sliders: ["comfort": 66])
+                answers[.stool] = GutAnswers(sliders: ["ease": 72], specials: GutSpecials(bristol: 4, frequency: 2))
+                if Showcase.screen == .checkinNote {
+                    notes = "Felt bloated after lunch, better after the walk."
+                    notesOpen = true
+                }
+            }
+            #endif
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "gut.prefill")
             if case .unauthorized = error { await auth.handleUnauthorized() }
@@ -280,6 +290,13 @@ struct GutDimensionCard: View {
                 if spec.key == .stool { bristolInput.padding(.top, 8) }
             }
         }
+        #if DEBUG
+        .task {
+            guard spec.key == .stool, Showcase.screen == .bristolChart else { return }
+            try? await Task.sleep(for: .seconds(3))
+            chartOpen = true
+        }
+        #endif
         .sheet(isPresented: $chartOpen) {
             BristolChartSheet(selected: answers.specials.bristol, accent: accent) { answers.specials.bristol = $0 }
                 .presentationDetents([.large])
