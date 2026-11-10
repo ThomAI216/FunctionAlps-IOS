@@ -1,0 +1,1438 @@
+{
+ "taken": "2026-11-10",
+ "project": "ndojytvvlvlbgtodujkf",
+ "track_code": "foundation_v1",
+ "track_day_updated_at": {
+  "1-6": "2026-11-06T13:29:58.321018+00:00",
+  "7-14": "2026-11-06T07:53:43.190867+00:00"
+ },
+ "track_day": {
+  "1": {
+   "read_slug": "feedback-and-self-tracking",
+   "actions": [
+    {
+     "key": "breaths_3",
+     "new": true,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    }
+   ]
+  },
+  "2": {
+   "read_slug": "macros-vs-micros",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": true,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "breaths_3",
+     "new": false,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    },
+    {
+     "key": "meal_photos",
+     "new": true,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    }
+   ]
+  },
+  "3": {
+   "read_slug": "micro-workouts-exercise-snacks",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "breaths_3",
+     "new": false,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "move_1min",
+     "new": true,
+     "face": "standard",
+     "how_en": "Roll your shoulders, circle your hips, a few slow squats.",
+     "moment": "morning",
+     "title_en": "1 minute of gentle movement"
+    },
+    {
+     "key": "exercise_snack",
+     "new": true,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups. Whenever you like.",
+     "moment": "day",
+     "title_en": "Optional: an exercise snack"
+    },
+    {
+     "key": "stretch_evening",
+     "new": true,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    }
+   ]
+  },
+  "4": {
+   "read_slug": "morning-wake-up-routine",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "breaths_3",
+     "new": false,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "move_1min",
+     "new": false,
+     "face": "standard",
+     "how_en": "Roll your shoulders, circle your hips, a few slow squats.",
+     "moment": "morning",
+     "title_en": "1 minute of gentle movement"
+    },
+    {
+     "key": "exercise_snack",
+     "new": false,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups. Whenever you like.",
+     "moment": "day",
+     "title_en": "Optional: an exercise snack"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": true,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": true,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    }
+   ]
+  },
+  "5": {
+   "read_slug": "breathing-exercises",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "breaths_3",
+     "new": false,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "move_1min",
+     "new": false,
+     "face": "standard",
+     "how_en": "Roll your shoulders, circle your hips, a few slow squats.",
+     "moment": "morning",
+     "title_en": "1 minute of gentle movement"
+    },
+    {
+     "key": "exercise_snack",
+     "new": false,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups. Whenever you like.",
+     "moment": "day",
+     "title_en": "Optional: an exercise snack"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": true,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": true,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    }
+   ]
+  },
+  "6": {
+   "read_slug": "your-unique-terrain-roadmap",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "breaths_3",
+     "new": false,
+     "face": "standard",
+     "how_en": "A big breath in through the nose. When you're almost full, one more. Then a long breath out.",
+     "moment": "morning",
+     "title_en": "3 physiological breaths",
+     "habit_bank_id": "7fc3d878-6d2f-40f1-957e-038d33f6d60f"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "move_1min",
+     "new": false,
+     "face": "standard",
+     "how_en": "Roll your shoulders, circle your hips, a few slow squats.",
+     "moment": "morning",
+     "title_en": "1 minute of gentle movement"
+    },
+    {
+     "key": "exercise_snack",
+     "new": false,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups. Whenever you like.",
+     "moment": "day",
+     "title_en": "Optional: an exercise snack"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": false,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "walk_after_lunch_5",
+     "new": true,
+     "face": "easy",
+     "how_en": "A short walk. Nothing sporty.",
+     "moment": "midday",
+     "title_en": "5 minutes outside after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    }
+   ]
+  },
+  "7": {
+   "read_slug": "how-nutrition-training-gut-recovery-and-nervous-system-work-together",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": false,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "walk_after_lunch_5",
+     "new": false,
+     "face": "easy",
+     "how_en": "A short walk. Nothing sporty.",
+     "moment": "midday",
+     "title_en": "5 minutes outside after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "morning_flow_5",
+     "new": true,
+     "face": "standard",
+     "how_en": "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong.",
+     "moment": "morning",
+     "title_en": "5-minute morning flow"
+    },
+    {
+     "key": "exercise_snack_daily",
+     "new": true,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups.",
+     "moment": "day",
+     "title_en": "One exercise snack a day"
+    }
+   ]
+  },
+  "8": {
+   "read_slug": "nutrient-dense-foods",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": false,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "walk_after_lunch_5",
+     "new": false,
+     "face": "easy",
+     "how_en": "A short walk. Nothing sporty.",
+     "moment": "midday",
+     "title_en": "5 minutes outside after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "morning_flow_5",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong.",
+     "moment": "morning",
+     "title_en": "5-minute morning flow"
+    },
+    {
+     "key": "exercise_snack_daily",
+     "new": false,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups.",
+     "moment": "day",
+     "title_en": "One exercise snack a day"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": true,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": true,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    }
+   ]
+  },
+  "9": {
+   "read_slug": "post-meal-walking",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": false,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "morning_flow_5",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong.",
+     "moment": "morning",
+     "title_en": "5-minute morning flow"
+    },
+    {
+     "key": "exercise_snack_daily",
+     "new": false,
+     "face": "standard",
+     "how_en": "10 squats, a minute up the stairs, or 10 wall push-ups.",
+     "moment": "day",
+     "title_en": "One exercise snack a day"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": true,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": true,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": true,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    }
+   ]
+  },
+  "10": {
+   "read_slug": "strength-is-more-than-muscle-size",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "stretch_evening",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow and easy: neck, shoulders, back, hips.",
+     "moment": "evening",
+     "title_en": "2 minutes of gentle stretching before bed"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "box_breathing",
+     "new": false,
+     "face": "standard",
+     "how_en": "In 4 · hold 4 · out 4 · hold 4. The app guides you.",
+     "moment": "evening",
+     "title_en": "Box breathing, 2 minutes in bed",
+     "habit_bank_id": "3ca4a693-d097-4a1b-92a2-95343120d2db"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "morning_flow_5",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong.",
+     "moment": "morning",
+     "title_en": "5-minute morning flow"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": false,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": false,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    },
+    {
+     "key": "easy_strength",
+     "new": true,
+     "face": "standard",
+     "how_en": "Thomas shows every move in today's video. At home, no equipment.",
+     "moment": "day",
+     "title_en": "5-minute easy strength routine"
+    }
+   ]
+  },
+  "11": {
+   "read_slug": "nsdr-yoga-nidra",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "morning_flow_5",
+     "new": false,
+     "face": "standard",
+     "how_en": "Slow breathing with the arms, gentle twists, then shake it out. Inspired by qi gong.",
+     "moment": "morning",
+     "title_en": "5-minute morning flow"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": false,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": false,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    },
+    {
+     "key": "easy_strength",
+     "new": false,
+     "face": "standard",
+     "how_en": "Thomas shows every move in today's video. At home, no equipment.",
+     "moment": "day",
+     "title_en": "5-minute easy strength routine"
+    },
+    {
+     "key": "last_meal",
+     "new": true,
+     "face": "easy",
+     "how_en": "Leave space between dinner and sleep.",
+     "moment": "evening",
+     "title_en": "Last meal 2–3 hours before bed",
+     "habit_bank_id": "7dede76d-132c-4274-9812-3edba28dfb62"
+    },
+    {
+     "key": "screens_off_60",
+     "new": true,
+     "face": "standard",
+     "how_en": "No phone, no laptop. Softer light tells your body the day is ending.",
+     "moment": "evening",
+     "title_en": "Screens off, lights low: 60 minutes before bed",
+     "habit_bank_id": "47613f35-cb86-4122-b168-ea3135a7a208"
+    },
+    {
+     "key": "book",
+     "new": true,
+     "face": "standard",
+     "how_en": "Paper, on the sofa or in bed.",
+     "moment": "evening",
+     "title_en": "A book instead of a screen"
+    },
+    {
+     "key": "wind_down_10",
+     "new": true,
+     "face": "standard",
+     "how_en": "Choose one: slow breathing, NSDR (non-sleep deep rest) or gentle yoga.",
+     "moment": "evening",
+     "title_en": "10 minutes to wind down"
+    }
+   ]
+  },
+  "12": {
+   "read_slug": "rom-and-loaded-mobility",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": false,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": false,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    },
+    {
+     "key": "easy_strength",
+     "new": false,
+     "face": "standard",
+     "how_en": "Thomas shows every move in today's video. At home, no equipment.",
+     "moment": "day",
+     "title_en": "5-minute easy strength routine"
+    },
+    {
+     "key": "last_meal",
+     "new": false,
+     "face": "easy",
+     "how_en": "Leave space between dinner and sleep.",
+     "moment": "evening",
+     "title_en": "Last meal 2–3 hours before bed",
+     "habit_bank_id": "7dede76d-132c-4274-9812-3edba28dfb62"
+    },
+    {
+     "key": "screens_off_60",
+     "new": false,
+     "face": "standard",
+     "how_en": "No phone, no laptop. Softer light tells your body the day is ending.",
+     "moment": "evening",
+     "title_en": "Screens off, lights low: 60 minutes before bed",
+     "habit_bank_id": "47613f35-cb86-4122-b168-ea3135a7a208"
+    },
+    {
+     "key": "book",
+     "new": false,
+     "face": "standard",
+     "how_en": "Paper, on the sofa or in bed.",
+     "moment": "evening",
+     "title_en": "A book instead of a screen"
+    },
+    {
+     "key": "wind_down_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "Choose one: slow breathing, NSDR (non-sleep deep rest) or gentle yoga.",
+     "moment": "evening",
+     "title_en": "10 minutes to wind down"
+    },
+    {
+     "key": "morning_flow_10",
+     "new": true,
+     "face": "standard",
+     "how_en": "The same movements, a little longer.",
+     "moment": "morning",
+     "title_en": "10-minute morning flow"
+    },
+    {
+     "key": "movement_breaks",
+     "new": true,
+     "face": "standard",
+     "how_en": "Stand up, take the stairs, walk while you're on the phone.",
+     "moment": "day",
+     "title_en": "Move 2 minutes every hour or two"
+    }
+   ]
+  },
+  "13": {
+   "read_slug": "signals-create-adaptation",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": false,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": false,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    },
+    {
+     "key": "easy_strength",
+     "new": false,
+     "face": "standard",
+     "how_en": "Thomas shows every move in today's video. At home, no equipment.",
+     "moment": "day",
+     "title_en": "5-minute easy strength routine"
+    },
+    {
+     "key": "last_meal",
+     "new": false,
+     "face": "easy",
+     "how_en": "Leave space between dinner and sleep.",
+     "moment": "evening",
+     "title_en": "Last meal 2–3 hours before bed",
+     "habit_bank_id": "7dede76d-132c-4274-9812-3edba28dfb62"
+    },
+    {
+     "key": "screens_off_60",
+     "new": false,
+     "face": "standard",
+     "how_en": "No phone, no laptop. Softer light tells your body the day is ending.",
+     "moment": "evening",
+     "title_en": "Screens off, lights low: 60 minutes before bed",
+     "habit_bank_id": "47613f35-cb86-4122-b168-ea3135a7a208"
+    },
+    {
+     "key": "book",
+     "new": false,
+     "face": "standard",
+     "how_en": "Paper, on the sofa or in bed.",
+     "moment": "evening",
+     "title_en": "A book instead of a screen"
+    },
+    {
+     "key": "wind_down_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "Choose one: slow breathing, NSDR (non-sleep deep rest) or gentle yoga.",
+     "moment": "evening",
+     "title_en": "10 minutes to wind down"
+    },
+    {
+     "key": "morning_flow_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The same movements, a little longer.",
+     "moment": "morning",
+     "title_en": "10-minute morning flow"
+    },
+    {
+     "key": "movement_breaks",
+     "new": false,
+     "face": "standard",
+     "how_en": "Stand up, take the stairs, walk while you're on the phone.",
+     "moment": "day",
+     "title_en": "Move 2 minutes every hour or two"
+    }
+   ]
+  },
+  "14": {
+   "read_slug": "biological-recovery",
+   "actions": [
+    {
+     "key": "water_waking",
+     "new": false,
+     "face": "standard",
+     "how_en": "Before your coffee. Keep a glass by your bed.",
+     "moment": "morning",
+     "title_en": "A glass of water on waking"
+    },
+    {
+     "key": "meal_photos",
+     "new": false,
+     "face": "standard",
+     "how_en": "Every meal and snack, before the first bite.",
+     "moment": "day",
+     "title_en": "Photograph everything you eat"
+    },
+    {
+     "key": "daylight",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside, or at an open window.",
+     "moment": "morning",
+     "title_en": "5 minutes of daylight",
+     "habit_bank_id": "afa499c9-5033-43d3-bf0c-81f2b8e70819"
+    },
+    {
+     "key": "phone_out",
+     "new": false,
+     "face": "easy",
+     "how_en": "Charge it in another room. A simple alarm clock helps.",
+     "moment": "evening",
+     "title_en": "Your phone sleeps outside the bedroom",
+     "habit_bank_id": "d76c26e1-2e7c-42f8-8ea1-204413c96916"
+    },
+    {
+     "key": "one_good_thing",
+     "new": false,
+     "face": "easy",
+     "how_en": "Before sleep, name one thing that went well today.",
+     "moment": "evening",
+     "title_en": "One good thing",
+     "habit_bank_id": "4e0ec835-daa1-423f-b51a-8229a55b4f82"
+    },
+    {
+     "key": "protein_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Eggs, Greek yogurt, cottage cheese, smoked salmon, tofu. About a palm.",
+     "moment": "morning",
+     "title_en": "Protein at breakfast",
+     "habit_bank_id": "8ba3035e-a61f-4458-b078-9918624b8b18"
+    },
+    {
+     "key": "walk_after_breakfast",
+     "new": false,
+     "face": "standard",
+     "how_en": "Outside if you can, so it counts as daylight too.",
+     "moment": "morning",
+     "title_en": "A 10-minute walk after breakfast"
+    },
+    {
+     "key": "lunch_plate",
+     "new": false,
+     "face": "standard",
+     "how_en": "Half vegetables, a palm of protein, a quarter complex carbs.",
+     "moment": "midday",
+     "title_en": "A lunch that holds you",
+     "habit_bank_id": "b6cabb08-565b-4f13-8350-7bbc981fa232"
+    },
+    {
+     "key": "walk_after_lunch_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The most important habit of the week.",
+     "moment": "midday",
+     "title_en": "A 10-minute walk after lunch",
+     "habit_bank_id": "7e6ee768-30fe-4781-ba62-52669aeab7c3"
+    },
+    {
+     "key": "coffee_before_14",
+     "new": false,
+     "face": "standard",
+     "how_en": "So it doesn't follow you into the night.",
+     "moment": "midday",
+     "title_en": "Last coffee before 14:00",
+     "habit_bank_id": "fc544c65-5f4b-4c36-960a-e49b2aa16377"
+    },
+    {
+     "key": "easy_strength",
+     "new": false,
+     "face": "standard",
+     "how_en": "Thomas shows every move in today's video. At home, no equipment.",
+     "moment": "day",
+     "title_en": "5-minute easy strength routine"
+    },
+    {
+     "key": "last_meal",
+     "new": false,
+     "face": "easy",
+     "how_en": "Leave space between dinner and sleep.",
+     "moment": "evening",
+     "title_en": "Last meal 2–3 hours before bed",
+     "habit_bank_id": "7dede76d-132c-4274-9812-3edba28dfb62"
+    },
+    {
+     "key": "screens_off_60",
+     "new": false,
+     "face": "standard",
+     "how_en": "No phone, no laptop. Softer light tells your body the day is ending.",
+     "moment": "evening",
+     "title_en": "Screens off, lights low: 60 minutes before bed",
+     "habit_bank_id": "47613f35-cb86-4122-b168-ea3135a7a208"
+    },
+    {
+     "key": "book",
+     "new": false,
+     "face": "standard",
+     "how_en": "Paper, on the sofa or in bed.",
+     "moment": "evening",
+     "title_en": "A book instead of a screen"
+    },
+    {
+     "key": "wind_down_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "Choose one: slow breathing, NSDR (non-sleep deep rest) or gentle yoga.",
+     "moment": "evening",
+     "title_en": "10 minutes to wind down"
+    },
+    {
+     "key": "morning_flow_10",
+     "new": false,
+     "face": "standard",
+     "how_en": "The same movements, a little longer.",
+     "moment": "morning",
+     "title_en": "10-minute morning flow"
+    },
+    {
+     "key": "movement_breaks",
+     "new": false,
+     "face": "standard",
+     "how_en": "Stand up, take the stairs, walk while you're on the phone.",
+     "moment": "day",
+     "title_en": "Move 2 minutes every hour or two"
+    }
+   ]
+  }
+ },
+ "habit_bank_daylight_row": {
+  "id": "afa499c9-5033-43d3-bf0c-81f2b8e70819",
+  "title": "Five minutes of daylight",
+  "active": true,
+  "how_md": null,
+  "pillar": "mind",
+  "category": "reset",
+  "title_fr": "Cinq minutes de lumière du jour",
+  "card_kind": null,
+  "resources": [],
+  "sort_order": 5,
+  "updated_at": "2026-10-05T08:32:56.061179+00:00",
+  "description": "Light anchors the body clock — mornings work best.",
+  "default_slot": "morning",
+  "duration_min": null,
+  "member_can_add": false,
+  "general_why": null,
+  "published_at": "2026-09-25T08:52:31.355634+00:00",
+  "next_level_id": "e9c25572-8e38-4c7d-9ad8-4c9fb7af925b",
+  "frequency_rule": "RRULE:FREQ=DAILY",
+  "note": "other columns (easy_*, *_fr, rev_*) untouched by the change"
+ },
+ "habit_bank_count": 54,
+ "content_list_baseline": {
+  "website_public_free": "2/45a1d6c8b3c2a222ff23a436a467cbef",
+  "patient_app_public_free": "54/802f607bf8fbee8b8b20c9767070c714"
+ },
+ "kb_node_channels_note": "the 24 French public_resources nodes had patient_app enabled=true (exact set recorded by slug in trackv2.sql); undo = set enabled=true for them",
+ "member_tag_links_before": 120
+}

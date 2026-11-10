@@ -1,0 +1,388 @@
+[
+ {
+  "day": 1,
+  "card_en": {
+   "today": [
+    {
+     "text": "Lasting change starts from where you really are, not from a perfect plan. Knowing your starting point and where you want to go lets everything after fit you.",
+     "label": "Why it matters"
+    },
+    {
+     "text": "Your answers and check-ins shape your week-2 actions, your first-week summary on day 7 and your review call with Thomas on day 14.",
+     "label": "How we use it"
+    }
+   ],
+   "evolve": [
+    {
+     "text": "Photograph what you eat. That habit runs all 14 days.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "1 minute of movement joins your morning, and your evening routine begins.",
+     "when": "Day 3"
+    },
+    {
+     "text": "Your full day: a 5-minute morning flow and a daily exercise snack.",
+     "when": "Day 7"
+    }
+   ],
+   "pillar": "Where you are, where you're going",
+   "library": []
+  },
+  "md5": "8545a079c21182fd3311f02a752abe3b"
+ },
+ {
+  "day": 2,
+  "card_en": {
+   "tip": "Photograph before the first bite, drinks and snacks included. A quick photo beats a perfect one.",
+   "today": [
+    {
+     "text": "What you eat, when, and how much: the material your body builds and repairs with, and the fuel for your energy.",
+     "label": "What it is"
+    },
+    {
+     "text": "Food shapes your energy, hunger, mood, sleep and recovery. Small changes in what and when you eat often make a big difference.",
+     "label": "Why it matters"
+    },
+    {
+     "text": "Your answers and your meal photos show your real pattern. From them we choose the changes that will help you most, with ideas from foods you already eat.",
+     "label": "How we use it"
+    }
+   ],
+   "evolve": [
+    {
+     "text": "Your morning grows with 1 minute of movement, and your evening routine begins.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Daylight in the morning, your phone out of the bedroom.",
+     "when": "Day 4"
+    },
+    {
+     "text": "Breakfast and lunch become the focus, built from your photos.",
+     "when": "Days 8–9"
+    }
+   ],
+   "pillar": "Pillar 1 · Nutrition",
+   "library": [],
+   "try_label": "First thing to try · one habit for all 14 days"
+  },
+  "md5": "a55b7773d29021b039fbb00e33046ce3"
+ },
+ {
+  "day": 3,
+  "card_en": {
+   "tip": "No time for an exercise snack? Take the stairs once. That counts.",
+   "today": [
+    {
+     "text": "Not sport: your functional capacity. How easily your body does what your life asks of it: getting up, carrying, climbing stairs, hiking.",
+     "label": "What it is"
+    },
+    {
+     "text": "Capacity is built or lost by what you do every day. Long hours of sitting slowly take it away; small, regular movement keeps it and builds it.",
+     "label": "Why it matters"
+    },
+    {
+     "text": "Your answers set the right starting level for you and keep every movement we suggest safe. We start with little and often.",
+     "label": "How we use it"
+    }
+   ],
+   "evolve": [
+    {
+     "text": "5 minutes of daylight; your phone sleeps outside the bedroom.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your minute of movement becomes a 5-minute flow, and the exercise snack becomes daily.",
+     "when": "Day 7"
+    },
+    {
+     "text": "Easy strength, then a 10-minute morning flow.",
+     "when": "Days 10–12"
+    }
+   ],
+   "pillar": "Pillar 2 · Movement",
+   "library": [
+    {
+     "kind": "Lesson",
+     "title": "Exercise snacks: small signals that add up"
+    }
+   ],
+   "try_label": "First thing to try · your morning grows, your evening begins"
+  },
+  "md5": "d7be8b7801ceb9b4b18d296ca4f8ce11"
+ },
+ {
+  "day": 4,
+  "card_en": {
+   "tip": "No time to go outside? Have your coffee at the brightest window.",
+   "today": [
+    {
+     "text": "The time your body repairs, your brain sorts the day and your rhythm resets.",
+     "label": "What it is"
+    },
+    {
+     "text": "After a poor night, hunger is louder, cravings stronger, mood shorter and effort harder. Regular times and light set your body clock.",
+     "label": "Why it matters"
+    },
+    {
+     "text": "Your usual pattern tells us where to start, and your times decide when your reminders arrive. Your morning check-in records each night.",
+     "label": "How we use it"
+    }
+   ],
+   "evolve": [
+    {
+     "text": "Box breathing and one good thing join your evening.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your full evening routine: last meal earlier, screens off, a book, 10 minutes to wind down.",
+     "when": "Day 11"
+    }
+   ],
+   "pillar": "Pillar 3 · Sleep",
+   "library": [],
+   "try_label": "First thing to try · one for the morning, one for the night"
+  },
+  "md5": "b7bff2dde72e6d25171f0c2b0b3ed837"
+ },
+ {
+  "day": 5,
+  "card_en": {
+   "tip": "If four counts feel long, breathe in threes. The rhythm matters more than the number.",
+   "today": [
+    {
+     "text": "The load you carry, from work, family, health or big changes, and how well you recover from it.",
+     "label": "What it is"
+    },
+    {
+     "text": "When the load stays high, it shows up in your sleep, appetite, energy, digestion and mood. Recovery is what brings your body back to calm.",
+     "label": "Why it matters"
+    },
+    {
+     "text": "Knowing where your load comes from and what already helps you lets us suggest tools that fit your life, instead of adding pressure.",
+     "label": "How we use it"
+    }
+   ],
+   "evolve": [
+    {
+     "text": "A short walk after lunch: your routine now covers the whole day.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your 2 minutes of breathing grow into 10 minutes: breathing, NSDR or gentle yoga.",
+     "when": "Day 11"
+    }
+   ],
+   "pillar": "Pillar 4 · Mental and emotional health",
+   "library": [],
+   "try_label": "First thing to try · your evening grows"
+  },
+  "md5": "07924dbc18ffb9856dc1b84c2508388a"
+ },
+ {
+  "day": 6,
+  "card_en": {
+   "tip": "Put your walking shoes by the door before lunch.",
+   "today": "Six days, four pillars: nutrition, movement, sleep, and your mental and emotional health. You've told us where you are and where you want to go, and you've built a small routine without really noticing. Here it is, in the four moments of your day. One new moment today: after lunch.",
+   "evolve": [
+    {
+     "text": "A 5-minute morning flow and one exercise snack a day.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "One focus a day: breakfast, lunch, strength, evening, morning.",
+     "when": "Week 2"
+    },
+    {
+     "text": "You choose what you keep.",
+     "when": "Day 13"
+    }
+   ],
+   "pillar": "Recap",
+   "library": [],
+   "try_label": "New today · after lunch"
+  },
+  "md5": "bd9b79f840d4c129376f8884378c0fb7"
+ },
+ {
+  "day": 7,
+  "card_en": {
+   "tip": "Link the new to the old: your flow right after your glass of water.",
+   "today": "One week. Today everything comes together in one full day, with a little more movement: your minute in the morning becomes a 5-minute flow inspired by qi gong, and the exercise snack becomes daily. Thomas is reviewing your first week; your summary appears here once he has read it.",
+   "evolve": [
+    {
+     "text": "Breakfast: protein first.",
+     "when": "Day 8"
+    },
+    {
+     "text": "Lunch, and a 10-minute walk after it.",
+     "when": "Day 9"
+    },
+    {
+     "text": "Your exercise snack becomes a strength routine.",
+     "when": "Day 10"
+    },
+    {
+     "text": "Your full evening, then a longer morning flow.",
+     "when": "Days 11–12"
+    }
+   ],
+   "pillar": "Everything together",
+   "library": [],
+   "try_label": "New today · a little more movement"
+  },
+  "md5": "24e0eb986c4848657e15cdb51a89b964"
+ },
+ {
+  "day": 8,
+  "card_en": {
+   "tip": "Boil a few eggs for the week, or keep Greek yogurt in the fridge: breakfast protein in one minute.",
+   "today": "Protein is your body's building material: muscle, bones, skin, your immune system. Your body can't store it the way it stores fat or sugar, so it needs some regularly across the day, and more as we age to keep our muscle. Many people eat little in the morning and most at night. Today, protein moves to breakfast.",
+   "evolve": [
+    {
+     "text": "Lunch: protein, vegetables, complex carbs, and your after-lunch walk doubles to 10 minutes.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Easy strength.",
+     "when": "Day 10"
+    }
+   ],
+   "library": [
+    {
+     "kind": "Infographic",
+     "title": "Protein through the day"
+    }
+   ],
+   "try_label": "New today"
+  },
+  "md5": "9426401e03cbeee960fba78d2977b63e"
+ },
+ {
+  "day": 9,
+  "card_en": {
+   "tip": "Lunch out? Ask for extra vegetables and choose the whole-grain side.",
+   "today": "Lunch decides your afternoon. Fast carbs (white bread, white pasta, sweet drinks) often mean a quick rise and a dip around three. Build your plate in three parts: half vegetables, a palm of protein, a quarter complex carbs. Complex carbs come with fibre, so they give steadier energy. Then the most important part: a 10-minute walk.",
+   "evolve": [
+    {
+     "text": "Your exercise snack becomes a 5-minute strength routine.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your full evening routine.",
+     "when": "Day 11"
+    }
+   ],
+   "library": [
+    {
+     "kind": "Infographic",
+     "title": "The plate that holds you"
+    }
+   ],
+   "try_label": "New today"
+  },
+  "md5": "c46ab862f630f6b8059f56533e498428"
+ },
+ {
+  "day": 10,
+  "card_en": {
+   "tip": "Do your routine while the kettle boils or the coffee runs.",
+   "today": "Muscle is one of the best long-term investments you can make: it holds you up, protects your joints, helps your body handle sugar and keeps you independent as you age. Your exercise snack becomes a 5-minute routine, at home, no equipment. Go slowly and stop if anything hurts: easier is always fine.",
+   "evolve": [
+    {
+     "text": "Your full evening routine.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your morning flow grows to 10 minutes.",
+     "when": "Day 12"
+    }
+   ],
+   "library": [],
+   "try_label": "New today"
+  },
+  "md5": "a80ef835ac04be9bda03784701eb1a6d"
+ },
+ {
+  "day": 11,
+  "card_en": {
+   "tip": "Set an alarm for 'screens off', and choose tonight's book now.",
+   "today": "Tonight your evening routine is complete. Last meal 2–3 hours before bed, so your body can rest rather than digest. An hour before bed: screens off, lights low, a book instead of the phone. Then 10 minutes to wind down: slow breathing, NSDR or gentle yoga. Your stretch and box breathing grow into this.",
+   "evolve": [
+    {
+     "text": "Your morning flow grows to 10 minutes, with short movement breaks.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "You choose what you keep.",
+     "when": "Day 13"
+    }
+   ],
+   "library": [
+    {
+     "kind": "Audio",
+     "title": "10-minute NSDR"
+    }
+   ],
+   "try_label": "New today · the full routine"
+  },
+  "md5": "ba4f1ea40b3c523457f5177165fe5f24"
+ },
+ {
+  "day": 12,
+  "card_en": {
+   "tip": "Stand up whenever you take a call.",
+   "today": "Moving early wakes your body, gets your circulation going and, outside, gives you daylight for your body clock. And what's done first thing gets done. Your flow grows from five to ten minutes. During the day, if you sit for long, stand up every hour or two and move for two minutes.",
+   "evolve": [
+    {
+     "text": "Nothing new: you choose what you keep.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "Your two weeks, and your 20-minute review call.",
+     "when": "Day 14"
+    }
+   ],
+   "library": [],
+   "try_label": "New today"
+  },
+  "md5": "db95905d1afcdcdeddfc94298188140f"
+ },
+ {
+  "day": 13,
+  "card_en": {
+   "tip": "Keep the ones you'd miss, not the ones you think you should.",
+   "today": "Look at what you've built in twelve days. There's nothing new today: choose the actions you want to keep after these two weeks. They stay in your app. A few habits you keep are worth more than ten you try once.",
+   "evolve": [
+    {
+     "text": "Your two weeks: before and after, and your review call.",
+     "when": "Tomorrow"
+    },
+    {
+     "text": "The actions you keep stay in your app.",
+     "when": "After day 14"
+    }
+   ],
+   "library": [],
+   "try_label": "New today"
+  },
+  "md5": "12fff9fd9c8c184877d8911e1cf29eef"
+ },
+ {
+  "day": 14,
+  "card_en": {
+   "tip": "Write down one question for Thomas before your call.",
+   "today": "Two weeks ago you started. Today you see your check-ins from your first days next to your last days, tell us how it was, and book your 20-minute review call with Thomas once it's open to you.",
+   "evolve": [
+    {
+     "text": "Keep going with the app, or go deeper with a personal programme. You decide together on your call.",
+     "when": "Next"
+    }
+   ],
+   "library": [],
+   "try_label": "New today"
+  },
+  "md5": "5f7d51113114bd8a6ffa4af83bc0ee74"
+ }
+]
