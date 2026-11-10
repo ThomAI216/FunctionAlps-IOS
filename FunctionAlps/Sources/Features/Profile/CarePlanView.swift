@@ -38,6 +38,8 @@ struct CarePlanView: View {
             }
             #if DEBUG
             .task { await Showcase.scroll(proxy, to: "showcase.objective", on: .careplan) }
+            .task { await Showcase.scroll(proxy, to: "showcase.goals", on: .careplanMiddle) }
+            .task { await Showcase.scroll(proxy, to: "showcase.supplements", on: .careplanBottom) }
             #endif
             }
         }
@@ -56,6 +58,7 @@ struct CarePlanView: View {
     @ViewBuilder
     private func content(_ plan: HabitPlan) -> some View {
         let week = HabitEngine.planWeek(start: plan.header?.startDate, today: plan.day)
+        let currentPhase = HabitEngine.currentPhase(plan.phases, start: plan.header?.startDate, today: plan.day)?.phaseKey
         if plan.header == nil {
             FACard {
                 PlanLockedArea(reason: .awaitingCall(dependencies.habits.nextCall)) {
@@ -67,13 +70,19 @@ struct CarePlanView: View {
                 }
             }
         } else {
-            intro(plan)
+            intro(plan, week: week)
             objective(plan)
+            goals(plan, currentPhase: currentPhase)
             if plan.phases.isEmpty { locked(String(localized: "careplan.journey", defaultValue: "Your journey"), lines: 4) } else { journey(plan, week: week) }
             if plan.priorities.isEmpty { locked(String(localized: "careplan.priorities", defaultValue: "This week's priorities"), lines: 1, chips: true) } else { priorities(plan.priorities) }
         }
         actions(plan)
-        if let detail, !detail.sections.isEmpty { sections(detail) }
+        if let detail {
+            if !detail.supplements.isEmpty { PlanSupplementsCard(supplements: detail.supplements).id("showcase.supplements") }
+            if !detail.tests.isEmpty { PlanTestsCard(tests: detail.tests) }
+            if !detail.sections.isEmpty { sections(detail) }
+            if detail.reviewDate != nil || detail.expectations != nil { PlanReviewCard(date: detail.reviewDate, expectations: detail.expectations) }
+        }
         let articles = PlanPageLogic.articles(plan)
         if !articles.isEmpty { reading(articles) }
         Text(String(localized: "careplan.updateNote", defaultValue: "Care plan is updated after each appointment by your practitioner."))
@@ -83,10 +92,14 @@ struct CarePlanView: View {
 
     // MARK: Sections
 
-    /// "With [practitioner] · since September 2026" — who the plan is with and since when.
+    /// "Your practitioner · since September 2026 · Week 6 of 16" — who the plan is with, since when, and how far in.
     @ViewBuilder
-    private func intro(_ plan: HabitPlan) -> some View {
-        let parts = [detail?.practitioner.trimmingCharacters(in: .whitespaces), detail?.startDate]
+    private func intro(_ plan: HabitPlan, week: Int?) -> some View {
+        let weekText: String? = week.map { w in
+            PlanPageLogic.totalWeeks(plan.phases).map { String(localized: "careplan.weekOf", defaultValue: "Week \(w) of \($0)") }
+                ?? String(localized: "home.healthPlan.week", defaultValue: "Week \(w)")
+        }
+        let parts = [detail?.practitioner.trimmingCharacters(in: .whitespaces), detail?.startDate, weekText]
             .compactMap { $0 }.filter { !$0.isEmpty }
         if !parts.isEmpty {
             Text(parts.joined(separator: " · "))
@@ -110,11 +123,12 @@ struct CarePlanView: View {
         objectiveCard(plan).id("showcase.objective")
     }
 
+    /// The one-sentence objective, and — when the clinician wrote it — "How we'll get there" under it.
     @ViewBuilder
     private func objectiveCard(_ plan: HabitPlan) -> some View {
-        let line = plan.header?.objectiveLine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let goals = plan.goals.isEmpty ? (detail?.goals ?? []) : plan.goals
-        if line.isEmpty && goals.isEmpty {
+        let line = CarePlanLogic.trimmed(plan.header?.objectiveLine) ?? detail?.objectiveLine ?? ""
+        let approach = detail?.approach ?? ""
+        if line.isEmpty && approach.isEmpty {
             locked(String(localized: "careplan.objective", defaultValue: "Your objective"), lines: 3)
         } else {
             FACard {
@@ -124,21 +138,31 @@ struct CarePlanView: View {
                         Text(line).font(FATypography.display(22, relativeTo: .title2)).foregroundStyle(FAColor.ink)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    ForEach(Array(goals.enumerated()), id: \.offset) { _, goal in
-                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            Image(systemName: "target").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
-                                .accessibilityHidden(true)
-                            Text(goal).font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
+                    if !approach.isEmpty {
+                        Text(String(localized: "careplan.approach", defaultValue: "How we'll get there"))
+                            .font(FATypography.sans(15, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.forest)
+                            .padding(.top, line.isEmpty ? 0 : 6)
+                        PlanProseView(text: approach, collapsible: true)
                     }
                 }
             }
         }
     }
 
+    @ViewBuilder
+    private func goals(_ plan: HabitPlan, currentPhase: String?) -> some View {
+        let structured = detail?.planGoals ?? []
+        let strings = plan.goals.isEmpty ? (detail?.goals ?? []) : plan.goals
+        if structured.isEmpty && strings.isEmpty {
+            locked(String(localized: "careplan.yourGoals", defaultValue: "Your goals"), lines: 3).id("showcase.goals")
+        } else {
+            PlanGoalsCard(goals: structured, fallback: strings, currentPhase: currentPhase).id("showcase.goals")
+        }
+    }
+
     private func journey(_ plan: HabitPlan, week: Int?) -> some View {
         let total = PlanPageLogic.totalWeeks(plan.phases)
+        let planGoals = detail?.planGoals ?? []
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
                 label(String(localized: "careplan.journey", defaultValue: "Your journey"))
@@ -146,15 +170,19 @@ struct CarePlanView: View {
                     Text(total.map { String(localized: "careplan.weekOf", defaultValue: "Week \(week) of \($0)") }
                          ?? String(localized: "home.healthPlan.week", defaultValue: "Week \(week)"))
                         .font(FATypography.display(20, relativeTo: .title3)).foregroundStyle(FAColor.ink)
+                    if let total { PlanProgressBar(week: week, total: total) }
                 }
                 ForEach(Array(plan.phases.enumerated()), id: \.offset) { index, phase in
-                    phaseRow(phase, number: index + 1, state: PlanPageLogic.phaseState(phase, week: week))
+                    phaseRow(phase, number: index + 1, state: PlanPageLogic.phaseState(phase, week: week),
+                             goals: planGoals.filter { $0.phaseKey == phase.phaseKey })
                 }
             }
         }
     }
 
-    private func phaseRow(_ phase: HabitPlanPhase, number: Int, state: PlanPageLogic.PhaseState) -> some View {
+    /// One phase: its weeks and state, its title and summary (the whole arc is shown, the current one lit), and the
+    /// goals written for it. Gate criteria are the clinician's and never reach this page.
+    private func phaseRow(_ phase: HabitPlanPhase, number: Int, state: PlanPageLogic.PhaseState, goals: [CarePlan.Goal]) -> some View {
         let weeks = phase.weekEnd.map { String(localized: "careplan.phase.weeks", defaultValue: "weeks \(phase.weekStart)–\($0)") }
             ?? String(localized: "careplan.phase.from", defaultValue: "from week \(phase.weekStart)")
         let status: String = switch state {
@@ -162,6 +190,7 @@ struct CarePlanView: View {
         case .current: String(localized: "careplan.phase.current", defaultValue: "in progress")
         case .upcoming: String(localized: "careplan.phase.upcoming", defaultValue: "coming up")
         }
+        let muted = state != .current
         return HStack(alignment: .top, spacing: 12) {
             Image(systemName: state == .done ? "checkmark.circle.fill" : state == .current ? "circle.inset.filled" : "circle.dashed")
                 .font(.system(size: 18)).foregroundStyle(state == .upcoming ? FAColor.inkMuted : FAColor.forestSoft)
@@ -171,11 +200,20 @@ struct CarePlanView: View {
                     .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                 if let title = phase.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
                     Text(title).font(FATypography.sans(15, .semibold, relativeTo: .subheadline))
-                        .foregroundStyle(state == .upcoming ? FAColor.inkSecondary : FAColor.ink)
+                        .foregroundStyle(muted ? FAColor.inkSecondary : FAColor.ink)
                 }
-                if state == .current, let summary = phase.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !summary.isEmpty {
-                    Text(summary).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.ink2)
+                if let summary = phase.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !summary.isEmpty {
+                    Text(summary).font(FATypography.sans(13, relativeTo: .subheadline))
+                        .foregroundStyle(muted ? FAColor.inkSecondary : FAColor.ink2)
                         .fixedSize(horizontal: false, vertical: true)
+                }
+                ForEach(goals) { goal in
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("•").accessibilityHidden(true)
+                        Text(goal.statement).fixedSize(horizontal: false, vertical: true)
+                    }
+                    .font(FATypography.sans(13, relativeTo: .subheadline))
+                    .foregroundStyle(muted ? FAColor.inkSecondary : FAColor.ink)
                 }
             }
         }

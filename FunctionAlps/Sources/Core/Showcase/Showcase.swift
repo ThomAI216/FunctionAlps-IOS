@@ -24,6 +24,8 @@ enum Showcase {
         case checkinSleepDrag = "checkin-sleep-drag"
         /// The moment after a validated meal ("Bon appétit"), over Home.
         case bonAppetit = "bon-appetit"
+        /// "My health plan" scrolled to the goals and to the supplements (owner, 2026-11-10).
+        case careplanMiddle = "careplan-middle", careplanBottom = "careplan-bottom"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -68,7 +70,7 @@ enum Showcase {
         case .food: "functionalps://food"
         case .trends: "functionalps://trends"
         case .scores: "functionalps://scores"
-        case .careplan: "functionalps://careplan"
+        case .careplan, .careplanMiddle, .careplanBottom: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
         case .card, .cardMiddle, .cardBottom: "functionalps://action/\(ShowcaseData.anatomyHabitId)"
         case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"

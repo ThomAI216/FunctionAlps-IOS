@@ -2898,6 +2898,22 @@
         }
       }
     },
+    "careplan.approach": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How we'll get there"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment nous y arriverons"
+          }
+        }
+      }
+    },
     "careplan.detail": {
       "localizations": {
         "en": {
@@ -2930,6 +2946,22 @@
         }
       }
     },
+    "careplan.goal.target": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target %1$@%2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cible %1$@%2$@"
+          }
+        }
+      }
+    },
     "careplan.goals": {
       "localizations": {
         "en": {
@@ -2942,6 +2974,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Objectifs"
+          }
+        }
+      }
+    },
+    "careplan.goals.later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later in your plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus tard dans votre plan"
+          }
+        }
+      }
+    },
+    "careplan.goals.now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenant"
           }
         }
       }
@@ -3170,6 +3234,22 @@
         }
       }
     },
+    "careplan.readMore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read more"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire la suite"
+          }
+        }
+      }
+    },
     "careplan.reading": {
       "localizations": {
         "en": {
@@ -3186,6 +3266,54 @@
         }
       }
     },
+    "careplan.review": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your next review"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre prochain bilan"
+          }
+        }
+      }
+    },
+    "careplan.review.date": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next review · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prochain bilan · %@"
+          }
+        }
+      }
+    },
+    "careplan.showLess": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show less"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réduire"
+          }
+        }
+      }
+    },
     "careplan.started": {
       "localizations": {
         "en": {
@@ -3198,6 +3326,86 @@
           "stringUnit": {
             "state": "translated",
             "value": " · Débuté en %@"
+          }
+        }
+      }
+    },
+    "careplan.supplements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplements"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compléments"
+          }
+        }
+      }
+    },
+    "careplan.test.ordered": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordered"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prescrit"
+          }
+        }
+      }
+    },
+    "careplan.test.processing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the lab"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au laboratoire"
+          }
+        }
+      }
+    },
+    "careplan.test.resulted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résultats reçus"
+          }
+        }
+      }
+    },
+    "careplan.tests": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tests"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Examens"
           }
         }
       }
@@ -3310,6 +3518,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Semaine %1$lld sur %2$lld"
+          }
+        }
+      }
+    },
+    "careplan.yourGoals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your goals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos objectifs"
           }
         }
       }

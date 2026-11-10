@@ -349,7 +349,8 @@ enum ShowcaseData {
         return plan
     }
 
-    static let carePlan = CarePlan(
+    static let carePlan: CarePlan = {
+        var plan = CarePlan(
         title: "Care plan", startDate: "", practitioner: "",
         goals: ["Steady energy from morning to evening", "Sleep through the night"],
         sections: [
@@ -370,7 +371,41 @@ enum ShowcaseData {
                 CarePlan.Item(id: "s8", text: "Work in 90-minute blocks with a 5-minute break outside", status: .active),
             ]),
         ]
-    )
+        )
+        plan.approach = """
+        We start with your body clock. A steady wake time and morning light settle your sleep, and steadier sleep is what lets your energy hold through the afternoon.
+
+        Then we build capacity: **protein at every meal**, strength training twice a week and a short walk after lunch.
+
+        Once energy is steadier, we work on focus and on how your body handles food through the day.
+        """
+        plan.planGoals = [
+            CarePlan.Goal(id: "g1", statement: "Wake at the same time every day", phaseKey: "p1", baseline: nil, target: nil, unit: nil, cadence: "every morning"),
+            CarePlan.Goal(id: "g2", statement: "Rate your energy at 3 pm higher", phaseKey: "p2", baseline: 4, target: 7, unit: "/10", cadence: "every evening"),
+            CarePlan.Goal(id: "g3", statement: "Protein at every main meal", phaseKey: "p2", baseline: nil, target: nil, unit: nil, cadence: "daily"),
+            CarePlan.Goal(id: "g4", statement: "Strength training twice a week", phaseKey: "p2", baseline: nil, target: 2, unit: "sessions a week", cadence: nil),
+            CarePlan.Goal(id: "g5", statement: "Sleep through the night five days out of seven", phaseKey: nil, baseline: nil, target: 5, unit: "nights a week", cadence: nil),
+        ]
+        plan.supplements = [
+            CarePlan.Supplement(id: "u1", name: "Magnesium glycinate", dosage: "300 mg", timing: "evening, with dinner",
+                                why: "To help your muscles and nervous system unwind before sleep."),
+            CarePlan.Supplement(id: "u2", name: "Vitamin D3", dosage: "2000 IU", timing: "morning, with food",
+                                why: "Your winter level was low; this brings it back towards the range we aim for."),
+            CarePlan.Supplement(id: "u3", name: "Omega-3", dosage: "1 g EPA + DHA", timing: "with lunch",
+                                why: "Supports steady energy and a calm inflammatory balance."),
+        ]
+        plan.tests = [
+            CarePlan.Test(id: "t1", name: "Thyroid panel", state: .ordered),
+            CarePlan.Test(id: "t2", name: "Vitamin D and ferritin", state: .resulted),
+        ]
+        plan.reviewDate = "4 December 2026"
+        plan.expectations = """
+        In the next two weeks most people notice falling asleep more easily. Energy tends to follow after three to four weeks.
+
+        Some days will be harder than others; that is normal. We look at the whole picture together at the review.
+        """
+        return plan
+    }()
 
     // MARK: Library (real topic covers — public practice content, not member data)
 
