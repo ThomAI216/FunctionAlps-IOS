@@ -91,6 +91,52 @@ struct ActionCardRow: Decodable, Sendable, Equatable, Identifiable {
         var title: String?
         /// `youtube` · `own` on a video entry (the player is chosen from the address; this only agrees with it).
         var source: String?
+        /// The list of a `benefits` entry (strings) or a `moves` entry (`{label, dir}`); other kinds have none.
+        var items: [Item]?
+
+        /// One list item: a benefit is a bare string, a move an object. A malformed one is dropped, never the card.
+        struct Item: Decodable, Sendable, Equatable {
+            var label: String
+            var dir: String?
+
+            init(label: String, dir: String? = nil) { self.label = label; self.dir = dir }
+
+            init(from decoder: any Decoder) throws {
+                if let single = try? decoder.singleValueContainer(), let text = try? single.decode(String.self) {
+                    self.init(label: text)
+                    return
+                }
+                let c = try decoder.container(keyedBy: Key.self)
+                self.init(label: try c.decode(String.self, forKey: .label), dir: try? c.decodeIfPresent(String.self, forKey: .dir))
+            }
+
+            private enum Key: String, CodingKey { case label, dir }
+        }
+
+        private struct LossyItem: Decodable {
+            let value: Item?
+            init(from decoder: any Decoder) throws { value = try? Item(from: decoder) }
+        }
+
+        private enum Key: String, CodingKey { case kind, url, query, slug, title, source, items }
+
+        init(kind: String? = nil, url: String? = nil, query: String? = nil, slug: String? = nil, title: String? = nil,
+             source: String? = nil, items: [Item]? = nil) {
+            self.kind = kind; self.url = url; self.query = query; self.slug = slug; self.title = title
+            self.source = source; self.items = items
+        }
+
+        /// Every field is read on its own: one of the wrong type costs that field, not the whole card.
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: Key.self)
+            kind = try? c.decodeIfPresent(String.self, forKey: .kind)
+            url = try? c.decodeIfPresent(String.self, forKey: .url)
+            query = try? c.decodeIfPresent(String.self, forKey: .query)
+            slug = try? c.decodeIfPresent(String.self, forKey: .slug)
+            title = try? c.decodeIfPresent(String.self, forKey: .title)
+            source = try? c.decodeIfPresent(String.self, forKey: .source)
+            items = (try? c.decodeIfPresent([LossyItem].self, forKey: .items))?.compactMap(\.value)
+        }
     }
 }
 

@@ -108,9 +108,15 @@ struct TrackDayWire: Decodable, Sendable {
     }
 
     static func action(_ value: JSONValue) -> TrackAction? {
-        guard case .object(let o) = value, let key = o["key"]?.stringValue, !key.isEmpty,
-              let moment = o["moment"]?.stringValue.flatMap(TrackMoment.init(rawValue:)) else { return nil }
+        guard case .object(let o) = value, let key = o["key"]?.stringValue, !key.isEmpty else { return nil }
+        let v2 = o["moment_v2"]?.stringValue
+        // `moment_v2` is preferred; the legacy `moment` stays the fallback (and what reminders read).
+        guard let moment = o["moment"]?.stringValue.flatMap(TrackMoment.init(rawValue:))
+                ?? v2.flatMap({ DayMoment(rawValue: $0) }).map({ m -> TrackMoment in
+                    switch m { case .morning: .morning; case .midday: .midday; case .afternoon: .day; case .evening: .evening }
+                }) else { return nil }
         var a = TrackAction(key: key, moment: moment)
+        a.momentV2 = v2
         a.habitBankId = o["habit_bank_id"]?.stringValue
         a.face = o["face"]?.stringValue ?? "standard"
         a.titleEn = o["title_en"]?.stringValue
