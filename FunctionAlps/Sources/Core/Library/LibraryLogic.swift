@@ -179,6 +179,32 @@ enum LibraryLogic {
         (tags ?? []).first { pillarTopics.contains($0) } ?? "foundations"
     }
 
+    /// The pillar key of a read, from `pillar:<name>` or the bare pillar tag (aliased to the key); nil without one.
+    static func pillarTopic(fromTags tags: [String]?) -> String? {
+        for tag in tags ?? [] {
+            let name = tag.hasPrefix("pillar:") ? String(tag.dropFirst("pillar:".count)) : tag
+            let key = topicAliases[name] ?? name
+            if pillarTopics.contains(key) { return key }
+        }
+        return nil
+    }
+
+    /// A pillar key as the topic word the member reads: sommeil → Sleep, nutrition → Nutrition, mouvement →
+    /// Movement, stress → Mind (the owner's four, 2026-11-10), and the English pillar names of the rest.
+    static func topicName(_ key: String) -> String? {
+        switch topicKey(key) {
+        case "sommeil": String(localized: "library.topic.sleep", defaultValue: "Sleep")
+        case "nutrition": String(localized: "library.topic.nutrition", defaultValue: "Nutrition")
+        case "mouvement": String(localized: "library.topic.movement", defaultValue: "Movement")
+        case "stress": String(localized: "library.topic.mind", defaultValue: "Mind")
+        case "intestin": String(localized: "library.topic.gut", defaultValue: "Gut")
+        case "energie": String(localized: "library.topic.energy", defaultValue: "Energy")
+        case "hormones": String(localized: "library.topic.hormones", defaultValue: "Hormones")
+        case "inflammation": String(localized: "library.topic.inflammation", defaultValue: "Inflammation")
+        default: nil
+        }
+    }
+
     /// `library_topic_covers` rows → `topic → url`; rows without an http(s) URL are skipped.
     static func topicCovers(_ rows: [LibraryTopicCoverRow]) -> [String: URL] {
         var map: [String: URL] = [:]

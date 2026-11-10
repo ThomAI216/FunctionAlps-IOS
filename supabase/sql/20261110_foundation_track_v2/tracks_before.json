@@ -1,0 +1,23 @@
+{"note":"before-state 2026-11-10, CM OS library_tracks/library_track_lessons rows touched (all phase_label null, role null, is_required false before). Signals Create Adaptation lesson 92cc8ac4 had node_id null.",
+"tracks":[
+{"id":"d1e37372-dd99-40ca-a285-92c3f7ba62d1","slug":"phase-1-build-your-engine","title":"Build Your Engine","pillar":"energie","position":1,"is_active":true,"cover_style":"flame","description":"Teaching your body to produce, use and recover energy."},
+{"id":"c4f299a9-0c53-4dfd-abed-e90620fa4821","slug":"phase-2-build-your-stamina","title":"Build Your Stamina","pillar":"energie","position":2,"is_active":true,"cover_style":"compass","description":"Build the aerobic base, then raise the ceiling."},
+{"id":"8ed4a32f-d9ee-4777-af2c-661086a59e11","slug":"phase-3-muscle-and-capacity","title":"Build Muscle & Functional Capacity","pillar":"mouvement","position":3,"is_active":true,"cover_style":"sprout","description":"Become stronger and more capable, not simply more tired."},
+{"id":"1c737de6-e953-41f0-8647-96dc7c9e2980","slug":"phase-4-fuel-the-adaptation","title":"Fuel the Adaptation","pillar":"nutrition","position":4,"is_active":true,"cover_style":"flower","description":"Support training with enough energy and the right building materials."}],
+"lessons":[
+{"id":"955b73dd-ebde-4ef0-93f0-2e19130de833","track":"engine","position":1,"content_slug":"build-your-engine","node_id":"c21f8505-6937-481a-8546-3f1e295e4726"},
+{"id":"92cc8ac4-cc1a-43ef-8309-0a4857467fc3","track":"engine","position":2,"content_slug":"signals-create-adaptation","node_id":null},
+{"id":"5ecd4091-d656-431b-b5ab-e14676e851a3","track":"stamina","position":1,"content_slug":"build-your-aerobic-base","node_id":"ae7a8b04-58ad-441f-b56f-f97a3cf5f7d7"},
+{"id":"99f5975e-f786-4542-8c35-b3ffe023130b","track":"stamina","position":2,"content_slug":"raise-your-aerobic-ceiling","node_id":"17810351-3fd7-4557-a344-ec4a3d470f2f"},
+{"id":"247c5b29-d7b4-4ec5-a1c8-fc5dc9e7382b","track":"stamina","position":3,"content_slug":"hiit-work-recover-repeat","node_id":"389fed8c-9bea-4799-86a4-c354d759d908"},
+{"id":"9d261f87-9160-4c6f-a443-b7a72ef84f92","track":"muscle","position":1,"content_slug":"build-a-stronger-more-capable-body"},
+{"id":"c90a2770-8193-42f9-b060-483984712089","track":"muscle","position":2,"content_slug":"make-your-training-work-better"},
+{"id":"8862382a-4bbe-49f6-9bc8-8a9ef9c41872","track":"muscle","position":3,"content_slug":"exercise-snacks-small-signals-that-add-up"},
+{"id":"e9d325d5-e0a6-43e1-b9af-02b0c574e154","track":"muscle","position":4,"content_slug":"strength-is-more-than-muscle-size"},
+{"id":"7cc39e3b-34cd-4470-b834-0709956d1f28","track":"fuel","position":1,"content_slug":"fuel-the-adaptation"},
+{"id":"b9be980d-9fa5-4707-93d0-36dcced5734d","track":"fuel","position":2,"content_slug":"fuel-and-cellular-machinery"},
+{"id":"36e9581d-baf0-41a3-b4e8-b3566e9c3c8a","track":"fuel","position":3,"content_slug":"refuel-training-signal"},
+{"id":"7b466d0d-be8f-40d2-ae8b-0d3889510ad9","track":"fuel","position":4,"content_slug":"micronutrient-tracking"},
+{"id":"355370c3-e76e-4f9c-9ffc-805d22333a9f","track":"fuel","position":5,"content_slug":"nutrient-dense-foods"},
+{"id":"05f74026-fafb-48a4-a736-06746d51096b","track":"fuel","position":6,"content_slug":"micronutrients-and-hormones"}],
+"new_rows_added_by_script":"3 tracks (slugs functional-health-from-the-ground-up, sleep-deeper, calm-and-recover) and their lessons; lesson 92cc8ac4 moved (track_id) from Engine to Start here. Rollback: delete new tracks' lessons+tracks, restore the rows above (positions, titles, pillar, cover_style, description, is_active, role null, track_id)."}

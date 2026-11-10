@@ -30,6 +30,11 @@ enum Showcase {
         /// opened in place, and the pages behind it — Sleep, Digestion, a device (Oura), the patterns the practitioner shared.
         case trendsMiddle = "trends-middle", trendsBottom = "trends-bottom", trendsEnergyOpen = "trends-energy-open"
         case trendsSleep = "trends-sleep", trendsDigestion = "trends-digestion", trendsDevice = "trends-device", trendsPatterns = "trends-patterns"
+        /// The new Library (2026-11-10): the soft-lock sheet, search results, a read with Practice it, a video in the app's player.
+        /// (`library` itself is its home.)
+        case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
+        /// The habit screens (2026-11-10): the moment card, a row opened a little, a habit's page with a streak, a page on its first day.
+        case habits, habitOpen = "habit-open", habitPage = "habit-page", habitFirst = "habit-first"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -72,7 +77,8 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen: "functionalps://home"
+        case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"
         case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
         case .trackSummary: "functionalps://foundation/summary"
@@ -91,7 +97,9 @@ enum Showcase {
         case .card, .cardMiddle, .cardBottom: "functionalps://action/\(ShowcaseData.anatomyHabitId)"
         case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"
         case .bank: "functionalps://bank"
-        case .library: "functionalps://library"
+        case .library, .libraryLocked, .librarySearch: "functionalps://library"
+        case .libraryRead: "functionalps://library/\(ShowcaseLibrary.readSlug)"
+        case .libraryWatch: "functionalps://library/watch"
         case .messages: "functionalps://messages"
         case .sentTrack: "functionalps://library/sent"
         case .personalTrack: "functionalps://library/track/\(ShowcaseData.personalTrackId)"

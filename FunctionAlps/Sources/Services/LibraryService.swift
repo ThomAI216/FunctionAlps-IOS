@@ -7,6 +7,7 @@ struct LibraryService: Sendable {
     private let backend: any FunctionAlpsBackend
     private let now: @Sendable () -> Date
     private let coverCache = TopicCoverCache()
+    private let catalogCache = CatalogCache()
 
     init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { Date() }) {
         self.backend = backend
@@ -36,11 +37,62 @@ struct LibraryService: Sendable {
         return map
     }
 
+    /// The Library home's whole read, once, under the member's own session: the list (`member_library_list`), which
+    /// of it the member has read (`member_lesson_progress`), and the track bundle the prescribed block uses (nil
+    /// when the track catalog is empty). Throws only when the catalog read itself fails — the screen then says so.
+    func catalog(patientId: String) async throws -> LibraryCatalog {
+        async let covers = topicCovers()
+        let current = await stage()
+        let raw = try await backend.libraryRaw(patientId: patientId)
+        let bundle = LibraryLogic.assemble(raw, stage: current, covers: await covers)
+        let articles = raw.list.map(LibraryArticle.init(row:))
+        await catalogCache.store(articles)
+        return LibraryCatalog(articles: articles, readSlugs: Set(raw.progress.map(\.contentSlug)), bundle: bundle)
+    }
+
+    /// The list the Library home read last, or a fresh read when the screen is reached without it (a link).
+    func articles(patientId: String) async -> [LibraryArticle]? {
+        if let cached = await catalogCache.articles { return cached }
+        return try? await catalog(patientId: patientId).articles
+    }
+
+    /// The slugs this member has read (opened a standalone read, marked one, or finished a lesson).
+    func readSlugs(patientId: String) async -> Set<String>? {
+        try? await backend.openedLibrarySlugs(patientId: patientId)
+    }
+
+    /// "Mark as read": the same row an open of a standalone read writes (`member_lesson_progress`, no track).
+    /// A read already recorded is not written twice. Returns false when the write failed.
+    func markRead(patientId: String, slug: String, alreadyRead: Bool) async -> Bool {
+        if alreadyRead { return true }
+        do {
+            try await backend.insertLessonProgress(patientId: patientId, trackId: nil, contentSlug: slug)
+            return true
+        } catch AppError.validation(let message) where message.contains("23505") || message.lowercased().contains("duplicate") {
+            return true
+        } catch {
+            Log.data.error("library.markRead: \(String(describing: error), privacy: .public)")
+            return false
+        }
+    }
+
     func reader(slug: String, patientId: String) async -> ReaderResult? {
         if slug.hasPrefix("demo-") { return LibraryDemo.reader(slug: slug) }
         let loaded = await bundle(patientId: patientId)
         let row = try? await backend.libraryItem(slug: slug)
-        return LibraryLogic.reader(slug: slug, bundle: loaded, row: row)
+        guard var result = LibraryLogic.reader(slug: slug, bundle: loaded, row: row) else { return nil }
+        // The list row carries what the reader's header needs (summary, day, reading time): the home read it already.
+        let cached = await catalogCache.articles?.first { $0.slug == slug }
+        let fromRow = row.map {
+            LibraryArticle(slug: slug, title: $0.title ?? LibraryLogic.title(fromSlug: slug), summary: $0.summary ?? "", tags: $0.tags ?? [], locked: $0.locked ?? false)
+        }
+        if var article = cached ?? fromRow {
+            if article.summary.isEmpty, let summary = row?.summary {
+                article = LibraryArticle(slug: article.slug, title: article.title, summary: summary, tags: article.tags, locked: article.locked)
+            }
+            result.article = article
+        }
+        return result
     }
 
     /// An item's title alone (Home's "Today's read" card); nil when the library has no such item.
@@ -78,4 +130,10 @@ struct LibraryService: Sendable {
 private actor TopicCoverCache {
     private(set) var map: [String: URL]?
     func store(_ value: [String: URL]) { map = value }
+}
+
+/// The last list the Library home read, so the reader can show a read's summary without another round trip.
+private actor CatalogCache {
+    private(set) var articles: [LibraryArticle]?
+    func store(_ value: [LibraryArticle]) { articles = value }
 }

@@ -5031,13 +5031,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every change is recorded with the date and the exact wording in force, so both of us can establish later what was agreed. Questions: data@functionalps.ch"
+            "value": "Every change is recorded with the date and the exact wording in force, so both of us can establish later what was agreed. Questions: thomas@functionalps.ch"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chaque modification est enregistrée avec sa date et le texte exact alors en vigueur, afin que chacun puisse établir ultérieurement ce qui a été convenu. Questions : data@functionalps.ch"
+            "value": "Chaque modification est enregistrée avec sa date et le texte exact alors en vigueur, afin que chacun puisse établir ultérieurement ce qui a été convenu. Questions : thomas@functionalps.ch"
           }
         }
       }
@@ -6135,13 +6135,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contact your FunctionAlps practitioner or email contact@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
+            "value": "Contact your FunctionAlps practitioner or email thomas@functionalps.ch. Your baseline (age, height, weight, activity) can be updated from your profile in the app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contactez votre praticienne FunctionAlps ou écrivez à contact@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
+            "value": "Contactez votre praticienne FunctionAlps ou écrivez à thomas@functionalps.ch. Votre point de départ (âge, taille, poids, activité) se modifie depuis votre profil dans l’application."
           }
         }
       }
@@ -8455,13 +8455,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We haven't kept the date you entered. If an account was created for someone under 18, write to data@functionalps.ch and we will delete it."
+            "value": "We haven't kept the date you entered. If an account was created for someone under 18, write to thomas@functionalps.ch and we will delete it."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nous n’avons pas conservé la date que vous avez saisie. Si un compte a été créé pour une personne de moins de 18 ans, écrivez à data@functionalps.ch et nous le supprimerons."
+            "value": "Nous n’avons pas conservé la date que vous avez saisie. Si un compte a été créé pour une personne de moins de 18 ans, écrivez à thomas@functionalps.ch et nous le supprimerons."
           }
         }
       }
@@ -8727,13 +8727,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to data@functionalps.ch."
+            "value": "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to thomas@functionalps.ch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette connexion n’est pas liée à votre dossier membre, rien n’a donc pu être enregistré. Déconnectez-vous et reconnectez-vous comme lors de votre première inscription, ou écrivez à data@functionalps.ch."
+            "value": "Cette connexion n’est pas liée à votre dossier membre, rien n’a donc pu être enregistré. Déconnectez-vous et reconnectez-vous comme lors de votre première inscription, ou écrivez à thomas@functionalps.ch."
           }
         }
       }
@@ -8743,13 +8743,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We couldn't save your choices just now. Please try again in a moment, or write to data@functionalps.ch."
+            "value": "We couldn't save your choices just now. Please try again in a moment, or write to thomas@functionalps.ch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nous n’avons pas pu enregistrer vos choix pour le moment. Réessayez dans un instant, ou écrivez à data@functionalps.ch."
+            "value": "Nous n’avons pas pu enregistrer vos choix pour le moment. Réessayez dans un instant, ou écrivez à thomas@functionalps.ch."
           }
         }
       }
@@ -8839,13 +8839,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to data@functionalps.ch and we'll sort it out."
+            "value": "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to thomas@functionalps.ch and we'll sort it out."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre compte existe mais n’est pas encore lié à un membre FunctionAlps. Réessayez dans un instant, ou écrivez à data@functionalps.ch et nous réglerons cela."
+            "value": "Votre compte existe mais n’est pas encore lié à un membre FunctionAlps. Réessayez dans un instant, ou écrivez à thomas@functionalps.ch et nous réglerons cela."
           }
         }
       }
@@ -8871,13 +8871,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You registered before with %@. Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to data@functionalps.ch."
+            "value": "You registered before with %@. Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to thomas@functionalps.ch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous vous êtes déjà inscrit·e avec %@. Déconnectez-vous, puis reconnectez-vous de cette façon : tout ce que vous avez enregistré vous y attend. En cas de blocage, écrivez à data@functionalps.ch."
+            "value": "Vous vous êtes déjà inscrit·e avec %@. Déconnectez-vous, puis reconnectez-vous de cette façon : tout ce que vous avez enregistré vous y attend. En cas de blocage, écrivez à thomas@functionalps.ch."
           }
         }
       }
@@ -11854,6 +11854,630 @@
           "stringUnit": {
             "state": "translated",
             "value": "La consistance des selles (échelle de Bristol, idéalement 3-4) et la régularité (environ 1 à 3 par jour). Ces deux éléments reflètent le temps de transit et la motilité intestinale, c’est-à-dire la fluidité du transit."
+          }
+        }
+      }
+    },
+    "habit.benefits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benefits to look for"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bénéfices à observer"
+          }
+        }
+      }
+    },
+    "habit.card.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No actions today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune action aujourd’hui"
+          }
+        }
+      }
+    },
+    "habit.card.emptyMessage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your next ones appear here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les prochaines apparaîtront ici."
+          }
+        }
+      }
+    },
+    "habit.card.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger vos actions"
+          }
+        }
+      }
+    },
+    "habit.card.more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld more once these are done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de plus quand celles-ci seront faites"
+          }
+        }
+      }
+    },
+    "habit.card.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos actions"
+          }
+        }
+      }
+    },
+    "habit.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait aujourd’hui"
+          }
+        }
+      }
+    },
+    "habit.done.undo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done today · tap to undo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait aujourd’hui · touchez pour annuler"
+          }
+        }
+      }
+    },
+    "habit.dot.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done on %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait le %@"
+          }
+        }
+      }
+    },
+    "habit.dot.missed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missed on %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manqué le %@"
+          }
+        }
+      }
+    },
+    "habit.dot.notYet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, not yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, pas encore"
+          }
+        }
+      }
+    },
+    "habit.dot.outside": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, not part of this habit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, hors de cette habitude"
+          }
+        }
+      }
+    },
+    "habit.dot.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today, %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd’hui, %@"
+          }
+        }
+      }
+    },
+    "habit.effects": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it affects you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment elle agit sur vous"
+          }
+        }
+      }
+    },
+    "habit.effects.soon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 10 days with the habit, your check-ins will show how it moves your mood, energy, sleep and focus."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après 10 jours avec l’habitude, vos check-ins montreront comment elle influence votre humeur, votre énergie, votre sommeil et votre concentration."
+          }
+        }
+      }
+    },
+    "habit.effects.tends": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It tends to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle tend à"
+          }
+        }
+      }
+    },
+    "habit.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your habit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre habitude"
+          }
+        }
+      }
+    },
+    "habit.how": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to do it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment faire"
+          }
+        }
+      }
+    },
+    "habit.moment.afternoon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afternoon"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après-midi"
+          }
+        }
+      }
+    },
+    "habit.moment.evening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soir"
+          }
+        }
+      }
+    },
+    "habit.moment.midday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midday"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midi"
+          }
+        }
+      }
+    },
+    "habit.moment.morning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matin"
+          }
+        }
+      }
+    },
+    "habit.move.down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tends to lower %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tend à diminuer : %@"
+          }
+        }
+      }
+    },
+    "habit.move.up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tends to raise %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tend à augmenter : %@"
+          }
+        }
+      }
+    },
+    "habit.page.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load this habit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger cette habitude"
+          }
+        }
+      }
+    },
+    "habit.page.missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This habit is not in your actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette habitude n’est pas dans vos actions"
+          }
+        }
+      }
+    },
+    "habit.page.missingMessage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It may belong to another day."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle appartient peut-être à un autre jour."
+          }
+        }
+      }
+    },
+    "habit.read.kicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Article"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Article"
+          }
+        }
+      }
+    },
+    "habit.row.a11y.close": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hides the description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masque la description"
+          }
+        }
+      }
+    },
+    "habit.row.a11y.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche la description"
+          }
+        }
+      }
+    },
+    "habit.row.see": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the habit ›"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir l’habitude ›"
+          }
+        }
+      }
+    },
+    "habit.segment.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld actions"
+          }
+        }
+      }
+    },
+    "habit.streak.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days in a row"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld jours d’affilée"
+          }
+        }
+      }
+    },
+    "habit.streak.here": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes ici"
+          }
+        }
+      }
+    },
+    "habit.streak.inARow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in a row"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "d’affilée"
+          }
+        }
+      }
+    },
+    "habit.unauthorized.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session ended. Sign in to see this habit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre session a pris fin. Connectez-vous pour voir cette habitude."
+          }
+        }
+      }
+    },
+    "habit.video.inApp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plays here, in the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se lit ici, dans l’application"
+          }
+        }
+      }
+    },
+    "habit.when.onwards": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day %lld onwards"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir du jour %lld"
+          }
+        }
+      }
+    },
+    "habit.when.range": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day %lld to %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du jour %lld au jour %lld"
           }
         }
       }
@@ -15975,13 +16599,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This document couldn't be loaded right now. Check your connection and try again, or write to data@functionalps.ch."
+            "value": "This document couldn't be loaded right now. Check your connection and try again, or write to thomas@functionalps.ch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce document n’a pas pu être chargé. Vérifiez votre connexion et réessayez, ou écrivez à data@functionalps.ch."
+            "value": "Ce document n’a pas pu être chargé. Vérifiez votre connexion et réessayez, ou écrivez à thomas@functionalps.ch."
           }
         }
       }
@@ -16258,6 +16882,54 @@
         }
       }
     },
+    "library.chip.forYou": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For you"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour vous"
+          }
+        }
+      }
+    },
+    "library.chip.track": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcours"
+          }
+        }
+      }
+    },
+    "library.chip.watch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regarder"
+          }
+        }
+      }
+    },
     "library.continue.cta": {
       "localizations": {
         "en": {
@@ -16306,6 +16978,166 @@
         }
       }
     },
+    "library.day.a11yToday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day %lld, today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour %lld, aujourd’hui"
+          }
+        }
+      }
+    },
+    "library.day.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens this day's reads"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre les lectures de ce jour"
+          }
+        }
+      }
+    },
+    "library.day.hintLocked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows when this day opens"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indique quand ce jour s’ouvre"
+          }
+        }
+      }
+    },
+    "library.day.n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour %lld"
+          }
+        }
+      }
+    },
+    "library.day.new": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau"
+          }
+        }
+      }
+    },
+    "library.day.opensOn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens on day %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’ouvre le jour %lld"
+          }
+        }
+      }
+    },
+    "library.day.partial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld lues"
+          }
+        }
+      }
+    },
+    "library.day.read": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lu"
+          }
+        }
+      }
+    },
+    "library.day.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aujourd’hui"
+          }
+        }
+      }
+    },
+    "library.day.unread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not read yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore lu"
+          }
+        }
+      }
+    },
     "library.done.saved": {
       "localizations": {
         "en": {
@@ -16318,6 +17150,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bravo · progression enregistrée"
+          }
+        }
+      }
+    },
+    "library.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New reads appear here as they are published."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les nouvelles lectures apparaissent ici dès leur publication."
+          }
+        }
+      }
+    },
+    "library.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien ici pour le moment"
+          }
+        }
+      }
+    },
+    "library.error.generic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une erreur s’est produite."
+          }
+        }
+      }
+    },
+    "library.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load the library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger la bibliothèque"
+          }
+        }
+      }
+    },
+    "library.habits.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tied to what you do now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "liées à ce que vous faites en ce moment"
+          }
+        }
+      }
+    },
+    "library.habits.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For your habits"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour vos habitudes"
           }
         }
       }
@@ -16482,6 +17410,38 @@
         }
       }
     },
+    "library.markRead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marquer comme lu"
+          }
+        }
+      }
+    },
+    "library.minutes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
     "library.noun.resources": {
       "localizations": {
         "en": {
@@ -16610,6 +17570,134 @@
         }
       }
     },
+    "library.practice.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Add"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+ Ajouter"
+          }
+        }
+      }
+    },
+    "library.practice.addA11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add %@ to your actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter %@ à vos actions"
+          }
+        }
+      }
+    },
+    "library.practice.addFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't add it. Try again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de l’ajouter. Réessayez."
+          }
+        }
+      }
+    },
+    "library.practice.inActions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in your actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dans vos actions"
+          }
+        }
+      }
+    },
+    "library.practice.notInActions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not in your actions yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pas encore dans vos actions"
+          }
+        }
+      }
+    },
+    "library.practice.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        }
+      }
+    },
+    "library.practice.openA11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir %@"
+          }
+        }
+      }
+    },
+    "library.practice.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettez-le en pratique"
+          }
+        }
+      }
+    },
     "library.priority.note": {
       "localizations": {
         "en": {
@@ -16638,6 +17726,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prioritaire pour vous"
+          }
+        }
+      }
+    },
+    "library.read.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lu"
           }
         }
       }
@@ -16738,6 +17842,38 @@
         }
       }
     },
+    "library.readNext.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read next"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À lire ensuite"
+          }
+        }
+      }
+    },
+    "library.readTime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min de lecture"
+          }
+        }
+      }
+    },
     "library.resume": {
       "localizations": {
         "en": {
@@ -16798,6 +17934,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aperçu d’exemple"
+          }
+        }
+      }
+    },
+    "library.search.articles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Articles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Articles"
+          }
+        }
+      }
+    },
+    "library.search.clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear the search"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer la recherche"
+          }
+        }
+      }
+    },
+    "library.search.habits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habits"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Habitudes"
+          }
+        }
+      }
+    },
+    "library.search.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the library"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher dans la bibliothèque"
+          }
+        }
+      }
+    },
+    "library.search.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun résultat"
+          }
+        }
+      }
+    },
+    "library.search.noneMessage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try another word."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayez un autre mot."
+          }
+        }
+      }
+    },
+    "library.search.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher"
+          }
+        }
+      }
+    },
+    "library.search.topics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thèmes"
+          }
+        }
+      }
+    },
+    "library.search.videos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidéos"
           }
         }
       }
@@ -16962,6 +18242,86 @@
         }
       }
     },
+    "library.soft.body.later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This one opens on day %lld, in %lld days. One day at a time: each read lands on the day it belongs to."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celle-ci s’ouvre le jour %lld, dans %lld jours. Un jour à la fois : chaque lecture arrive le jour qui lui correspond."
+          }
+        }
+      }
+    },
+    "library.soft.body.plain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This one opens on day %lld. One day at a time: each read lands on the day it belongs to."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celle-ci s’ouvre le jour %lld. Un jour à la fois : chaque lecture arrive le jour qui lui correspond."
+          }
+        }
+      }
+    },
+    "library.soft.body.tomorrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This one opens on day %lld, tomorrow. One day at a time: each read lands on the day it belongs to."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Celle-ci s’ouvre le jour %lld, demain. Un jour à la fois : chaque lecture arrive le jour qui lui correspond."
+          }
+        }
+      }
+    },
+    "library.soft.ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "library.soft.ok.tomorrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK, tomorrow"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK, à demain"
+          }
+        }
+      }
+    },
     "library.soon": {
       "localizations": {
         "en": {
@@ -16994,6 +18354,22 @@
         }
       }
     },
+    "library.tagline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn at your pace"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apprenez à votre rythme"
+          }
+        }
+      }
+    },
     "library.title": {
       "localizations": {
         "en": {
@@ -17006,6 +18382,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bibliothèque"
+          }
+        }
+      }
+    },
+    "library.topic.energy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Energy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Énergie"
+          }
+        }
+      }
+    },
+    "library.topic.gut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intestin"
+          }
+        }
+      }
+    },
+    "library.topic.hormones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hormones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hormones"
+          }
+        }
+      }
+    },
+    "library.topic.inflammation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inflammation"
+          }
+        }
+      }
+    },
+    "library.topic.mind": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mind"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esprit"
+          }
+        }
+      }
+    },
+    "library.topic.movement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouvement"
+          }
+        }
+      }
+    },
+    "library.topic.nutrition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition"
+          }
+        }
+      }
+    },
+    "library.topic.sleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommeil"
           }
         }
       }
@@ -17026,6 +18530,54 @@
         }
       }
     },
+    "library.track.eyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundation Track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundation Track"
+          }
+        }
+      }
+    },
+    "library.track.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld lues"
+          }
+        }
+      }
+    },
+    "library.track.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Foundation Track"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre Foundation Track"
+          }
+        }
+      }
+    },
     "library.track.unavailable": {
       "localizations": {
         "en": {
@@ -17042,6 +18594,38 @@
         }
       }
     },
+    "library.unauthorized.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session ended. Sign in to see your library."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre session a pris fin. Connectez-vous pour voir votre bibliothèque."
+          }
+        }
+      }
+    },
+    "library.unauthorized.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please sign in again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnectez-vous"
+          }
+        }
+      }
+    },
     "library.veil": {
       "localizations": {
         "en": {
@@ -17054,6 +18638,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Votre praticien débloque cette section dans le cadre de votre programme"
+          }
+        }
+      }
+    },
+    "library.video.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidéo"
+          }
+        }
+      }
+    },
+    "library.video.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plays in the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se lit dans l’application"
+          }
+        }
+      }
+    },
+    "library.video.own": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FunctionAlps"
+          }
+        }
+      }
+    },
+    "library.video.untitled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidéo"
+          }
+        }
+      }
+    },
+    "library.video.youtube": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        }
+      }
+    },
+    "library.watch.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plays in the app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "se lit dans l’application"
+          }
+        }
+      }
+    },
+    "library.watch.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regarder"
           }
         }
       }
@@ -35271,13 +36967,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account deletion will be available in the app soon. Until then, use Privacy & Data in the FunctionAlps app or write to data@functionalps.ch."
+            "value": "Account deletion will be available in the app soon. Until then, use Privacy & Data in the FunctionAlps app or write to thomas@functionalps.ch."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La suppression du compte arrivera bientôt dans l'app. En attendant, utilisez Confidentialité & données dans l'app FunctionAlps ou écrivez à data@functionalps.ch."
+            "value": "La suppression du compte arrivera bientôt dans l'app. En attendant, utilisez Confidentialité & données dans l'app FunctionAlps ou écrivez à thomas@functionalps.ch."
           }
         }
       }

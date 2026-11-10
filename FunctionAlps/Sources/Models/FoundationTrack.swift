@@ -51,6 +51,8 @@ enum TrackMoment: String, Sendable, Equatable, Hashable, CaseIterable {
 struct TrackAction: Sendable, Equatable, Identifiable {
     let key: String
     let moment: TrackMoment
+    /// `track_day.actions[].moment_v2` — `morning` · `midday` · `afternoon` · `evening`; nil on a row that predates it.
+    var momentV2: String?
     /// The `habit_bank` card behind it, when there is one (its title, versions and how-to).
     var habitBankId: String?
     /// `easy` · `standard` · `further` — which version of the card's title the day shows.
@@ -63,6 +65,8 @@ struct TrackAction: Sendable, Equatable, Identifiable {
     /// One line of how-to, shown under a new action on the day card.
     var howEn: String?
     var howFr: String?
+    /// The library reads tied to this action (slugs), for the Library's "For your habits".
+    var reads: [String] = []
 
     var id: String { key }
 }

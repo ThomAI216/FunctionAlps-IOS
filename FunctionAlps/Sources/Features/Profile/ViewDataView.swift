@@ -130,7 +130,7 @@ struct LegalDocumentView: View {
                     ProgressView().tint(FAColor.forestSoft).frame(maxWidth: .infinity).padding(.top, 60)
                 } else {
                     ReadingSurface {
-                        Text(String(localized: "legal.unavailable", defaultValue: "This document couldn't be loaded right now. Check your connection and try again, or write to data@functionalps.ch."))
+                        Text(String(localized: "legal.unavailable", defaultValue: "This document couldn't be loaded right now. Check your connection and try again, or write to thomas@functionalps.ch."))
                             .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(5)
                     }
                 }
