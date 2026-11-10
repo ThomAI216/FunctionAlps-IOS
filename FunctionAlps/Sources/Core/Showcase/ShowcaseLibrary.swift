@@ -59,7 +59,7 @@ enum ShowcaseLibrary {
       "resources":[{"kind":"article","slug":"caffeine-and-your-sleep","title":"Caffeine and your sleep"}]},
      {"id":"lib-breathing","pillar":"mind","card_kind":"breath","duration_min":5,"title":"5 minutes of breathing","default_slot":"midday","member_can_add":true,
       "resources":[{"kind":"article","slug":"breathe-the-time-you-give-yourself","title":"Breathe: the time you give yourself"},
-                   {"kind":"video","url":"https://www.youtube.com/watch?v=tybOi4hjZFQ","title":"Guided breathing, with Wim Hof","source":"youtube"}]},
+                   {"kind":"video","url":"https://www.youtube.com/watch?v=nzCaZQqAs9I","title":"Guided breathing, with Wim Hof","source":"youtube"}]},
      {"id":"lib-flow","pillar":"exercise","card_kind":"movement","duration_min":5,"title":"The 5-minute morning flow","default_slot":"morning","member_can_add":true,
       "resources":[{"kind":"video","url":"https://media.functionalps.ch/videos/morning-flow.mp4","title":"The 5-minute morning flow","source":"own"}]},
      {"id":"lib-321","pillar":"sleep","card_kind":"routine","title":"The 3-2-1 rule","default_slot":"evening","member_can_add":true,
@@ -68,7 +68,7 @@ enum ShowcaseLibrary {
       "resources":[{"kind":"article","slug":"your-evening-routine","title":"Your evening routine"}]},
      {"id":"lib-winddown","pillar":"sleep","card_kind":"breath","duration_min":10,"title":"10 minutes to wind down","default_slot":"evening","member_can_add":true,
       "resources":[{"kind":"article","slug":"nsdr-explained","title":"NSDR, explained"},
-                   {"kind":"video","url":"https://www.youtube.com/watch?v=nsdr0000000","title":"10-minute NSDR","source":"youtube"}]},
+                   {"kind":"video","url":"https://www.youtube.com/watch?v=KHIbgSN2qAU","title":"10-minute NSDR","source":"youtube"}]},
      {"id":"lib-nodevices","pillar":"sleep","card_kind":"routine","title":"No screens in your last hour","default_slot":"evening","member_can_add":true,
       "resources":[{"kind":"article","slug":"light-sets-your-body-clock","title":"Light sets your body clock"}]}
     ]
@@ -111,7 +111,7 @@ enum ShowcaseLibrary {
     // MARK: The video of the "library-watch" scene
 
     static var video: LibraryVideo {
-        LibraryVideo(url: URL(string: "https://www.youtube.com/watch?v=tybOi4hjZFQ")!, title: "Guided breathing, with Wim Hof", cardId: "lib-breathing")
+        LibraryVideo(url: URL(string: "https://www.youtube.com/watch?v=nzCaZQqAs9I")!, title: "Guided breathing, with Wim Hof", cardId: "lib-breathing")
     }
 }
 #endif
