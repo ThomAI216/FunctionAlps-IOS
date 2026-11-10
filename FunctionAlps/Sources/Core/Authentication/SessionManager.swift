@@ -44,7 +44,6 @@ actor SessionManager {
         return outcome
     }
 
-    func emailExists(_ email: String) async -> Bool? { await auth.emailExists(email) }
     func requestPasswordReset(email: String) async { await auth.recover(email: email) }
 
     func signIn(authCode: String, codeVerifier: String) async throws -> AuthSession {

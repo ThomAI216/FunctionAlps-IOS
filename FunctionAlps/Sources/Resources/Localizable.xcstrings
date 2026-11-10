@@ -18306,6 +18306,22 @@
         }
       }
     },
+    "login.noAccount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New here? Create your account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau ? Créez votre compte"
+          }
+        }
+      }
+    },
     "login.or": {
       "localizations": {
         "en": {

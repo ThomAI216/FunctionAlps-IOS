@@ -2,8 +2,11 @@ import AuthenticationServices
 import Foundation
 import Observation
 
-/// The Expo `(auth)/login` flow: Google / Apple OR email → exists? → sign in | create account, with
-/// forgot-password and the "check your inbox" states. Sign-up's consent tick gates account creation
+/// The Expo `(auth)/login` flow: Google / Apple OR email → password sign-in (with a "create your
+/// account" link) | create account, with forgot-password and the "check your inbox" states.
+/// The email step does not ask the backend whether the address exists: `email_exists` is closed to
+/// the publishable key (CLINICAL migration 276, 2026-11-03 — it told anyone who is a client), and
+/// routing on its refusal sent every returning member to sign-up. Sign-up's consent tick gates account creation
 /// only; the legal record is the consent gate on first authenticated launch (D-21).
 @MainActor
 @Observable
@@ -70,8 +73,9 @@ final class LoginViewModel {
 
     var canContinue: Bool { !isSubmitting && OnboardingLogic.isEmailShaped(email) }
 
-    /// exists → sign in; unknown or absent → create account (the "Already a member?" link keeps existing users one tap away).
-    func continueWithEmail() async {
+    /// Always → sign in, with the password from the app, the members site or the dashboard invite (one
+    /// Supabase account). A newcomer takes the "Create your account" link on that step.
+    func continueWithEmail() {
         let value = email.trimmingCharacters(in: .whitespaces)
         guard OnboardingLogic.isEmailShaped(value) else {
             errorMessage = String(localized: "login.invalidEmail", defaultValue: "Invalid email address.")
@@ -79,11 +83,8 @@ final class LoginViewModel {
         }
         errorMessage = nil
         errorDetail = nil
-        isSubmitting = true
-        let exists = await auth.emailExists(value)
-        isSubmitting = false
         capturedEmail = value
-        flow = exists == true ? .login : .signup
+        flow = .login
     }
 
     func backToEmail() {

@@ -150,10 +150,11 @@ Deno.serve(async (req: Request) => {
   let claimed = false
   let patientId: string | null = null
   let storedPhotos: string[] = []
+  let loggedAt: string | null = null
   if (db && mealLogId) {
     const { data: row } = await db
       .from("nb_meal_logs")
-      .select("analysis_attempts, patient_id, photo_url, photo_urls")
+      .select("analysis_attempts, patient_id, photo_url, photo_urls, logged_at")
       .eq("id", mealLogId)
       .maybeSingle()
     const prior = (row?.analysis_attempts as number | null) ?? 0
@@ -162,6 +163,7 @@ Deno.serve(async (req: Request) => {
     // stub of a retry budget for its second.
     attempts = reanalyze ? 1 : prior + 1
     patientId = (row?.patient_id as string | null) ?? null
+    loggedAt = (row?.logged_at as string | null) ?? null
     storedPhotos = photoPathsFor({
       photo_url: row?.photo_url as string | null,
       photo_urls: row?.photo_urls as string[] | null,
@@ -215,7 +217,7 @@ Deno.serve(async (req: Request) => {
   // ── 6. IDENTIFICATION FAILED ──────────────────────────────────────────────
   if (!ident.ok) {
     if (db && mealLogId && claimed) {
-      await writeMealPatch(db, mealLogId, failurePatch(ident, attempts), "analyze-meal:failure", {
+      await writeMealPatch(db, mealLogId, failurePatch(ident, attempts, new Date(), loggedAt), "analyze-meal:failure", {
         onlyIfInFlight: true,
       })
     }
