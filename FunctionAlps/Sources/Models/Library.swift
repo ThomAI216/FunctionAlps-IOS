@@ -111,6 +111,56 @@ struct ReaderResult: Sendable, Equatable {
     let supplement: Bool
     let track: TrackRef?
     let pair: Pair?
+    /// Set only for a resource card (`structured.card` on the row); nil for every other article.
+    var card: ReaderCard? = nil
+}
+
+/// A resource card's own fields, from `member_library_get` (`structured.card` plus the row's
+/// `kicker` / `summary`). Every field is optional or defaulted and fails soft, so a malformed card
+/// never breaks the read: the worst case is a thinner card. All wording comes from the backend.
+struct ReaderCard: Sendable, Equatable, Decodable {
+    struct Source: Sendable, Equatable {
+        let title: String
+        let url: String?
+    }
+    struct Asset: Sendable, Equatable {
+        let url: String?
+        let altText: String?
+    }
+
+    /// `short_answer`, `action_card`, `practical_guide`, `tracker`, `experiment`, `recipe`, `food_list`, `visual`.
+    var format: String? = nil
+    var pillars: [String] = []
+    var sources: [Source] = []
+    var safety: String? = nil
+    var assets: [Asset] = []
+    /// From the row, not from `structured.card`.
+    var kicker: String? = nil
+    var summary: String? = nil
+
+    private enum CodingKeys: String, CodingKey { case format, pillars, sources, safety, assets }
+    private struct SourceDTO: Decodable { let title: String?; let url: String? }
+    private struct AssetDTO: Decodable { let url: String?; let altText: String? }
+
+    init(format: String? = nil, pillars: [String] = [], sources: [Source] = [], safety: String? = nil,
+         assets: [Asset] = [], kicker: String? = nil, summary: String? = nil) {
+        self.format = format; self.pillars = pillars; self.sources = sources; self.safety = safety
+        self.assets = assets; self.kicker = kicker; self.summary = summary
+    }
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        format = try? c.decodeIfPresent(String.self, forKey: .format)
+        pillars = (try? c.decodeIfPresent([String].self, forKey: .pillars)) ?? []
+        safety = try? c.decodeIfPresent(String.self, forKey: .safety)
+        let rawSources = (try? c.decodeIfPresent([SourceDTO].self, forKey: .sources)) ?? []
+        sources = rawSources.compactMap { dto in
+            guard let title = dto.title ?? dto.url, !title.isEmpty else { return nil }
+            return Source(title: title, url: dto.url)
+        }
+        let rawAssets = (try? c.decodeIfPresent([AssetDTO].self, forKey: .assets)) ?? []
+        assets = rawAssets.map { Asset(url: $0.url, altText: $0.altText) }
+    }
 }
 
 // MARK: - Raw rows (what CM OS returns; assembled by `LibraryLogic.assemble`)
@@ -189,6 +239,37 @@ struct LibraryGetRow: Sendable, Equatable, Decodable {
     let tags: [String]?
     let bodyMd: String?
     let locked: Bool?
+    /// `resource_card` for a card; nil for an ordinary article.
+    var template: String? = nil
+    /// Non-nil only when `structured.card` is present (with the row's kicker and summary folded in).
+    var card: ReaderCard? = nil
+
+    private enum CodingKeys: String, CodingKey { case title, tags, bodyMd, locked, template, kicker, summary, structured }
+    private struct Structured: Decodable { let card: ReaderCard? }
+
+    init(title: String?, tags: [String]?, bodyMd: String?, locked: Bool?, template: String? = nil, card: ReaderCard? = nil) {
+        self.title = title; self.tags = tags; self.bodyMd = bodyMd; self.locked = locked
+        self.template = template; self.card = card
+    }
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        title = try? c.decodeIfPresent(String.self, forKey: .title)
+        tags = try? c.decodeIfPresent([String].self, forKey: .tags)
+        bodyMd = try? c.decodeIfPresent(String.self, forKey: .bodyMd)
+        locked = try? c.decodeIfPresent(Bool.self, forKey: .locked)
+        template = try? c.decodeIfPresent(String.self, forKey: .template)
+        let kicker = try? c.decodeIfPresent(String.self, forKey: .kicker)
+        let summary = try? c.decodeIfPresent(String.self, forKey: .summary)
+        let structured = try? c.decodeIfPresent(Structured.self, forKey: .structured)
+        if var decoded = structured?.card {
+            decoded.kicker = kicker
+            decoded.summary = summary
+            card = decoded
+        } else {
+            card = nil
+        }
+    }
 }
 
 /// Everything the library needs, read in one go under the member's own session. Each

@@ -108,6 +108,9 @@ struct ReaderView: View {
         if isDemo {
             Text(String(localized: "library.samplePreview", defaultValue: "Sample preview")).font(FATypography.sans(10.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.stone).padding(.bottom, 8)
         }
+        if let card = item.card, !item.locked, item.bodyMd != nil {
+            ResourceCardReader(title: item.title, bodyMd: item.bodyMd ?? "", card: card)
+        } else {
         Text(item.pillar.uppercased()).font(FATypography.sans(9, .bold, relativeTo: .caption2)).tracking(1.4).foregroundStyle(FALibraryColor.gold).padding(.bottom, 6)
         Text(item.title).font(FATypography.display(24, relativeTo: .title)).foregroundStyle(FAColor.charcoal).padding(.bottom, 10)
 
@@ -124,6 +127,7 @@ struct ReaderView: View {
             ForEach(Array(LibraryMarkdown.parse(md).enumerated()), id: \.offset) { _, block in
                 MarkdownBlockView(block: block)
             }
+        }
         }
 
         if let pair = item.pair {

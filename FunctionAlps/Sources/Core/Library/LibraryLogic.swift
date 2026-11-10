@@ -329,7 +329,8 @@ enum LibraryLogic {
             lockReason: lockReason(locked: locked, stage: bundle?.stage),
             supplement: isSupplement(tags: tags),
             track: nil,
-            pair: pair
+            pair: pair,
+            card: row.card
         )
     }
 
