@@ -117,6 +117,8 @@ struct TrackDayWire: Decodable, Sendable {
         a.titleFr = o["title_fr"]?.stringValue
         a.howEn = o["how_en"]?.stringValue
         a.howFr = o["how_fr"]?.stringValue
+        // The library reads tied to this action (slugs of `member_library_list` rows), in the practice's order.
+        if case .array(let slugs)? = o["reads"] { a.reads = slugs.compactMap { $0.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty } }
         if case .bool(let b)? = o["new"] { a.isNew = b }
         return a
     }

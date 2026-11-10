@@ -14,6 +14,9 @@ struct ReaderView: View {
     @State private var marking = false
     @State private var done = false
     @State private var patientId: String?
+    /// The library list and what the member has read — for "Read next" and the day lock of a Foundation Track read.
+    @State private var articles: [LibraryArticle] = []
+    @State private var readSlugs: Set<String> = []
 
     private static let ink = Color(hex: 0x33332C)
 
@@ -33,11 +36,14 @@ struct ReaderView: View {
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 16)
-                .padding(.bottom, isLesson ? 110 : 40)
+                .padding(.bottom, isLesson || marksRead ? 110 : 40)
             }
         }
         .background(FAColor.warm.ignoresSafeArea())
-        .overlay(alignment: .bottom) { if isLesson, let item, !item.locked { markDoneBar(item) } }
+        .overlay(alignment: .bottom) {
+            if isLesson, let item, !item.locked { markDoneBar(item) }
+            else if marksRead, let item { markReadBar(item) }
+        }
         // The standard iOS navigation bar and its back button (owner, 2026-10-12: the small custom back control was poor):
         // a 44 pt target that stays put while the page scrolls, VoiceOver and Dynamic Type for free, native swipe back.
         // On the reader's warm paper; the context strip (track · lesson n of N · progress) sits under it.
@@ -49,6 +55,19 @@ struct ReaderView: View {
 
     private var isLesson: Bool { item?.track != nil }
 
+    // MARK: A Foundation Track read (Thomas, 2026-11-10): eyebrow, summary, Practice it, Read next, Mark as read
+
+    private var foundationArticle: LibraryArticle? {
+        guard let item, item.kind == .resource, let article = item.article, article.isFoundationTrack else { return nil }
+        return article
+    }
+
+    private var today: Int? { FoundationLibraryLogic.currentDay(dependencies.track.status) }
+    /// The day this read opens on while it is still to come for the member; nil when it is open.
+    private var opensOn: Int? { foundationArticle.flatMap { FoundationLibraryLogic.opensOn($0, today: today) } }
+    /// The mark-as-read bar: a Foundation Track read that is open and has its body.
+    private var marksRead: Bool { foundationArticle != nil && opensOn == nil && item?.locked == false && item?.bodyMd != nil }
+
     private func load() async {
         defer { loaded = true }
         if slug.hasPrefix("demo-") { item = LibraryDemo.reader(slug: slug); isDemo = true; return }
@@ -57,8 +76,26 @@ struct ReaderView: View {
         }
         patientId = member.patientId
         item = await dependencies.library.reader(slug: slug, patientId: member.patientId)
-        if let item, item.kind == .resource, !item.locked {
+        if let article = item?.article, article.isFoundationTrack {
+            // A Foundation Track read counts as read when the member says so ("Mark as read"), not by opening it.
+            articles = await dependencies.library.articles(patientId: member.patientId) ?? []
+            readSlugs = await dependencies.library.readSlugs(patientId: member.patientId) ?? []
+            done = readSlugs.contains(slug)
+        } else if let item, item.kind == .resource, !item.locked {
             await dependencies.library.recordResourceOpen(patientId: member.patientId, slug: slug)
+        }
+    }
+
+    /// "Mark as read": the read is recorded once; the day's own read also ticks the track's read for the day.
+    private func markRead() async {
+        guard let article = foundationArticle, let patientId, !isDemo, !marking, !done else { return }
+        marking = true
+        defer { marking = false }
+        guard await dependencies.library.markRead(patientId: patientId, slug: slug, alreadyRead: readSlugs.contains(slug)) else { return }
+        done = true
+        readSlugs.insert(slug)
+        if let day = article.day, day == today, dependencies.track.today?.readSlug == slug {
+            await dependencies.track.readOpened(day: day)
         }
     }
 
@@ -97,6 +134,7 @@ struct ReaderView: View {
 
     private var contextLine: String {
         if let track = item?.track { return String(localized: "library.read.position", defaultValue: "\(track.title) · lesson \(track.index + 1) of \(track.total)") }
+        if foundationArticle != nil { return String(localized: "library.title", defaultValue: "Library") }
         if item?.kind == .resource { return item?.supplement == true ? String(localized: "library.section.supplements", defaultValue: "Supplements") : String(localized: "library.badge.resource", defaultValue: "Resource") }
         return String(localized: "library.title", defaultValue: "Library")
     }
@@ -108,10 +146,25 @@ struct ReaderView: View {
         if isDemo {
             Text(String(localized: "library.samplePreview", defaultValue: "Sample preview")).font(FATypography.sans(10.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.stone).padding(.bottom, 8)
         }
-        Text(item.pillar.uppercased()).font(FATypography.sans(9, .bold, relativeTo: .caption2)).tracking(1.4).foregroundStyle(FALibraryColor.gold).padding(.bottom, 6)
+        Text(eyebrow(item).uppercased()).font(FATypography.sans(9, .bold, relativeTo: .caption2)).tracking(1.4).foregroundStyle(FALibraryColor.gold).padding(.bottom, 6)
         Text(item.title).font(FATypography.display(24, relativeTo: .title)).foregroundStyle(FAColor.charcoal).padding(.bottom, 10)
+            .accessibilityAddTraits(.isHeader)
+        if foundationArticle != nil, let summary = item.article?.summary, !summary.isEmpty, opensOn == nil {
+            Text(summary).font(FATypography.sans(14, relativeTo: .body)).italic().foregroundStyle(Color(hex: 0x4A4A42)).lineSpacing(4).padding(.bottom, 12)
+        }
 
-        if item.locked || item.bodyMd == nil {
+        if let opensOn {
+            // Never openable before its day (a link, a search result): the page only says when it opens.
+            VStack(spacing: 8) {
+                Image(systemName: "lock").font(.system(size: 16, weight: .medium)).foregroundStyle(FALibraryColor.gold).accessibilityHidden(true)
+                Text(LibraryDayCopy.status(.locked(opensOnDay: opensOn))).font(FATypography.sans(13.5, .bold, relativeTo: .body)).foregroundStyle(FAColor.charcoal)
+                Text(LibrarySoftLockCopy.body(day: opensOn, today: today)).font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.stone).multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity).padding(20)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: FACornerRadius.md, style: .continuous))
+            .overlay { RoundedRectangle(cornerRadius: FACornerRadius.md, style: .continuous).strokeBorder(Color(hex: 0x1A1A16, opacity: 0.08), lineWidth: 1) }
+            .padding(.top, 8)
+        } else if item.locked || item.bodyMd == nil {
             VStack(spacing: 8) {
                 Image(systemName: "lock").font(.system(size: 16, weight: .medium)).foregroundStyle(FALibraryColor.gold)
                 Text(lockCopy(item)).font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.stone).multilineTextAlignment(.center)
@@ -123,6 +176,21 @@ struct ReaderView: View {
         } else if let md = item.bodyMd {
             ForEach(Array(LibraryMarkdown.parse(md).enumerated()), id: \.offset) { _, block in
                 MarkdownBlockView(block: block)
+            }
+        }
+
+        if marksRead, let article = foundationArticle {
+            LibraryPracticeSection(source: .article(slug: article.slug)).padding(.top, 20)
+            let next = FoundationLibraryLogic.readNext(after: article, articles: articles, today: today, readSlugs: readSlugs)
+            if !next.isEmpty {
+                VStack(alignment: .leading, spacing: 0) {
+                    LibrarySectionHead(title: String(localized: "library.readNext.title", defaultValue: "Read next"))
+                    LibraryReadGrid(items: next) { read in
+                        LibraryReadCard(kicker: [read.topic, read.minutes.map { String(localized: "library.minutes", defaultValue: "\($0) min") }].compactMap { $0 }.joined(separator: " · "),
+                                        title: read.title) { router.push(.read(read.slug)) }
+                    }
+                }
+                .padding(.top, 22)
             }
         }
 
@@ -143,6 +211,17 @@ struct ReaderView: View {
             }
             .padding(.top, 22)
         }
+    }
+
+    /// "Sleep · 4 min · Foundation Track · Day 4" for a Foundation Track read; the pillar alone for the rest.
+    private func eyebrow(_ item: ReaderResult) -> String {
+        guard let article = foundationArticle else { return item.pillar }
+        var parts: [String] = []
+        if let topic = article.topic { parts.append(topic) }
+        if let minutes = article.minutes { parts.append(String(localized: "library.minutes", defaultValue: "\(minutes) min")) }
+        parts.append(String(localized: "library.track.eyebrow", defaultValue: "Foundation Track"))
+        if let day = article.day { parts.append(String(localized: "library.day.n", defaultValue: "Day \(day)")) }
+        return parts.joined(separator: " · ")
     }
 
     private func lockCopy(_ item: ReaderResult) -> String {
@@ -174,6 +253,37 @@ struct ReaderView: View {
             .disabled(marking || done)
         }
         .padding(.leading, 16).padding(.trailing, 8).padding(.vertical, 8)
+        .background(Color.white.opacity(0.9), in: Capsule())
+        .overlay { Capsule().strokeBorder(Color(hex: 0x1A1A16, opacity: 0.08), lineWidth: 1) }
+        .padding(.horizontal, 14).padding(.bottom, 14)
+    }
+}
+
+extension ReaderView {
+    /// "Mark as read" at the foot of a Foundation Track read: the same bar as a lesson's, with this read's words.
+    fileprivate func markReadBar(_ item: ReaderResult) -> some View {
+        HStack(spacing: 10) {
+            Text(done ? String(localized: "library.done.saved", defaultValue: "Nice · progress saved")
+                 : (item.article?.minutes).map { String(localized: "library.readTime", defaultValue: "\($0) min read") } ?? "")
+                .font(FATypography.sans(10.5, relativeTo: .caption)).foregroundStyle(FAColor.stone).lineLimit(1)
+            Spacer()
+            Button { Task { await markRead() } } label: {
+                HStack(spacing: 6) {
+                    if done { Image(systemName: "checkmark").font(.system(size: 11, weight: .bold)).accessibilityHidden(true) }
+                    Text(done ? String(localized: "library.read.done", defaultValue: "Read")
+                         : marking ? String(localized: "state.saving", defaultValue: "Saving…") : String(localized: "library.markRead", defaultValue: "Mark as read"))
+                        .font(FATypography.sans(11.5, .bold, relativeTo: .caption))
+                }
+                .foregroundStyle(FAColor.cream)
+                .padding(.horizontal, 16).padding(.vertical, 9)
+                .frame(minHeight: 44)
+                .background(done ? FAColor.forestSoft : FAColor.forest, in: Capsule())
+                .opacity(marking ? 0.7 : 1)
+            }
+            .buttonStyle(.plain)
+            .disabled(marking || done)
+        }
+        .padding(.leading, 16).padding(.trailing, 8).padding(.vertical, 4)
         .background(Color.white.opacity(0.9), in: Capsule())
         .overlay { Capsule().strokeBorder(Color(hex: 0x1A1A16, opacity: 0.08), lineWidth: 1) }
         .padding(.horizontal, 14).padding(.bottom, 14)

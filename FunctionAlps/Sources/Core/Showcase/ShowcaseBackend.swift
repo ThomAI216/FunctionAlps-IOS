@@ -32,8 +32,11 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func dailyCheckins(patientId: String, since: String) async throws -> [DailyCheckin] { ShowcaseData.dailyCheckins(includeToday: eveningDone).filter { $0.day >= since } }
     func memberScores(tzOffsetMinutes: Int) async throws -> MemberScores { guard let s = ShowcaseData.scores() else { throw AppError.notFound }; return s }
     func libraryStage() async throws -> RelationshipStage { .active }
-    func libraryRaw(patientId: String) async throws -> LibraryRaw { ShowcaseData.libraryRaw() }
-    func libraryItem(slug: String) async throws -> LibraryGetRow? { ShowcaseTrack.read(slug: slug) ?? ShowcaseData.libraryItem(slug: slug) }
+    func libraryRaw(patientId: String) async throws -> LibraryRaw { ShowcaseLibrary.isOn ? ShowcaseLibrary.raw() : ShowcaseData.libraryRaw() }
+    func libraryItem(slug: String) async throws -> LibraryGetRow? {
+        if ShowcaseLibrary.isOn { return ShowcaseLibrary.item(slug: slug) }
+        return ShowcaseTrack.read(slug: slug) ?? ShowcaseData.libraryItem(slug: slug)
+    }
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { ShowcaseData.covers }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
     func showLibrary() async throws -> ShowLibrary { ShowcaseData.showLibrary() }
@@ -78,7 +81,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func careTeam() async throws -> [CareMember] { ShowcaseData.careTeam() }
     func messageResources() async throws -> [MessageResource] { ShowcaseData.messageResources() }
     func personalTracks() async throws -> [PersonalTrack] { ShowcaseData.personalTracks() }
-    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { ["showcase-post-meal-walking"] }
+    func openedLibrarySlugs(patientId: String) async throws -> Set<String> { ShowcaseLibrary.isOn ? ShowcaseLibrary.readSlugs : ["showcase-post-meal-walking"] }
     func markMessageResourceOpened(id: String) async throws -> Bool { false }
     func markMessagesRead() async throws {}
     func sendFeedback(message: String, appVersion: String) async throws {}
@@ -104,7 +107,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}
-    func ladderCards() async throws -> [ActionCardRow] { Array(ShowcaseData.cards.values) }
+    func ladderCards() async throws -> [ActionCardRow] { ShowcaseLibrary.isOn ? ShowcaseLibrary.cards : Array(ShowcaseData.cards.values) }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
     func lastAppointment(before: Date) async throws -> AppointmentRow? {
@@ -122,7 +125,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func vendorSyncNow() async throws {}
     func startTrack(code: String) async throws {}
     func trackStatus(code: String) async throws -> TrackStatus? { ShowcaseTrack.isOn ? ShowcaseTrack.status() : nil }
-    func trackDays(code: String) async throws -> [TrackDay] { ShowcaseTrack.isOn ? ShowcaseTrack.days : [] }
+    func trackDays(code: String) async throws -> [TrackDay] {
+        if ShowcaseLibrary.isOn { return ShowcaseLibrary.days }
+        return ShowcaseTrack.isOn ? ShowcaseTrack.days : []
+    }
     func trackQuestionnaires(code: String) async throws -> [TrackQuestionnaire] { ShowcaseTrack.isOn ? ShowcaseTrack.questionnaires : [] }
     func trackResponses(patientId: String) async throws -> [TrackResponse] { ShowcaseTrack.isOn ? ShowcaseTrack.responses() : [] }
     func saveTrackResponse(_ write: TrackResponseWrite) async throws -> TrackResponse {
@@ -132,7 +138,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem] { ShowcaseTrack.isOn ? ShowcaseTrack.activity() : [] }
     func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
-    func actionCards(ids: [String]) async throws -> [ActionCardRow] { ShowcaseTrack.cards.filter { ids.contains($0.id) } }
+    func actionCards(ids: [String]) async throws -> [ActionCardRow] {
+        (ShowcaseLibrary.isOn ? ShowcaseLibrary.cards : ShowcaseTrack.cards).filter { ids.contains($0.id) }
+    }
     func trackSummary(code: String, day: Int) async throws -> TrackSummary? { ShowcaseTrack.isOn ? ShowcaseTrack.summary() : nil }
     func notificationData(id: String) async throws -> JSONValue? { nil }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { Showcase.isCheckinInProgress || eveningDone ? [ShowcaseData.eveningMoment()] : [] }

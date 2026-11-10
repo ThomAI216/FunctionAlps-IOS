@@ -17,6 +17,9 @@ enum Showcase {
         /// The Foundation Track, screen by screen, on real content (`ShowcaseTrack`): Home on a day, a questionnaire step,
         /// a track action's card, the day's read, the approved day-7 summary.
         case track, trackQuestionnaire = "track-q", trackCard = "track-card", trackRead = "track-read", trackSummary = "track-summary"
+        /// The new Library (2026-11-10): the soft-lock sheet, search results, a read with Practice it, a video in the app's player.
+        /// (`library` itself is its home.)
+        case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -58,7 +61,9 @@ enum Showcase {
         case .card, .cardMiddle, .cardBottom: "functionalps://action/\(ShowcaseData.anatomyHabitId)"
         case .cardBreath: "functionalps://bank/\(ShowcaseData.breathCardId)"
         case .bank: "functionalps://bank"
-        case .library: "functionalps://library"
+        case .library, .libraryLocked, .librarySearch: "functionalps://library"
+        case .libraryRead: "functionalps://library/\(ShowcaseLibrary.readSlug)"
+        case .libraryWatch: "functionalps://library/watch"
         case .messages: "functionalps://messages"
         case .sentTrack: "functionalps://library/sent"
         case .personalTrack: "functionalps://library/track/\(ShowcaseData.personalTrackId)"

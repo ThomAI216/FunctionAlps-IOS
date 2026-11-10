@@ -8,6 +8,10 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// One Foundation Track day's reads, on their own page (Library → a day with several reads).
+    case libraryDay(Int)
+    /// A habit's video, played in the app (Library → Watch).
+    case libraryVideo(LibraryVideo)
     /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
     case sentTrack
     /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
@@ -164,7 +168,12 @@ final class AppRouter {
                 // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
                 if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
+                #if DEBUG
+                // The showcase's video shot: the player, pushed as a tap on a Watch tile would.
+                if Showcase.isOn, slug == "watch" { libraryPath.append(.libraryVideo(ShowcaseLibrary.video)) } else { libraryPath.append(.read(slug)) }
+                #else
                 libraryPath.append(.read(slug))
+                #endif
             }
         case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
@@ -236,6 +245,7 @@ final class AppRouter {
         case .profile: profilePath.last
         }
         if case .read = top { return true }
+        if case .libraryVideo = top { return true }
         return false
     }
 }
@@ -366,6 +376,8 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .libraryDay(let day): LibraryDayView(day: day)
+        case .libraryVideo(let video): LibraryVideoView(video: video)
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)

@@ -89,6 +89,8 @@ struct ActionCardRow: Decodable, Sendable, Equatable, Identifiable {
         var query: String?
         var slug: String?
         var title: String?
+        /// `youtube` · `own` on a video entry (the player is chosen from the address; this only agrees with it).
+        var source: String?
     }
 }
 

@@ -21,6 +21,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         return true
     }
 
+    /// Portrait everywhere, except while a library video is on screen (`PlayerOrientation`).
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        PlayerOrientation.mask
+    }
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Task { @MainActor in Self.notifications?.deviceTokenReceived(deviceToken) }
     }

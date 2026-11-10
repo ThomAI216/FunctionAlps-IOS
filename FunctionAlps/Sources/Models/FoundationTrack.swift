@@ -63,6 +63,8 @@ struct TrackAction: Sendable, Equatable, Identifiable {
     /// One line of how-to, shown under a new action on the day card.
     var howEn: String?
     var howFr: String?
+    /// The library reads tied to this action (slugs), for the Library's "For your habits".
+    var reads: [String] = []
 
     var id: String { key }
 }

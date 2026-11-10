@@ -111,6 +111,8 @@ struct ReaderResult: Sendable, Equatable {
     let supplement: Bool
     let track: TrackRef?
     let pair: Pair?
+    /// The list row of a library article (its summary, day, reading time, topic) — nil off the list.
+    var article: LibraryArticle? = nil
 }
 
 // MARK: - Raw rows (what CM OS returns; assembled by `LibraryLogic.assemble`)
@@ -189,6 +191,8 @@ struct LibraryGetRow: Sendable, Equatable, Decodable {
     let tags: [String]?
     let bodyMd: String?
     let locked: Bool?
+    /// Present when the RPC returns it; the reader otherwise takes the summary from the list it already read.
+    var summary: String? = nil
 }
 
 /// Everything the library needs, read in one go under the member's own session. Each
