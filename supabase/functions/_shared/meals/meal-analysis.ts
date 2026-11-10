@@ -310,7 +310,9 @@ export type IdentifyInput = {
    */
   statedItems?: StatedItem[]
 }
-export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[] }
+/** `from_habit` is set only by the habits step (habits.ts) on an item a member's habit added or changed — never by
+ *  the model. Absent means the photo said it. */
+export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[]; from_habit?: boolean }
 
 export type IdentifySuccess = {
   ok: true
@@ -327,6 +329,14 @@ export type IdentifySuccess = {
   coverage_note: string | null
   model: string
   elapsed_ms: number
+  /** Set by the habits step (habits.ts withMealHabits) on a PHOTO meal: the model's own list, before any habit
+   *  touched `items`. completionPatch records THIS as `resolution_meta.identified`, never the post-habit list, or
+   *  the learner would read its own habits back as the member's corrections. Absent on text/voice meals. */
+  model_items?: IdentifiedItem[]
+  /** The habit rule keys applied to `items` (`[]` when none). Recorded as `resolution_meta.habits_applied` — it is how
+   *  the learner tells "the member kept the habit" from "the member undid it", and its presence is what lets a meal
+   *  into the learner at all. Absent on text/voice meals. */
+  habits_applied?: string[]
 }
 
 export type IdentifyFailure = {
@@ -683,7 +693,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
 // and the query embedding is produced by `Supabase.ai` INSIDE the Edge Runtime.
 // That is why the worker never retries this half — a throw here is a bug, not
 // a dice roll.
-export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[] }
+export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[]; from_habit?: boolean }
 export type MealTotals = { kcal: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number }
 export type PricedMeal = {
   items: MergedItem[]
@@ -858,6 +868,9 @@ export async function priceMeal(
       ...r,
       name: identified[i]?.name ?? r.name,
       ...(flags.length ? { flags } : {}),
+      // The habits mark rides from identification to the row the app reads, like the flags: only when true, so an
+      // ordinary item never carries a `from_habit: false` the app would have to interpret.
+      ...(identified[i]?.from_habit ? { from_habit: true } : {}),
     }
   })
 
@@ -960,7 +973,9 @@ export function completionPatch(
       // WHAT THE MODEL SAW, kept apart from ai_identified_foods: that column is rewritten here (priced items) and again
       // by the app when the member edits the meal. This is the only record of the model's own list — what the meal
       // model review judges, and what learning the member's habits compares their edits against.
-      identified: ident.items.map((it) => ({ name: it.name, grams: it.estimated_grams })),
+      // On a photo meal the habits step has already rewritten ident.items; model_items is the list the model returned.
+      identified: (ident.model_items ?? ident.items).map((it) => ({ name: it.name, grams: it.estimated_grams })),
+      ...(ident.habits_applied ? { habits_applied: ident.habits_applied } : {}),
       confidence: ident.confidence,
       duplicates_dropped: ident.duplicates_dropped,
       identify_ms: ident.elapsed_ms,

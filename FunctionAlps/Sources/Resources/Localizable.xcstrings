@@ -18418,6 +18418,22 @@
         }
       }
     },
+    "meal.item.fromHabit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your habits"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’après vos habitudes"
+          }
+        }
+      }
+    },
     "meal.item.notCounted": {
       "localizations": {
         "en": {
