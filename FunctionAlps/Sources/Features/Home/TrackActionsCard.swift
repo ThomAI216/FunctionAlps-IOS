@@ -44,10 +44,7 @@ struct TrackActionsCard: View {
     private func content(day: TrackDay, now: Date) -> some View {
         let track = dependencies.track
         let actions = day.actions
-        var hour = Calendar.current.component(.hour, from: now)
-        #if DEBUG
-        hour = ShowcaseHabits.hourOverride ?? hour   // the showcase frames midday, where the pack is fullest
-        #endif
+        let hour = Self.hour(at: now)
         let auto = HabitPack.selectedMoment(hour: hour, actions: actions, isDone: track.isDone)
         let moment = chosen ?? auto
         let ordered = HabitPack.actions(actions, in: moment)
@@ -79,6 +76,13 @@ struct TrackActionsCard: View {
                 }
             }
         }
+    }
+
+    private static func hour(at now: Date) -> Int {
+        #if DEBUG
+        if let hour = ShowcaseHabits.hourOverride { return hour }   // the showcase frames midday, where the pack is fullest
+        #endif
+        return Calendar.current.component(.hour, from: now)
     }
 
     private func segments(_ actions: [TrackAction], selected: DayMoment, auto: DayMoment) -> some View {
