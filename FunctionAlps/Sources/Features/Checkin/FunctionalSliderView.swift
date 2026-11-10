@@ -2,14 +2,14 @@ import SwiftUI
 
 /// Continuous 0–100 slider, higher = better: red (left) → green (right) veil, a 5-word state
 /// translation above the bar, the score on the right. The thumb carries the FunctionAlps mark in the state's
-/// colour — red, yellow, purple, blue, green as the value moves (owner, 2026-10-12: the logo, not mountains). Untouched = NO thumb and "Tap to rate": a thumb parked
+/// colour — red, orange, purple, blue, green as the value moves (owner, 2026-10-12: the logo, not mountains; the yellow became an orange on 2026-11-10 — it couldn't be read on the glass). Untouched = NO thumb and "Tap to rate": a thumb parked
 /// at centre read as an answer, members left it there, tapped Save and nothing was recorded (2026-09-28).
 struct FunctionalSliderView: View {
     let spec: SliderSpec
     @Binding var value: Double?
     @State private var dragging = false
 
-    static let ramp: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xE2BE3A), Color(hex: 0xDB5A4B)]
+    static let ramp: [Color] = [Color(hex: 0x4A8A5C), Color(hex: 0x4F86C6), Color(hex: 0x8E7CC3), Color(hex: 0xD9692B), Color(hex: 0xDB5A4B)]
     private static let grey = Color(hex: 0x9CA3AF)
 
     private var color: Color {

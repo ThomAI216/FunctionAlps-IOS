@@ -140,6 +140,15 @@ enum CheckinEngine {
         return nil
     }
 
+    /// No clock, no length, no band and no "refreshed" read: nothing about the night has been answered, so a
+    /// recorded night may fill it.
+    static func sleepIsUnanswered(_ sleep: DimAnswers?) -> Bool {
+        guard let sleep else { return true }
+        let s = sleep.specials
+        return s.bedTime == nil && s.wakeTime == nil && s.durationMin == nil && s.latency == nil && s.wakeCount == nil
+            && sleep.sliders["refreshed"] == nil
+    }
+
     /// Rebuild the editable answers from a saved moment (edit-mode prefill).
     static func answersFromMoment(_ moment: CheckinMoment?) -> FunctionalAnswers {
         var answers = FunctionalAnswers.blank

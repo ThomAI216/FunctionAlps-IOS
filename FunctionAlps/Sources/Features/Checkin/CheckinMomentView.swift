@@ -109,16 +109,7 @@ private struct CheckinMomentScreen: View {
         switch section {
         case .sleep:
             sectionLabel(String(localized: "checkin.lastNight", defaultValue: "Last night"))
-            DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep))
-            if let note = model.sleepFromWearableNote, let source = model.sleepFromWearable {
-                HStack(spacing: 6) {
-                    Image(systemName: WearableVendor.sourceSymbol(source.sourceId))
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(WearableVendor.sourceTint(source.sourceId))
-                    Text(note).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, 6)
-            }
+            DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep), recordedNight: model.recordedNight)
         case .intent:
             catalogCard([CatalogSection(group: .dayIntent, title: String(localized: "checkin.intent", defaultValue: "How are you walking into the day?"), accent: Color(hex: 0x6366F1))])
         case .priority:
@@ -143,7 +134,7 @@ private struct CheckinMomentScreen: View {
         case .context:
             catalogCard([
                 CatalogSection(group: .fuelled, title: String(localized: "pills.fuelled", defaultValue: "What fuelled you?"), accent: FAColor.forestSoft),
-                CatalogSection(group: .drained, title: String(localized: "pills.drained", defaultValue: "What drained you?"), accent: Color(hex: 0xD97706)),
+                CatalogSection(group: .drained, title: String(localized: "pills.drained", defaultValue: "What drained you?"), accent: Color(hex: 0xC2410C)),
             ])
         }
     }
@@ -204,27 +195,11 @@ private struct DigestionSections: View {
         Binding(get: { model.answers[key] ?? .empty }, set: { model.answers[key] = $0 })
     }
 
-    @ViewBuilder
     private var noteBlock: some View {
-        Button { withAnimation(.easeInOut(duration: 0.2)) { model.notesOpen.toggle() } } label: {
-            HStack {
-                Text(model.notesOpen ? String(localized: "gut.notes.hide", defaultValue: "Hide note") : String(localized: "checkin.note.add", defaultValue: "Add a note about your day (optional)"))
-                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.inkSecondary)
-                Spacer()
-                Text(model.notesOpen ? "−" : "+").font(.system(size: 18, weight: .medium)).foregroundStyle(FAColor.inkSecondary)
-            }
-            .padding(.vertical, 13).padding(.horizontal, 18)
-            .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-        if model.notesOpen {
-            TextField(String(localized: "checkin.note.placeholder", defaultValue: "Anything worth remembering about today — meals, symptoms, stress, timing."), text: $model.notes, axis: .vertical)
-                .lineLimit(4...8)
-                .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                .padding(14)
-                .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
-        }
+        VoiceNoteBlock(
+            addTitle: String(localized: "checkin.note.add", defaultValue: "Add a note about your day (optional)"),
+            placeholder: String(localized: "checkin.note.placeholder", defaultValue: "Anything worth remembering about today — meals, symptoms, stress, timing."),
+            text: $model.notes, open: $model.notesOpen
+        )
     }
 }

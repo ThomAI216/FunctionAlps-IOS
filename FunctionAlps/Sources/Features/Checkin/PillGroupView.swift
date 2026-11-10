@@ -56,7 +56,7 @@ struct PillButton: View {
 
 /// Single-choice pills (time to fall asleep, wakings). Tapping the active one clears it.
 struct PillSelectView: View {
-    let title: String
+    let title: String?
     let options: [PillOption]
     @Binding var value: String?
     let accent: Color

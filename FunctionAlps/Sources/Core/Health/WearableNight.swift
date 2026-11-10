@@ -33,6 +33,8 @@ struct WearableNight: Sendable, Equatable {
     /// offset parsers for Polar and Suunto return null for a `…​.000Z` timestamp, so this is not rare.
     /// The member is told, rather than shown a confident wrong time.
     var clockIsGuessed = false
+    /// Time actually asleep, when the source measured it (shown beside time in bed; never asked of the member).
+    var asleepMin: Int? = nil
 
     /// Nothing to prefill from — every field the check-in asks for came back empty.
     var isEmpty: Bool { bedTime == nil && wakeTime == nil && durationMin == nil && latency == nil && wakeCount == nil }
@@ -46,7 +48,8 @@ extension WearableNight {
             bedTime: HealthFormat.clock(night.start), wakeTime: HealthFormat.clock(night.end),
             durationMin: SleepSpecials.windowMinutes(bed: HealthFormat.clock(night.start), wake: HealthFormat.clock(night.end)),
             latency: WearableNightAssembler.latencyBand(seconds: night.latencySeconds),
-            wakeCount: WearableNightAssembler.wakeCountBand(Double(night.interruptions))
+            wakeCount: WearableNightAssembler.wakeCountBand(Double(night.interruptions)),
+            asleepMin: night.asleepSeconds > 0 ? Int((night.asleepSeconds / 60).rounded()) : nil
         )
     }
 }
@@ -110,7 +113,8 @@ enum WearableNightAssembler {
                 durationMin: window ?? reported,
                 latency: latencyBand(seconds: value(latency)?.value),
                 wakeCount: wakeCountBand(value(interruptions)?.value),
-                clockIsGuessed: guessed
+                clockIsGuessed: guessed,
+                asleepMin: value(duration)?.value.map { Int(($0 / 60).rounded()) }
             )
         }
         // Richest night wins; the clock counts double — it is the half nothing else can reconstruct.

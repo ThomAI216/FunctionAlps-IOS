@@ -7,6 +7,8 @@ struct DimensionCardView: View {
     @Binding var answers: DimAnswers
     /// Modules the screen owns elsewhere (the catalog's fuelled/drained on the moment screen).
     var hiddenModules: Set<String> = []
+    /// The night a wearable or Apple Health recorded (sleep card only) — shown as recorded instead of the dial.
+    var recordedNight: WearableNight? = nil
 
     private var accent: Color { Color(hex: spec.accentHex) }
     private var score: Int? { CheckinEngine.dimensionOverall(spec.key, answers) }
@@ -28,7 +30,7 @@ struct DimensionCardView: View {
                 .accessibilityElement(children: .combine)
 
                 if spec.hasSleepInputs {
-                    SleepInputsView(specials: $answers.specials, accent: accent)
+                    SleepInputsView(specials: $answers.specials, accent: accent, recorded: recordedNight)
                         .padding(.bottom, 4)
                     ForEach(spec.sliders) { slider in
                         FunctionalSliderView(spec: slider, value: sliderBinding(slider.key))

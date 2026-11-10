@@ -3826,6 +3826,38 @@
         }
       }
     },
+    "checkin.daily.greeting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily functional check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in fonctionnel du jour"
+          }
+        }
+      }
+    },
+    "checkin.daily.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last night, your day and your digestion. Answer what you feel like · anything you skip is fine."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nuit, votre journée et votre digestion. Répondez à ce que vous voulez · ce que vous passez, c'est très bien."
+          }
+        }
+      }
+    },
     "checkin.digestion": {
       "localizations": {
         "en": {
@@ -3918,6 +3950,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "La nuit dernière"
+          }
+        }
+      }
+    },
+    "checkin.markers.daily": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How is your day?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment se passe votre journée ?"
           }
         }
       }
@@ -8690,6 +8738,198 @@
         }
       }
     },
+    "gut.bristol.chart.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the type that looks most like yours."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le type qui ressemble le plus au vôtre."
+          }
+        }
+      }
+    },
+    "gut.bristol.chart.open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See what each type looks like · tap the one that's yours"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir à quoi ressemble chaque type · touchez le vôtre"
+          }
+        }
+      }
+    },
+    "gut.bristol.chart.picked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your answer · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre réponse · %@"
+          }
+        }
+      }
+    },
+    "gut.bristol.chart.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bristol stool chart"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échelle de Bristol"
+          }
+        }
+      }
+    },
+    "gut.bristol.chart.yours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yours · %@ · tap to see the chart"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le vôtre · %@ · touchez pour voir l'échelle"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 1 · Separate hard lumps, like nuts (hard to pass)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 1 · Morceaux durs séparés, comme des noix (difficiles à évacuer)"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 2 · Sausage-shaped but lumpy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 2 · En forme de saucisse, mais grumeleuse"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 3 · Like a sausage but with cracks on its surface"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 3 · Comme une saucisse, avec des craquelures en surface"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 4 · Like a sausage or snake, smooth and soft"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 4 · Comme une saucisse ou un serpent, lisse et molle"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 5 · Soft blobs with clear-cut edges (passed easily)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 5 · Morceaux mous aux bords nets (évacués facilement)"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 6 · Fluffy pieces with ragged edges, a mushy stool"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 6 · Morceaux duveteux aux bords déchiquetés, selle pâteuse"
+          }
+        }
+      }
+    },
+    "gut.bristol.desc.7": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 7 · Watery, no solid pieces, entirely liquid"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type 7 · Aqueuse, sans morceaux solides, entièrement liquide"
+          }
+        }
+      }
+    },
     "gut.bristol.title": {
       "localizations": {
         "en": {
@@ -10094,6 +10334,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Facultatif · c'est pour l'œil d'un médecin, pas une lecture nutritionnelle. Cochez ce qui s'applique aujourd'hui."
+          }
+        }
+      }
+    },
+    "gut.redflags.openHint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the symptoms to flag"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche les symptômes à signaler"
           }
         }
       }
@@ -13342,6 +13598,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ajuster"
+          }
+        }
+      }
+    },
+    "home.carousel.daily.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your night and your day · about a minute"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nuit et votre journée · environ une minute"
           }
         }
       }
@@ -19918,6 +20190,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pourquoi c’est important"
+          }
+        }
+      }
+    },
+    "note.voice.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rather talk? Tap the mic and just say it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plutôt parler ? Touchez le micro et dites-le simplement."
+          }
+        }
+      }
+    },
+    "note.voice.listening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening… tap again when you're done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J'écoute… touchez à nouveau quand vous avez fini"
+          }
+        }
+      }
+    },
+    "note.voice.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speak your note"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dicter votre note"
+          }
+        }
+      }
+    },
+    "note.voice.stop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop and write it down"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter et l'écrire"
+          }
+        }
+      }
+    },
+    "note.voice.transcribing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing it down…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je l'écris…"
           }
         }
       }
@@ -37106,6 +37458,38 @@
         }
       }
     },
+    "sleep.dial.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide the moon and the sun"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser la lune et le soleil"
+          }
+        }
+      }
+    },
+    "sleep.dial.inBed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in bed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "au lit"
+          }
+        }
+      }
+    },
     "sleep.duration": {
       "localizations": {
         "en": {
@@ -37150,6 +37534,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Temps pour s'endormir"
+          }
+        }
+      }
+    },
+    "sleep.recorded.adjust": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajuster"
+          }
+        }
+      }
+    },
+    "sleep.recorded.adjusted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjusted · %1$@ recorded %2$@ → %3$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajusté · %1$@ a enregistré %2$@ → %3$@"
+          }
+        }
+      }
+    },
+    "sleep.recorded.asleep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endormi"
+          }
+        }
+      }
+    },
+    "sleep.recorded.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        }
+      }
+    },
+    "sleep.recorded.efficiency": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efficiency"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efficacité"
+          }
+        }
+      }
+    },
+    "sleep.recorded.from": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après %@"
+          }
+        }
+      }
+    },
+    "sleep.recorded.guessed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %@ · read in this timezone · check the times"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après %@ · lu dans ce fuseau horaire · vérifiez les heures"
+          }
+        }
+      }
+    },
+    "sleep.recorded.inBed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In bed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au lit"
+          }
+        }
+      }
+    },
+    "sleep.recorded.noClock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %@ · it didn't record when you went to bed · tap Adjust"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D'après %@ · l'heure du coucher n'a pas été enregistrée · touchez Ajuster"
           }
         }
       }
@@ -37438,6 +37966,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Petit-déjeuner"
+          }
+        }
+      }
+    },
+    "slot.daily": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Functional check-in"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in fonctionnel"
           }
         }
       }

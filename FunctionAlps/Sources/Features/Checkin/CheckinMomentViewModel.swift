@@ -17,8 +17,9 @@ final class CheckinMomentViewModel {
     /// second errand on Home. Nil for every other slot; the standalone gut screen still uses its own.
     let gut: GutCheckinViewModel?
 
-    /// Last night as a wearable recorded it, when it prefilled the sleep inputs (morning, first save only).
-    private(set) var sleepFromWearable: WearableNight?
+    /// Last night as a wearable or Apple Health recorded it, when one did. The sleep card then shows the night
+    /// as recorded (bed → wake, in bed, asleep) instead of the dial; the member can still adjust it.
+    private(set) var recordedNight: WearableNight?
 
     private let checkins: CheckinService
     private let members: MemberService
@@ -45,23 +46,12 @@ final class CheckinMomentViewModel {
         if let latency = night.latency { sleep.specials.latency = latency }
         if let wakeCount = night.wakeCount { sleep.specials.wakeCount = wakeCount }
         answers[.sleep] = sleep
-        sleepFromWearable = night
+        recordedNight = night
     }
 
-    /// Named, because "adjust anything that's off" only means something once you know who said it.
-    var sleepFromWearableNote: String? {
-        guard let night = sleepFromWearable else { return nil }
-        let source = WearableVendor.sourceName(night.sourceId)
-        guard let bed = night.bedTime, let wake = night.wakeTime else {
-            return String(localized: "checkin.sleep.fromWearable.noClock", defaultValue: "From \(source) · it didn't record when you went to bed · set the times yourself")
-        }
-        if night.clockIsGuessed {
-            // The row carried no timezone: these times are this phone's reading of the instant, which
-            // is only right if the night was spent in this timezone. Say so rather than look certain.
-            return String(localized: "checkin.sleep.fromWearable.guessed", defaultValue: "From \(source) · in bed \(bed) → \(wake), read in this timezone · check them")
-        }
-        return String(localized: "checkin.sleep.fromWearable", defaultValue: "From \(source) · in bed \(bed) → \(wake) · adjust anything that's off")
-    }
+    /// The moments that ask about last night: the morning, and the daily functional check-in (owner,
+    /// 2026-11-10: "at the top we are lacking the sleep").
+    var asksSleep: Bool { sections.contains(.sleep) }
 
     /// Re-opening a saved moment EDITS it (same row, upsert on the slot).
     func prefill() async {
@@ -77,10 +67,15 @@ final class CheckinMomentViewModel {
                 // The showcase's "check-in in progress" screenshot: answers on screen, but a first check-in.
                 if Showcase.isCheckinInProgress { isEditing = false }
                 #endif
-            } else if slot == .morning, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
-                // A first morning save: last night from Apple Health on this phone, else from a wearable
-                // that synced server-side. Neither → the member sets the clock themselves.
-                applyWearableNight(night)
+            } else if slot == .evening, let morning = CheckinEngine.moment(for: .morning, in: moments), morning.hasSleep {
+                // The night was already told this morning: the daily check-in starts from those answers.
+                answers[.sleep] = CheckinEngine.answersFromMoment(morning)[.sleep] ?? .empty
+            }
+            if asksSleep, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
+                // Last night from Apple Health on this phone, else from a wearable that synced server-side.
+                // It fills only a night nobody has answered yet; an answered one keeps the member's times.
+                // Neither source → the member slides the dial themselves.
+                if CheckinEngine.sleepIsUnanswered(answers[.sleep]) { applyWearableNight(night) } else { recordedNight = night }
             }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.prefill")
@@ -152,13 +147,17 @@ final class CheckinMomentViewModel {
 
     /// Morning = the night behind you, the day ahead, and how you feel walking into it — the mood card with its
     /// "how did it show up?" (motivated, anxious…) and "what shaped it?" (owner, 2026-10-12: back as before
-    /// 2026-09-17). Evening = the day you lived, digestion included.
+    /// 2026-09-17). Evening = the DAILY functional check-in: last night first (owner, 2026-11-10), then the day,
+    /// digestion included. The day row still takes its sleep from the morning when a morning was saved
+    /// (`member_submit_checkin`), so a member who answers both is never counted twice.
     /// Midday is never offered any more; a legacy row opened from a deep link still renders what it holds.
-    var sections: [Section] {
+    var sections: [Section] { Self.sections(for: slot) }
+
+    static func sections(for slot: MomentSlot) -> [Section] {
         switch slot {
         case .morning: [.sleep, .intent, .priority, .feeling]
         case .midday: [.markers, .context]
-        case .evening: [.markers, .digestion, .context]
+        case .evening: [.sleep, .markers, .digestion, .context]
         }
     }
 
@@ -166,7 +165,7 @@ final class CheckinMomentViewModel {
         switch slot {
         case .morning: String(localized: "checkin.morning.greeting", defaultValue: "Good morning")
         case .midday: String(localized: "checkin.midday.greeting", defaultValue: "This afternoon")
-        case .evening: String(localized: "checkin.evening.greeting", defaultValue: "This evening")
+        case .evening: String(localized: "checkin.daily.greeting", defaultValue: "Daily functional check-in")
         }
     }
 
@@ -175,13 +174,13 @@ final class CheckinMomentViewModel {
         switch slot {
         case .morning: return String(localized: "checkin.morning.intro", defaultValue: "A few quick reads to open the day. Answer what you feel like · anything you skip is fine.")
         case .midday: return String(localized: "checkin.midday.intro", defaultValue: "A short pause in the middle of the day. Only what you feel like sharing.")
-        case .evening: return String(localized: "checkin.evening.intro", defaultValue: "A moment to look back on the day. Nothing here is required.")
+        case .evening: return String(localized: "checkin.daily.intro", defaultValue: "Last night, your day and your digestion. Answer what you feel like · anything you skip is fine.")
         }
     }
 
     var markersTitle: String {
         slot == .evening
-            ? String(localized: "checkin.markers.evening", defaultValue: "How was your day?")
+            ? String(localized: "checkin.markers.daily", defaultValue: "How is your day?")
             : String(localized: "checkin.markers.later", defaultValue: "How are you feeling right now?")
     }
 }
