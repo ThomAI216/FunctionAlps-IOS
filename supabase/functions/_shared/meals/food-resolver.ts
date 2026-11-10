@@ -1172,7 +1172,9 @@ const roundGrams = (g: number): number => {
 
 type Row = Record<string, unknown>
 
-function priceItem(
+// Exported for the sovereign pricing (sovereign-pricing.ts): a reference row it chose is priced by THIS function, so
+// a food matched there and a food matched by the ladder below come out identical — same rounding, same micro renames.
+export function priceItem(
   row: Row,
   grams: number,
   opts: { basis: Basis; foodItemId?: string | null; alternatives?: string[] },
