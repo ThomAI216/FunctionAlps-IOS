@@ -20,6 +20,8 @@ enum Showcase {
         /// The new Library (2026-11-10): the soft-lock sheet, search results, a read with Practice it, a video in the app's player.
         /// (`library` itself is its home.)
         case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
+        /// The habit screens (2026-11-10): the moment card, a row opened a little, a habit's page with a streak, a page on its first day.
+        case habits, habitOpen = "habit-open", habitPage = "habit-page", habitFirst = "habit-first"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -46,7 +48,8 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .habits, .habitOpen: "functionalps://home"
+        case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"
         case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"
         case .trackSummary: "functionalps://foundation/summary"

@@ -12,6 +12,7 @@ enum ShowcaseLibrary {
     static var isOn: Bool {
         switch Showcase.screen {
         case .library?, .libraryLocked?, .librarySearch?, .libraryRead?, .libraryWatch?: true
+        case .habits?, .habitOpen?, .habitPage?, .habitFirst?: true   // the same sample library: the reads' days soft-lock the habit page's reads
         default: false
         }
     }

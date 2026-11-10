@@ -126,6 +126,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func startTrack(code: String) async throws {}
     func trackStatus(code: String) async throws -> TrackStatus? { ShowcaseTrack.isOn ? ShowcaseTrack.status() : nil }
     func trackDays(code: String) async throws -> [TrackDay] {
+        if ShowcaseHabits.isOn { return ShowcaseHabits.days }
         if ShowcaseLibrary.isOn { return ShowcaseLibrary.days }
         return ShowcaseTrack.isOn ? ShowcaseTrack.days : []
     }
@@ -135,11 +136,14 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         TrackResponse(id: "r-1", questionnaireId: write.questionnaireId, answers: write.answers, submitted: write.submit,
                       submittedAt: write.submit ? write.at : nil, updatedAt: write.at)
     }
-    func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem] { ShowcaseTrack.isOn ? ShowcaseTrack.activity() : [] }
+    func trackActivity(patientId: String, code: String) async throws -> [TrackActivityItem] {
+        if ShowcaseHabits.isOn { return ShowcaseHabits.activity() }
+        return ShowcaseTrack.isOn ? ShowcaseTrack.activity() : []
+    }
     func addTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func removeTrackActivity(patientId: String, code: String, item: TrackActivityItem) async throws {}
     func actionCards(ids: [String]) async throws -> [ActionCardRow] {
-        (ShowcaseLibrary.isOn ? ShowcaseLibrary.cards : ShowcaseTrack.cards).filter { ids.contains($0.id) }
+        (ShowcaseHabits.isOn ? ShowcaseHabits.cards : ShowcaseLibrary.isOn ? ShowcaseLibrary.cards : ShowcaseTrack.cards).filter { ids.contains($0.id) }
     }
     func trackSummary(code: String, day: Int) async throws -> TrackSummary? { ShowcaseTrack.isOn ? ShowcaseTrack.summary() : nil }
     func notificationData(id: String) async throws -> JSONValue? { nil }
