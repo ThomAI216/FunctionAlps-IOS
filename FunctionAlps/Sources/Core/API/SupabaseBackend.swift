@@ -1442,22 +1442,61 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
+    /// The member's plan as the clinician's Plan page lays it out, member-safe — the members web `getMemberCarePlan`
+    /// read for read: the plan, its patient-visible approved items, the active patient-visible goals, the supplement
+    /// plans behind the supplement items, and the tests actually ordered. Every clinical filter is applied twice (RLS
+    /// and here). Only patient-safe columns: never `rationale`, `gate_criteria`, test `notes`. Each extra fails soft.
     func carePlan(patientId: String) async throws -> CarePlan? {
-        // RLS scopes care_plans to `patient_id = current_member_patient_id()`; the newest active plan wins.
+        // RLS scopes care_plans to `patient_id = current_member_patient_id()` (with no status gate — hence the filter);
+        // the newest active plan wins.
         let plans: [CarePlanRow] = try await rest.select("care_plans", query: [
-            PG.select("id,title,start_date,status"), PG.eq("status", "active"),
+            PG.select("id,title,start_date,status,objective_line,approach_md,review_date"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
             PG.order("start_date", descending: true), PG.limit(1),
         ])
         guard let plan = plans.first else { return nil }
+        let visible = "in.(patient_visible,patient_visible_after_approval)"
         // Curriculum rows pass the RLS gate but are the personalised space's sub-courses, not
         // instructions. `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
         let items: [CarePlanItemRow] = try await rest.select("care_plan_items", query: [
-            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order"),
+            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order,item_kind,cadence,frequency_text,dose_value,dose_unit"),
             PG.eq("care_plan_id", plan.id),
+            URLQueryItem(name: "visibility_class", value: visible),
+            URLQueryItem(name: "status", value: "in.(pushed_to_app,approved)"),
             PG.or("item_kind.is.null,item_kind.neq.curriculum"),
             PG.order("sort_order"),
         ])
-        return CarePlanLogic.assemble(plan: plan, items: items)
+        let rest = self.rest
+        let goals = await soft { () -> [CarePlanGoalRow] in
+            try await rest.select("care_plan_goals", query: [
+                PG.select("id,statement,phase_key,baseline_value,target_value,target_unit,cadence_text,sort_order"),
+                PG.eq("care_plan_id", plan.id), PG.eq("status", "active"),
+                URLQueryItem(name: "visibility_class", value: visible), PG.order("sort_order"),
+            ])
+        } ?? []
+        let supplementIds = items.filter(\.isSupplement).map(\.id)
+        var supplementPlans: [SupplementPlanRow] = []
+        if !supplementIds.isEmpty {
+            let ids = supplementIds.joined(separator: ",")
+            supplementPlans = await soft { () -> [SupplementPlanRow] in
+                try await rest.select("supplement_plans", query: [
+                    PG.select("care_plan_item_id,dosage_text,frequency_text,status"),
+                    URLQueryItem(name: "care_plan_item_id", value: "in.(\(ids))"),
+                ])
+            } ?? []
+        }
+        // `test_orders` RLS scopes rows to the member but does not gate on status: this filter is what keeps a
+        // `proposed` (never ordered) test from being announced. Asserted in `CarePlanLogic.testState`'s tests.
+        let tests = await soft { () -> [TestOrderRow] in
+            try await rest.select("test_orders", query: [
+                PG.select("id,test_type,status,ordered_at,diagnostic_tests(name,short_name)"), PG.eq("patient_id", patientId),
+                URLQueryItem(name: "status", value: "in.(ordered,pending,received,reviewed)"),
+                PG.order("ordered_at", descending: true),
+            ])
+        } ?? []
+        let expectations = await soft { () -> [CarePlanExpectationsRow] in
+            try await rest.select("care_plans", query: [PG.select("expectations_md"), PG.eq("id", plan.id), PG.limit(1)])
+        }?.first?.expectationsMd
+        return CarePlanLogic.assemble(plan: plan, items: items, goals: goals, supplementPlans: supplementPlans, tests: tests, expectations: expectations)
     }
 
     // MARK: Lab results (get_member_lab_results)
