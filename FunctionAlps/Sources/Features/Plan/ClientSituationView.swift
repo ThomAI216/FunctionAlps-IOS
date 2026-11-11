@@ -116,7 +116,7 @@ private struct EvolutionBlock: View {
         let cause = entry.causeLabel?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
-                Text(ClientCarePlanLogic.directionLabel(entry.direction)).font(FATypography.sans(12, .semibold, relativeTo: .caption))
+                Text(String(localized: "careplan.direction.improved", defaultValue: "Improved")).font(FATypography.sans(12, .semibold, relativeTo: .caption))
                     .foregroundStyle(FAColor.forestDark)
                 if let change = ClientCarePlanLogic.beforeAfter(entry) {
                     Text(change).font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)

@@ -266,9 +266,11 @@ enum ClientCarePlanLogic {
     }
 
     /// The evolution entries that belong to a complaint: same signal key, else same label (case-insensitive).
+    /// Only links the practice validated as `improved` are shown to the client; any other direction is dropped.
     static func evolution(for complaint: ClientComplaint, in raw: ClientCarePlanRaw) -> [ClientEvolution] {
         let label = name(complaint).lowercased()
         return raw.evolution.filter { e in
+            guard e.direction == "improved" else { return false }
             if let a = complaint.signalKey, !a.isEmpty, let b = e.signalKey, !b.isEmpty { return a == b }
             return !label.isEmpty && (e.complaintLabel ?? "").trimmingCharacters(in: .whitespaces).lowercased() == label
         }
@@ -283,14 +285,6 @@ enum ClientCarePlanLogic {
         case "supplement": String(localized: "careplan.cause.supplement", defaultValue: "Supplement")
         case "other": String(localized: "careplan.cause.other", defaultValue: "Other")
         default: String(localized: "careplan.cause.action", defaultValue: "Action")
-        }
-    }
-
-    static func directionLabel(_ direction: String?) -> String {
-        switch direction {
-        case "improved": String(localized: "careplan.direction.improved", defaultValue: "Improved")
-        case "worsened": String(localized: "careplan.direction.worsened", defaultValue: "Worsened")
-        default: String(localized: "careplan.direction.same", defaultValue: "No change")
         }
     }
 

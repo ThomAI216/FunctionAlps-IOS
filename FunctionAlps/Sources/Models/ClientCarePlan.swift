@@ -87,6 +87,52 @@ struct ClientComplaint: Decodable, Sendable, Equatable, Identifiable {
     let sharedAt: String?
 }
 
+/// One reading attached to a hypothesis (`member_care_plan_hypotheses.resources[]`): `kind` is `library` | `study` |
+/// `url`, `ref` is a web address for `url`/`study` and a library id for `library`. A malformed entry decodes with
+/// every field nil, so one stray row never fails the plan.
+struct ClientResource: Decodable, Sendable, Equatable {
+    var kind: String?
+    var ref: String?
+    var title: String?
+
+    init(kind: String? = nil, ref: String? = nil, title: String? = nil) {
+        self.kind = kind
+        self.ref = ref
+        self.title = title
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: Key.self)
+        func text(_ key: Key) -> String? {
+            guard let container else { return nil }
+            return try? container.decodeIfPresent(String.self, forKey: key)
+        }
+        kind = text(.kind)
+        ref = text(.ref)
+        title = text(.title)
+    }
+
+    private enum Key: String, CodingKey { case kind, ref, title }
+
+    /// The trimmed title; a resource with none is not shown.
+    var displayTitle: String { (title ?? "").trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    /// A tappable address only for `url`/`study` whose `ref` is an http(s) URL. `library` refs (and anything else)
+    /// have no link until a library route exists.
+    var link: URL? {
+        guard kind == "url" || kind == "study" else { return nil }
+        guard let ref = ref?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let url = URL(string: ref), let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else { return nil }
+        return url
+    }
+
+    /// What the "To read" list shows: every titled resource, in order (linked or plain).
+    static func readable(_ resources: [ClientResource]?) -> [ClientResource] {
+        (resources ?? []).filter { !$0.displayTitle.isEmpty }
+    }
+}
+
 /// `member_care_plan_hypotheses()` — "why we're doing this": a kept, shared hypothesis in the client's words.
 struct ClientHypothesis: Decodable, Sendable, Equatable, Identifiable {
     let id: String
@@ -94,8 +140,8 @@ struct ClientHypothesis: Decodable, Sendable, Equatable, Identifiable {
     let title: String?
     let explanation: String?
     let howWeKnow: String?
-    /// `[{ kind, title, url }]`, read leniently (a malformed entry reads as no link).
-    let resources: HabitLinks?
+    /// `[{ kind, ref, title }]`, read leniently (a malformed entry reads as no resource).
+    let resources: [ClientResource]?
     let lifecycle: String?
     let lifecycleAt: String?
     let proposedByFirstName: String?

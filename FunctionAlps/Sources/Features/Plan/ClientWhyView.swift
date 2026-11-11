@@ -25,7 +25,7 @@ private struct HypothesisCard: View {
         let title = hypothesis.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let explanation = hypothesis.explanation?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let how = hypothesis.howWeKnow?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let links = (hypothesis.resources?.entries ?? []).filter { ($0.url.flatMap(URL.init(string:)) != nil) && !($0.title ?? "").isEmpty }
+        let links = ClientResource.readable(hypothesis.resources)
         FACard {
             VStack(alignment: .leading, spacing: 10) {
                 Button { withAnimation(.easeInOut(duration: 0.2)) { open.toggle() } } label: {
@@ -57,20 +57,24 @@ private struct HypothesisCard: View {
                     if !links.isEmpty {
                         VStack(alignment: .leading, spacing: 2) {
                             CPLabel(String(localized: "clientplan.why.read", defaultValue: "To read"))
-                            ForEach(Array(links.enumerated()), id: \.offset) { _, link in
-                                Button {
-                                    if let url = link.url.flatMap(URL.init(string:)) { openURL(url) }
-                                } label: {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "arrow.up.right.square").font(.system(size: 12)).accessibilityHidden(true)
-                                        Text(link.title ?? "").font(FATypography.sans(14, .medium, relativeTo: .subheadline)).multilineTextAlignment(.leading)
-                                        Spacer(minLength: 0)
+                            ForEach(Array(links.enumerated()), id: \.offset) { _, resource in
+                                if let url = resource.link {
+                                    Button { openURL(url) } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "arrow.up.right.square").font(.system(size: 12)).accessibilityHidden(true)
+                                            Text(resource.displayTitle).font(FATypography.sans(14, .medium, relativeTo: .subheadline)).multilineTextAlignment(.leading)
+                                            Spacer(minLength: 0)
+                                        }
+                                        .foregroundStyle(FAColor.forest)
+                                        .frame(minHeight: 44)
+                                        .contentShape(Rectangle())
                                     }
-                                    .foregroundStyle(FAColor.forest)
-                                    .frame(minHeight: 44)
-                                    .contentShape(Rectangle())
+                                    .buttonStyle(.plain)
+                                } else {
+                                    Text(resource.displayTitle).font(FATypography.sans(14, .medium, relativeTo: .subheadline))
+                                        .foregroundStyle(FAColor.ink).multilineTextAlignment(.leading)
+                                        .frame(minHeight: 44, alignment: .leading)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }

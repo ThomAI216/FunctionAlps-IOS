@@ -49,8 +49,8 @@ struct ClientCarePlanLogicTests {
         #expect(wins.first?.text == "Three weeks of daily walks")
         let complaints = try JSON.decode([ClientComplaint].self, from: Data(#"[{"id":"c1","programme_id":null,"signal_key":"energy","complaint_label":"Afternoon crashes","status":"in_progress","client_summary":"Fewer crashes","shared_at":"2026-11-10T09:00:00+00:00"}]"#.utf8))
         #expect(complaints.first?.signalKey == "energy")
-        let hyp = try JSON.decode([ClientHypothesis].self, from: Data(#"[{"id":"h1","programme_id":null,"title":"Gut bacteria","explanation":"x","how_we_know":"y","resources":[{"kind":"article","title":"Read","url":"https://example.org/a"}],"lifecycle":"active","lifecycle_at":null,"proposed_by_first_name":"Thomas","shared_at":"2026-11-10T09:00:00+00:00"}]"#.utf8))
-        #expect(hyp.first?.resources?.entries.first?.url == "https://example.org/a")
+        let hyp = try JSON.decode([ClientHypothesis].self, from: Data(#"[{"id":"h1","programme_id":null,"title":"Gut bacteria","explanation":"x","how_we_know":"y","resources":[{"kind":"study","ref":"https://example.org/a","title":"Read"}],"lifecycle":"active","lifecycle_at":null,"proposed_by_first_name":"Thomas","shared_at":"2026-11-10T09:00:00+00:00"}]"#.utf8))
+        #expect(hyp.first?.resources?.first?.ref == "https://example.org/a")
         let hypNull = try JSON.decode([ClientHypothesis].self, from: Data(#"[{"id":"h2","title":"T","resources":null}]"#.utf8))
         #expect(hypNull.first?.resources == nil)
         let evo = try JSON.decode([ClientEvolution].self, from: Data(#"[{"id":"e1","signal_key":"energy","complaint_label":null,"cause_kind":"action","cause_label":"Lunch walk","before_value":4,"after_value":7.5,"unit":"/10","direction":"improved","client_text":"Steadier afternoons","validated_at":"2026-11-10T09:00:00+00:00","shared_at":"2026-11-10T09:00:00+00:00"}]"#.utf8))
@@ -196,6 +196,26 @@ struct ClientCarePlanLogicTests {
         #expect(ClientCarePlanLogic.evolution(for: complaint(nil, "bloating"), in: raw).map(\.id) == ["2"])
         #expect(ClientCarePlanLogic.evolution(for: complaint(nil, nil), in: raw).isEmpty)
         #expect(ClientCarePlanLogic.name(complaint("energy_dip", nil)) == "Energy Dip")
+    }
+
+    @Test func onlyImprovedEvolutionReachesTheClient() {
+        func evo(_ id: String, _ direction: String?) -> ClientEvolution {
+            ClientEvolution(id: id, programmeId: nil, signalKey: "energy", complaintLabel: nil, causeKind: "action", causeLabel: "Walk", beforeFrom: nil, beforeTo: nil, afterFrom: nil, afterTo: nil,
+                            beforeValue: nil, afterValue: nil, unit: nil, direction: direction, clientText: "t", validatedAt: nil, sharedAt: nil)
+        }
+        let complaint = ClientComplaint(id: "c", programmeId: nil, signalKey: "energy", complaintLabel: nil, status: "managed", clientSummary: nil, sharedAt: nil)
+        var raw = ClientCarePlanRaw.empty
+        raw.evolution = [evo("1", "improved"), evo("2", "worsened"), evo("3", "no_change"), evo("4", nil)]
+        #expect(ClientCarePlanLogic.evolution(for: complaint, in: raw).map(\.id) == ["1"])
+    }
+
+    @Test func hypothesisResourcesLinkOnlyForWebStudiesAndUrls() throws {
+        let json = #"[{"kind":"url","ref":"https://a.org/x","title":"A"},{"kind":"study","ref":"http://b.org","title":"B"},{"kind":"study","ref":"javascript:alert(1)","title":"C"},{"kind":"url","ref":"ftp://c.org","title":"D"},{"kind":"library","ref":"https://lib.org/1","title":"E"},{"kind":"url","ref":"not a url","title":"F"},{"kind":"url","ref":"https://g.org","title":""},"junk"]"#
+        let items = try JSON.decode([ClientResource].self, from: Data(json.utf8))
+        #expect(items.map { $0.link != nil } == [true, true, false, false, false, false, true, false])
+        let shown = ClientResource.readable(items)
+        #expect(shown.map(\.displayTitle) == ["A", "B", "C", "D", "E", "F"], "untitled and malformed entries are not listed")
+        #expect(shown.filter { $0.link != nil }.map(\.displayTitle) == ["A", "B"], "library, non-http(s) and unparsable refs stay plain titles")
     }
 
     private func day(_ n: Int, energy: Int?) -> DailyCheckin {
