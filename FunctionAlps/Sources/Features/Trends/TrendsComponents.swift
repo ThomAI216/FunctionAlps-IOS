@@ -251,18 +251,32 @@ struct TrendScoreRing: View {
     }
 }
 
-/// A chip of words — a pill the member ticked, a reaction they noted.
+/// A chip of words — a pill the member ticked, a reaction they noted. A `tone` (green / orange / red) or a
+/// supplement `.blue` colours it; the word is always there, so colour is never the only signal.
 struct TrendWordChip: View {
     let text: String
     var tint: Color? = nil
+    var tone: ReactionTone? = nil
+    var isSupplement = false
 
     var body: some View {
+        let style = Self.style(tone: tone, isSupplement: isSupplement)
         Text(text)
             .font(FATypography.sans(11.5, .medium, relativeTo: .caption))
-            .foregroundStyle(FAColor.inkSecondary)
+            .foregroundStyle(style?.text ?? FAColor.inkSecondary)
             .padding(.horizontal, 9)
             .padding(.vertical, 3)
-            .background((tint ?? Color(white: 0.47)).opacity(0.14), in: Capsule())
+            .background(style?.fill ?? (tint ?? Color(white: 0.47)).opacity(0.14), in: Capsule())
+    }
+
+    private static func style(tone: ReactionTone?, isSupplement: Bool) -> (text: Color, fill: Color)? {
+        if isSupplement { return (Color(hex: 0x1D4E89), Color(hex: 0x4F86C6, opacity: 0.15)) }
+        switch tone {
+        case .positive?: return (Color(hex: 0x2E5438), Color(hex: 0x4A8A5C, opacity: 0.16))
+        case .mild?: return (Color(hex: 0xC2410C), Color(hex: 0xF97316, opacity: 0.14))
+        case .strong?: return (Color(hex: 0xB42318), Color(hex: 0xEF4444, opacity: 0.13))
+        case .neutral?, nil: return nil
+        }
     }
 }
 

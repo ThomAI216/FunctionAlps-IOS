@@ -283,7 +283,7 @@ struct TrendSignalDetailView: View {
                     Text(String(localized: "trends.digestion.noSymptoms", defaultValue: "no symptoms ticked"))
                         .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
                 } else {
-                    TrendWordChip(text: ticked(day), tint: tint)
+                    TrendWordChip(text: ticked(day), tone: .strong)
                 }
             }
             ForEach(day.meals) { meal in TrendMealRow(meal: meal, showsPhoto: false) }

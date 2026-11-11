@@ -298,6 +298,8 @@ enum TrendsEngine {
         let photoPath: String?
         /// The member's own reaction words; empty = none logged.
         let words: [String]
+        /// One tone per word, same order — the pill colour. Short or empty = grey.
+        var tones: [ReactionTone] = []
     }
 
     struct FoodDay: Sendable, Equatable, Identifiable {
@@ -307,21 +309,30 @@ enum TrendsEngine {
     }
 
     /// "Sat well" / "A bit off" / "Rough" from how the meal sat, then the flags the member ticked. No scores.
-    static func reactionWords(_ reaction: MealReaction?) -> [String] {
+    /// Each word carries a tone classified from the stored key, not the localised label.
+    static func reactionItems(_ reaction: MealReaction?) -> [(word: String, tone: ReactionTone)] {
         guard let reaction else { return [] }
-        var out: [String] = []
+        var out: [(word: String, tone: ReactionTone)] = []
         switch reaction.sentiment {
-        case .good: out.append(String(localized: "meal.felt.good", defaultValue: "Sat well"))
-        case .watch: out.append(String(localized: "meal.felt.watch", defaultValue: "A bit off"))
-        case .bad: out.append(String(localized: "meal.felt.bad", defaultValue: "Rough"))
+        case .good: out.append((String(localized: "meal.felt.good", defaultValue: "Sat well"), .positive))
+        case .watch: out.append((String(localized: "meal.felt.watch", defaultValue: "A bit off"), .mild))
+        case .bad: out.append((String(localized: "meal.felt.bad", defaultValue: "Rough"), .strong))
         case nil: break
         }
-        for label in reaction.flagLabels(max: 3) where !out.contains(label) { out.append(label) }
+        let flags = reaction.flags.filter { $0 != "overall_off" && $0 != "overall_rough" }.prefix(3)
+        for flag in flags {
+            let label = flag.replacingOccurrences(of: "_", with: " ")
+            if !out.contains(where: { $0.word == label }) { out.append((label, ReactionTone.tone(for: flag))) }
+        }
         return out
     }
 
+    static func reactionWords(_ reaction: MealReaction?) -> [String] { reactionItems(reaction).map(\.word) }
+
     static func foodMeal(_ meal: MealLog, reactions: [String: MealReaction]) -> FoodMeal {
-        FoodMeal(id: meal.id, time: meal.loggedAt, name: meal.displayName, photoPath: meal.photoPath, words: reactionWords(reactions[meal.id]))
+        let items = reactionItems(reactions[meal.id])
+        return FoodMeal(id: meal.id, time: meal.loggedAt, name: meal.displayName, photoPath: meal.photoPath,
+                        words: items.map(\.word), tones: items.map(\.tone))
     }
 
     /// Meals of the given days grouped by day, newest day first, each day's meals in the order they were eaten.

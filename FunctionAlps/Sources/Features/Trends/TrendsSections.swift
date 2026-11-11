@@ -39,11 +39,6 @@ struct TrendsScoreCard: View {
                     ForEach(score.chips) { chip in TrendChip(chip: chip) }
                 }
                 .padding(.top, 12)
-                Text(String(localized: "trends.score.caption", defaultValue: "Each signal counts the same. Stress counts as 10 minus its level."))
-                    .font(FATypography.sans(12, relativeTo: .caption))
-                    .foregroundStyle(FAColor.inkSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 10)
             }
         }
     }
@@ -160,7 +155,7 @@ struct TrendsPlanCard: View {
                 .foregroundStyle(FAColor.ink)
             TrendFlow(spacing: 6) {
                 ForEach(Array(page.supplementNames.enumerated()), id: \.offset) { _, name in
-                    TrendWordChip(text: name, tint: FAColor.forest)
+                    TrendWordChip(text: name, isSupplement: true)
                 }
             }
             Text(String(localized: "trends.plan.supplements.hint", defaultValue: "Tick them in your plan to see them here."))
@@ -341,7 +336,9 @@ struct TrendMealRow: View {
                         .foregroundStyle(FAColor.inkMuted)
                 } else {
                     TrendFlow(spacing: 5) {
-                        ForEach(Array(meal.words.enumerated()), id: \.offset) { _, word in TrendWordChip(text: word) }
+                        ForEach(Array(meal.words.enumerated()), id: \.offset) { index, word in
+                            TrendWordChip(text: word, tone: index < meal.tones.count ? meal.tones[index] : .neutral)
+                        }
                     }
                 }
             }

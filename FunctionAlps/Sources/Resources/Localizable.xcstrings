@@ -46434,22 +46434,6 @@
         }
       }
     },
-    "trends.score.caption": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Each signal counts the same. Stress counts as 10 minus its level."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chaque signal compte autant. Le stress compte pour 10 moins son niveau."
-          }
-        }
-      }
-    },
     "trends.score.outOf": {
       "localizations": {
         "en": {
