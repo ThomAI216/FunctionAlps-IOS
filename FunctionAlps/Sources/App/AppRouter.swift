@@ -16,6 +16,12 @@ enum Route: Hashable {
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
     case carePlan
+    /// The client's care plan screens (CLINICAL 2026-11-12): one objective, "Why we're doing this", "Your situation &
+    /// evolution", and the journey (more than one programme).
+    case clientObjective(String)
+    case carePlanWhy
+    case carePlanSituation
+    case carePlanJourney
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
@@ -369,7 +375,11 @@ struct MainTabView: View {
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
-        case .carePlan: CarePlanView()
+        case .carePlan: CarePlanEntryView()
+        case .clientObjective(let id): ClientObjectiveView(objectiveId: id)
+        case .carePlanWhy: ClientWhyView()
+        case .carePlanSituation: ClientSituationView()
+        case .carePlanJourney: ClientJourneyView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))

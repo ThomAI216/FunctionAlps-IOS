@@ -124,6 +124,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func clientCarePlan() async throws -> ClientCarePlanRaw { .empty }
     func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
     func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}
