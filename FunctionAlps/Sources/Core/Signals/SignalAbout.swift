@@ -224,10 +224,14 @@ struct SignalMapLayout: Equatable, Sendable {
         let rx: CGFloat = isScore ? 128 : 134
         let ry: CGFloat = isScore ? 112 : 108
 
-        var nodes: [Node] = ring.enumerated().map { i, key in
-            let angle = (-90 + Double(i) * 360 / Double(max(1, ring.count))) * .pi / 180
-            return Node(key: key, isCentre: false, center: CGPoint(x: cx + rx * CGFloat(cos(angle)), y: cy + ry * CGFloat(sin(angle))),
-                        half: CGSize(width: 36, height: 13))
+        var nodes: [Node] = []
+        let count = Double(max(1, ring.count))
+        for (i, key) in ring.enumerated() {
+            let degrees: Double = -90 + Double(i) * 360 / count
+            let angle: Double = degrees * Double.pi / 180
+            let px: CGFloat = cx + rx * CGFloat(cos(angle))
+            let py: CGFloat = cy + ry * CGFloat(sin(angle))
+            nodes.append(Node(key: key, isCentre: false, center: CGPoint(x: px, y: py), half: CGSize(width: 36, height: 13)))
         }
         nodes.append(Node(key: centre, isCentre: true, center: CGPoint(x: cx, y: cy), half: CGSize(width: 46, height: 17)))
         let byKey = Dictionary(uniqueKeysWithValues: nodes.map { ($0.key, $0) })
