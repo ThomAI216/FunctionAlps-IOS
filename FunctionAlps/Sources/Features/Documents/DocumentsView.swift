@@ -134,7 +134,7 @@ private struct DocumentCard: View {
     var body: some View {
         let tint = Color(hex: doc.kind.tintHex)
         Button(action: action) {
-            HStack(alignment: .stretch, spacing: 0) {
+            HStack(spacing: 0) {
                 ZStack {
                     tint
                     if isOpening {
@@ -143,7 +143,7 @@ private struct DocumentCard: View {
                         Image(systemName: doc.kind.symbol).font(.system(size: 20, weight: .semibold)).foregroundStyle(.white)
                     }
                 }
-                .frame(width: 60)
+                .frame(width: 60).frame(maxHeight: .infinity)
                 .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(doc.title)
