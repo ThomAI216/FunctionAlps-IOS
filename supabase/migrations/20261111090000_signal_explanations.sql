@@ -1788,7 +1788,7 @@ $json$::jsonb, 'approved', 'Thomas (owner) 2026-11-11', now()),
     {
       "icon": "sleep",
       "line": "Sleep is usually the keystone: it feeds energy, focus, mood and stress.",
-      "why": "See Sleep connections.",
+      "why": "A short or broken night lowers alertness and makes emotions harder to regulate the next day, so several signals dip together.",
       "evidence": "strong"
     },
     {
@@ -1800,7 +1800,7 @@ $json$::jsonb, 'approved', 'Thomas (owner) 2026-11-11', now()),
     {
       "icon": "food",
       "line": "Eating whole foods with protein and fibre helps energy, mood and digestion together.",
-      "why": "See Food section.",
+      "why": "Protein and fibre slow digestion and keep blood sugar steadier; whole-food patterns are linked to better mood and gut comfort.",
       "evidence": "moderate"
     },
     {
@@ -1906,7 +1906,7 @@ $json$::jsonb, 'approved', 'Thomas (owner) 2026-11-11', now()),
     {
       "icon": "sleep",
       "line": "Le sommeil est généralement la clé de voûte : il nourrit l’énergie, la concentration, l’humeur et le stress.",
-      "why": "Voir les liens du sommeil.",
+      "why": "Une nuit courte ou hachée réduit la vigilance et rend les émotions plus difficiles à réguler le lendemain : plusieurs signaux baissent ensemble.",
       "evidence": "strong"
     },
     {
@@ -1918,7 +1918,7 @@ $json$::jsonb, 'approved', 'Thomas (owner) 2026-11-11', now()),
     {
       "icon": "food",
       "line": "Manger des aliments complets avec des protéines et des fibres aide l’énergie, l’humeur et la digestion à la fois.",
-      "why": "Voir la section Alimentation.",
+      "why": "Les protéines et les fibres ralentissent la digestion et stabilisent la glycémie ; une alimentation à base d’aliments complets est associée à une meilleure humeur et à un meilleur confort digestif.",
       "evidence": "moderate"
     },
     {
