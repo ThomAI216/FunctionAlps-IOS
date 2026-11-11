@@ -36,6 +36,8 @@ final class AppDependencies {
     let unlocks: UnlockService
     /// The Trends tab and its detail pages: one shared read of the member's own logs, with the window they chose.
     let trends: TrendsService
+    /// The practice's signal explanations (`signal_explanations`), read once per launch; no content = the blocks stay hidden.
+    let signals: SignalContentService
     /// The domain seam, for screens that read a single server-computed object.
     let backend: any FunctionAlpsBackend
 
@@ -78,6 +80,7 @@ final class AppDependencies {
         self.track = TrackService(backend: backend, auth: auth)
         self.unlocks = UnlockService(backend: backend)
         self.trends = TrendsService(backend: backend, auth: auth, wearables: wearables)
+        self.signals = SignalContentService(backend: backend)
         self.backend = backend
     }
 

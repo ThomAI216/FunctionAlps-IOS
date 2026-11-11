@@ -2,14 +2,16 @@
 
 Status: **owner priorities recorded 2026-11-10 (Thomas).** This page is a roadmap and a brief, not a spec. It
 captures what the owner said, what already exists, and ready-to-paste prompts for the sessions that will build it.
-Nothing here is built yet beyond the "What exists today" section.
+**Update 2026-11-11:** the P1 card-level explanation and the first slice of P0 are built in the iOS app (content v1 approved
+by the owner, see section 5.1). The full influence map screen, the check-in-card line, the clinician review and P2 are not.
+Nothing else here is built yet beyond the "What exists today" section.
 
 ## 1. Priorities (owner, 2026-11-10)
 
 | # | Item | Owner's weight | One line |
 |---|---|---|---|
-| **P0** | Per-signal curated, science-backed explanation + **influence map** | "Super mega important", the next feature | For each functional check-in signal (Sleep, Energy, Focus, Mood, Stress, Digestion, and the Functional score): what it is, what it feels like, and above all what it is influenced by. Every signal linked to the others and to behaviours. |
-| **P1** | "What is this influenced by" on every card | Called P1 first, then "even P0": **top priority together with P0** | A short explanation on each functional check-in card (check-in screen, Trends rows, detail pages), linking to the P0 page. **Ship this first, as the first slice of P0.** |
+| **P0** | Per-signal curated, science-backed explanation + **influence map** (**first slice built 2026-11-11**: the per-signal "About" page with a mini map; the full map is later) | "Super mega important", the next feature | For each functional check-in signal (Sleep, Energy, Focus, Mood, Stress, Digestion, and the Functional score): what it is, what it feels like, and above all what it is influenced by. Every signal linked to the others and to behaviours. |
+| **P1** | "What is this influenced by" on every card (**built 2026-11-11** on the Trends rows, the signal pages and the score card; not on the check-in cards, owner's call) | Called P1 first, then "even P0": **top priority together with P0** | A short explanation on each functional check-in card (check-in screen, Trends rows, detail pages), linking to the P0 page. **Ship this first, as the first slice of P0.** |
 | **P2** | Automatic action engine | "A big chunk of work for later, but very important" | From each signal's trends, propose preferred actions to try, then measure whether they worked (before/after on the signal, adherence-aware). |
 | Cadence | Clinician review every 2 weeks | Owner request | A trigger on the clinician dashboard to review each member's data and give actions. Later, an AI drafts it, the clinician approves. |
 | Base | Patterns ecosystem | Shipped 2026-11-10 | Patterns computed nightly, shown to members only after clinician validation. |
@@ -151,6 +153,49 @@ explanations, the actions and the 2-week review.
    related articles, "add this action" buttons.
 5. **Slice 3.** Members dashboard version with more depth.
 6. **Later (P2).** Suggestion and effectiveness engine over validated patterns, ladders and completions.
+
+### 5.1 Content model (built 2026-11-11, content v1 approved by the owner)
+
+The table is `public.signal_explanations`, migration `supabase/migrations/20261111090000_signal_explanations.sql` (not applied by
+the commit that added it; the owner applies it after review). One row per `(signal, locale, version)`: `signal` is
+`sleep | energy | focus | mood | stress | digestion | score`, `locale` is `en | fr`, `review_status` is `draft | approved`
+(+ `approved_by`, `approved_at`, `updated_at`). RLS: members `SELECT` approved rows only; writes are service role. The seed is
+14 approved rows (7 x en/fr, version 1). The app reads the newest approved version per signal in the app's language, and
+shows English when a signal has no French yet. A signal with no approved row shows no explanation (the blocks are hidden).
+
+`content` (jsonb), the shape the app reads. Unknown keys are ignored; a missing optional key or an empty array hides its block:
+
+```
+{
+  "title": "About energy",
+  "what_it_is": "...",
+  "feels_high": "...",            "feels_low": "...",
+  "feels_high_label": "Calm",     "feels_low_label": "High stress",     // optional chip words (default High / Low)
+  "card_text": "...",                                                    // the short text on the Trends row
+  "influences_intro": "...",                                             // optional lead-in (the score page)
+  "influences": [ { "icon": "sleep|move|food|water|stress|mind|caffeine|light|alcohol|social|screen|breath|time",
+                    "line": "...", "why": "...", "evidence": "strong|moderate|emerging" } ],
+  "connections_intro": "...",                                            // optional, replaces the default caption
+  "connections": [ { "to": "mood", "direction": "out|in|both", "label": "...",
+                     "evidence": "strong|moderate|emerging" } ],         // evidence optional: the line style
+  "actions": [ { "text": "...", "habit_hint": "walk|daylight|protein_breakfast|hydration|breathwork|nsdr|bedtime|..." } ],
+  "plate_intro": "...",                                                  // energy only
+  "plate": [ { "key": "carbs|protein|fat|fibre", "title": "Carbs", "line": "...", "evidence": "..." } ],
+  "plate_rule": { "title": "...", "line": "...", "evidence": "..." },
+  "safety_line": "If this stays low for weeks, talk to your practitioner.",
+  "sources": [ "Lim & Dinges 2010 · Psychol Bull", ... ]
+}
+```
+
+How the app uses it: `direction` is read from this signal's side (`out`: it moves `to`; `in`: `to` moves it; `both`: each moves
+the other). `habit_hint` is only a hint: the app matches it to a card of the action bank (cards members may add) and opens that
+card, else the action bank; it never creates a habit the practice has not written. Evidence is shown as a word and a colour
+(Strong green, Moderate blue, Emerging purple); "moderate-strong" is stored as "moderate", and a claim that still needs a source
+is stored as "emerging". Sources are only a list at the bottom of the page. The research draft (25 sources) is the EN seed;
+the FR is a translation in the practice's "vous" register, to be read by the practitioner like any other approved row.
+
+**Full influence map: later.** Proposed home: a "How it all connects" row at the bottom of Trends opening the map of all
+seven nodes at once (the per-signal mini map and the content's `connections` are the data it needs).
 
 ## 6. Guardrails
 

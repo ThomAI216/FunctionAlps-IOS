@@ -71,6 +71,9 @@ enum Route: Hashable {
     case trendSignal(TrendSignal)
     case trendDevice(String)
     case trendPatterns
+    /// "About <signal>": the practice's explanation of one signal (`SignalAboutKey`: sleep · energy · focus · mood · stress ·
+    /// digestion · score), from its Trends row, its page, or the Functional score card.
+    case signalAbout(String)
 }
 
 @MainActor
@@ -130,7 +133,7 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
@@ -151,7 +154,7 @@ final class AppRouter {
             tab = .food; foodPath = []
             pendingCapture = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "capture" && $0.value == "1" } ?? false
         case "trends":
-            // trends · trends/signal/<sleep|energy|focus|mood|stress|digestion> · trends/device/<apple_health|oura|…> · trends/patterns
+            // trends · trends/signal/<sleep|energy|focus|mood|stress|digestion> · trends/device/<apple_health|oura|…> · trends/patterns · trends/about/<signal|score>
             tab = .trends; trendsPath = []
             let rest = Array(parts.dropFirst())
             if rest.first == "signal", rest.count > 1, let signal = TrendSignal(rawValue: rest[1]) {
@@ -160,6 +163,8 @@ final class AppRouter {
                 trendsPath = [.trendDevice(rest[1])]
             } else if rest.first == "patterns" {
                 trendsPath = [.trendPatterns]
+            } else if rest.first == "about", rest.count > 1, let key = SignalAboutKey(rawValue: rest[1]) {
+                trendsPath = [.signalAbout(key.rawValue)]
             }
         case "scores": tab = .trends; trendsPath = [.scores]
         case "action":
@@ -441,6 +446,7 @@ struct MainTabView: View {
         case .trendSignal(let signal): TrendSignalDetailView(signal: signal)
         case .trendDevice(let key): WearableSourceDetailView(deviceKey: key)
         case .trendPatterns: MemberPatternsView()
+        case .signalAbout(let key): SignalAboutView(key: key)
         }
     }
 }

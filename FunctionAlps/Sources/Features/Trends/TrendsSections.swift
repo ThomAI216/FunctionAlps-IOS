@@ -7,6 +7,8 @@ import SwiftUI
 /// The ring of six equal segments, the score as the plain mean of the six signals, its curve and the six chips.
 struct TrendsScoreCard: View {
     let page: TrendsEngine.Page
+    /// "Learn about your functional score" — shown only when the practice's explanation of the score is loaded.
+    var onLearn: (() -> Void)? = nil
 
     private func whole(_ v: Double?) -> String? { v.map { String(Int($0.rounded())) } }
 
@@ -39,6 +41,11 @@ struct TrendsScoreCard: View {
                     ForEach(score.chips) { chip in TrendChip(chip: chip) }
                 }
                 .padding(.top, 12)
+                if let onLearn {
+                    Button(action: onLearn) { SignalAboutLinkLabel(key: .score) }
+                        .buttonStyle(.plain)
+                        .padding(.top, 12)
+                }
             }
         }
     }
@@ -229,41 +236,67 @@ struct TrendSignalRow: View {
     let page: TrendsEngine.Page
     let signal: TrendSignal
     let expanded: Bool
+    /// The practice's short "What influences it" text for this signal (`signal_explanations.card_text`); nil hides the block.
+    var cardText: String? = nil
+    /// "Learn about <signal>" — pushes the signal's "About" page; nil hides the link.
+    var onLearn: (() -> Void)? = nil
     let onTap: () -> Void
 
     var body: some View {
         let facts = page.facts(signal)
         let tint = Color(hex: signal.tintHex)
-        Button(action: onTap) {
-            FACard {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 8) {
-                        Circle().fill(tint).frame(width: 10, height: 10).accessibilityHidden(true)
-                        Text(signal.title).font(FATypography.sans(15, .bold, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                        if let badge = facts.badge {
-                            Text(badge)
-                                .font(FATypography.sans(10.5, .medium, relativeTo: .caption2))
-                                .foregroundStyle(FAColor.inkSecondary)
-                                .padding(.horizontal, 8).padding(.vertical, 3)
-                                .background(Color.white.opacity(0.55), in: Capsule())
-                                .lineLimit(1)
+        FACard {
+            VStack(alignment: .leading, spacing: 8) {
+                Button(action: onTap) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Circle().fill(tint).frame(width: 10, height: 10).accessibilityHidden(true)
+                            Text(signal.title).font(FATypography.sans(15, .bold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                            if let badge = facts.badge {
+                                Text(badge)
+                                    .font(FATypography.sans(10.5, .medium, relativeTo: .caption2))
+                                    .foregroundStyle(FAColor.inkSecondary)
+                                    .padding(.horizontal, 8).padding(.vertical, 3)
+                                    .background(Color.white.opacity(0.55), in: Capsule())
+                                    .lineLimit(1)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: expanded ? "chevron.up" : "chevron.right")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(FAColor.inkMuted)
+                                .accessibilityHidden(true)
                         }
-                        Spacer(minLength: 0)
-                        Image(systemName: expanded ? "chevron.up" : "chevron.right")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(FAColor.inkMuted)
-                            .accessibilityHidden(true)
+                        if expanded { expandedBody(facts, tint: tint) } else { collapsedBody(facts, tint: tint) }
                     }
-                    if expanded { expandedBody(facts, tint: tint) } else { collapsedBody(facts, tint: tint) }
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityElement(children: .combine)
+                .accessibilityHint(expanded
+                    ? String(localized: "trends.row.hint.open", defaultValue: "Opens the full details")
+                    : String(localized: "trends.row.hint.expand", defaultValue: "Shows the last days"))
+                if expanded, let cardText, !cardText.isEmpty { influencesBlock(cardText) }
             }
         }
-        .buttonStyle(.plain)
         .animation(.easeOut(duration: 0.22), value: expanded)
-        .accessibilityElement(children: .combine)
-        .accessibilityHint(expanded
-            ? String(localized: "trends.row.hint.open", defaultValue: "Opens the full details")
-            : String(localized: "trends.row.hint.expand", defaultValue: "Shows the last days"))
+    }
+
+    /// "What influences it": the practice's own short text, and the way to its page.
+    private func influencesBlock(_ text: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Divider().overlay(Color.white.opacity(0.7))
+            TrendLabel(text: String(localized: "signal.about.influences", defaultValue: "What influences it"))
+                .padding(.top, 2)
+            Text(text)
+                .font(FATypography.sans(13, relativeTo: .footnote))
+                .foregroundStyle(FAColor.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            if let onLearn, let key = SignalAboutKey(rawValue: signal.rawValue) {
+                Button(action: onLearn) { SignalAboutLinkLabel(key: key) }
+                    .buttonStyle(.plain)
+                    .padding(.top, 2)
+            }
+        }
     }
 
     private func headline(_ facts: TrendRowFacts) -> some View {

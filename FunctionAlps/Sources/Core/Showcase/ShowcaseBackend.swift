@@ -40,6 +40,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         return ShowcaseTrack.read(slug: slug) ?? ShowcaseData.libraryItem(slug: slug)
     }
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] { ShowcaseData.covers }
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] { ShowcaseSignals.rows(locale: locale) }
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws {}
     func showLibrary() async throws -> ShowLibrary { ShowcaseData.showLibrary() }
     func showEpisode(slug: String) async throws -> ShowEpisode? { ShowcaseData.showEpisode(slug: slug) }
