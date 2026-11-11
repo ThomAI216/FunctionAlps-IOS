@@ -185,6 +185,19 @@ protocol FunctionAlpsBackend: Sendable {
     /// The patient is resolved from the JWT inside the function; nothing else about labs is readable.
     func labResults() async throws -> [LabResultRow]
 
+    // MARK: Documents (member_documents — Documents tab programme)
+
+    /// The member's LIVE document releases (sent, not revoked), via `member_documents()`.
+    func memberDocuments() async throws -> [MemberDocument]
+    /// Where one release's frozen copy lives (`member_document_file`); nil when the release is not the caller's or not live.
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile?
+    /// A short-lived signed URL for an object of a document bucket (`document-releases`, `invoices`); other buckets throw.
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL
+    /// `member_mark_document_seen(p_release_id)` — stamps the first and last open.
+    func markDocumentSeen(releaseId: String) async throws
+    /// `member_has_draft_plan()` — a plan exists but is still a draft (shown blurred, never its content).
+    func hasDraftPlan() async throws -> Bool
+
     // MARK: Messaging (patient_messages)
 
     /// `patients.clinic_id` for the signed-in account (own-row RLS) — every sent message carries it.

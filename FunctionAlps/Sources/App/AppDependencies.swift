@@ -27,6 +27,8 @@ final class AppDependencies {
     let focus: FocusService
     /// Released lab results — shared, so the list, the result and the marker sheet read one load.
     let labs: LabResultsService
+    /// The member's released documents, and whether a draft plan is being prepared.
+    let documents: DocumentsService
     /// The clinician's habits for today, with the check-off.
     let habits: HabitsService
     /// The Foundation Track (the 14-day start): status, days, questionnaires, answers and ticks — shared by Home's
@@ -76,6 +78,7 @@ final class AppDependencies {
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
+        self.documents = DocumentsService(backend: backend, members: members, auth: auth)
         self.habits = HabitsService(backend: backend, auth: auth)
         self.track = TrackService(backend: backend, auth: auth)
         self.unlocks = UnlockService(backend: backend)
