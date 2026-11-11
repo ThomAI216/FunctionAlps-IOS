@@ -1102,6 +1102,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.select("library_topic_covers", query: [PG.select("topic,image_url")])
     }
 
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] {
+        try await rest.select("signal_explanations", query: [
+            PG.select(SignalExplanation.columns), PG.eq("locale", locale), PG.eq("review_status", "approved"),
+            PG.order("version", descending: true),
+        ])
+    }
+
     func libraryItem(slug: String) async throws -> LibraryGetRow? {
         let rows: [LibraryGetRow] = try await rest.rpc("member_library_get", body: SlugBody(pSlug: slug))
         return rows.first

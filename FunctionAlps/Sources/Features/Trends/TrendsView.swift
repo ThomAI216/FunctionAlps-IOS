@@ -27,6 +27,7 @@ struct TrendsView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .task { await trends.load() }
+        .task { await dependencies.signals.loadIfNeeded() }
         .onAppear {
             // The scores hub used to hand a pillar over here; Trends no longer has pillars, so the hand-over is dropped.
             router.pendingPillar = nil
@@ -88,7 +89,7 @@ struct TrendsView: View {
 
     @ViewBuilder
     private func sections(_ page: TrendsEngine.Page) -> some View {
-        TrendsScoreCard(page: page)
+        TrendsScoreCard(page: page, onLearn: learn(.score))
         TrendsPlanCard(page: page).id("trends.plan")
         if !page.devices.isEmpty {
             TrendsDevicesCard(devices: page.devices) { router.push(.trendDevice($0.key)) }
@@ -104,7 +105,9 @@ struct TrendsView: View {
         .padding(.top, 6)
         .id("trends.signals")
         ForEach(TrendSignal.allCases) { signal in
-            TrendSignalRow(page: page, signal: signal, expanded: expanded == signal) { tap(signal) }
+            TrendSignalRow(page: page, signal: signal, expanded: expanded == signal,
+                           cardText: dependencies.signals.content(for: signal.rawValue)?.cardText,
+                           onLearn: SignalAboutKey(rawValue: signal.rawValue).flatMap(learn)) { tap(signal) }
         }
         TrendsFoodCard(page: page).id("trends.food")
         TrendsPatternsRow(count: page.patterns.count) { router.push(.trendPatterns) }
@@ -118,6 +121,12 @@ struct TrendsView: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+    }
+
+    /// The way to a signal's "About" page — nil (the link is hidden) until the practice's explanation of it is loaded.
+    private func learn(_ key: SignalAboutKey) -> (() -> Void)? {
+        guard dependencies.signals.content(for: key.rawValue) != nil else { return nil }
+        return { router.push(.signalAbout(key.rawValue)) }
     }
 
     /// First tap opens the row in place; a tap on the open row goes to its page.

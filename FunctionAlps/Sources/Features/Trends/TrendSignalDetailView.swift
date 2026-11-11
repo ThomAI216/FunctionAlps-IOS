@@ -28,15 +28,27 @@ struct TrendSignalDetailView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .task { await trends.loadIfNeeded() }
+        .task { await dependencies.signals.loadIfNeeded() }
     }
 
     private var tint: Color { Color(hex: signal.tintHex) }
+
+    /// "Learn about <signal>" at the top of the page — only when the practice's explanation is loaded.
+    @ViewBuilder
+    private var aboutLink: some View {
+        if let key = SignalAboutKey(rawValue: signal.rawValue), dependencies.signals.content(for: key.rawValue) != nil {
+            NavigationLink(value: Route.signalAbout(key.rawValue)) { SignalAboutLinkLabel(key: key) }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 2)
+        }
+    }
 
     private func content(_ page: TrendsEngine.Page, trends: TrendsService) -> some View {
         let facts = page.facts(signal)
         return ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
                 TrendDetailHeader(title: signal.title) { subtitle(facts) }
+                aboutLink
                 TrendWindowPicker(selection: trends.window) { trends.setWindow($0) }
                 TrendSentenceBox(text: page.sentence(signal))
                 chartCard(page, facts: facts)
@@ -283,7 +295,7 @@ struct TrendSignalDetailView: View {
                     Text(String(localized: "trends.digestion.noSymptoms", defaultValue: "no symptoms ticked"))
                         .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkMuted)
                 } else {
-                    TrendWordChip(text: ticked(day), tint: tint)
+                    TrendWordChip(text: ticked(day), tone: .strong)
                 }
             }
             ForEach(day.meals) { meal in TrendMealRow(meal: meal, showsPhoto: false) }

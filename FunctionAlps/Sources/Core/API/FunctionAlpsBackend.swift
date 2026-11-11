@@ -70,6 +70,12 @@ protocol FunctionAlpsBackend: Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow?
     /// `library_topic_covers` — one cover per topic, shared with the members web (anon/authenticated select).
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow]
+
+    // MARK: Signal explanations (practice-curated content; the app renders it, never invents it)
+
+    /// `signal_explanations` for the app's language: approved rows only (RLS says so too), newest version first. The service
+    /// keeps the newest per signal. Default: none (test stubs that do not model it).
+    func signalExplanations(locale: String) async throws -> [SignalExplanation]
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 
@@ -432,4 +438,5 @@ enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
 extension FunctionAlpsBackend {
     func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
 }

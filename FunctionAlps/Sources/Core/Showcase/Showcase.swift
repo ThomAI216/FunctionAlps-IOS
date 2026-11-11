@@ -30,6 +30,10 @@ enum Showcase {
         /// opened in place, and the pages behind it — Sleep, Digestion, a device (Oura), the patterns the practitioner shared.
         case trendsMiddle = "trends-middle", trendsBottom = "trends-bottom", trendsEnergyOpen = "trends-energy-open"
         case trendsSleep = "trends-sleep", trendsDigestion = "trends-digestion", trendsDevice = "trends-device", trendsPatterns = "trends-patterns"
+        /// The signal explanations (owner, 2026-11-11): "About energy" from its top and scrolled to the plate and the actions,
+        /// "About sleep", "About digestion".
+        case signalAboutEnergy = "signal-about-energy", signalAboutEnergyBottom = "signal-about-energy-bottom"
+        case signalAboutSleep = "signal-about-sleep", signalAboutDigestion = "signal-about-digestion"
         /// The new Library (2026-11-10): the soft-lock sheet, search results, a read with Practice it, a video in the app's player.
         /// (`library` itself is its home.)
         case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
@@ -57,7 +61,8 @@ enum Showcase {
     /// The Trends screenshots: the sample member also has an Oura ring, 35 days of check-ins and two validated patterns.
     static var isTrends: Bool {
         switch screen {
-        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns: true
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns,
+             .signalAboutEnergy, .signalAboutEnergyBottom, .signalAboutSleep, .signalAboutDigestion: true
         default: false
         }
     }
@@ -91,6 +96,9 @@ enum Showcase {
         case .trendsDigestion: "functionalps://trends/signal/digestion"
         case .trendsDevice: "functionalps://trends/device/\(ShowcaseData.trendsDeviceKey)"
         case .trendsPatterns: "functionalps://trends/patterns"
+        case .signalAboutEnergy, .signalAboutEnergyBottom: "functionalps://trends/about/energy"
+        case .signalAboutSleep: "functionalps://trends/about/sleep"
+        case .signalAboutDigestion: "functionalps://trends/about/digestion"
         case .scores: "functionalps://scores"
         case .careplan, .careplanMiddle, .careplanBottom: "functionalps://careplan"
         case .action: "functionalps://action/\(ShowcaseData.actionHabitId)"
