@@ -31,6 +31,9 @@ final class AppDependencies {
     let documents: DocumentsService
     /// The clinician's habits for today, with the check-off.
     let habits: HabitsService
+    /// The client's care plan as the practice shared it (programmes, objectives, wins, complaints, hypotheses) —
+    /// shared by Today's card, the Plan page and its screens.
+    let clientPlan: ClientCarePlanService
     /// The Foundation Track (the 14-day start): status, days, questionnaires, answers and ticks — shared by Home's
     /// card, the questionnaire flow and the reminder plan.
     let track: TrackService
@@ -80,6 +83,7 @@ final class AppDependencies {
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.documents = DocumentsService(backend: backend, members: members, auth: auth)
         self.habits = HabitsService(backend: backend, auth: auth)
+        self.clientPlan = ClientCarePlanService(backend: backend, members: members, auth: auth)
         self.track = TrackService(backend: backend, auth: auth)
         self.unlocks = UnlockService(backend: backend)
         self.trends = TrendsService(backend: backend, auth: auth, wearables: wearables)

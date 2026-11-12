@@ -128,6 +128,14 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    var clientPlanResult = ClientCarePlanRaw.empty
+    var clientPlanError: AppError?
+    private(set) var clientPlanCalls = 0
+    func clientCarePlan() async throws -> ClientCarePlanRaw {
+        clientPlanCalls += 1
+        if let clientPlanError { throw clientPlanError }
+        return clientPlanResult
+    }
     func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
     func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}

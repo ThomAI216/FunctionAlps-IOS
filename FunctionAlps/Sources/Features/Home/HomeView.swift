@@ -114,7 +114,7 @@ struct HomeView: View {
                         TrackHomeReadCard(slug: slug, day: day)
                     }
                     if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
-                        HealthPlanCard()
+                        CarePlanTodayCard()   // the client's care plan when the practice has shared one, else "My health plan"
                     }
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
@@ -164,6 +164,7 @@ struct HomeView: View {
             }
             .refreshable {
                 await model.load(refresh: true)
+                await dependencies.clientPlan.load(force: true)
                 await dependencies.track.load()
             }
             #if DEBUG
