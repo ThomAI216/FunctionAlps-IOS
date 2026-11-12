@@ -55,6 +55,13 @@ protocol FunctionAlpsBackend: Sendable {
     /// RAW answers up, the SERVER-scored row back (`member_submit_checkin` v2) — one scorer for every client.
     func submitCheckin(day: String, slot: MomentSlot, submission: CheckinSubmission) async throws -> CheckinSubmitResult
 
+    // MARK: Feeling for the day (patient_day_feelings, 2026-11-12)
+
+    /// How the member said they feel as this day starts; nil when none was saved. Not a check-in moment.
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling?
+    /// One row per (patient, day); saving again edits it.
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws
+
     // MARK: Scores (server-side engine)
 
     /// `member-scores` for the signed-in member; `tzOffsetMinutes` = minutes east of UTC on this device.
@@ -185,6 +192,19 @@ protocol FunctionAlpsBackend: Sendable {
     /// The patient is resolved from the JWT inside the function; nothing else about labs is readable.
     func labResults() async throws -> [LabResultRow]
 
+    // MARK: Documents (member_documents — Documents tab programme)
+
+    /// The member's LIVE document releases (sent, not revoked), via `member_documents()`.
+    func memberDocuments() async throws -> [MemberDocument]
+    /// Where one release's frozen copy lives (`member_document_file`); nil when the release is not the caller's or not live.
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile?
+    /// A short-lived signed URL for an object of a document bucket (`document-releases`, `invoices`); other buckets throw.
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL
+    /// `member_mark_document_seen(p_release_id)` — stamps the first and last open.
+    func markDocumentSeen(releaseId: String) async throws
+    /// `member_has_draft_plan()` — a plan exists but is still a draft (shown blurred, never its content).
+    func hasDraftPlan() async throws -> Bool
+
     // MARK: Messaging (patient_messages)
 
     /// `patients.clinic_id` for the signed-in account (own-row RLS) — every sent message carries it.
@@ -277,6 +297,10 @@ protocol FunctionAlpsBackend: Sendable {
     func nextAppointment(after: Date) async throws -> AppointmentRow?
     /// The member's most recent appointment before `before`, not cancelled ("Your Pathway": "based on your consultation of …").
     func lastAppointment(before: Date) async throws -> AppointmentRow?
+    /// The client's care plan as the practice shared it (CLINICAL migrations 325 + 331): the seven member RPCs
+    /// `member_care_plan_programmes · _objectives · _wins · _complaints · _hypotheses · _evolution · _situation`.
+    /// Programmes and objectives may throw; the other five fail soft to empty so one missing function never hides the plan.
+    func clientCarePlan() async throws -> ClientCarePlanRaw
     /// `care_plans.objective_line` of the active plan — the clinician's own words, "Your focus" on the Pathway.
     func activePlanObjective(patientId: String) async throws -> String?
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
@@ -437,6 +461,8 @@ enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
 /// Reads only Trends needs: a backend that does not model them answers "nothing logged", never an error.
 extension FunctionAlpsBackend {
     func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
 }

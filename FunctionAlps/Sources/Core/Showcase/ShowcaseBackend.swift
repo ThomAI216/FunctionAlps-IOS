@@ -11,7 +11,11 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func currentPatientId() async throws -> String? { ShowcaseData.patientId }
     func memberProfile(patientId: String) async throws -> MemberProfile? { ShowcaseData.profile(onboarded: screen != .onboarding) }
     func meals(patientId: String, since: Date) async throws -> [MealLog] { ShowcaseData.meals(since: since) }
-    func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? { ShowcaseData.dailyCheckins(includeToday: eveningDone).first { $0.day == day } }
+    func dailyCheckin(patientId: String, day: String) async throws -> DailyCheckin? {
+        // The morning shots catch up a MISSED yesterday: its day row must not exist.
+        if Showcase.isMorningShot { return nil }
+        return ShowcaseData.dailyCheckins(includeToday: eveningDone).first { $0.day == day }
+    }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { 1 }
 
     func meal(id: String) async throws -> MealLog? { ShowcaseData.meal(id: id) }
@@ -79,6 +83,11 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     /// A lead on the Foundation Track has no care plan yet.
     func carePlan(patientId: String) async throws -> CarePlan? { ShowcaseTrack.isOn ? nil : ShowcaseData.carePlan }
     func labResults() async throws -> [LabResultRow] { [] }
+    func memberDocuments() async throws -> [MemberDocument] { [] }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { nil }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { URL(string: "https://example.invalid/\(bucket)/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws {}
+    func hasDraftPlan() async throws -> Bool { false }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [EntitlementRow(accessType: "full_access", status: "active", startsAt: nil, expiresAt: nil)] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
@@ -120,6 +129,7 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { ShowcaseLibrary.isOn ? ShowcaseLibrary.cards : Array(ShowcaseData.cards.values) }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func clientCarePlan() async throws -> ClientCarePlanRaw { .empty }
     func lastAppointment(before: Date) async throws -> AppointmentRow? {
         AppointmentRow(id: "showcase-consult", title: "Consultation", startsAt: ISO8601.string(ShowcaseData.at(-12, 10)), endsAt: nil, location: nil, meetingLink: nil, status: "completed")
     }
@@ -159,8 +169,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func notificationData(id: String) async throws -> JSONValue? { nil }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] {
         // The wearable shot is a first check-in of the day, so the ring's night fills the card.
-        if screen == .checkinWearable { return [] }
-        return Showcase.isCheckinInProgress || eveningDone ? [ShowcaseData.eveningMoment()] : []
+        if screen == .checkinWearable || Showcase.isMorningShot { return [] }
+        // `checkin-locked`: today's daily check-in is saved, so the screen is read-only and asks before it lets go.
+        return Showcase.isCheckinInProgress || eveningDone || screen == .checkinLocked ? [ShowcaseData.eveningMoment()] : []
     }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }

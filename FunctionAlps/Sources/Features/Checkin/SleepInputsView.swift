@@ -46,14 +46,15 @@ struct SleepInputsView: View {
                 .transition(.opacity)
             }
             layout {
+                // Pills on the left, dial on the right: the right thumb would otherwise cover the dial (owner, 2026-11-12).
+                bandPills(compact: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 VStack(spacing: 6) {
                     SleepDialView(bed: bedMinutes, wake: wakeMinutes, isSet: specials.durationMin != nil, accent: accent, onChange: setNight)
                     clockLine
                 }
                 .frame(width: typeSize.isAccessibilitySize ? nil : 150)
                 .frame(maxWidth: typeSize.isAccessibilitySize ? 220 : nil)
-                bandPills(compact: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

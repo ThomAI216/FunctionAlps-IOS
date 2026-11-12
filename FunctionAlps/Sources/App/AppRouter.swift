@@ -20,6 +20,12 @@ enum Route: Hashable {
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
     case carePlan
+    /// The client's care plan screens (CLINICAL 2026-11-12): one objective, "Why we're doing this", "Your situation &
+    /// evolution", and the journey (more than one programme).
+    case clientObjective(String)
+    case carePlanWhy
+    case carePlanSituation
+    case carePlanJourney
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
@@ -66,6 +72,8 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    /// What the care team released to the member: reports, lab reports, resources, invoices.
+    case documents
     // Trends rework (2026-11-10): one signal's page, one device's page (`TrendsEngine.appleHealthKey` or a vendor key),
     // and the patterns the practitioner shared.
     case trendSignal(TrendSignal)
@@ -114,6 +122,23 @@ final class AppRouter {
     /// Set by Home's mic: Messages opens with the composer focused and dictation started; consumed once.
     var pendingDictation = false
 
+    /// The morning check-in's end screen: a check-in on top of the selected stack steps aside for `route`, so Back returns
+    /// to where the check-in was opened from, not into a finished check-in.
+    func replaceCheckin(with route: Route) {
+        switch tab {
+        case .home: Self.swapCheckin(&homePath, with: route)
+        case .trends: Self.swapCheckin(&trendsPath, with: route)
+        case .food: Self.swapCheckin(&foodPath, with: route)
+        case .library: Self.swapCheckin(&libraryPath, with: route)
+        case .profile: Self.swapCheckin(&profilePath, with: route)
+        }
+    }
+
+    private static func swapCheckin(_ path: inout [Route], with route: Route) {
+        if let last = path.last, case .checkin = last { path.removeLast() }
+        path.append(route)
+    }
+
     /// Home's messages card: push Messages on the current stack (back returns to where the member was).
     func openMessages(dictate: Bool = false) {
         pendingDictation = dictate
@@ -134,7 +159,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -204,6 +229,7 @@ final class AppRouter {
         case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "documents": tab = .profile; profilePath = [.documents]
         case "results":
             // results · results/<releaseId> — the "your results are ready" push lands on the release itself.
             tab = .profile; profilePath = [.labResults]
@@ -407,7 +433,11 @@ struct MainTabView: View {
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
-        case .carePlan: CarePlanView()
+        case .carePlan: CarePlanEntryView()
+        case .clientObjective(let id): ClientObjectiveView(objectiveId: id)
+        case .carePlanWhy: ClientWhyView()
+        case .carePlanSituation: ClientSituationView()
+        case .carePlanJourney: ClientJourneyView()
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
@@ -441,6 +471,7 @@ struct MainTabView: View {
         case .bodySignal(let s): SignalDetailView(kind: .body(s))
         case .gutSignal(let s): SignalDetailView(kind: .gut(s))
         case .labResults: LabResultsView()
+        case .documents: DocumentsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
         case .trendSignal(let signal): TrendSignalDetailView(signal: signal)

@@ -85,6 +85,18 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     var labRows: [LabResultRow] = []
     private(set) var labResultsCalls = 0
     func labResults() async throws -> [LabResultRow] { labResultsCalls += 1; return labRows }
+    var documents: [MemberDocument] = []
+    var documentFile: DocumentFile?
+    var draftPlan = false
+    var documentsFail = false
+    private(set) var documentsCalls = 0
+    private(set) var signed: [String] = []
+    private(set) var seen: [String] = []
+    func memberDocuments() async throws -> [MemberDocument] { documentsCalls += 1; if documentsFail { throw AppError.notFound }; return documents }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { documentFile }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { signed.append("\(bucket)/\(path)"); return URL(string: "https://signed.invalid/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws { seen.append(releaseId) }
+    func hasDraftPlan() async throws -> Bool { draftPlan }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
@@ -116,6 +128,14 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    var clientPlanResult = ClientCarePlanRaw.empty
+    var clientPlanError: AppError?
+    private(set) var clientPlanCalls = 0
+    func clientCarePlan() async throws -> ClientCarePlanRaw {
+        clientPlanCalls += 1
+        if let clientPlanError { throw clientPlanError }
+        return clientPlanResult
+    }
     func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
     func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}
@@ -143,6 +163,12 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func trackSummary(code: String, day: Int) async throws -> TrackSummary? { nil }
     func notificationData(id: String) async throws -> JSONValue? { nil }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
+    var dayFeelingResult: DayFeeling?
+    var dayFeelingFails = false
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        if dayFeelingFails { throw AppError.notFound }
+        return dayFeelingResult
+    }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}
@@ -293,5 +319,26 @@ struct DashboardServiceTests {
         #expect(today.day == "2026-09-02")
         #expect(today.unreadClinicianMessages == 2)
         #expect(today.totalCalories == 0)
+    }
+
+    @Test func aSavedDayFeelingCountsAsTheMorningCheckinDone() async throws {
+        let backend = StubBackend()
+        let service = DashboardService(backend: backend)
+        // Nothing saved: the morning is open.
+        var today = try await service.today(patientId: "p")
+        #expect(!today.dayFeelingSaved && !today.isDone(.morning))
+        // Only "Feeling for the day" saved: the morning is done, the other slots are not.
+        backend.dayFeelingResult = DayFeeling(day: today.day, mood: 70)
+        today = try await service.today(patientId: "p")
+        #expect(today.dayFeelingSaved && today.isDone(.morning))
+        #expect(!today.isDone(.midday))
+    }
+
+    @Test func aFailedDayFeelingReadMeansNotDoneAndHomeStillLoads() async throws {
+        let backend = StubBackend()
+        backend.dayFeelingResult = DayFeeling(day: "x", mood: 70)
+        backend.dayFeelingFails = true
+        let today = try await DashboardService(backend: backend).today(patientId: "p")
+        #expect(!today.dayFeelingSaved && !today.isDone(.morning))
     }
 }

@@ -145,7 +145,7 @@ struct TrendsView: View {
                     title: String(localized: "trends.empty.title", defaultValue: "Your trends start with a check-in"),
                     message: String(localized: "trends.empty.message", defaultValue: "Log how you feel and what you eat, and your days appear here."),
                     systemImage: "chart.line.uptrend.xyaxis")
-                NavigationLink(value: Route.checkin(.evening)) {
+                NavigationLink(value: Route.checkin(dependencies.checkins.currentSlot)) {
                     Text(String(localized: "trends.empty.cta", defaultValue: "Start today's check-in"))
                         .font(FATypography.sans(13, .semibold, relativeTo: .footnote))
                         .foregroundStyle(FAColor.forest)

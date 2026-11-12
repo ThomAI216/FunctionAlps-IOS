@@ -47,7 +47,7 @@ struct TodayFocusCard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(localized: "focus.checkin.title", defaultValue: "Check in to get today's focus"))
                             .font(FATypography.headline).foregroundStyle(FAColor.ink)
-                        Text(String(localized: "focus.checkin.message", defaultValue: "A minute on last night and what today is for — your focus appears here."))
+                        Text(String(localized: "focus.checkin.message", defaultValue: "A minute on last night and how you feel — your focus appears here."))
                             .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
