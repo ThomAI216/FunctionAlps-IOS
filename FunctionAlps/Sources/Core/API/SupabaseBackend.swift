@@ -662,6 +662,59 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return CheckinSubmitResult(moment: moment, momentCount: reply.momentCount ?? 1, scoredBy: reply.scoredBy ?? "server", redFlags: reply.redFlags?.model ?? .none)
     }
 
+    // MARK: Feeling for the day (patient_day_feelings)
+
+    private struct DayFeelingRow: Decodable, Sendable {
+        let day: String
+        let mood: Int?
+        let energy: Int?
+        let motivation: Int?
+        let pills: [String: [String]]?
+        let endRule: String?
+
+        private enum CodingKeys: String, CodingKey { case day, mood, energy, motivation, pills, endRule }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            day = try c.decode(String.self, forKey: .day)
+            mood = try c.decodeIfPresent(Int.self, forKey: .mood)
+            energy = try c.decodeIfPresent(Int.self, forKey: .energy)
+            motivation = try c.decodeIfPresent(Int.self, forKey: .motivation)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost row.
+            pills = try? c.decodeIfPresent([String: [String]].self, forKey: .pills)
+            endRule = try c.decodeIfPresent(String.self, forKey: .endRule)
+        }
+
+        var model: DayFeeling {
+            // The decoder may have camel-cased the group keys (`mood_why` -> `moodWhy`): hand them back as written.
+            var groups: [String: [String]] = [:]
+            for (key, picked) in pills ?? [:] { groups[SnakeKeys.snake(key)] = picked }
+            return DayFeeling(day: day, mood: mood, energy: energy, motivation: motivation, pills: groups, endRule: endRule)
+        }
+    }
+
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        let row: DayFeelingRow? = try await rest.selectOne("patient_day_feelings", query: [
+            PG.select("day,mood,energy,motivation,pills,end_rule"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+        ])
+        return row?.model
+    }
+
+    func saveDayFeeling(patientId: String, feeling f: DayFeeling) async throws {
+        let row: ColumnPatch = [
+            "patient_id": .string(patientId),
+            "day": .string(f.day),
+            "mood": .int(f.mood),
+            "energy": .int(f.energy),
+            "motivation": .int(f.motivation),
+            "pills": .pills(f.pills), // NOT NULL (default '{}') — always an object
+            "end_rule": .string(f.endRule),
+        ]
+        try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day", body: row, snakeCase: false)
+    }
+
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
         let row: ColumnPatch = [
             "patient_id": .string(patientId),

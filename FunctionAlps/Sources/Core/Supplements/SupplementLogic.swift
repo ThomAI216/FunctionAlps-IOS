@@ -42,8 +42,18 @@ enum SupplementLogic {
         switch s.rule {
         case .daily: nil
         case .alternate: String(localized: "supp.rhythm.alternate", defaultValue: "Every other day")
-        case .weekdays: String(localized: "supp.rhythm.weekdays", defaultValue: "Only on set days")
+        case .weekdays:
+            weekdayNames(s.daysOfWeek).map { String(localized: "supp.rhythm.weekdaysNamed", defaultValue: "On \($0)") }
+                ?? String(localized: "supp.rhythm.weekdays", defaultValue: "Only on set days")
         }
+    }
+
+    /// "Mon, Wed, Fri" from `days_of_week` (ISO: 1 = Monday … 7 = Sunday); nil when empty or out of range.
+    static func weekdayNames(_ days: [Int]?) -> String? {
+        let names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let valid = Array(Set((days ?? []).filter { (1...7).contains($0) })).sorted()
+        guard !valid.isEmpty else { return nil }
+        return valid.map { names[$0 - 1] }.joined(separator: ", ")
     }
 
     // MARK: Home rows

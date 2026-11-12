@@ -121,6 +121,10 @@ enum SignalActionMatch {
         "slow_eating": ["eat slowly", "chew", "mastic", "manger lentement", "slow eating"],
         "gratitude": ["gratitude", "grateful", "good things", "reconnaissance"],
         "social": ["friend", "social", "amis"],
+        // The morning check-in's end screen (2026-11-12) asks for these three as well.
+        "nsdr": ["nsdr", "yoga nidra", "deep rest", "repos profond"],
+        "nap": ["nap", "sieste"],
+        "meditation": ["meditat", "méditat"],
     ]
 
     /// The first bank card (in the bank's order) whose title or its other-language title holds a keyword of the hint.

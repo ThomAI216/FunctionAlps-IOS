@@ -62,12 +62,13 @@ struct LadderTests {
         #expect(count(HabitEngine.routineNow(plan([]), hour: 8), false) == [0, 1])
     }
 
-    @Test func aMissedMorningCheckinStaysOnTheDaysCardUntil17() {
+    @Test func aMissedMorningCheckinStaysOnTheDaysCardUntil14() {
         #expect(HabitEngine.showsMorningCheckin(.morning, hour: 7, done: false))
         #expect(HabitEngine.showsMorningCheckin(.morning, hour: 7, done: true))       // shown done in its own routine
-        #expect(HabitEngine.showsMorningCheckin(.midday, hour: 14, done: false))      // a late morning still gets it
-        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 14, done: true))
-        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 17, done: false))     // the evening check-in's time
+        #expect(HabitEngine.showsMorningCheckin(.midday, hour: 13, done: false))      // a late morning still gets it
+        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 13, done: true))
+        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 14, done: false))     // the daily check-in's time (14:00)
+        #expect(!HabitEngine.showsMorningCheckin(.midday, hour: 17, done: false))
         #expect(!HabitEngine.showsMorningCheckin(.evening, hour: 20, done: false))
         // On the day's card it is not counted: "N of M done" stays the day's actions.
         let day = HabitEngine.routineNow(plan([habit("d1", slot: "midday")]), hour: 14)

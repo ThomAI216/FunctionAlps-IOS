@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The Home check-in square (right of the meal-scan square): the functional check-in, the one check-in of the
-/// day since 2026-09-30 (digestion is answered inside it). Thomas, 2026-11-06: no mountain photograph; the card
+/// The Home check-in square (right of the meal-scan square): the check-in of the moment — the MORNING one before 14:00,
+/// the DAILY functional one from 14:00 (owner, 2026-11-12; `MomentSlot.current`). Digestion is answered inside the daily one. Thomas, 2026-11-06: no mountain photograph; the card
 /// is glass, with the five marker curves drawing themselves across it and the five marker pills (mood · sleep ·
 /// energy · calm · digestion) scattered over them, and the title at the foot. The whole card is the way in.
 struct EveningCheckinCard: View {
@@ -9,7 +9,7 @@ struct EveningCheckinCard: View {
     let now: MomentSlot
 
     var body: some View {
-        NavigationLink(value: Route.checkin(.evening)) {
+        NavigationLink(value: Route.checkin(now)) {
             CheckinCurvesCard(today: today, now: now)
         }
         .buttonStyle(.plain)
@@ -21,7 +21,7 @@ private struct CheckinCurvesCard: View {
     let today: TodaySnapshot
     let now: MomentSlot
 
-    private var done: Bool { CheckinEngine.slotIsDone(today.moments, .evening) }
+    private var done: Bool { today.isDone(now) }
 
     /// mood · sleep · energy · calmness · digestion — today's reads, each with its accent (the curve's colour), and
     /// where its pill sits on the card (fractions of the width and height), scattered rather than in rows.
@@ -61,11 +61,17 @@ private struct CheckinCurvesCard: View {
         .accessibilityLabel("\(title). \(status)")
     }
 
-    private var title: String { String(localized: "home.carousel.evening", defaultValue: "Functional check-in") }
+    private var title: String {
+        now == .morning
+            ? String(localized: "home.carousel.morning", defaultValue: "Morning check-in")
+            : String(localized: "home.carousel.evening", defaultValue: "Functional check-in")
+    }
 
     private var status: String {
         if done { return String(localized: "home.carousel.done", defaultValue: "Done · tap to adjust") }
-        return String(localized: "home.carousel.daily.sub", defaultValue: "Your night and your day · about a minute")
+        return now == .morning
+            ? String(localized: "home.carousel.morning.feeling", defaultValue: "Your night and how you feel · about a minute")
+            : String(localized: "home.carousel.daily.sub", defaultValue: "Your night and your day · about a minute")
     }
 
     /// One marker pill: its colour dot, the name and today's read (— until the check-in is done).

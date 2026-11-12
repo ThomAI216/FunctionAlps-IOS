@@ -57,10 +57,11 @@ struct CheckinEngineTests {
         #expect(FunctionalSchema.bandLevel(60) == .mid)
         #expect(FunctionalSchema.bandLevel(61) == .high)
         #expect(FunctionalSchema.bandLevel(nil) == nil)
-        // Two moments: the day belongs to the morning until the evening reflection is due.
+        // Two moments: the day belongs to the morning until the daily check-in is due, at 14:00 (owner, 2026-11-12).
         #expect(MomentSlot.current(hour: 0) == .morning)
         #expect(MomentSlot.current(hour: 10) == .morning)
-        #expect(MomentSlot.current(hour: 16) == .morning)
+        #expect(MomentSlot.current(hour: 13) == .morning)
+        #expect(MomentSlot.current(hour: 14) == .evening)
         #expect(MomentSlot.current(hour: 17) == .evening)
         #expect(MomentSlot.current(hour: 23) == .evening)
         #expect(MomentSlot.scheduled == [.morning, .evening])

@@ -231,6 +231,16 @@ struct SupplementLogicTests {
         #expect(SupplementLogic.mark(day(today: true, [true])) == .taken)
     }
 
+    @Test("Set-day supplements name their ISO weekdays")
+    func weekdays() {
+        #expect(SupplementLogic.weekdayNames([5, 1, 3, 3]) == "Mon, Wed, Fri")
+        #expect(SupplementLogic.weekdayNames([7]) == "Sun")
+        #expect(SupplementLogic.weekdayNames([0, 8]) == nil)
+        #expect(SupplementLogic.weekdayNames(nil) == nil)
+        #expect(SupplementLogic.rhythmText(Supplement(id: "a", name: "X", daysRule: "weekdays", daysOfWeek: [2, 4])) == "On Tue, Thu")
+        #expect(SupplementLogic.rhythmText(Supplement(id: "a", name: "X", daysRule: "weekdays")) == "Only on set days")
+    }
+
     @Test("The Plan list: active by their first moment, paused last")
     func planOrder() {
         let list = [

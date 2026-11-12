@@ -163,6 +163,12 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func trackSummary(code: String, day: Int) async throws -> TrackSummary? { nil }
     func notificationData(id: String) async throws -> JSONValue? { nil }
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] { [] }
+    var dayFeelingResult: DayFeeling?
+    var dayFeelingFails = false
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        if dayFeelingFails { throw AppError.notFound }
+        return dayFeelingResult
+    }
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws {}
     func dailyCheckinCarry(patientId: String, day: String) async throws -> DailyCheckinCarry? { nil }
     func upsertDailySummary(patientId: String, day: String, patch: DaySummaryPatch) async throws {}
@@ -313,5 +319,26 @@ struct DashboardServiceTests {
         #expect(today.day == "2026-09-02")
         #expect(today.unreadClinicianMessages == 2)
         #expect(today.totalCalories == 0)
+    }
+
+    @Test func aSavedDayFeelingCountsAsTheMorningCheckinDone() async throws {
+        let backend = StubBackend()
+        let service = DashboardService(backend: backend)
+        // Nothing saved: the morning is open.
+        var today = try await service.today(patientId: "p")
+        #expect(!today.dayFeelingSaved && !today.isDone(.morning))
+        // Only "Feeling for the day" saved: the morning is done, the other slots are not.
+        backend.dayFeelingResult = DayFeeling(day: today.day, mood: 70)
+        today = try await service.today(patientId: "p")
+        #expect(today.dayFeelingSaved && today.isDone(.morning))
+        #expect(!today.isDone(.midday))
+    }
+
+    @Test func aFailedDayFeelingReadMeansNotDoneAndHomeStillLoads() async throws {
+        let backend = StubBackend()
+        backend.dayFeelingResult = DayFeeling(day: "x", mood: 70)
+        backend.dayFeelingFails = true
+        let today = try await DashboardService(backend: backend).today(patientId: "p")
+        #expect(!today.dayFeelingSaved && !today.isDone(.morning))
     }
 }

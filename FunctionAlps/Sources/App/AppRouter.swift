@@ -26,6 +26,8 @@ enum Route: Hashable {
     case carePlanWhy
     case carePlanSituation
     case carePlanJourney
+    case carePlanFocus(String)
+    case carePlanAction(String)
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
     /// One supplement's page (Home's "Supplements today", the Plan's list), by its plan id.
@@ -123,6 +125,23 @@ final class AppRouter {
 
     /// Set by Home's mic: Messages opens with the composer focused and dictation started; consumed once.
     var pendingDictation = false
+
+    /// The morning check-in's end screen: a check-in on top of the selected stack steps aside for `route`, so Back returns
+    /// to where the check-in was opened from, not into a finished check-in.
+    func replaceCheckin(with route: Route) {
+        switch tab {
+        case .home: Self.swapCheckin(&homePath, with: route)
+        case .trends: Self.swapCheckin(&trendsPath, with: route)
+        case .food: Self.swapCheckin(&foodPath, with: route)
+        case .library: Self.swapCheckin(&libraryPath, with: route)
+        case .profile: Self.swapCheckin(&profilePath, with: route)
+        }
+    }
+
+    private static func swapCheckin(_ path: inout [Route], with route: Route) {
+        if let last = path.last, case .checkin = last { path.removeLast() }
+        path.append(route)
+    }
 
     /// Home's messages card: push Messages on the current stack (back returns to where the member was).
     func openMessages(dictate: Bool = false) {
@@ -430,6 +449,8 @@ struct MainTabView: View {
         case .carePlanWhy: ClientWhyView()
         case .carePlanSituation: ClientSituationView()
         case .carePlanJourney: ClientJourneyView()
+        case .carePlanFocus(let id): HabitDetailView(habitId: id, kind: .focus)
+        case .carePlanAction(let id): HabitDetailView(habitId: id, kind: .action)
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .supplement(let id): SupplementPage(supplementId: id)
         case .actionBank: ActionBankView()

@@ -39,6 +39,7 @@ struct FunctionAlpsApp: App {
                     #if DEBUG
                     .overlay {
                         if Showcase.screen == .bonAppetit { BonAppetitView(phrase: BonAppetit.phrases[0], onDone: {}, holds: true) }
+                        if let rule = Showcase.morningEndRule { MorningEndView(rule: rule, onAction: { _ in }, onContinue: {}, holds: true) }
                     }
                     #endif
             } else {
