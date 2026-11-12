@@ -101,8 +101,11 @@ final class NotificationService {
     /// Reactions for the recent meals are read here (one small PostgREST call) so a rated meal never gets its 2.5 h nudge.
     func replan(snapshot: TodaySnapshot?, wearables: WearableService?) async {
         guard authorization == .authorized || authorization == .provisional else { return }
+        if let wearables { lastWearables = wearables }
+        let wearables = wearables ?? lastWearables
         var state = NotificationPlanner.State(now: Date())
         state.track = track
+        state.supplements = supplements
         if let fresh = snapshot { lastSnapshot = fresh }
         // A kept Today counts only while it is still today (an app left open overnight must not carry yesterday's ticks).
         if let snapshot = snapshot ?? lastSnapshot.flatMap({ $0.day == ISO8601.dayString(Date()) ? $0 : nil }) {
@@ -120,6 +123,41 @@ final class NotificationService {
         let plan = NotificationPlanner.respectingQuietHours(NotificationPlanner.plan(prefs: prefs, state: state), prefs: prefs)
         await local.apply(plan)
         lastPlanCount = plan.count
+    }
+
+    // MARK: Supplement reminders
+
+    /// The supplements as last read; the plan groups them by moment (`SupplementReminders`).
+    private(set) var supplements: [Supplement] = []
+    /// The last wearables handed to a re-plan, so a supplement-only change does not drop the Apple Health nudge.
+    @ObservationIgnored private weak var lastWearables: WearableService?
+
+    /// The supplements were read or changed (a tick, a new day): re-plan with them. A ticked moment drops out of
+    /// the plan, which removes its pending reminder.
+    func updateSupplements(_ list: [Supplement]) async {
+        guard list != supplements else { return }
+        supplements = list
+        await replan(snapshot: nil, wearables: nil)
+    }
+
+    /// A moment's reminder was answered: its delivered banner and any snooze go.
+    func supplementAnswered(moment: SupplementMoment, day: String) async {
+        await local.clearSupplementReminders(moment: moment.rawValue, day: day)
+    }
+
+    /// "Later" on a supplement reminder: the same text again in half an hour, unless that lands in quiet hours.
+    func snoozeSupplements(moment: SupplementMoment, day: String, ids: [String]) async {
+        guard authorization == .authorized || authorization == .provisional else { return }
+        let names = supplements.filter { ids.contains($0.id) }
+        guard !names.isEmpty else { return }
+        let fireAt = Date().addingTimeInterval(30 * 60)
+        let planned = NotificationPlanner.Planned(
+            id: LocalNotifications.snoozeIdPrefix + moment.rawValue + "." + day, kind: .supplements, fireAt: fireAt,
+            title: SupplementReminders.title(moment: moment, supplements: names), body: SupplementReminders.body(names),
+            route: SupplementReminders.route, threadId: SupplementReminders.threadId,
+            extra: ["moment": moment.rawValue, "day": day, "ids": ids.joined(separator: ",")])
+        guard NotificationPlanner.respectingQuietHours([planned], prefs: prefs).first?.fireAt == fireAt else { return }
+        await local.add(planned)
     }
 
     /// Meals rated on this phone this session (so a replan racing the write never re-adds the nudge).

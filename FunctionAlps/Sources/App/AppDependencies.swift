@@ -21,6 +21,8 @@ final class AppDependencies {
     let account: AccountService
     let wearables: WearableService
     let notifications: NotificationService
+    /// The member's supplements: Home's card, the Plan's list, each supplement's page and the grouped reminders.
+    let supplements: SupplementService
     let gut: GutService
     let protocols: ProtocolService
     /// Today's focus — shared, so the check-in screen's recomputation lands on the Home card.
@@ -76,7 +78,9 @@ final class AppDependencies {
         self.account = AccountService(backend: backend)
         let wearables = WearableService(backend: backend)
         self.wearables = wearables
-        self.notifications = NotificationService(backend: backend)
+        let notifications = NotificationService(backend: backend)
+        self.notifications = notifications
+        self.supplements = SupplementService(backend: backend, auth: auth, notifications: notifications)
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)

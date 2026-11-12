@@ -10,6 +10,12 @@ import UserNotifications
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     /// Set by the App once dependencies exist.
     @MainActor static var notifications: NotificationService?
+    /// Answers a supplement reminder's "Taken" / "Later" buttons.
+    @MainActor static var supplements: SupplementService? {
+        didSet { flushPendingSupplementActions() }
+    }
+    /// Buttons pressed before the app was ready (a cold start from the notification's action): replayed once it is.
+    @MainActor private static var pendingSupplementActions: [(action: String, group: SupplementReminders.Group)] = []
     @MainActor static var router: AppRouter?
     /// A tap that arrived before the UI was ready (cold start from a notification).
     @MainActor static var pendingRoute: URL?
@@ -46,8 +52,35 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         let info = response.notification.request.content.userInfo
         let route = (info["route"] as? String).flatMap(URL.init(string:))
         let notificationId = info["notification_id"] as? String
+        let supplementGroup = SupplementReminders.group(moment: info["moment"] as? String, day: info["day"] as? String, ids: info["ids"] as? String)
         completionHandler()
-        Task { @MainActor in Self.handle(action: action, route: route, notificationId: notificationId) }
+        Task { @MainActor in
+            if let supplementGroup, action == LocalNotifications.actionSupplementTaken || action == LocalNotifications.actionSupplementLater {
+                Self.handleSupplement(action: action, group: supplementGroup)
+                return
+            }
+            Self.handle(action: action, route: route, notificationId: notificationId)
+        }
+    }
+
+    /// "Taken" logs every supplement of the group without opening the app; "Later" asks again in half an hour.
+    @MainActor
+    private static func handleSupplement(action: String, group: SupplementReminders.Group) {
+        guard let supplements else {
+            pendingSupplementActions.append((action, group))
+            return
+        }
+        Task { @MainActor in
+            if action == LocalNotifications.actionSupplementTaken { await supplements.logTaken(group) } else { await supplements.snooze(group) }
+        }
+    }
+
+    @MainActor
+    private static func flushPendingSupplementActions() {
+        guard supplements != nil, !pendingSupplementActions.isEmpty else { return }
+        let waiting = pendingSupplementActions
+        pendingSupplementActions = []
+        for item in waiting { handleSupplement(action: item.action, group: item.group) }
     }
 
     @MainActor

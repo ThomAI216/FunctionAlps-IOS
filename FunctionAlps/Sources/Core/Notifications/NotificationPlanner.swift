@@ -23,6 +23,8 @@ enum NotificationPlanner {
         case trackMorning = "track.morning"
         case trackMidday = "track.midday"
         case trackEvening = "track.evening"
+        /// One grouped reminder per supplement moment (`SupplementReminders`), with a "Taken" button.
+        case supplements = "supp"
     }
 
     struct Planned: Sendable, Equatable, Identifiable {
@@ -33,6 +35,8 @@ enum NotificationPlanner {
         let body: String
         let route: String         // functionalps://…
         let threadId: String
+        /// Extra string payload for the notification's `userInfo` (the supplement group's moment, day and ids).
+        var extra: [String: String] = [:]
     }
 
     /// What the plan needs to know about today (and the recent days).
@@ -47,11 +51,13 @@ enum NotificationPlanner {
         var appleHealthLastSync: Date?
         /// The Foundation Track while the member is on it (days 1–14); nil otherwise.
         var track: TrackReminderPlan?
+        /// The member's supplements as last read (`member_supplements`); empty = no supplement reminders.
+        var supplements: [Supplement] = []
 
         static func == (a: State, b: State) -> Bool {
             a.now == b.now && a.momentsDone == b.momentsDone && a.mealsToday == b.mealsToday && a.appleHealthConnected == b.appleHealthConnected
                 && a.appleHealthLastSync == b.appleHealthLastSync && a.unratedRecentMeals.map(\.id) == b.unratedRecentMeals.map(\.id)
-                && a.track == b.track
+                && a.track == b.track && a.supplements == b.supplements
         }
     }
 
@@ -136,6 +142,9 @@ enum NotificationPlanner {
             }
         }
 
+        // Supplements: one grouped reminder per moment that has something due, quiet hours respected.
+        out += SupplementReminders.plan(supplements: state.supplements, prefs: prefs, now: now, calendar: calendar)
+
         // 2.5 h after each recent meal with no reaction yet.
         if prefs.postMealFollowupEnabled {
             for meal in state.unratedRecentMeals {
@@ -173,7 +182,7 @@ enum NotificationPlanner {
             var day = calendar.startOfDay(for: p.fireAt)
             if startMin > endMin, m >= startMin, let next = calendar.date(byAdding: .day, value: 1, to: day) { day = next }
             guard let moved = calendar.date(bySettingHour: end.hour, minute: end.minute, second: 0, of: day) else { return p }
-            return Planned(id: p.id, kind: p.kind, fireAt: moved, title: p.title, body: p.body, route: p.route, threadId: p.threadId)
+            return Planned(id: p.id, kind: p.kind, fireAt: moved, title: p.title, body: p.body, route: p.route, threadId: p.threadId, extra: p.extra)
         }
     }
 }

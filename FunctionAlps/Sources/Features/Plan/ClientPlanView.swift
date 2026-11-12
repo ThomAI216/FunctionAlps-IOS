@@ -45,6 +45,7 @@ struct ClientPlanView: View {
                     if let programme { programmeCard(programme, today: today) }
                     objectivesCard(programme: programme)
                     actionsCard(habits.plan)
+                    SupplementsPlanCard()
                     consultationCard(habits.nextCall)
                     explainerCard
                 }
@@ -53,6 +54,7 @@ struct ClientPlanView: View {
             }
             .refreshable {
                 await dependencies.clientPlan.load(force: true)
+                await dependencies.supplements.load()
                 if let request = await dayRequest() { await habits.load(patientId: request.patientId, day: request.day) }
             }
         }
