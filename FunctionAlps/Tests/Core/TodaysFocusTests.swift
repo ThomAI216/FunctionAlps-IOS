@@ -66,7 +66,8 @@ struct TodaysFocusTests {
         let focus = try decode(p5)
         let ticked = focus.replacing(offers: focus.offers.map { var o = $0; o.completed = true; return o })
         #expect(ticked.cell == focus.cell)
-        #expect(ticked.offers.allSatisfy(\.completed))
+        let allDone = ticked.offers.allSatisfy { $0.completed }
+        #expect(allDone)
         #expect(ticked.readiness == focus.readiness)
     }
 
