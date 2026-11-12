@@ -26,6 +26,8 @@ enum Route: Hashable {
     case carePlanWhy
     case carePlanSituation
     case carePlanJourney
+    case carePlanFocus(String)
+    case carePlanAction(String)
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
@@ -438,6 +440,8 @@ struct MainTabView: View {
         case .carePlanWhy: ClientWhyView()
         case .carePlanSituation: ClientSituationView()
         case .carePlanJourney: ClientJourneyView()
+        case .carePlanFocus(let id): HabitDetailView(habitId: id, kind: .focus)
+        case .carePlanAction(let id): HabitDetailView(habitId: id, kind: .action)
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
