@@ -235,9 +235,9 @@ struct ConsentGateView: View {
             case .connection:
                 saveError = String(localized: "gate.consent.saveError", defaultValue: "We couldn't save your choices. Check your connection and try again.")
             case .notLinked:
-                saveError = String(localized: "gate.consent.saveErrorNotLinked", defaultValue: "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to data@functionalps.ch.")
+                saveError = String(localized: "gate.consent.saveErrorNotLinked", defaultValue: "This sign-in isn't linked to your member record, so nothing could be saved. Sign out and sign in the way you first registered, or write to thomas@functionalps.ch.")
             case .other:
-                saveError = String(localized: "gate.consent.saveErrorOther", defaultValue: "We couldn't save your choices just now. Please try again in a moment, or write to data@functionalps.ch.")
+                saveError = String(localized: "gate.consent.saveErrorOther", defaultValue: "We couldn't save your choices just now. Please try again in a moment, or write to thomas@functionalps.ch.")
             }
         }
     }

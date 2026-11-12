@@ -8,6 +8,10 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// One Foundation Track day's reads, on their own page (Library → a day with several reads).
+    case libraryDay(Int)
+    /// A habit's video, played in the app (Library → Watch).
+    case libraryVideo(LibraryVideo)
     /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
     case sentTrack
     /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
@@ -29,6 +33,8 @@ enum Route: Hashable {
     case bankCard(String)
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
+    /// One Foundation Track habit's page (Home's actions card → "See the habit"), by its action key.
+    case habit(String)
     /// The Foundation Track's approved day-7 summary.
     case trackSummary
     /// The Foundation Track's day as its own page (Home's track card opens it).
@@ -66,6 +72,16 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    /// What the care team released to the member: reports, lab reports, resources, invoices.
+    case documents
+    // Trends rework (2026-11-10): one signal's page, one device's page (`TrendsEngine.appleHealthKey` or a vendor key),
+    // and the patterns the practitioner shared.
+    case trendSignal(TrendSignal)
+    case trendDevice(String)
+    case trendPatterns
+    /// "About <signal>": the practice's explanation of one signal (`SignalAboutKey`: sleep · energy · focus · mood · stress ·
+    /// digestion · score), from its Trends row, its page, or the Functional score card.
+    case signalAbout(String)
 }
 
 @MainActor
@@ -125,9 +141,9 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
-    ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -145,12 +161,28 @@ final class AppRouter {
         case "food":
             tab = .food; foodPath = []
             pendingCapture = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "capture" && $0.value == "1" } ?? false
-        case "trends": tab = .trends; trendsPath = []
+        case "trends":
+            // trends · trends/signal/<sleep|energy|focus|mood|stress|digestion> · trends/device/<apple_health|oura|…> · trends/patterns · trends/about/<signal|score>
+            tab = .trends; trendsPath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "signal", rest.count > 1, let signal = TrendSignal(rawValue: rest[1]) {
+                trendsPath = [.trendSignal(signal)]
+            } else if rest.first == "device", rest.count > 1, !rest[1].isEmpty {
+                trendsPath = [.trendDevice(rest[1])]
+            } else if rest.first == "patterns" {
+                trendsPath = [.trendPatterns]
+            } else if rest.first == "about", rest.count > 1, let key = SignalAboutKey(rawValue: rest[1]) {
+                trendsPath = [.signalAbout(key.rawValue)]
+            }
         case "scores": tab = .trends; trendsPath = [.scores]
         case "action":
             // action/<habitId> — one action of the plan, on its card (a reminder can open it).
             tab = .home; homePath = []
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.action(id)) }
+        case "habit":
+            // habit/<action key> — one Foundation Track habit's page.
+            tab = .home; homePath = []
+            if let key = parts.dropFirst().first, !key.isEmpty { homePath.append(.habit(key)) }
         case "bank":
             // bank · bank/<cardId> — the foundation action bank, or one card in it.
             tab = .home; homePath = [.actionBank]
@@ -170,11 +202,17 @@ final class AppRouter {
                 // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
                 if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
+                #if DEBUG
+                // The showcase's video shot: the player, pushed as a tap on a Watch tile would.
+                if Showcase.isOn, slug == "watch" { libraryPath.append(.libraryVideo(ShowcaseLibrary.video)) } else { libraryPath.append(.read(slug)) }
+                #else
                 libraryPath.append(.read(slug))
+                #endif
             }
         case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "documents": tab = .profile; profilePath = [.documents]
         case "results":
             // results · results/<releaseId> — the "your results are ready" push lands on the release itself.
             tab = .profile; profilePath = [.labResults]
@@ -242,6 +280,7 @@ final class AppRouter {
         case .profile: profilePath.last
         }
         if case .read = top { return true }
+        if case .libraryVideo = top { return true }
         return false
     }
 }
@@ -372,6 +411,8 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .libraryDay(let day): LibraryDayView(day: day)
+        case .libraryVideo(let video): LibraryVideoView(video: video)
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
@@ -384,6 +425,7 @@ struct MainTabView: View {
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
+        case .habit(let key): HabitPageView(key: key)
         case .trackSummary: TrackSummaryView()
         case .trackDay: TrackDayPage()
         case .baseline: BaselineEditView()
@@ -412,8 +454,13 @@ struct MainTabView: View {
         case .bodySignal(let s): SignalDetailView(kind: .body(s))
         case .gutSignal(let s): SignalDetailView(kind: .gut(s))
         case .labResults: LabResultsView()
+        case .documents: DocumentsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
+        case .trendSignal(let signal): TrendSignalDetailView(signal: signal)
+        case .trendDevice(let key): WearableSourceDetailView(deviceKey: key)
+        case .trendPatterns: MemberPatternsView()
+        case .signalAbout(let key): SignalAboutView(key: key)
         }
     }
 }

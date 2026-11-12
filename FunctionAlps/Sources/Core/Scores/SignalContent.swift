@@ -150,7 +150,7 @@ enum GutSignal: String, CaseIterable, Sendable, Hashable, Identifiable {
         switch self {
         case .comfort: Color(hex: 0x14B8A6)
         case .stool: Color(hex: 0xA78BFA)
-        case .reactions: Color(hex: 0xF59E0B)
+        case .reactions: Color(hex: 0xC2410C)
         }
     }
     var whatItIs: String {

@@ -72,6 +72,16 @@ struct HomeView: View {
         return nil
     }
 
+    /// Day 1 before its questionnaire is "Welcome to your space" and nothing else; every other track day shows the actions.
+    private var showsTrackActions: Bool {
+        let track = dependencies.track
+        guard let day = trackDay else { return false }
+        if case .welcome = TrackLogic.homeCard(day: day, questionnaires: track.questionnaires, submitted: track.submitted) { return false }
+        return true
+    }
+
+    private var hasPlanHabits: Bool { dependencies.habits.plan?.activeHabits.isEmpty == false }
+
     /// Whether the member has a care plan; nil while the plan is still being read.
     private var hasPlan: Bool? {
         if case .loaded(let plan) = dependencies.habits.phase { return plan.header != nil }
@@ -112,7 +122,12 @@ struct HomeView: View {
                         Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources, from: content.careTeam.firstName) }
                             .buttonStyle(.plain)
                     }
-                    if TrackLogic.showsRoutine(trackDay: trackDay) {
+                    if trackDay != nil {
+                        // On the track (Thomas, 2026-11-07): the habits by moment of the day, one pack at a time. A care plan's
+                        // own routine still shows under it for a member who has one.
+                        if showsTrackActions { TrackActionsCard().id("showcase.habits") }
+                        if hasPlanHabits { PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning)) }
+                    } else if TrackLogic.showsRoutine(trackDay: trackDay) {
                         PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
                     }
                     if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
@@ -159,6 +174,8 @@ struct HomeView: View {
                 try? await Task.sleep(for: .seconds(4))
                 proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
             }
+            .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habits, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habitOpen, anchor: UnitPoint(x: 0.5, y: 0.12)) }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }

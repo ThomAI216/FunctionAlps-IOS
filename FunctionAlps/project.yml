@@ -53,7 +53,8 @@ targets:
         CFBundleLocalizations: [en, fr]
         UILaunchScreen:
           UIColorName: LaunchBackground
-        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # Landscape is declared only so a library video can turn; `AppDelegate` keeps every other screen portrait (`PlayerOrientation`).
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UIRequiresFullScreen: true
         CFBundleIconName: AppIcon
         CFBundleURLTypes:
@@ -101,6 +102,13 @@ targets:
         PRODUCT_NAME: FunctionAlps
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: NO
+      configs:
+        # The showcase's sample signal content is for the Debug screenshots only (`ShowcaseSignals`): keep it out of the
+        # TestFlight and App Store bundles.
+        Staging:
+          EXCLUDED_SOURCE_FILE_NAMES: ShowcaseSignalContent.json
+        Release:
+          EXCLUDED_SOURCE_FILE_NAMES: ShowcaseSignalContent.json
     scheme:
       testTargets:
         - FunctionAlpsTests

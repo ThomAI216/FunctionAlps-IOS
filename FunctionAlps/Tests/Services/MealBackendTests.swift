@@ -45,6 +45,20 @@ struct MealBackendTests {
         #expect(!query.contains("ai_coaching_response"))
     }
 
+    @Test func fromHabitFlagDecodesAndSurvivesReencode() throws {
+        let json = #"[{"name":"whole milk","estimated_grams":150,"from_habit":true,"kcal":98},{"name":"rice","estimated_grams":150}]"#
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let items = try decoder.decode([MealItem].self, from: Data(json.utf8))
+        #expect(items[0].fromHabit == true)
+        #expect(items[1].fromHabit == nil)
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        let out = try #require(JSONSerialization.jsonObject(with: encoder.encode(items)) as? [[String: Any]])
+        #expect(out[0]["from_habit"] as? Bool == true)
+        #expect(out[1]["from_habit"] == nil)
+    }
+
     @Test func legacyRowsReadAsCompleteWithoutScores() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: """

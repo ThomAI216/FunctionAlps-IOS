@@ -41,6 +41,9 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// Today's saved moments, oldest first.
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment]
+    /// The member's moments from `since` (YYYY-MM-DD) to today, by day — Trends reads focus, the pills and the
+    /// check-in's own sleep clock from them. Default: none (test stubs that do not model Trends).
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]]
     /// One row per (patient, day, slot); re-saving a slot edits it.
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws
     /// What the day row already holds (read before the summary write — no-wipe).
@@ -67,6 +70,12 @@ protocol FunctionAlpsBackend: Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow?
     /// `library_topic_covers` — one cover per topic, shared with the members web (anon/authenticated select).
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow]
+
+    // MARK: Signal explanations (practice-curated content; the app renders it, never invents it)
+
+    /// `signal_explanations` for the app's language: approved rows only (RLS says so too), newest version first. The service
+    /// keeps the newest per signal. Default: none (test stubs that do not model it).
+    func signalExplanations(locale: String) async throws -> [SignalExplanation]
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 
@@ -134,6 +143,9 @@ protocol FunctionAlpsBackend: Sendable {
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead?
     /// Days with a gut check-in in [since, before) (YYYY-MM-DD), oldest first — the 14-day dashboard.
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay]
+    /// Days with a gut check-in from `since` to today, WITH the Bristol type and the symptoms ticked — Trends'
+    /// Digestion page. Default: none.
+    func gutDays(patientId: String, since: String) async throws -> [GutDay]
     /// The Expo `saveGutCheckinV2` upsert on (patient_id, checkin_date); every listed column explicit.
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws
 
@@ -172,6 +184,19 @@ protocol FunctionAlpsBackend: Sendable {
     /// One row per marker line of the member's APPROVED lab releases, from the frozen release content.
     /// The patient is resolved from the JWT inside the function; nothing else about labs is readable.
     func labResults() async throws -> [LabResultRow]
+
+    // MARK: Documents (member_documents — Documents tab programme)
+
+    /// The member's LIVE document releases (sent, not revoked), via `member_documents()`.
+    func memberDocuments() async throws -> [MemberDocument]
+    /// Where one release's frozen copy lives (`member_document_file`); nil when the release is not the caller's or not live.
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile?
+    /// A short-lived signed URL for an object of a document bucket (`document-releases`, `invoices`); other buckets throw.
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL
+    /// `member_mark_document_seen(p_release_id)` — stamps the first and last open.
+    func markDocumentSeen(releaseId: String) async throws
+    /// `member_has_draft_plan()` — a plan exists but is still a draft (shown blurred, never its content).
+    func hasDraftPlan() async throws -> Bool
 
     // MARK: Messaging (patient_messages)
 
@@ -425,3 +450,10 @@ struct FoodAliasRow: Sendable, Equatable {
 }
 
 enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
+
+/// Reads only Trends needs: a backend that does not model them answers "nothing logged", never an error.
+extension FunctionAlpsBackend {
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
+}

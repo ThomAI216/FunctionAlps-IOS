@@ -1,60 +1,66 @@
 import Foundation
 import Observation
 
+/// The Library tab: the Foundation Track day by day, the reads tied to the member's habits, the videos, search —
+/// and, below them, whatever the practice prescribed (personal tracks, what it sent, priority tracks).
+/// The track and the habits are the app's shared services; this model only reads them (so the tab follows them)
+/// and keeps the catalog read.
 @MainActor
 @Observable
 final class LibraryViewModel {
-    enum Section: String, CaseIterable, Identifiable {
-        case show, priority, tracks, foundations, supplements
-        var id: String { rawValue }
-        var title: String {
-            switch self {
-            case .show: String(localized: "show.navGroup", defaultValue: "The show")
-            // Owner, 2026-11-05: "put 'your personalized track' instead of the priority" — one section, the Pathway
-            // (what the practice sent) and the practitioner's priority tracks together.
-            case .priority: PathwayCopy.title
-            case .tracks: String(localized: "library.section.tracks", defaultValue: "Tracks")
-            case .foundations: String(localized: "library.section.foundations", defaultValue: "Foundations")
-            case .supplements: String(localized: "library.section.supplements", defaultValue: "Supplements")
-            }
-        }
+    enum Phase: Equatable {
+        case loading
+        case loaded
+        case failed(String)
+        case unauthorized
     }
 
-    private(set) var bundle: LibraryBundle = LibraryDemo.bundle
-    private(set) var loaded = false
-    var active: Section = .show
-    /// The show (CLINICAL library API + this member's experiments); nil = no show data → the section hides.
-    private(set) var show: ShowLibraryState?
-    private(set) var covers: [String: URL] = [:]
-    private(set) var markingSlug: String?
-    var expanded: Set<Section> = []
+    enum Anchor: String { case forYou, track, watch }
+
+    private(set) var phase: Phase = .loading
+    private(set) var catalog: LibraryCatalog?
     private(set) var patientId: String?
     /// What the practice sent with messages (CLINICAL migration 277), newest first, one card per item.
     private(set) var sent: [MessageResource] = []
     /// The personal mini tracks (CLINICAL migration 283), newest first, and the slugs already opened.
     private(set) var personal: [PersonalTrack] = []
     private(set) var openedSlugs: Set<String> = []
+    var query = ""
+    var anchor: Anchor = .forYou
 
     private let library: LibraryService
     private let members: MemberService
-    private let shows: ShowService
+    private let track: TrackService
+    private let habits: HabitsService
     private let messaging: MessagingService?
-    private let reminders = ShowReminders()
 
-    init(library: LibraryService, members: MemberService, shows: ShowService, messaging: MessagingService? = nil) {
+    init(library: LibraryService, members: MemberService, track: TrackService, habits: HabitsService, messaging: MessagingService? = nil) {
         self.library = library
         self.members = members
-        self.shows = shows
+        self.track = track
+        self.habits = habits
         self.messaging = messaging
+        #if DEBUG
+        if Showcase.screen == .librarySearch { query = ShowcaseLibrary.query }
+        #endif
     }
 
+    // MARK: Loading
+
     func load() async {
-        defer {
-            loaded = true
-            if showPresentation != .live && active == .show { active = .priority }
+        if catalog == nil { phase = .loading }
+        let member: Member
+        do {
+            member = try await members.currentMember()
+        } catch AppError.unauthorized {
+            phase = .unauthorized
+            return
+        } catch {
+            if catalog == nil { phase = .failed(Self.message(error)) }
+            return
         }
-        guard let member = try? await members.currentMember() else { bundle = LibraryDemo.bundle; show = nil; return }
         patientId = member.patientId
+        async let trackRead: Void = track.foreground()
         // The practice's sends ride their own read and fail soft to none: the catalog never waits on them.
         if let messaging {
             async let sentRows = messaging.sentResources()
@@ -64,69 +70,101 @@ final class LibraryViewModel {
             personal = await trackRows
             openedSlugs = await opened
         }
-        // Coming soon (owner, 2026-10-06): the show is a blurred preview — nothing is read from CLINICAL.
-        if shows.comingSoon {
-            show = nil
-            bundle = await library.bundle(patientId: member.patientId) ?? LibraryDemo.bundle
-            covers = await library.topicCovers()
-            return
+        do {
+            catalog = try await library.catalog(patientId: member.patientId)
+            phase = .loaded
+        } catch AppError.unauthorized {
+            phase = .unauthorized
+        } catch {
+            if catalog == nil { phase = .failed(Self.message(error)) }
         }
-        // The show reads in parallel and fails on its own: the catalog never waits on CLINICAL.
-        let shows = self.shows, pid = member.patientId
-        async let showState = shows.libraryState(patientId: pid)
-        bundle = await library.bundle(patientId: member.patientId) ?? LibraryDemo.bundle
-        covers = await library.topicCovers()
-        show = await showState
+        await trackRead
+        // The member's habits (Practice it, search, the reads tied to them): Home loads them first in a normal run.
+        if habits.plan == nil { await habits.load(patientId: member.patientId, day: ISO8601.dayString(Date())) }
     }
 
-    /// The Continue row's check: today's experiment day, under the same rules as the episode page.
-    func markToday(_ row: ShowExperimentRow) async {
-        guard !shows.comingSoon, let patientId, row.canMarkToday, let day = row.state.nextDay, markingSlug == nil else { return }
-        markingSlug = row.slug
-        defer { markingSlug = nil }
-        _ = await shows.markDay(patientId: patientId, slug: row.slug, day: day, dayNumbers: row.days.map(\.day))
-        if let fresh = await shows.libraryState(patientId: patientId) { show = fresh }
-        // A reminder set on the episode page follows the progress (today's goes once today is done; a finished
-        // week drops out of Continue and takes its reminders with it).
-        guard await reminders.isOn(slug: row.slug) else { return }
-        let updated = show?.experiments.first { $0.slug == row.slug }
-        let actions = Dictionary((updated?.days ?? []).map { ($0.day, $0.action) }, uniquingKeysWith: { first, _ in first })
-        let title = String(localized: "show.experimentTitle", defaultValue: "Your one-week experiment")
-        let plan = updated.map { ShowFeature.reminderPlan(comingSoon: shows.comingSoon, days: $0.days.map(\.day), state: $0.state, now: shows.now, calendar: .current) } ?? []
-        let items = plan.map { p in
-            ShowReminders.Item(day: p.day, fireAt: p.fireAt, title: title,
-                               body: "\(String(localized: "show.dayN", defaultValue: "Day \(p.day)")) · \(actions[p.day] ?? "")")
+    /// After the reader: which reads the member has read now (cheap, one read).
+    func refreshRead() async {
+        guard phase == .loaded, let patientId, let slugs = await library.readSlugs(patientId: patientId) else { return }
+        catalog?.readSlugs = slugs
+        openedSlugs = slugs
+    }
+
+    private static func message(_ error: any Error) -> String {
+        (error as? AppError)?.userMessage ?? (error as? LocalizedError)?.errorDescription
+            ?? String(localized: "library.error.generic", defaultValue: "Something went wrong.")
+    }
+
+    // MARK: The Foundation Track
+
+    var articles: [LibraryArticle] { catalog?.articles ?? [] }
+    var readSlugs: Set<String> { catalog?.readSlugs ?? [] }
+    var bundle: LibraryBundle? { catalog?.bundle }
+
+    /// The member's track day while they are on the track; nil otherwise (every day open).
+    var today: Int? { FoundationLibraryLogic.currentDay(track.status) }
+
+    private var through: Int? { FoundationLibraryLogic.actionsThrough(status: track.status) }
+
+    var dayGroups: [LibraryDayGroup] {
+        let primary = Dictionary(track.days.compactMap { day in day.readSlug.map { (day.day, $0) } }, uniquingKeysWith: { first, _ in first })
+        return FoundationLibraryLogic.dayGroups(articles: articles, today: today, readSlugs: readSlugs, primary: primary)
+    }
+
+    var readTotals: (read: Int, total: Int) { FoundationLibraryLogic.readTotals(dayGroups) }
+
+    /// The title the track gives a day ("Your mind, day to day") for the soft-lock sheet's eyebrow.
+    func dayTitle(_ day: Int) -> String? {
+        track.days.first { $0.day == day }.flatMap { TrackLogic.text($0.titleEn, $0.titleFr, locale: track.locale) }
+    }
+
+    // MARK: For your habits · Watch
+
+    var habitReads: [LibraryHabitRead] {
+        var sources: [FoundationLibraryLogic.HabitReadSource] = []
+        if today != nil, let day = track.today {
+            for action in day.actions where !action.reads.isEmpty {
+                let card = action.habitBankId.flatMap { track.cards[$0] }
+                sources.append(.init(habitTitle: TrackLogic.actionTitle(action, card: card, locale: track.locale), slugs: action.reads))
+            }
         }
-        await reminders.apply(slug: row.slug, items: items)
-    }
-
-    /// Live, hidden (no data), or the coming-soon preview (`ShowFeature`).
-    var showPresentation: ShowFeature.Presentation {
-        ShowFeature.presentation(comingSoon: shows.comingSoon, hasData: show != nil)
-    }
-
-    func toggle(_ section: Section) {
-        if expanded.contains(section) { expanded.remove(section) } else { expanded.insert(section) }
-    }
-
-    var priority: [TrackWithProgress] { bundle.prioritySlugs.compactMap { s in bundle.tracks.first { $0.slug == s } } }
-    var inProgress: [TrackWithProgress] { bundle.tracks.filter { $0.state == .inProgress } }
-    var foundations: [LibResource] { bundle.resources.filter { !$0.supplement } }
-    var supplements: [LibResource] { bundle.resources.filter(\.supplement) }
-    var doneTotal: Int { bundle.tracks.reduce(0) { $0 + $1.done } }
-    var lessonTotal: Int { bundle.tracks.reduce(0) { $0 + $1.total } }
-    var pct: Double { lessonTotal == 0 ? 0 : Double(doneTotal) / Double(lessonTotal) }
-    var week: Int? { library.weekNumber(startDate: bundle.plan?.startDate) }
-
-    private var pathwayCount: Int { (sent.isEmpty ? 0 : 1) + personal.count + priority.count }
-
-    func count(_ section: Section) -> Int? {
-        switch section {
-        case .tracks: bundle.tracks.count
-        case .foundations: foundations.count
-        case .supplements: supplements.count
-        case .show: showPresentation == .live ? show.flatMap { $0.snapshot.thisWeek.isEmpty ? nil : $0.snapshot.thisWeek.count } : nil
-        case .priority: pathwayCount == 0 ? nil : pathwayCount
+        for habit in habits.plan?.activeHabits ?? [] {
+            let slugs = FoundationLibraryLogic.articleSlugs(of: habit.habitBankId.flatMap { habits.plan?.cards[$0] })
+            if !slugs.isEmpty { sources.append(.init(habitTitle: habit.title, slugs: slugs)) }
         }
+        return FoundationLibraryLogic.forYourHabits(sources: sources, articles: articles, today: today)
     }
+
+    var videos: [LibraryVideo] {
+        var sources: [FoundationLibraryLogic.VideoSource] = []
+        for (_, action) in FoundationLibraryLogic.trackActions(days: track.days, through: through) {
+            guard let id = action.habitBankId, let card = track.cards[id] else { continue }
+            sources.append(.init(cardId: id, cardTitle: TrackLogic.actionTitle(action, card: card, locale: track.locale), links: ActionCardLogic.links(card.resources)))
+        }
+        for habit in habits.plan?.activeHabits ?? [] {
+            let card = habit.habitBankId.flatMap { habits.plan?.cards[$0] }
+            sources.append(.init(cardId: habit.habitBankId, cardTitle: habit.title,
+                                 links: ActionCardLogic.links(card?.resources) + ActionCardLogic.habitLinks(habit.resources)))
+        }
+        return FoundationLibraryLogic.videos(from: sources)
+    }
+
+    // MARK: Search
+
+    var isSearching: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+    var memberHabits: [LibraryHabit] {
+        FoundationLibraryLogic.habits(plan: habits.plan, days: track.days, through: through, cards: track.cards, locale: track.locale)
+    }
+
+    var searchResults: LibrarySearch.Results {
+        LibrarySearch.results(query: query, articles: articles, habits: memberHabits, videos: videos)
+    }
+
+    // MARK: What the practice prescribed (kept below the new sections)
+
+    var priority: [TrackWithProgress] { bundle.map { b in b.prioritySlugs.compactMap { s in b.tracks.first { $0.slug == s } } } ?? [] }
+    /// "Continue" is for the practitioner's priority tracks the member has started — the generic tracks grid is gone.
+    var continuing: [TrackWithProgress] { priority.filter { $0.state == .inProgress } }
+    var hasPrescribed: Bool { !sent.isEmpty || !personal.isEmpty || !priority.isEmpty }
 }

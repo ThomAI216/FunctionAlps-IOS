@@ -29,6 +29,7 @@
 ## Planned by the owner (read before touching these areas)
 - Routines (morning / day / evening), weekly priorities, evolution ladders, streaks, action caps: `docs/action-cards/routines-design.md`. Card tiers (trial / members only / prescription): `docs/action-cards/catalogue-first-pass.md`. Ladders are live (`habit_bank.next_level_id`, `habits.level_since/level_locked`, RPC `member_level_up` — migration `20261006_action_ladders.sql`); tracks, weekly-priority cycles and sub-routines have no tables yet — the owner holds those until the design settles.
 - Consumption tracking (hydration, caffeine, any drink, with times): `docs/IOS_MIGRATION_MAP.md` → "Planned: consumption tracking".
+- Signal explanations, the influence map, the 2-week clinician review and the action engine (owner priorities P0/P1/P2, 2026-11-10): `docs/ROADMAP_SIGNALS_ECOSYSTEM.md`.
 
 ## Workflow
 Small vertical slices (PRD §21): real data · navigation · loading/error/empty · auth · tests · runs on a physical iPhone. Update `docs/IOS_MIGRATION_MAP.md` when a slice lands.
