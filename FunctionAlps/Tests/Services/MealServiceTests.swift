@@ -93,6 +93,11 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
 
     func carePlan(patientId: String) async throws -> CarePlan? { nil }
     func labResults() async throws -> [LabResultRow] { [] }
+    func memberDocuments() async throws -> [MemberDocument] { [] }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { nil }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { URL(string: "https://example.invalid/\(bucket)/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws {}
+    func hasDraftPlan() async throws -> Bool { false }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
@@ -124,6 +129,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    func clientCarePlan() async throws -> ClientCarePlanRaw { .empty }
     func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
     func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}

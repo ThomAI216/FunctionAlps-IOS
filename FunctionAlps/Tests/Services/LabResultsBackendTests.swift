@@ -48,3 +48,49 @@ struct LabResultsBackendTests {
         }
     }
 }
+
+/// The wire of the Documents functions: names, the body key, the bucket guard.
+@Suite("SupabaseBackend — documents")
+struct DocumentsBackendTests {
+    private func make(_ transport: MockTransport) -> SupabaseBackend {
+        let store = InMemorySessionStore(session: Fixtures.session(expiresAt: .distantFuture))
+        let sessions = SessionManager(auth: SupabaseAuthClient(environment: Fixtures.environment, transport: transport), store: store)
+        let requester = AuthorizedRequester(sessions: sessions, transport: transport)
+        return SupabaseBackend(
+            rest: PostgRESTClient(environment: Fixtures.environment, requester: requester),
+            functions: EdgeFunctionClient(environment: Fixtures.environment, requester: requester),
+            storage: StorageClient(environment: Fixtures.environment, requester: requester)
+        )
+    }
+
+    @Test func listAndFileUseTheMemberFunctions() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: DocumentsLogicTests.json)
+        let docs = try await make(transport).memberDocuments()
+        #expect(docs.count == 6)
+        #expect(transport.requests[0].url.path.hasSuffix("/rest/v1/rpc/member_documents"))
+
+        transport.enqueue(status: 200, json: #"[{"storage_bucket":"document-releases","storage_path":"p/r.pdf","link_path":null,"preview_path":null}]"#)
+        let file = try await make(transport).memberDocumentFile(releaseId: "rel-1")
+        #expect(file?.storagePath == "p/r.pdf")
+        let request = try #require(transport.requests.last)
+        #expect(request.url.path.hasSuffix("/rest/v1/rpc/member_document_file"))
+        #expect(String(decoding: request.body ?? Data(), as: UTF8.self).contains("\"p_release_id\":\"rel-1\""))
+    }
+
+    @Test func draftPlanReadsABooleanScalar() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 200, json: "true")
+        #expect(try await make(transport).hasDraftPlan())
+        transport.enqueue(status: 200, json: "false")
+        #expect(try await make(transport).hasDraftPlan() == false)
+    }
+
+    @Test func onlyDocumentBucketsAreSigned() async throws {
+        let transport = MockTransport()
+        await #expect(throws: AppError.self) {
+            _ = try await make(transport).signedDocumentURL(bucket: "meal-photos", path: "x.jpg")
+        }
+        #expect(transport.requests.isEmpty)
+    }
+}

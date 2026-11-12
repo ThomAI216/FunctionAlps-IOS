@@ -192,6 +192,8 @@ struct HabitPlan: Sendable, Equatable {
     var goals: [String] = []
     /// The clinician's current priorities: the plan items flagged `is_weekly_focus`, as the member reads them.
     var priorities: [String] = []
+    /// The care-plan item ids behind those priorities — a habit whose `care_plan_item_id` is here is "this week's focus".
+    var focusItemIds: Set<String> = []
     /// The published action cards the habits point at, by `habit_bank` id (absent = unpublished or none).
     var cards: [String: ActionCardRow] = [:]
 

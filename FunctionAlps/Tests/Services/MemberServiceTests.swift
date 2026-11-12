@@ -85,6 +85,18 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     var labRows: [LabResultRow] = []
     private(set) var labResultsCalls = 0
     func labResults() async throws -> [LabResultRow] { labResultsCalls += 1; return labRows }
+    var documents: [MemberDocument] = []
+    var documentFile: DocumentFile?
+    var draftPlan = false
+    var documentsFail = false
+    private(set) var documentsCalls = 0
+    private(set) var signed: [String] = []
+    private(set) var seen: [String] = []
+    func memberDocuments() async throws -> [MemberDocument] { documentsCalls += 1; if documentsFail { throw AppError.notFound }; return documents }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { documentFile }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { signed.append("\(bucket)/\(path)"); return URL(string: "https://signed.invalid/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws { seen.append(releaseId) }
+    func hasDraftPlan() async throws -> Bool { draftPlan }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
@@ -116,6 +128,14 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     func ladderCards() async throws -> [ActionCardRow] { [] }
     func levelUp(habitId: String) async throws {}
     func nextAppointment(after: Date) async throws -> AppointmentRow? { nil }
+    var clientPlanResult = ClientCarePlanRaw.empty
+    var clientPlanError: AppError?
+    private(set) var clientPlanCalls = 0
+    func clientCarePlan() async throws -> ClientCarePlanRaw {
+        clientPlanCalls += 1
+        if let clientPlanError { throw clientPlanError }
+        return clientPlanResult
+    }
     func lastAppointment(before: Date) async throws -> AppointmentRow? { nil }
     func activePlanObjective(patientId: String) async throws -> String? { nil }
     func deleteHabitCompletion(id: String) async throws {}

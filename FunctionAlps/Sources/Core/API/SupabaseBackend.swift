@@ -870,11 +870,12 @@ struct SupabaseBackend: FunctionAlpsBackend {
             }
             let focus = await soft { () -> [FocusItemRow] in
                 try await rest.select("care_plan_items", query: [
-                    PG.select("title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
+                    PG.select("id,title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
                     PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
                 ])
             }
             plan.goals = (goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            plan.focusItemIds = Set((focus ?? []).compactMap(\.id))
             plan.priorities = (focus ?? []).compactMap { row in
                 [row.title, row.objective].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
             }
@@ -1088,7 +1089,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct AccessRow: Decodable, Sendable { let tracksEnabled: Bool?; let foundationsEnabled: Bool?; let supplementsEnabled: Bool? }
     private struct PriorityRow: Decodable, Sendable { let trackId: String }
     private struct GoalRow: Decodable, Sendable { let statement: String? }
-    private struct FocusItemRow: Decodable, Sendable { let title: String?; let objective: String? }
+    private struct FocusItemRow: Decodable, Sendable { var id: String? = nil; let title: String?; let objective: String? }
     private struct ProgressBody: Encodable, Sendable { let patientId: String; let trackId: String?; let contentSlug: String }
 
     func libraryStage() async throws -> RelationshipStage {
@@ -1632,6 +1633,33 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.rpc("get_member_lab_results", body: EmptyBody(), query: [PG.select(LabResultRow.columns.joined(separator: ","))])
     }
 
+    // MARK: Documents (member_documents, member_document_file, member_mark_document_seen, member_has_draft_plan)
+
+    /// All four are SECURITY DEFINER and read the patient from the JWT; a member has no table access to releases.
+    func memberDocuments() async throws -> [MemberDocument] {
+        try await rest.rpc("member_documents", body: EmptyBody())
+    }
+
+    private struct ReleaseBody: Encodable, Sendable { let pReleaseId: String }
+
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? {
+        let data = try await rest.rpcRaw("member_document_file", body: ReleaseBody(pReleaseId: releaseId))
+        return try DocumentFile.decode(data)
+    }
+
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL {
+        guard DocumentsLogic.allowedBuckets.contains(bucket) else { throw AppError.notFound }
+        return try await storage.signedURL(bucket: bucket, path: path, expiresIn: DocumentsLogic.signedURLSeconds)
+    }
+
+    func markDocumentSeen(releaseId: String) async throws {
+        _ = try await rest.rpcRaw("member_mark_document_seen", body: ReleaseBody(pReleaseId: releaseId))
+    }
+
+    func hasDraftPlan() async throws -> Bool {
+        try await rest.rpcScalar("member_has_draft_plan", body: EmptyBody()) == "true"
+    }
+
     func entitlements(patientId: String) async throws -> [EntitlementRow] {
         try await rest.select("member_entitlements", query: [
             PG.select("access_type,status,starts_at,expires_at"), PG.eq("patient_id", patientId),
@@ -1740,6 +1768,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func markMessagesRead() async throws {
         let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
+    }
+
+    // MARK: The client's care plan (member_care_plan_* RPCs — SECURITY DEFINER, keyed on the signed-in member)
+
+    func clientCarePlan() async throws -> ClientCarePlanRaw {
+        let rest = self.rest
+        async let programmes: [ClientProgramme] = rest.rpc("member_care_plan_programmes", body: EmptyBody())
+        async let objectives: [ClientObjective] = rest.rpc("member_care_plan_objectives", body: EmptyBody())
+        async let wins = soft { () -> [ClientWin] in try await rest.rpc("member_care_plan_wins", body: EmptyBody()) }
+        async let complaints = soft { () -> [ClientComplaint] in try await rest.rpc("member_care_plan_complaints", body: EmptyBody()) }
+        async let hypotheses = soft { () -> [ClientHypothesis] in try await rest.rpc("member_care_plan_hypotheses", body: EmptyBody()) }
+        async let evolution = soft { () -> [ClientEvolution] in try await rest.rpc("member_care_plan_evolution", body: EmptyBody()) }
+        async let situation = soft { () -> [ClientSituation] in try await rest.rpc("member_care_plan_situation", body: EmptyBody()) }
+        return try await ClientCarePlanRaw(
+            programmes: programmes, objectives: objectives, wins: wins ?? [], complaints: complaints ?? [],
+            hypotheses: hypotheses ?? [], evolution: evolution ?? [], situation: situation ?? [])
     }
 
     func careTeam() async throws -> [CareMember] {

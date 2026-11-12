@@ -9,6 +9,10 @@ struct FAButton: View {
     var isEnabled = true
     let action: () -> Void
 
+    /// What the member sees, and what a finger gets.
+    static let visualHeight: CGFloat = 34
+    static let hitHeight: CGFloat = 44
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: FASpacing.sm) {
@@ -16,17 +20,20 @@ struct FAButton: View {
                     ProgressView().tint(foreground)
                 }
                 Text(title)
-                    .font(FATypography.headline)
+                    .font(FATypography.sans(14, .semibold, relativeTo: .subheadline))
             }
-            .frame(maxWidth: .infinity, minHeight: 50)
+            // Owner, 2026-11-12: smaller buttons. The drawn button is 34 pt tall; the tappable area stays 44 pt (HIG).
+            .frame(maxWidth: .infinity, minHeight: Self.visualHeight)
             .foregroundStyle(foreground)
-            .background(background, in: RoundedRectangle(cornerRadius: FACornerRadius.md, style: .continuous))
+            .background(background, in: RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous))
             .overlay {
                 if style == .secondary {
-                    RoundedRectangle(cornerRadius: FACornerRadius.md, style: .continuous)
-                        .strokeBorder(FAColor.brand, lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous)
+                        .strokeBorder(FAColor.brand, lineWidth: 1.25)
                 }
             }
+            .frame(minHeight: Self.hitHeight)
+            .contentShape(Rectangle())
         }
         .disabled(!isEnabled || isLoading)
         .opacity(isEnabled ? 1 : 0.5)
