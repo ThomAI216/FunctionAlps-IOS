@@ -24,6 +24,8 @@ struct DashboardService: Sendable {
         async let history = backend.dailyCheckins(patientId: patientId, since: since)
         // Best-effort: a scoring hiccup must never blank Home.
         async let scores: MemberScores? = { try? await backend.memberScores(tzOffsetMinutes: calendar.timeZone.secondsFromGMT(for: current) / 60) }()
-        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history, scores: scores)
+        // Best-effort too: a failed read of the day feeling means "not done", never a blank Home.
+        async let feelingSaved: Bool = { ((try? await backend.dayFeeling(patientId: patientId, day: day)) ?? nil) != nil }()
+        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history, scores: scores, dayFeelingSaved: feelingSaved)
     }
 }

@@ -21,7 +21,7 @@ private struct CheckinCurvesCard: View {
     let today: TodaySnapshot
     let now: MomentSlot
 
-    private var done: Bool { CheckinEngine.slotIsDone(today.moments, now) }
+    private var done: Bool { today.isDone(now) }
 
     /// mood · sleep · energy · calmness · digestion — today's reads, each with its accent (the curve's colour), and
     /// where its pill sits on the card (fractions of the width and height), scattered rather than in rows.

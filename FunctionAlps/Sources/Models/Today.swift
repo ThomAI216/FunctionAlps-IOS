@@ -13,6 +13,14 @@ struct TodaySnapshot: Sendable, Equatable {
     var history: [DailyCheckin] = []
     /// Server-computed scores; nil when the engine could not be reached (Home still renders).
     var scores: MemberScores? = nil
+    /// A "Feeling for the day" was saved for today (`patient_day_feelings`). A member who answered only that has done the
+    /// morning check-in. False when none was saved or the read failed.
+    var dayFeelingSaved: Bool = false
+
+    /// A slot is done when its moment is saved; the MORNING also counts a saved day feeling.
+    func isDone(_ slot: MomentSlot) -> Bool {
+        CheckinEngine.slotIsDone(moments, slot) || (slot == .morning && dayFeelingSaved)
+    }
 
     var totalCalories: Double { meals.compactMap(\.totalCalories).reduce(0, +) }
     var totalProteinG: Double { meals.compactMap(\.totalProteinG).reduce(0, +) }

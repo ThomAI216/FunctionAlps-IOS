@@ -126,9 +126,9 @@ struct HomeView: View {
                         // On the track (Thomas, 2026-11-07): the habits by moment of the day, one pack at a time. A care plan's
                         // own routine still shows under it for a member who has one.
                         if showsTrackActions { TrackActionsCard().id("showcase.habits") }
-                        if hasPlanHabits { PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning)) }
+                        if hasPlanHabits { PlanTodayCard(morningCheckinDone: content.today.isDone(.morning)) }
                     } else if TrackLogic.showsRoutine(trackDay: trackDay) {
-                        PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                        PlanTodayCard(morningCheckinDone: content.today.isDone(.morning))
                     }
                     if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
                         TrackFeatureBanner()
