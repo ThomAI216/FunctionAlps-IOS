@@ -56,12 +56,7 @@ struct FAGlassSurface: ViewModifier {
         if inset {
             content
                 .background(Color.white.opacity(0.12), in: shape)
-                .overlay {
-                    shape.strokeBorder(
-                        LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 1
-                    )
-                }
+                .overlay { Self.hairline(shape) }
         } else if #available(iOS 26.0, *) {
             content
                 .background { Self.veil(shape, frost: frost) }
@@ -87,18 +82,14 @@ struct FAGlassSurface: ViewModifier {
         }
     }
 
-    /// The bevel: a bright rim on the lit edge fading round the pane, a hint of it again at the bottom-right.
+    /// The edge: an almost invisible hairline (6 %, Thomas 2026-11-12: no white band or border around any card). The
+    /// glass, the sheen and the shadow carry the surface; the edge only keeps its shape on light walls.
     private static func rim(_ shape: RoundedRectangle) -> some View {
-        shape.strokeBorder(
-            LinearGradient(stops: [
-                .init(color: Color.white.opacity(0.95), location: 0),
-                .init(color: Color.white.opacity(0.25), location: 0.45),
-                .init(color: Color.white.opacity(0.10), location: 0.7),
-                .init(color: Color.white.opacity(0.55), location: 1),
-            ], startPoint: .topLeading, endPoint: .bottomTrailing),
-            lineWidth: 1.2
-        )
-        .allowsHitTesting(false)
+        hairline(shape).allowsHitTesting(false)
+    }
+
+    private static func hairline(_ shape: RoundedRectangle) -> some View {
+        shape.strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5)
     }
 }
 
