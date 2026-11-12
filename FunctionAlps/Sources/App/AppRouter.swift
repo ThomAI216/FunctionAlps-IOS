@@ -66,6 +66,8 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    /// What the care team released to the member: reports, lab reports, resources, invoices.
+    case documents
     // Trends rework (2026-11-10): one signal's page, one device's page (`TrendsEngine.appleHealthKey` or a vendor key),
     // and the patterns the practitioner shared.
     case trendSignal(TrendSignal)
@@ -134,7 +136,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -204,6 +206,7 @@ final class AppRouter {
         case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "documents": tab = .profile; profilePath = [.documents]
         case "results":
             // results · results/<releaseId> — the "your results are ready" push lands on the release itself.
             tab = .profile; profilePath = [.labResults]
@@ -441,6 +444,7 @@ struct MainTabView: View {
         case .bodySignal(let s): SignalDetailView(kind: .body(s))
         case .gutSignal(let s): SignalDetailView(kind: .gut(s))
         case .labResults: LabResultsView()
+        case .documents: DocumentsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
         case .trendSignal(let signal): TrendSignalDetailView(signal: signal)

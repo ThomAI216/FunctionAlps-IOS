@@ -79,6 +79,11 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     /// A lead on the Foundation Track has no care plan yet.
     func carePlan(patientId: String) async throws -> CarePlan? { ShowcaseTrack.isOn ? nil : ShowcaseData.carePlan }
     func labResults() async throws -> [LabResultRow] { [] }
+    func memberDocuments() async throws -> [MemberDocument] { [] }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { nil }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { URL(string: "https://example.invalid/\(bucket)/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws {}
+    func hasDraftPlan() async throws -> Bool { false }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [EntitlementRow(accessType: "full_access", status: "active", startsAt: nil, expiresAt: nil)] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}

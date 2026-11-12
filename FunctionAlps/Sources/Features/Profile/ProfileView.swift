@@ -66,6 +66,11 @@ private struct ProfileScreen: View {
                         title: String(localized: "profile.results.title", defaultValue: "Lab results"),
                         subtitle: String(localized: "profile.results.sub", defaultValue: "Blood work and other tests, explained by your nutritionist once reviewed")
                     ) { router.profilePath.append(.labResults) }
+                    ProfileIconRowCard(
+                        symbol: "doc.on.doc",
+                        title: String(localized: "profile.documents.title", defaultValue: "Documents"),
+                        subtitle: String(localized: "profile.documents.sub", defaultValue: "Reports, resources and invoices your care team shared with you")
+                    ) { router.profilePath.append(.documents) }
                     ProfileSectionLabel(title: String(localized: "profile.details", defaultValue: "Your baseline"))
                     ProfileIconRowCard(
                         symbol: "safari",

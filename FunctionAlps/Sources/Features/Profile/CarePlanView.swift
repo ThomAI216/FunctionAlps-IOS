@@ -50,6 +50,7 @@ struct CarePlanView: View {
         // block — approach, goals, supplements, tests, review — off the page.
         .task(id: planLoaded) { await loadDetail() }
         .task { await dependencies.habits.loadNextCall() }
+        .task { await dependencies.documents.loadDraftPlan() }
     }
 
     private var planLoaded: Bool {
@@ -70,7 +71,10 @@ struct CarePlanView: View {
     private func content(_ plan: HabitPlan) -> some View {
         let week = HabitEngine.planWeek(start: plan.header?.startDate, today: plan.day)
         let currentPhase = HabitEngine.currentPhase(plan.phases, start: plan.header?.startDate, today: plan.day)?.phaseKey
-        if plan.header == nil {
+        if plan.header == nil, dependencies.documents.hasDraftPlan {
+            // A draft exists but is not released: blurred, no content (Thomas, 2026-11-11).
+            DraftPlanPreparingView()
+        } else if plan.header == nil {
             FACard {
                 PlanLockedArea(reason: .awaitingCall(dependencies.habits.nextCall)) {
                     VStack(alignment: .leading, spacing: 18) {

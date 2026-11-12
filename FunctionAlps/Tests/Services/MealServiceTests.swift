@@ -93,6 +93,11 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
 
     func carePlan(patientId: String) async throws -> CarePlan? { nil }
     func labResults() async throws -> [LabResultRow] { [] }
+    func memberDocuments() async throws -> [MemberDocument] { [] }
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? { nil }
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL { URL(string: "https://example.invalid/\(bucket)/\(path)")! }
+    func markDocumentSeen(releaseId: String) async throws {}
+    func hasDraftPlan() async throws -> Bool { false }
     func entitlements(patientId: String) async throws -> [EntitlementRow] { [] }
     func saveBaseline(patientId: String, values: BaselineValues) async throws {}
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws {}
