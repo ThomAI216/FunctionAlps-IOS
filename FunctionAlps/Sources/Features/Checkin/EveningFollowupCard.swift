@@ -16,7 +16,8 @@ struct EveningFollowupCard: View {
     }
 
     var body: some View {
-        Group {
+        // A real container: a modifier on an empty Group never runs, and the card starts out empty.
+        VStack(spacing: 0) {
             if asked, let model { card(model) }
         }
         .task {
