@@ -119,8 +119,7 @@ struct LoginView: View {
         .padding(28)
         .frame(maxWidth: .infinity)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Color.white.opacity(0.6), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5))
         .shadow(color: FAColor.forest.opacity(0.18), radius: 24, y: 12)
         .animation(.easeInOut(duration: 0.2), value: model.flow)
     }
