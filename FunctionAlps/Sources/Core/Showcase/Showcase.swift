@@ -39,6 +39,10 @@ enum Showcase {
         case libraryLocked = "library-locked", librarySearch = "library-search", libraryRead = "library-read", libraryWatch = "library-watch"
         /// The habit screens (2026-11-10): the moment card, a row opened a little, a habit's page with a streak, a page on its first day.
         case habits, habitOpen = "habit-open", habitPage = "habit-page", habitFirst = "habit-first"
+        /// The new MORNING check-in (owner-validated 2026-11-12): the top (sleep + "Feeling for the day"), the bottom (reveal row,
+        /// done button, yesterday prompt), yesterday revealed, the two end screens, and a saved daily check-in showing the lock question.
+        case morningTop = "morning-top", morningBottom = "morning-bottom", morningYesterday = "morning-yesterday"
+        case morningEndGreen = "morning-end-green", morningEndLowEnergy = "morning-end-lowenergy", checkinLocked = "checkin-locked"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -55,6 +59,23 @@ enum Showcase {
         switch screen {
         case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: true
         default: false
+        }
+    }
+
+    /// The three morning check-in shots (a first morning, answers in progress).
+    static var isMorningShot: Bool {
+        switch screen {
+        case .morningTop, .morningBottom, .morningYesterday: true
+        default: false
+        }
+    }
+
+    /// The end-screen shots draw `MorningEndView` over the app (`FunctionAlpsApp`).
+    static var morningEndRule: MorningRule? {
+        switch screen {
+        case .morningEndGreen: MorningRules.rule(mood: 82, energy: 74, motivation: 76)
+        case .morningEndLowEnergy: MorningRules.rule(mood: 82, energy: 28, motivation: 76)
+        default: nil
         }
     }
 
@@ -82,7 +103,10 @@ enum Showcase {
     static var route: URL? {
         guard let screen else { return nil }
         let link: String = switch screen {
-        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen: "functionalps://home"
+        case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen,
+             .morningEndGreen, .morningEndLowEnergy: "functionalps://home"
+        case .morningTop, .morningBottom, .morningYesterday: "functionalps://checkin/morning"
+        case .checkinLocked: "functionalps://checkin/evening"
         case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"
         case .trackCard: "functionalps://foundation/card/\(ShowcaseTrack.cardId)/\(ShowcaseTrack.face)"
         case .trackRead: "functionalps://foundation/read/\(ShowcaseTrack.slug)"

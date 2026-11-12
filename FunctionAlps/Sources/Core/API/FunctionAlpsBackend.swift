@@ -55,6 +55,13 @@ protocol FunctionAlpsBackend: Sendable {
     /// RAW answers up, the SERVER-scored row back (`member_submit_checkin` v2) — one scorer for every client.
     func submitCheckin(day: String, slot: MomentSlot, submission: CheckinSubmission) async throws -> CheckinSubmitResult
 
+    // MARK: Feeling for the day (patient_day_feelings, 2026-11-12)
+
+    /// How the member said they feel as this day starts; nil when none was saved. Not a check-in moment.
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling?
+    /// One row per (patient, day); saving again edits it.
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws
+
     // MARK: Scores (server-side engine)
 
     /// `member-scores` for the signed-in member; `tzOffsetMinutes` = minutes east of UTC on this device.
@@ -437,6 +444,8 @@ enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
 /// Reads only Trends needs: a backend that does not model them answers "nothing logged", never an error.
 extension FunctionAlpsBackend {
     func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
 }

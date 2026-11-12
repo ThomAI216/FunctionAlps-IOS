@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// ONE screen per check-in moment. TWO are asked for: the MORNING (last night, what today is for, how you feel)
-/// and the EVENING (the day you lived — energy, focus, mood, calm, and the whole digestion read).
-/// Nothing is hidden behind an expander: what a moment asks, it asks on one page.
+/// The check-in. TWO are asked for: the MORNING (`MorningCheckinView`: last night, how you feel for the day, the rest of
+/// the day on request) and the DAILY one, the evening slot (last night, energy, focus, mood, calm, and the whole digestion
+/// read) — this screen. Before 14:00 the member is offered the morning, from 14:00 the daily one (`MomentSlot.current`).
+/// A legacy midday row opened from a deep link still renders here.
 struct CheckinMomentView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
@@ -10,6 +11,14 @@ struct CheckinMomentView: View {
     @State private var model: CheckinMomentViewModel?
 
     var body: some View {
+        if slot == .morning {
+            MorningCheckinView()
+        } else {
+            momentScreen
+        }
+    }
+
+    private var momentScreen: some View {
         ZStack {
             if let model {
                 CheckinMomentScreen(model: model) {
@@ -17,10 +26,6 @@ struct CheckinMomentView: View {
                     let notifications = dependencies.notifications
                     notifications.momentDone(slot, day: dependencies.checkins.today)
                     Task { await notifications.askIfNeeded() }
-                    if slot == .morning {
-                        let focus = dependencies.focus
-                        Task { await focus.load(recompute: true) }
-                    }
                     dismiss()
                 }
             }
@@ -43,13 +48,12 @@ private struct CheckinMomentScreen: View {
     @Bindable var model: CheckinMomentViewModel
     let onSaved: () -> Void
 
-    /// The catalog owns these on this screen — the ENERGY spec's same-named twins are hidden so
-    /// nobody is asked the same question twice.
-    private let catalogOwned: Set<String> = ["fuelled", "drained", "day_intent", "day_priority"]
-
     /// The evening cannot save before its digestion has loaded, or a blank answer set would sit on
     /// top of what was already written today.
     private var canSave: Bool { model.gut.map(\.loaded) ?? true }
+
+    private var dayKey: String { model.day ?? dependencies.checkins.today }
+    @Environment(AppDependencies.self) private var dependencies
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -61,7 +65,12 @@ private struct CheckinMomentScreen: View {
                 }
                 .padding(.top, FASpacing.sm)
 
-                ForEach(model.sections, id: \.self) { s in section(s) }
+                if model.lock.isLocked { CheckinLockedNote(day: dayKey) }
+
+                VStack(alignment: .leading, spacing: FASpacing.md) {
+                    CheckinSectionsView(model: model)
+                }
+                .checkinLock(isLocked: model.lock.isLocked, day: dayKey) { model.lock.unlock() }
 
                 if model.nothingAnswered {
                     FACard {
@@ -75,21 +84,11 @@ private struct CheckinMomentScreen: View {
                 }
 
                 if let error = model.saveError {
-                    FACard {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(String(localized: "checkin.saveFailed", defaultValue: "Couldn't save this moment"))
-                                .font(FATypography.headline).foregroundStyle(FAColor.danger)
-                            Text(String(localized: "checkin.saveFailed.hint", defaultValue: "Your answers are still here · tap Save to try again."))
-                                .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
-                            if BuildInfo.showsTechnicalDetails {
-                                Text(error).font(FATypography.caption).foregroundStyle(FAColor.inkMuted)
-                            }
-                        }
-                    }
+                    CheckinSaveErrorCard(error: error)
                 }
 
                 FAButton(title: model.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "action.save", defaultValue: "Save"),
-                         isLoading: model.isSaving, isEnabled: canSave) {
+                         isLoading: model.isSaving, isEnabled: canSave && !model.lock.isLocked) {
                     Task { if await model.save() { onSaved() } }
                 }
             }
@@ -106,82 +105,30 @@ private struct CheckinMomentScreen: View {
         #endif
         }
     }
+}
 
-    @ViewBuilder
-    private func section(_ section: CheckinMomentViewModel.Section) -> some View {
-        switch section {
-        case .sleep:
-            sectionLabel(String(localized: "checkin.lastNight", defaultValue: "Last night"))
-            DimensionCardView(spec: FunctionalSchema.sleep, answers: dimBinding(.sleep), recordedNight: model.recordedNight, lookingForNight: model.syncingNight)
-        case .intent:
-            catalogCard([CatalogSection(group: .dayIntent, title: String(localized: "checkin.intent", defaultValue: "How are you walking into the day?"), accent: Color(hex: 0x6366F1))])
-        case .priority:
-            sectionLabel(String(localized: "checkin.today", defaultValue: "Today"))
-            catalogCard([CatalogSection(group: .dayPriority, title: String(localized: "checkin.priority", defaultValue: "What is today for?"), accent: FAColor.forestSoft)])
-        case .feeling:
-            // The mood card: the slider, "How did it show up?" (Motivated… or Anxious…) and "What shaped it?".
-            sectionLabel(String(localized: "checkin.markers.morning", defaultValue: "How are you feeling?"))
-            DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
-        case .markers:
-            sectionLabel(model.markersTitle)
-            DimensionCardView(spec: FunctionalSchema.energy, answers: dimBinding(.energy), hiddenModules: catalogOwned)
-                .id("showcase.energy")
-            DimensionCardView(spec: FunctionalSchema.mood, answers: dimBinding(.mood))
-                .id("showcase.mood")
-            DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
-        case .digestion:
-            if let gut = model.gut {
-                sectionLabel(String(localized: "checkin.digestion", defaultValue: "Your digestion today"))
-                DigestionSections(model: gut)
-            }
-        case .context:
-            catalogCard([
-                CatalogSection(group: .fuelled, title: String(localized: "pills.fuelled", defaultValue: "What fuelled you?"), accent: FAColor.forestSoft),
-                CatalogSection(group: .drained, title: String(localized: "pills.drained", defaultValue: "What drained you?"), accent: Color(hex: 0xC2410C)),
-            ])
-        }
-    }
+/// "Couldn't save this moment" with the way out, shared by the daily and the morning screens.
+struct CheckinSaveErrorCard: View {
+    let error: String
 
-    private func sectionLabel(_ text: String) -> some View {
-        Text(text)
-            .font(FATypography.label)
-            .foregroundStyle(FAColor.inkSecondary)
-            .tracking(0.4)
-            .padding(.top, 6)
-    }
-
-    private struct CatalogSection: Identifiable {
-        let group: PillGroup
-        let title: String
-        let accent: Color
-        var id: PillGroup { group }
-    }
-
-    private func catalogCard(_ sections: [CatalogSection]) -> some View {
+    var body: some View {
         FACard {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(sections) { section in
-                    PillGroupView(
-                        title: section.title,
-                        options: PillCatalog.pills(for: section.group, slot: model.slot).map { PillOption(key: $0.key, label: $0.label) },
-                        isOn: { model.isCatalogOn(section.group, $0) },
-                        onToggle: { model.toggleCatalog(section.group, $0) },
-                        accent: section.accent
-                    )
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "checkin.saveFailed", defaultValue: "Couldn't save this moment"))
+                    .font(FATypography.headline).foregroundStyle(FAColor.danger)
+                Text(String(localized: "checkin.saveFailed.hint", defaultValue: "Your answers are still here · tap Save to try again."))
+                    .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                if BuildInfo.showsTechnicalDetails {
+                    Text(error).font(FATypography.caption).foregroundStyle(FAColor.inkMuted)
                 }
             }
-            .padding(.top, -12)
         }
-    }
-
-    private func dimBinding(_ key: DimKey) -> Binding<DimAnswers> {
-        Binding(get: { model.answers[key] ?? .empty }, set: { model.answers[key] = $0 })
     }
 }
 
 /// The gut check-in, inside the evening reflection: comfort, stool and food reactions, the red flags,
 /// and the one note that travels with both the moment and the day's digestion detail.
-private struct DigestionSections: View {
+struct DigestionSections: View {
     @Bindable var model: GutCheckinViewModel
 
     var body: some View {

@@ -13,10 +13,13 @@ enum MomentSlot: String, Sendable, Hashable, CaseIterable {
     static let scheduled: [MomentSlot] = [.morning, .evening]
     var rank: Int { Self.order.firstIndex(of: self) ?? 0 }
 
-    /// Which moment "now" belongs to: the day is the morning's until the evening reflection is due.
-    /// `<17` morning, `>=17` evening (patient-local hour).
+    /// The patient-local hour from which the DAILY check-in (the evening slot) is the one offered. Owner, 2026-11-12:
+    /// before 14:00 the check-in is the morning's, from 14:00 it is the daily one.
+    static let dailyFromHour = 14
+
+    /// Which moment "now" belongs to: `<14` morning, `>=14` evening (the daily check-in), patient-local hour.
     static func current(hour: Int) -> MomentSlot {
-        hour < 17 ? .morning : .evening
+        hour < dailyFromHour ? .morning : .evening
     }
 
     var glyph: String {
