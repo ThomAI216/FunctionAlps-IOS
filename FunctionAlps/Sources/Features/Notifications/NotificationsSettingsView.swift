@@ -25,6 +25,26 @@ struct NotificationsSettingsView: View {
                         }
                     }
 
+                    SettingsSectionLabel(title: String(localized: "notif.section.supplements", defaultValue: "Supplements"))
+                    FACard {
+                        VStack(spacing: 12) {
+                            toggleRow(String(localized: "notif.row.supplements", defaultValue: "Supplement reminders"),
+                                      sub: String(localized: "notif.row.supplements.sub", defaultValue: "One reminder per moment, only on days something is due"),
+                                      on: $prefs.supplementRemindersEnabled)
+                            if prefs.supplementRemindersEnabled {
+                                ForEach(SupplementMoment.timed, id: \.self) { moment in
+                                    Divider().overlay(ProfilePalette.hairline)
+                                    supplementTimeRow(moment)
+                                }
+                                if prefs.quietHoursEnabled {
+                                    Text(String(localized: "notif.supplements.quiet", defaultValue: "Quiet hours \(prefs.quietStart)–\(prefs.quietEnd) are respected."))
+                                        .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                        }
+                    }
+
                     SettingsSectionLabel(title: String(localized: "notif.section.meals", defaultValue: "Meals"))
                     FACard {
                         VStack(spacing: 12) {
@@ -152,6 +172,24 @@ struct NotificationsSettingsView: View {
                 }
             }
         }
+    }
+
+    /// One supplement moment: its name, "Only if something is due", and its time.
+    private func supplementTimeRow(_ moment: SupplementMoment) -> some View {
+        let times = $prefs.supplementTimes
+        return HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(moment.displayName).font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
+                Text(String(localized: "notif.supplements.onlyIfDue", defaultValue: "Only if something is due"))
+                    .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted)
+            }
+            Spacer()
+            DatePicker("", selection: timeBinding(Binding(get: { times.wrappedValue.time(for: moment) }, set: { times.wrappedValue.set($0, for: moment) })),
+                       displayedComponents: .hourAndMinute)
+                .labelsHidden().datePickerStyle(.compact).tint(FAColor.brand)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(String(localized: "notif.supplements.a11y", defaultValue: "\(moment.displayName) reminder time"))
     }
 
     private func timeField(_ label: String, _ time: Binding<String>) -> some View {

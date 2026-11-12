@@ -55,6 +55,8 @@ struct HomeView: View {
             // Every fresh Today re-plans the phone's reminders (done moments dropped, logged meals dropped).
             guard let today, let patientId = model?.state.value?.member.patientId else { return }
             let notifications = dependencies.notifications, wearables = dependencies.wearables, focus = dependencies.focus, habits = dependencies.habits
+            let supplements = dependencies.supplements
+            Task { await supplements.load() }   // today's ticks; the grouped reminders follow the read
             Task { await focus.load() }   // read back — the day is computed once and holds still
             Task { await habits.load(patientId: patientId, day: today.day); await habits.loadNextCall() }
             Task {
@@ -145,6 +147,8 @@ struct HomeView: View {
                             .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
+
+                    HomeSupplementsCard()
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()

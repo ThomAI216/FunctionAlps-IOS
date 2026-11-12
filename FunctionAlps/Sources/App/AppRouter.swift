@@ -30,6 +30,8 @@ enum Route: Hashable {
     case carePlanAction(String)
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
+    /// One supplement's page (Home's "Supplements today", the Plan's list), by its plan id.
+    case supplement(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
     case actionBank
     case bankCard(String)
@@ -160,7 +162,7 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · supplements · supplement/<planId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
     ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
@@ -202,6 +204,11 @@ final class AppRouter {
             // habit/<action key> — one Foundation Track habit's page.
             tab = .home; homePath = []
             if let key = parts.dropFirst().first, !key.isEmpty { homePath.append(.habit(key)) }
+        case "supplements": tab = .home; homePath = []   // a supplement reminder's tap: Home, where today's list is
+        case "supplement":
+            // supplement/<planId> — one supplement's page.
+            tab = .home; homePath = []
+            if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.supplement(id)) }
         case "bank":
             // bank · bank/<cardId> — the foundation action bank, or one card in it.
             tab = .home; homePath = [.actionBank]
@@ -379,6 +386,7 @@ struct MainTabView: View {
             if phase == .active {
                 Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
                 Task { await dependencies.unlocks.refresh() }
+                Task { await dependencies.supplements.load() }   // a new day's ticks, and its reminders
             }
         }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
@@ -388,6 +396,7 @@ struct MainTabView: View {
             if ShowFeature.comingSoon { Task { await ShowReminders().cancelAll() } }
             AppDelegate.router = router
             AppDelegate.notifications = dependencies.notifications
+            AppDelegate.supplements = dependencies.supplements
             if let url = AppDelegate.pendingRoute {
                 AppDelegate.pendingRoute = nil
                 Task { @MainActor in
@@ -443,6 +452,7 @@ struct MainTabView: View {
         case .carePlanFocus(let id): HabitDetailView(habitId: id, kind: .focus)
         case .carePlanAction(let id): HabitDetailView(habitId: id, kind: .action)
         case .action(let habitId): ActionCardView(source: .habit(habitId))
+        case .supplement(let id): SupplementPage(supplementId: id)
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))

@@ -48,7 +48,9 @@ struct ClientPlanView: View {
                     winsCard
                     focusCard
                     actionsCard(habits.plan)
-                    supplementsCard
+                    // The live supplements (observance, ticks) replace the plan's static list once the member has any;
+                    // until then (or if the read fails) the plan's own rows show as before.
+                    if dependencies.supplements.supplements.isEmpty { supplementsCard } else { SupplementsPlanCard() }
                     prioritiesCard(habits.plan?.priorities ?? [])
                     whyCard
                     situationCard
@@ -60,6 +62,7 @@ struct ClientPlanView: View {
             }
             .refreshable {
                 await dependencies.clientPlan.load(force: true)
+                await dependencies.supplements.load()
                 if let request = await dayRequest() { await habits.load(patientId: request.patientId, day: request.day) }
             }
         }
@@ -70,6 +73,7 @@ struct ClientPlanView: View {
             await habits.loadNextCall()
             if case .idle = habits.phase, let request = await dayRequest() { await habits.load(patientId: request.patientId, day: request.day) }
             await loadSupplements()
+            await dependencies.supplements.load()
         }
     }
 
