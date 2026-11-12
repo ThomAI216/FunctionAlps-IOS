@@ -48,12 +48,14 @@ final class MorningCheckinViewModel {
     private let checkins: CheckinService
     private let members: MemberService
     private let auth: AuthService
+    private let gutService: GutService?
     private var savedFeeling: DayFeeling?
 
     init(checkins: CheckinService, members: MemberService, auth: AuthService, gut: GutService?, wearables: WearableService?) {
         self.checkins = checkins
         self.members = members
         self.auth = auth
+        self.gutService = gut
         today = checkins.today
         yesterday = checkins.yesterday
         sleep = CheckinMomentViewModel(slot: .morning, checkins: checkins, members: members, auth: auth, wearables: wearables, sections: [.sleep])
@@ -75,7 +77,7 @@ final class MorningCheckinViewModel {
                 savedFeeling = feeling
             }
             lock.loaded(saved: (feeling?.hasAnswer ?? false) || sleep.lock.saved)
-            await loadYesterday(patientId: member.patientId)
+            await loadYesterday(patientId: member.patientId, startedAt: member.profile?.createdAt)
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "morning.prefill")
             if case .unauthorized = error { await auth.handleUnauthorized() }
@@ -95,7 +97,12 @@ final class MorningCheckinViewModel {
     }
 
     /// Yesterday's daily check-in missing → the prompt. Its night is asked again only when nothing answered it.
-    private func loadYesterday(patientId: String) async {
+    private func loadYesterday(patientId: String, startedAt: Date?) async {
+        // A member who started today has no yesterday to miss.
+        guard Self.yesterdayApplies(startedAt: startedAt, today: today) else {
+            yesterdayState = .unknown
+            return
+        }
         do {
             let moments = try await checkins.moments(patientId: patientId, day: yesterday)
             let dailyDone = CheckinEngine.slotIsDone(moments, .evening)
@@ -210,12 +217,25 @@ final class MorningCheckinViewModel {
 
     // MARK: Yesterday
 
+    /// The cards of the caught-up day: its night only when nothing answered it, then the day's markers, its digestion
+    /// (saved to yesterday's row — the table accepts it, the app used to send today's) and what fuelled / drained.
+    static func yesterdaySections(sleepUnanswered: Bool) -> [CheckinMomentViewModel.Section] {
+        sleepUnanswered ? [.sleep, .markers, .digestion, .context] : [.markers, .digestion, .context]
+    }
+
+    /// False for a member whose profile started today (local day) or later: there is no yesterday to catch up on.
+    /// Unknown start (no profile row / no date) keeps the prompt, as before.
+    static func yesterdayApplies(startedAt: Date?, today: String, calendar: Calendar = .current) -> Bool {
+        guard let startedAt else { return true }
+        return ISO8601.dayString(startedAt, calendar: calendar) < today
+    }
+
     var offersYesterday: Bool { yesterdayState == .missing && !yesterdayOpen }
 
     func openYesterday() async {
         guard yesterdayModel == nil else { yesterdayOpen = true; return }
-        let sections: [CheckinMomentViewModel.Section] = yesterdaySleepUnanswered ? [.sleep, .markers, .context] : [.markers, .context]
-        let model = CheckinMomentViewModel(slot: .evening, checkins: checkins, members: members, auth: auth, day: yesterday, sections: sections)
+        let sections = Self.yesterdaySections(sleepUnanswered: yesterdaySleepUnanswered)
+        let model = CheckinMomentViewModel(slot: .evening, checkins: checkins, members: members, auth: auth, gut: gutService, day: yesterday, sections: sections)
         yesterdayModel = model
         yesterdayOpen = true
         await model.prefill()

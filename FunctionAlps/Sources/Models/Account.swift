@@ -25,6 +25,12 @@ struct DataSummary: Sendable, Equatable {
 }
 
 /// The tables the export walks, in the Expo order — every one keyed on `patient_id`.
+///
+/// PATTERNS (owner, 2026-11-12): the export must never carry a pattern the practitioner has not validated — it could be
+/// read as clinical advice. `nb_user_patterns` is read here through the member's own session (`dataRows` → PostgREST
+/// with the member's JWT, never the service role), so its RLS policy `nb_user_patterns_self_select` already returns only
+/// `clinician_status = 'validated'` rows with `visibility_class` in (`patient_visible`, `patient_visible_after_approval`).
+/// Never move this walk to a service-role path without re-applying that filter (`ExportTests` pins the route).
 enum ExportTables {
     static let ordered: [(key: String, table: String)] = [
         ("profile", "nb_patient_app_profiles"),

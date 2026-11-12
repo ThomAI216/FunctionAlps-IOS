@@ -24,9 +24,10 @@ struct GutService: Sendable {
 
     var today: String { ISO8601.dayString(now(), calendar: calendar) }
 
-    func load(patientId: String) async throws -> State {
+    /// `day` nil = today. A caught-up day (the morning screen's "Yesterday") reads and writes that day's row.
+    func load(patientId: String, day requested: String? = nil) async throws -> State {
         let current = now()
-        let day = today
+        let day = requested ?? today
         let since = calendar.date(byAdding: .day, value: -(Self.historyDays - 1), to: calendar.startOfDay(for: current)) ?? current
         async let todayRead = backend.gutToday(patientId: patientId, day: day)
         async let history = backend.gutHistory(patientId: patientId, since: ISO8601.dayString(since, calendar: calendar), before: day)
@@ -38,7 +39,7 @@ struct GutService: Sendable {
     /// Nothing answered → nothing written (the Expo rule); otherwise the day upsert + one event per read.
     /// A raised red flag counts as an answer: it is the one thing worth writing on its own.
     @discardableResult
-    func save(patientId: String, answers: GutAnswerSet, notes: String?, redFlags: RedFlags = .none) async throws -> Bool {
+    func save(patientId: String, answers: GutAnswerSet, notes: String?, redFlags: RedFlags = .none, day: String? = nil) async throws -> Bool {
         guard GutEngine.hasAnyAnswer(answers) || redFlags.any else { return false }
         let at = now()
         let stool = GutEngine.dimensionOverall(.stool, answers[.stool] ?? .empty)
@@ -49,7 +50,7 @@ struct GutService: Sendable {
             stoolType: answers[.stool]?.specials.bristol, stoolQuality: GutEngine.to15(stool), stoolFrequency: answers[.stool]?.specials.frequency,
             completedAt: at, redFlags: redFlags
         )
-        try await backend.upsertGutCheckin(patientId: patientId, day: today, write: write)
+        try await backend.upsertGutCheckin(patientId: patientId, day: day ?? today, write: write)
         try await backend.insertCheckinEvents(patientId: patientId, events: GutEngine.events(answers, at: at))
         return true
     }

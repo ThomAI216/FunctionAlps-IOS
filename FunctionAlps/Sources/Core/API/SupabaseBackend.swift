@@ -51,6 +51,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let mealsPerDay: Int?
         let snacksPerDay: Int?
         let macrosCustomized: Bool?
+        let createdAt: Date?
     }
 
     private static let profileColumns = [
@@ -58,7 +59,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
         "goal_mode", "onboarding_completed_at", "adult_confirmed_at", "locale", "tdee_kcal",
-        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized",
+        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized", "created_at",
     ].joined(separator: ",")
 
     func memberProfile(patientId: String) async throws -> MemberProfile? {
@@ -89,7 +90,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             customCalorieOffsetKcal: row.customCalorieOffsetKcal,
             mealsPerDay: row.mealsPerDay,
             snacksPerDay: row.snacksPerDay,
-            macrosCustomized: row.macrosCustomized ?? false
+            macrosCustomized: row.macrosCustomized ?? false,
+            createdAt: row.createdAt
         )
     }
 

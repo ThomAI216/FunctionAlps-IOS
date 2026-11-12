@@ -4786,6 +4786,22 @@
         }
       }
     },
+    "checkin.digestion.yesterday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your digestion yesterday"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre digestion hier"
+          }
+        }
+      }
+    },
     "checkin.editing": {
       "localizations": {
         "en": {

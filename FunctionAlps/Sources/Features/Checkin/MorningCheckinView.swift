@@ -190,7 +190,7 @@ private struct MorningCheckinScreen: View {
             }
             if let error = yesterday.saveError { CheckinSaveErrorCard(error: error) }
             FAButton(title: yesterday.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "morning.yesterday.save", defaultValue: "Save yesterday"),
-                     isLoading: yesterday.isSaving, isEnabled: !yesterday.lock.isLocked) {
+                     isLoading: yesterday.isSaving, isEnabled: !yesterday.lock.isLocked && (yesterday.gut.map(\.loaded) ?? true)) {
                 Task { _ = await model.saveYesterday() }
             }
         }

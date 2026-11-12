@@ -79,9 +79,9 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
         record("subscribe:\(id)")
         return subscribeHook?(id, onRow, onLifecycle) ?? .inert
     }
-    func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { nil }
+    func gutToday(patientId: String, day: String) async throws -> GutTodayRead? { record("gutRead:\(day)"); return nil }
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay] { [] }
-    func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws {}
+    func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws { record("gut:\(day)") }
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? { nil }
     func saveNotificationPrefs(_ row: NotificationPrefsRow) async throws {}
     func savePushToken(_ write: PushTokenWrite) async throws {}
@@ -116,7 +116,7 @@ final class RecordingBackend: FunctionAlpsBackend, @unchecked Sendable {
     func revokeConsent(key: String) async throws {}
     func legalDocuments(keys: [String], locale: String) async throws -> [LegalDocument] { [] }
     func dataCount(table: String, patientId: String) async throws -> Int { 0 }
-    func dataRows(table: String, patientId: String) async throws -> Data { Data("[]".utf8) }
+    func dataRows(table: String, patientId: String) async throws -> Data { record("rows:\(table)"); return Data("[]".utf8) }
     func ingestWearable(_ batch: WearableBatch) async throws -> WearableIngestResult { WearableIngestResult(ok: true, rawEventId: nil, daily: batch.daily.count, epoch: batch.epoch.count, connection: nil) }
     func wearableDaily(patientId: String, since: String) async throws -> [WearableLabeledRow] { [] }
     func wearableSleepRows(patientId: String, since: String) async throws -> [WearableNightRow] { [] }

@@ -32,7 +32,9 @@ struct CheckinSectionsView: View {
             DimensionCardView(spec: FunctionalSchema.stress, answers: dimBinding(.stress))
         case .digestion:
             if let gut = model.gut {
-                sectionLabel(String(localized: "checkin.digestion", defaultValue: "Your digestion today"))
+                sectionLabel(model.day == nil
+                             ? String(localized: "checkin.digestion", defaultValue: "Your digestion today")
+                             : String(localized: "checkin.digestion.yesterday", defaultValue: "Your digestion yesterday"))
                 DigestionSections(model: gut)
             }
         case .context:
