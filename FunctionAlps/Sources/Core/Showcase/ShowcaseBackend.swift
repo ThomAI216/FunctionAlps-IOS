@@ -114,7 +114,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         if Showcase.isTrends { return ShowcaseData.ouraNights(since: since) }
         return screen == .checkinWearable ? ShowcaseData.ouraNight(day: since) : []
     }
-    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
+    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus {
+        ShowcaseFocus.isOn ? ShowcaseFocus.focus() : TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: [])
+    }
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { screen == .focusEvening ? ShowcaseFocus.evening : nil }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan {
         // A lead has no prescribed plan: the track's own actions are the day's actions.
         if ShowcaseTrack.isOn { return HabitPlan(day: day, header: nil, phases: [], habits: [], completions: []) }
@@ -122,7 +125,8 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     }
     func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
     func actionBank() async throws -> [ActionCardRow] {
-        ShowcaseData.cards.values.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
+        let cards = Array(ShowcaseData.cards.values) + (ShowcaseFocus.isOn ? ShowcaseFocus.cards : [])
+        return cards.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
     }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}

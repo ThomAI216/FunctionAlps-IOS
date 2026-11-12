@@ -61,6 +61,11 @@ protocol FunctionAlpsBackend: Sendable {
     func dayFeeling(patientId: String, day: String) async throws -> DayFeeling?
     /// One row per (patient, day); saving again edits it.
     func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws
+    /// After a hard morning, the daily check-in's "how was the rest of your day?" — the two `evening_*` columns of the day's
+    /// feelings row, read apart from the morning's answers (a database without the columns reads as "none saved").
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup?
+    /// Writes ONLY the follow-up columns; the morning's answers on the same row are never touched.
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws
 
     // MARK: Scores (server-side engine)
 
@@ -463,6 +468,8 @@ extension FunctionAlpsBackend {
     func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
     func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
     func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { nil }
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
 }

@@ -43,6 +43,10 @@ enum Showcase {
         /// done button, yesterday prompt), yesterday revealed, the two end screens, and a saved daily check-in showing the lock question.
         case morningTop = "morning-top", morningBottom = "morning-bottom", morningYesterday = "morning-yesterday"
         case morningEndGreen = "morning-end-green", morningEndLowEnergy = "morning-end-lowenergy", checkinLocked = "checkin-locked"
+        /// Today's focus (owner-approved matrix, 2026-11-12): Home's card on P1 · P5 (with the practitioner line) · G1, the habit-choice
+        /// sheet, an action opened from it (the two focus buttons), the kickoff morning routine (first step, finish) and the evening follow-up.
+        case focusP1 = "focus-p1", focusP5 = "focus-p5", focusG1 = "focus-g1", focusSheet = "focus-sheet", focusAction = "focus-action"
+        case focusKickoff = "focus-kickoff", focusKickoffDone = "focus-kickoff-done", focusEvening = "focus-evening"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -104,7 +108,10 @@ enum Showcase {
         guard let screen else { return nil }
         let link: String = switch screen {
         case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen,
-             .morningEndGreen, .morningEndLowEnergy: "functionalps://home"
+             .morningEndGreen, .morningEndLowEnergy, .focusP1, .focusP5, .focusG1, .focusSheet: "functionalps://home"
+        case .focusAction: "functionalps://focus/card/\(ShowcaseFocus.actionCardId)"
+        case .focusKickoff, .focusKickoffDone: "functionalps://focus/kickoff"
+        case .focusEvening: "functionalps://checkin/evening"
         case .morningTop, .morningBottom, .morningYesterday: "functionalps://checkin/morning"
         case .checkinLocked: "functionalps://checkin/evening"
         case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"

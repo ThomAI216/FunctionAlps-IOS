@@ -31,6 +31,10 @@ enum Route: Hashable {
     /// The bank of foundation actions a member may add themselves, and one card of it.
     case actionBank
     case bankCard(String)
+    /// One of today's-focus habits (`habit_bank` id), opened from Home's "Do it now": the action card with the two focus buttons under it.
+    case focusCard(String)
+    /// The kickoff morning routine, walked one step per screen.
+    case kickoff
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
     /// One Foundation Track habit's page (Home's actions card → "See the habit"), by its action key.
@@ -159,7 +163,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   bank[/<cardId>] · focus/kickoff · focus/card/<cardId> · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -204,6 +208,12 @@ final class AppRouter {
             // bank · bank/<cardId> — the foundation action bank, or one card in it.
             tab = .home; homePath = [.actionBank]
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
+        case "focus":
+            // focus/kickoff — the kickoff morning routine · focus/card/<cardId> — one of today's focus habits, with the two focus buttons.
+            tab = .home; homePath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "kickoff" { homePath.append(.kickoff) }
+            else if rest.first == "card", rest.count > 1, !rest[1].isEmpty { homePath.append(.focusCard(rest[1])) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
             // (an experiment reminder lands there) · library/track/<uuid> — one personal mini track (an email link lands there).
@@ -441,6 +451,8 @@ struct MainTabView: View {
         case .action(let habitId): ActionCardView(source: .habit(habitId))
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
+        case .focusCard(let cardId): ActionCardView(source: .focusCard(cardId))
+        case .kickoff: KickoffRoutineView()
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .habit(let key): HabitPageView(key: key)
         case .trackSummary: TrackSummaryView()

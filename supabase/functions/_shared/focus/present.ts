@@ -1,3 +1,6 @@
+import { type BankHabit, wording } from "./engine.ts"
+import { type Cell, CELLS, type CellId, HARD_MORNING_CELLS, kickoffSteps, KICKOFF, PRACTITIONER_LINE, showsPractitionerLine } from "./matrix.ts"
+
 // What the member reads back: today's stored offers, in their language when the practice has written it.
 //
 // The day is stored ONCE, in both languages (`habit_offers.title` / `title_fr`, …), so the language is chosen
@@ -52,7 +55,7 @@ export function present(rows: OfferRow[], locale: ContentLocale) {
     .map((r) => {
       const state = r.state_responses
       return {
-        id: r.id, offerKey: r.offer_key, rank: r.rank, ...words(r, locale),
+        id: r.id, offerKey: r.offer_key, cardId: r.offer_key.startsWith("bank:") ? r.offer_key.slice(5) : null, rank: r.rank, ...words(r, locale),
         pillar: r.pillar, slot: r.slot, variant: r.variant, reason: r.reason, trigger: r.state_key,
         stateTitle: state ? (locale === "fr" && written(state.title_fr) ? state.title_fr : state.title) : null,
         accepted: r.accepted, completed: r.completed,
@@ -67,6 +70,8 @@ export interface DayStateRow {
   readiness_band: string | null
   readiness_vs_baseline: boolean
   band_source: string | null
+  /** The matrix cell the day was decided on (`patient_day_state.focus_cell`), stored so the card holds still. */
+  focus_cell?: string | null
 }
 
 export interface DayReadiness {
@@ -85,4 +90,54 @@ export function dayReadiness(row: DayStateRow | null | undefined): DayReadiness 
   if (band !== "low" && band !== "mid" && band !== "high") return null
   const source = row.band_source === "wearable" || row.band_source === "self_report" ? row.band_source : null
   return { band, vsBaseline: row.readiness_vs_baseline === true, source }
+}
+
+// MARK: - The card itself (the matrix cell, in the member's language)
+
+/** A habit's words in one language: French only when everything it has in English is also written in French. */
+export function cardWords(h: BankHabit, variant: "easy" | "standard" | "progression", locale: ContentLocale): { title: string; description: string | null } {
+  const w = wording(h, variant)
+  return words({ title: w.title, description: w.description, title_fr: w.titleFr, description_fr: w.descriptionFr }, locale)
+}
+
+/** The kickoff routine as the app walks it: title, subtitle and one step per card, in the owner's order. Null when
+ *  fewer than two of its cards are eligible for this member. */
+export function presentKickoff(eligible: BankHabit[], band: "low" | "mid" | "high" | null, locale: ContentLocale) {
+  const steps = kickoffSteps(eligible, band)
+  if (steps.length === 0) return null
+  return {
+    key: KICKOFF.key,
+    title: KICKOFF.title[locale],
+    subtitle: KICKOFF.subtitle[locale],
+    finishTitle: KICKOFF.finish[locale].title,
+    finishLine: KICKOFF.finish[locale].line,
+    steps: steps.map((s) => ({ kind: s.kind, label: s.label[locale], cardId: s.habit.id, ...cardWords(s.habit, s.variant, locale) })),
+  }
+}
+
+/** What `member-daily-focus` returns beside the offers, as `cell`: the cell's headline and line, its tone (what the card is drawn
+ *  in), the practitioner line when it applies, and the kickoff routine on a hard morning. `sleepKnown` false = the
+ *  member left the night blank, so the card never mentions it. */
+export function presentFocus(opts: {
+  cellId: CellId
+  locale: ContentLocale
+  depletedDays: number
+  sleepKnown: boolean
+  eligible: BankHabit[]
+  band: "low" | "mid" | "high" | null
+}) {
+  const cell: Cell | undefined = CELLS[opts.cellId]
+  if (!cell) return null
+  const text = cell[opts.locale]
+  const line = !opts.sleepKnown && cell.noSleep ? cell.noSleep[opts.locale] : text.line
+  const hard = HARD_MORNING_CELLS.has(cell.id)
+  return {
+    id: cell.id,
+    headline: text.headline,
+    line,
+    tone: cell.tone,
+    practitionerLine: showsPractitionerLine(cell, opts.depletedDays) ? PRACTITIONER_LINE[opts.locale] : null,
+    hardMorning: hard,
+    kickoff: hard ? presentKickoff(opts.eligible, opts.band, opts.locale) : null,
+  }
 }

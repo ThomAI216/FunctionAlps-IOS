@@ -717,6 +717,35 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day", body: row, snakeCase: false)
     }
 
+    private struct EveningFollowupRow: Decodable, Sendable {
+        let eveningFollowup: Int?
+        let eveningPills: [String]?
+        private enum CodingKeys: String, CodingKey { case eveningFollowup, eveningPills }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            eveningFollowup = try c.decodeIfPresent(Int.self, forKey: .eveningFollowup)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost answer.
+            eveningPills = try? c.decodeIfPresent([String].self, forKey: .eveningPills)
+        }
+    }
+
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? {
+        let row: EveningFollowupRow? = try await rest.selectOne("patient_day_feelings", query: [
+            PG.select("evening_followup,evening_pills"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+        ])
+        guard let row else { return nil }
+        let followup = EveningFollowup(choice: row.eveningFollowup.flatMap(EveningFollowup.Choice.init(rawValue:)), pills: row.eveningPills ?? [])
+        return followup.isEmpty ? nil : followup
+    }
+
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {
+        try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day",
+                              body: EveningFollowupLogic.columns(followup, patientId: patientId, day: day), snakeCase: false)
+    }
+
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
         let row: ColumnPatch = [
             "patient_id": .string(patientId),
