@@ -285,7 +285,10 @@ final class CheckinMomentViewModel {
     }
 
     var markersTitle: String {
-        slot == .evening
+        // A caught-up day (`day` set) is over: "How was your day?".
+        slot == .evening && day != nil
+            ? String(localized: "checkin.markers.yesterday", defaultValue: "How was your day?")
+            : slot == .evening
             ? String(localized: "checkin.markers.daily", defaultValue: "How is your day?")
             : String(localized: "checkin.markers.later", defaultValue: "How are you feeling right now?")
     }

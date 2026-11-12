@@ -4578,6 +4578,22 @@
         }
       }
     },
+    "checkin.markers.yesterday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How was your day?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment s'est passée votre journée ?"
+          }
+        }
+      }
+    },
     "checkin.midday.greeting": {
       "localizations": {
         "en": {
