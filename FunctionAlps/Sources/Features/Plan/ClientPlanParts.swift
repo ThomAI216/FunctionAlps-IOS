@@ -96,7 +96,7 @@ struct MiniCurve: View {
     }
 
     /// Points for a series: oldest left, 100 at the top of the box. Pure, so it is testable.
-    static func points(_ values: [Double], in size: CGSize) -> [CGPoint] {
+    nonisolated static func points(_ values: [Double], in size: CGSize) -> [CGPoint] {
         guard values.count >= 2 else { return [] }
         let lo = values.min() ?? 0, hi = values.max() ?? 100
         let span = max(hi - lo, 20)   // a flat run stays flat, not stretched to the box
