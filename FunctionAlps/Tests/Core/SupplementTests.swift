@@ -413,7 +413,7 @@ struct SupplementReminderTests {
         #expect(a != nil && b != nil && a != b)
         #expect(plan([iberogast]).first?.id == a)            // stable
         #expect(a?.hasPrefix("supp.evening.2026-11-12.1900.") == true)
-        #expect(!(a ?? "").hasPrefix(LocalNotifications.snoozeIdPrefix))
+        #expect(!(a ?? "").hasPrefix("supp.later."))
     }
 
     @Test("The planner carries the supplement reminders, quiet hours keep them, and 'Taken' reads its group back")
