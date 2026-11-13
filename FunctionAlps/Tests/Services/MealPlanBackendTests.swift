@@ -103,7 +103,8 @@ struct MealPlanBackendTests {
         #expect(tick.url.path.hasSuffix("/rest/v1/member_grocery_state"))
         #expect(tick.url.query?.contains("on_conflict=patient_id,plan_id,period_start,food_item_id,custom_label") == true)
         #expect(tick.headers["Prefer"]?.contains("merge-duplicates") == true)
-        let rows = try #require(JSONSerialization.jsonObject(with: try #require(tick.body)) as? [[String: Any]])
+        let tickBody = try #require(tick.body)
+        let rows = try #require(JSONSerialization.jsonObject(with: tickBody) as? [[String: Any]])
         #expect(rows.count == 1)
         #expect(rows[0]["patient_id"] as? String == "pat")
         #expect(rows[0]["plan_id"] as? String == "p1")
@@ -113,7 +114,8 @@ struct MealPlanBackendTests {
         #expect(rows[0]["custom_label"] is NSNull)
 
         try await backend.setGroceryChecked(patientId: "pat", list: list, target: .food("f1"), checked: false)
-        let untick = try #require(JSONSerialization.jsonObject(with: try #require(transport.requests[1].body)) as? [[String: Any]])
+        let untickBody = try #require(transport.requests[1].body)
+        let untick = try #require(JSONSerialization.jsonObject(with: untickBody) as? [[String: Any]])
         #expect(untick[0]["checked_at"] is NSNull)   // an explicit null clears the tick and keeps the row
     }
 
