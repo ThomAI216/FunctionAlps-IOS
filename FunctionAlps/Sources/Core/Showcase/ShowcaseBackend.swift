@@ -84,6 +84,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func touchFavorite(id: String) async throws {}
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
 
+    /// The sample supplements (a Foundation Track lead has none). Ticks are not stored: the screenshots show the sample as it is.
+    func supplements() async throws -> [Supplement] { ShowcaseTrack.isOn ? [] : ShowcaseData.supplements }
+
     /// A lead on the Foundation Track has no care plan yet.
     func carePlan(patientId: String) async throws -> CarePlan? { ShowcaseTrack.isOn ? nil : ShowcaseData.carePlan }
     func labResults() async throws -> [LabResultRow] { [] }

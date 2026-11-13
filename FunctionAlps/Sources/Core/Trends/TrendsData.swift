@@ -73,6 +73,30 @@ struct TrendsRaw: Sendable, Equatable {
 }
 
 enum TrendsEngine {
+    // MARK: Supplements, day by day
+
+    /// One supplement's ticks over the Trends window, from the server's `observance.strip` (`member_supplements`; the strip
+    /// covers 14 days, oldest first, so a 28-day window shows the last 14). Counts only; the server decides what was due.
+    struct SupplementRow: Sendable, Equatable, Identifiable {
+        let id: String
+        let name: String
+        let days: [Supplement.StripDay]
+        /// Days where everything due was taken, of the days due and over (today still to take is not counted).
+        let taken: Int
+        let due: Int
+    }
+
+    /// Active supplements that carry a strip, in the plan's order. Empty when the member has none (the card keeps its empty state).
+    static func supplementRows(_ supplements: [Supplement], window: TrendWindow) -> [SupplementRow] {
+        SupplementLogic.planOrder(supplements).filter(\.isActive).compactMap { s in
+            guard let strip = s.observance?.strip, !strip.isEmpty else { return nil }
+            let days = Array(strip.suffix(window.days))
+            let marks = days.map(SupplementLogic.mark)
+            let due = marks.filter { $0 == .taken || $0 == .partial || $0 == .missed }.count
+            return SupplementRow(id: s.id, name: s.name, days: days, taken: marks.filter { $0 == .taken }.count, due: due)
+        }
+    }
+
     // MARK: Windows
 
     /// The window's days, oldest first, ending on `today`.

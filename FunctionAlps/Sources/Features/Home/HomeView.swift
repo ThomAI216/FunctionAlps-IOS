@@ -152,7 +152,7 @@ struct HomeView: View {
                     }
                     .frame(maxHeight: 230)
 
-                    HomeSupplementsCard()
+                    HomeSupplementsCard().id("showcase.supplements")
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()
@@ -189,6 +189,7 @@ struct HomeView: View {
             .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeMissed, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeLate, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusTrackHome, anchor: UnitPoint(x: 0.5, y: 0.3)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.supplements", on: .supplementsHome, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }

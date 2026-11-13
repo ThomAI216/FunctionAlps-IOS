@@ -48946,6 +48946,38 @@
         }
       }
     },
+    "trends.supp.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken per day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pris chaque jour"
+          }
+        }
+      }
+    },
+    "trends.supp.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld jours"
+          }
+        }
+      }
+    },
     "trends.plan.title": {
       "localizations": {
         "en": {

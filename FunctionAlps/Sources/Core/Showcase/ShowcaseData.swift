@@ -13,6 +13,38 @@ enum ShowcaseData {
     static let breathCardId = "showcase-card-breath"
     static let articleSlug = "showcase-gut-feedback"
 
+    static let supplementPageId = "showcase-supp-magnesium"
+
+    /// Three supplements with a 14-day strip each (oldest first, today last): the pattern is how many of the day's moments
+    /// were taken. Magnesium (night) with two misses, vitamin D (morning) almost always, omega-3 (morning + evening) with
+    /// partial days. Today: the morning ones ticked, the evening ones still to take.
+    static var supplements: [Supplement] {
+        func build(_ id: String, _ name: String, dose: String, moments: [String], pattern: [Int], why: String, todayTicks: Int) -> Supplement {
+            var strip: [Supplement.StripDay] = []
+            var due = 0, taken = 0
+            for i in 0..<14 {
+                let isToday = i == 13
+                let count = isToday ? todayTicks : pattern[i]
+                strip.append(.init(date: day(i - 13), due: true, today: isToday,
+                                   moments: moments.enumerated().map { .init(moment: $0.element, taken: $0.offset < count) }))
+                taken += count
+                due += isToday ? count : moments.count
+            }
+            let pct = due > 0 ? Double(taken) / Double(due) : nil
+            let ticks = moments.enumerated().map { Supplement.TodayEntry(moment: $0.element, taken: $0.offset < todayTicks, takenAt: $0.offset < todayTicks ? at(0, 8, 10) : nil) }
+            return Supplement(id: id, name: name, doseText: dose, moments: moments, why: why, since: day(-40),
+                              today: ticks, observance: .init(days: 14, due: due, taken: taken, pct: pct, band: pct.map { $0 >= 0.85 ? "green" : $0 >= 0.6 ? "blue" : "orange" }, strip: strip))
+        }
+        return [
+            build("showcase-supp-vitd", "Vitamin D3", dose: "2000 IU", moments: ["morning"], pattern: [1,1,1,1,0,1,1,1,1,1,1,1,1,1],
+                  why: "Your winter level was low; this brings it back towards the range we aim for.", todayTicks: 1),
+            build("showcase-supp-omega", "Omega-3", dose: "1 g EPA + DHA", moments: ["morning", "evening"], pattern: [2,2,1,2,2,0,2,2,1,2,2,2,1,2],
+                  why: "Supports steady energy and a calm inflammatory balance.", todayTicks: 1),
+            build(supplementPageId, "Magnesium glycinate", dose: "300 mg", moments: ["bedtime"], pattern: [1,1,0,1,1,1,0,1,1,1,1,0,1,1],
+                  why: "To help your muscles and nervous system unwind before sleep.", todayTicks: 0),
+        ]
+    }
+
     static var calendar: Calendar { .current }
     static var now: Date { Date() }
     static func day(_ offset: Int) -> String { ISO8601.dayString(calendar.date(byAdding: .day, value: offset, to: now) ?? now, calendar: calendar) }

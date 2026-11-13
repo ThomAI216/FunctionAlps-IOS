@@ -161,6 +161,11 @@ jobs:
           shoot 84-track-home-kickoff focus-track-home 14
           shootfr 82-home-kickoff-missed-fr focus-home-missed 14
           shootfr 83-home-kickoff-late-fr focus-home-late 14
+          # Supplement ticking (2026-11-13): Home's "Supplements today", one supplement's page, Trends' taken-per-day strips; the Library's video player.
+          shoot 85-supplements-home supplements-home 14
+          shoot 86-supplement-page supplement-page 12
+          shoot 87-trends-supplements trends-supplements 14
+          shoot 88-library-watch library-watch 12
           if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12

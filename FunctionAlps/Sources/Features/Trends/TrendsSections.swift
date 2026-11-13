@@ -87,10 +87,12 @@ private struct TrendChip: View {
 
 // MARK: Your plan, day by day
 
-/// Daily actions done against due, per day. Supplements: the app cannot read supplement logs yet, so the plan's
-/// own names are listed with the way to see them here — no strip of ticks it could not fill.
+/// Daily actions done against due, per day. Supplements: one row each with the days they were taken (the server's
+/// observance strip). Until that strip is available the plan's own names are listed with the way to see them here.
 struct TrendsPlanCard: View {
     let page: TrendsEngine.Page
+    /// The supplements' day-by-day ticks (`TrendsEngine.supplementRows`); empty until they are read or when there are none.
+    var supplementRows: [TrendsEngine.SupplementRow] = []
 
     private func barHeight(_ day: TrendsEngine.PlanDay, maxDue: Int) -> CGFloat {
         day.due == 0 ? 4 : max(10, CGFloat(day.due) / CGFloat(max(1, maxDue)) * 44)
@@ -117,7 +119,11 @@ struct TrendsPlanCard: View {
                     }
                     strip(adherence)
                 }
-                if !page.supplementNames.isEmpty { supplements }
+                if !supplementRows.isEmpty {
+                    supplementStrips
+                } else if !page.supplementNames.isEmpty {
+                    supplements
+                }
             }
         }
     }
@@ -153,6 +159,40 @@ struct TrendsPlanCard: View {
         .frame(height: 66, alignment: .bottom)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(localized: "trends.plan.a11y", defaultValue: "Daily actions done: \(adherence.done) of \(adherence.due)"))
+    }
+
+    private var supplementStrips: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(String(localized: "trends.plan.supplements", defaultValue: "Supplements"))
+                    .font(FATypography.sans(14, .bold, relativeTo: .subheadline))
+                    .foregroundStyle(FAColor.ink)
+                Spacer()
+                Text(String(localized: "trends.supp.taken", defaultValue: "Taken per day"))
+                    .font(FATypography.sans(12.5, relativeTo: .caption))
+                    .foregroundStyle(FAColor.inkSecondary)
+            }
+            ForEach(supplementRows) { row in
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(row.name)
+                            .font(FATypography.sans(13, .semibold, relativeTo: .footnote))
+                            .foregroundStyle(FAColor.ink)
+                            .lineLimit(1)
+                        Spacer(minLength: 8)
+                        if row.due > 0 {
+                            Text(String(localized: "trends.supp.count", defaultValue: "\(row.taken) of \(row.due) days"))
+                                .font(FATypography.sans(12, relativeTo: .caption))
+                                .foregroundStyle(FAColor.inkSecondary)
+                        }
+                    }
+                    SupplementStrip(days: row.days)
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(.top, 4)
+        .id("trends.supplements")
     }
 
     private var supplements: some View {

@@ -132,6 +132,9 @@ final class SupplementService {
     /// Reminders are ON by default, so the only ask is the system's notification permission — explained once, the
     /// first time supplements are shown, and only while the phone has not been asked yet.
     var shouldExplainReminders: Bool {
+        #if DEBUG
+        if Showcase.isOn { return false }   // a screenshot never opens on the permission explanation
+        #endif
         guard !defaults.bool(forKey: Key.explained), notifications.authorization == .notDetermined,
               notifications.prefs.supplementRemindersEnabled else { return false }
         return supplements.contains { $0.isActive && $0.dueToday }
