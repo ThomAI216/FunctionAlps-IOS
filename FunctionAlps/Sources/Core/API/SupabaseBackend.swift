@@ -746,6 +746,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
                               body: EveningFollowupLogic.columns(followup, patientId: patientId, day: day), snakeCase: false)
     }
 
+    // MARK: Routine runs (patient_routine_runs)
+
+    private struct RoutineRunRow: Decodable, Sendable {
+        let day: String
+        let focusCell: String?
+        let offeredAt: String?
+        let dueAt: String?
+        let completedAt: String?
+        let stepsDone: Int?
+        private enum CodingKeys: String, CodingKey { case day, focusCell, offeredAt, dueAt, completedAt, stepsDone }
+
+        var model: KickoffRun {
+            KickoffRun(day: day, focusCell: focusCell, offeredAt: offeredAt.flatMap(ISO8601.parse) ?? Date(),
+                       dueAt: dueAt.flatMap(ISO8601.parse), completedAt: completedAt.flatMap(ISO8601.parse), stepsDone: stepsDone ?? 0)
+        }
+    }
+
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? {
+        let row: RoutineRunRow? = try await rest.selectOne("patient_routine_runs", query: [
+            PG.select("day,focus_cell,offered_at,due_at,completed_at,steps_done"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+            PG.eq("routine", KickoffRun.routine),
+        ])
+        return row?.model
+    }
+
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {
+        try await rest.upsert("patient_routine_runs", onConflict: "patient_id,day,routine", body: columns, snakeCase: false)
+    }
+
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
         let row: ColumnPatch = [
             "patient_id": .string(patientId),

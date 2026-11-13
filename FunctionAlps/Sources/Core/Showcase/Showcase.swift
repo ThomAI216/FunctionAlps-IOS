@@ -51,6 +51,8 @@ enum Showcase {
         case focusPageP1 = "focus-page-p1", focusPageP5 = "focus-page-p5"
         /// Home's "During the day" list with the green "Kickoff morning routine" row (owner, 2026-11-13): not done, and done.
         case focusHome = "focus-home", focusHomeDone = "focus-home-done"
+        /// The same row past its deadline (Missed), finished after it (Done late), and a Foundation Track member's Home with it.
+        case focusHomeMissed = "focus-home-missed", focusHomeLate = "focus-home-late", focusTrackHome = "focus-track-home"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -112,7 +114,7 @@ enum Showcase {
         guard let screen else { return nil }
         let link: String = switch screen {
         case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen,
-             .morningEndGreen, .morningEndLowEnergy, .focusHome, .focusHomeDone: "functionalps://home"
+             .morningEndGreen, .morningEndLowEnergy, .focusHome, .focusHomeDone, .focusHomeMissed, .focusHomeLate, .focusTrackHome: "functionalps://home"
         case .focusAction: "functionalps://focus/card/\(ShowcaseFocus.actionCardId)"
         case .focusKickoff, .focusKickoffDone: "functionalps://focus/kickoff"
         // Today's focus lives on its own page now (Home no longer carries the card): the page, and the habit-choice sheet over it.

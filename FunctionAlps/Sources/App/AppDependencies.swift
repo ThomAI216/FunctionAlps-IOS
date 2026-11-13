@@ -79,7 +79,11 @@ final class AppDependencies {
         self.notifications = NotificationService(backend: backend)
         self.gut = GutService(backend: backend)
         self.protocols = ProtocolService(backend: backend)
+        #if DEBUG
+        self.focus = FocusService(backend: backend, auth: auth, now: ShowcaseFocus.clock())
+        #else
         self.focus = FocusService(backend: backend, auth: auth)
+        #endif
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.documents = DocumentsService(backend: backend, members: members, auth: auth)
         #if DEBUG

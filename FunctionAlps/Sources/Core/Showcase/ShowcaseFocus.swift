@@ -8,19 +8,47 @@ import Foundation
 enum ShowcaseFocus {
     static var isOn: Bool {
         switch Showcase.screen {
-        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening, .focusPageP1, .focusPageP5, .focusHome, .focusHomeDone: true
+        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening, .focusPageP1, .focusPageP5, .focusHome, .focusHomeDone, .focusHomeMissed, .focusHomeLate, .focusTrackHome: true
         default: false
         }
     }
 
-    /// Home with the green "Kickoff morning routine" row (owner, 2026-11-13).
-    static var homeIsOn: Bool { Showcase.screen == .focusHome || Showcase.screen == .focusHomeDone }
+    /// Home with the green "Kickoff morning routine" row (owner, 2026-11-13): open, missed, done late, done on time, and on a Foundation
+    /// Track member's Home. The sample morning woke at 06:45, so the routine is due at 07:45.
+    static var homeIsOn: Bool {
+        switch Showcase.screen {
+        case .focusHome, .focusHomeDone, .focusHomeMissed, .focusHomeLate, .focusTrackHome: true
+        default: false
+        }
+    }
 
-    /// The phone's clock for the routine card: Home's During the day list is the midday routine, so those two shots read 12:00 (the
-    /// others keep the real clock, as every screenshot does).
+    static let wakeTime = "06:45"
+
+    /// The phone's clock for the routine card: 07:00 for the open row (due 07:45), 07:30 for the one done on time, 12:00 for the ones
+    /// past the deadline (Home's During the day list). The other screens keep the real clock, as every screenshot does.
     static func clock() -> @Sendable () -> Date {
-        guard homeIsOn else { return { Date() } }
-        return { Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date() }
+        let at: (hour: Int, minute: Int)?
+        switch Showcase.screen {
+        case .focusHome, .focusTrackHome: at = (7, 0)
+        case .focusHomeDone: at = (7, 30)
+        case .focusHomeMissed, .focusHomeLate: at = (12, 0)
+        default: at = nil
+        }
+        guard let at else { return { Date() } }
+        return { Calendar.current.date(bySettingHour: at.hour, minute: at.minute, second: 0, of: Date()) ?? Date() }
+    }
+
+    /// The run the table would hold for the screens that show a finished routine: on time (07:20, before the 07:45 deadline) and late (08:30).
+    static func kickoffRun(day: String) -> KickoffRun? {
+        let finished: (hour: Int, minute: Int)
+        switch Showcase.screen {
+        case .focusHomeDone: finished = (7, 20)
+        case .focusHomeLate: finished = (8, 30)
+        default: return nil
+        }
+        let calendar = Calendar.current
+        let at: (Int, Int) -> Date = { calendar.date(bySettingHour: $0, minute: $1, second: 0, of: Date()) ?? Date() }
+        return KickoffRun(day: day, focusCell: cellId, offeredAt: at(7, 0), dueAt: at(7, 45), completedAt: at(finished.hour, finished.minute), stepsDone: 6)
     }
 
     /// The cell each screen shows; every screen but P1 and G1 is a hard morning (P5).

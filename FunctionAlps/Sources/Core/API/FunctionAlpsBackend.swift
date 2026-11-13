@@ -64,6 +64,11 @@ protocol FunctionAlpsBackend: Sendable {
     /// After a hard morning, the daily check-in's "how was the rest of your day?" — the two `evening_*` columns of the day's
     /// feelings row, read apart from the morning's answers (a database without the columns reads as "none saved").
     func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup?
+    /// Today's kickoff morning routine run (`patient_routine_runs`, `routine = 'kickoff_morning'`); nil when the day has none (or the
+    /// database has no such table yet).
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun?
+    /// One row per (patient, day, routine): the columns sent are the ones that change (`KickoffRunLogic`).
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws
     /// Writes ONLY the follow-up columns; the morning's answers on the same row are never touched.
     func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws
 
@@ -469,6 +474,8 @@ extension FunctionAlpsBackend {
     func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
     func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
     func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { nil }
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? { nil }
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {}
     func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }

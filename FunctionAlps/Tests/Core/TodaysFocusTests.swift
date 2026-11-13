@@ -204,44 +204,215 @@ struct TodaysFocusTests {
 
     // MARK: The green row on Home
 
+    private var utc: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        return calendar
+    }
+
+    private func moment(_ hour: Int, _ minute: Int, day: Int = 13) -> Date {
+        utc.date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour, minute: minute))!
+    }
+
     @Test func theKickoffRowAppearsOnlyOnHardMorningCellsOnceTheCheckinIsDone() throws {
         let hard = try decode(p5)
-        let easy = try decode(#"{"day":"d","needsCheckin":false,"offers":[],"cell":{"id":"G1","headline":"h","line":"l","tone":"peak","practitionerLine":null,"hardMorning":false,"kickoff":null}}"#)
-        let noRoutine = try decode(#"{"day":"d","needsCheckin":false,"offers":[],"cell":{"id":"P2","headline":"h","line":"l","tone":"soft","practitionerLine":null,"hardMorning":true,"kickoff":null}}"#)
-        let row = KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: true, done: false)
-        #expect(row == KickoffRow(subtitle: "Today is for holding steady", done: false))
-        #expect(KickoffRowLogic.row(focus: hard, slot: .morning, morningCheckinDone: true, done: false) != nil)
-        #expect(KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: false, done: false) == nil)   // check-in not done
-        #expect(KickoffRowLogic.row(focus: hard, slot: .evening, morningCheckinDone: true, done: false) == nil)
-        #expect(KickoffRowLogic.row(focus: easy, slot: .midday, morningCheckinDone: true, done: false) == nil)
-        #expect(KickoffRowLogic.row(focus: noRoutine, slot: .midday, morningCheckinDone: true, done: false) == nil)
-        #expect(KickoffRowLogic.row(focus: nil, slot: .midday, morningCheckinDone: true, done: false) == nil)
-        #expect(KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: true, done: true)?.done == true)
+        let easy = try decode(#"{"day":"2026-11-12","needsCheckin":false,"offers":[],"cell":{"id":"G1","headline":"h","line":"l","tone":"peak","practitionerLine":null,"hardMorning":false,"kickoff":null}}"#)
+        let noRoutine = try decode(#"{"day":"2026-11-12","needsCheckin":false,"offers":[],"cell":{"id":"P2","headline":"h","line":"l","tone":"soft","practitionerLine":null,"hardMorning":true,"kickoff":null}}"#)
+        func row(_ focus: TodayFocus?, _ slot: HabitSlot, done: Bool = true) -> KickoffRow? {
+            KickoffRowLogic.row(focus: focus, slot: slot, morningCheckinDone: done, run: nil, wakeTime: "06:45", calendar: utc)
+        }
+        let shown = try #require(row(hard, .midday))
+        #expect(shown.subtitle == "Today is for holding steady")
+        #expect(!shown.done)
+        #expect(row(hard, .morning) != nil)
+        #expect(row(hard, .midday, done: false) == nil)   // check-in not done
+        #expect(row(hard, .evening) == nil)
+        #expect(row(easy, .midday) == nil)
+        #expect(row(noRoutine, .midday) == nil)
+        #expect(row(nil, .midday) == nil)
+    }
+
+    // MARK: The deadline (owner, 2026-11-13)
+
+    @Test func theDeadlineIsAnHourAfterWakingElseTen() {
+        #expect(KickoffDeadline.dueAt(day: "2026-11-13", wakeTime: "06:45", calendar: utc) == moment(7, 45))
+        #expect(KickoffDeadline.dueAt(day: "2026-11-13", wakeTime: "07:30:00", calendar: utc) == moment(8, 30))   // a postgres time
+        #expect(KickoffDeadline.dueAt(day: "2026-11-13", wakeTime: "23:30", calendar: utc) == moment(0, 30, day: 14))   // wraps, never crashes
+        #expect(KickoffDeadline.dueAt(day: "2026-11-13", wakeTime: nil, calendar: utc) == moment(10, 0))
+        #expect(KickoffDeadline.dueAt(day: "2026-11-13", wakeTime: "soon", calendar: utc) == moment(10, 0))
+        #expect(KickoffDeadline.dueAt(day: "not a day", wakeTime: "06:45", calendar: utc) == nil)
+        #expect(KickoffDeadline.clock(moment(7, 45), calendar: utc) == "07:45")
+    }
+
+    @Test func theRowCarriesTheDeadlineFromTheWakeTimeOrTheRunsOwn() throws {
+        let hard = try decode(#"{"day":"2026-11-13","needsCheckin":false,"offers":[],"cell":{"id":"P5","headline":"h","line":"l","tone":"rest","practitionerLine":null,"hardMorning":true,"kickoff":{"key":"kickoff_morning","title":"t","subtitle":"s","finishTitle":null,"finishLine":null,"steps":[{"kind":"movement","label":"M","cardId":"a","title":"A","description":null},{"kind":"breathing","label":"B","cardId":"b","title":"B","description":null}]}}}"#)
+        func row(wake: String?, run: KickoffRun? = nil) -> KickoffRow? {
+            KickoffRowLogic.row(focus: hard, slot: .morning, morningCheckinDone: true, run: run, wakeTime: wake, calendar: utc)
+        }
+        #expect(row(wake: "06:45")?.dueAt == moment(7, 45))
+        #expect(row(wake: nil)?.dueAt == moment(10, 0))
+        // the table's own deadline stays fixed once offered, even if the wake time is edited later
+        let offered = KickoffRun(day: "2026-11-13", focusCell: "P5", offeredAt: moment(7, 0), dueAt: moment(7, 45), completedAt: nil, stepsDone: 2)
+        #expect(row(wake: "08:30", run: offered)?.dueAt == moment(7, 45))
+        // another day's run is not today's
+        let yesterday = KickoffRun(day: "2026-11-12", focusCell: "P5", offeredAt: moment(7, 0, day: 12), dueAt: moment(7, 45, day: 12), completedAt: moment(7, 20, day: 12), stepsDone: 6)
+        #expect(row(wake: "06:45", run: yesterday)?.done == false)
+    }
+
+    @Test func theStatusIsDerivedOpenMissedDoneDoneLate() {
+        let due = moment(7, 45)
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: nil, now: moment(7, 0)) == .open)
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: nil, now: moment(7, 45)) == .open)      // on the minute is still on time
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: nil, now: moment(7, 46)) == .missed)
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: moment(7, 20), now: moment(12, 0)) == .done)
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: moment(7, 45), now: moment(12, 0)) == .done)
+        #expect(KickoffDeadline.status(dueAt: due, completedAt: moment(8, 30), now: moment(12, 0)) == .doneLate)
+        #expect(KickoffDeadline.status(dueAt: nil, completedAt: moment(8, 30), now: moment(12, 0)) == .done)   // no deadline: never late
+        #expect(KickoffDeadline.status(dueAt: nil, completedAt: nil, now: moment(23, 0)) == .open)
+        let run = KickoffRun(day: "2026-11-13", focusCell: nil, offeredAt: moment(7, 0), dueAt: due, completedAt: nil, stepsDone: 0)
+        #expect(run.status(now: moment(9, 0)) == .missed)
+    }
+
+    // MARK: The table
+
+    @Test func theUpsertPayloadMatchesTheTablesColumns() throws {
+        let run = KickoffRun(day: "2026-11-13", focusCell: "P5", offeredAt: moment(7, 0), dueAt: moment(7, 45), completedAt: nil, stepsDone: 0)
+        let offer = KickoffRunLogic.offerColumns(run, patientId: "p-1")
+        #expect(Set(offer.keys) == ["patient_id", "day", "routine", "focus_cell", "offered_at", "due_at", "steps_done"])   // no completed_at before a finish
+        let data = try JSONEncoder().encode(offer)
+        let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        #expect(object["routine"] as? String == "kickoff_morning")
+        #expect(object["patient_id"] as? String == "p-1")
+        #expect(object["day"] as? String == "2026-11-13")
+        #expect(object["focus_cell"] as? String == "P5")
+        #expect(object["due_at"] as? String == "2026-11-13T07:45:00.000Z")
+        #expect(object["steps_done"] as? Int == 0)
+
+        var progressed = run
+        progressed.stepsDone = 3
+        #expect(Set(KickoffRunLogic.progressColumns(progressed, patientId: "p-1").keys) == ["patient_id", "day", "routine", "steps_done"])   // never the offer's columns
+
+        var finished = progressed
+        finished.stepsDone = 6
+        finished.completedAt = moment(7, 30)
+        let completion = KickoffRunLogic.completionColumns(finished, patientId: "p-1")
+        #expect(Set(completion.keys) == ["patient_id", "day", "routine", "steps_done", "completed_at"])
+        #expect(completion["completed_at"] == .string("2026-11-13T07:30:00.000Z"))
+
+        // the table's check: steps_done between 0 and 20
+        var long = run
+        long.stepsDone = 99
+        #expect(KickoffRunLogic.progressColumns(long, patientId: "p-1")["steps_done"] == .int(20))
     }
 
     @MainActor
-    @Test func finishingTheWalkTicksTheRowForTodayOnly() async throws {
-        let suite = "fa.test.kickoff.\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
+    private func makeService(_ backend: StubBackend, defaults: UserDefaults, clock: Date) throws -> FocusService {
         let store = InMemorySessionStore(session: Fixtures.session(expiresAt: .distantFuture))
         let sessions = SessionManager(auth: SupabaseAuthClient(environment: Fixtures.environment, transport: MockTransport()), store: store)
         let auth = AuthService(sessions: sessions, state: AppState())
-        let service = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
-        await service.load()
-        let today = try #require(service.focus?.day)
-        #expect(!service.kickoffDone)
-        service.markKickoffDone()
+        return FocusService(backend: backend, auth: auth, defaults: defaults, now: { clock }, calendar: utc)
+    }
+
+    @MainActor
+    private func isolatedDefaults() throws -> (UserDefaults, () -> Void) {
+        let suite = "fa.test.kickoff.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        return (defaults, { defaults.removePersistentDomain(forName: suite) })
+    }
+
+    @MainActor
+    @Test func offeringWritesTheDayOnceAndFinishingRecordsTheMoment() async throws {
+        let (defaults, cleanup) = try isolatedDefaults()
+        defer { cleanup() }
+        let backend = StubBackend()
+        let service = try makeService(backend, defaults: defaults, clock: moment(7, 0, day: 13))
+        await service.load()   // the stub's focus is "2026-09-25": the run follows the focus day
+        let day = try #require(service.focus?.day)
+        await service.offerKickoff(patientId: "p-1") { "06:45" }
+        await service.settleWrites()
+        let run = try #require(service.kickoffRun)
+        #expect(run.day == day)
+        #expect(run.dueAt == KickoffDeadline.dueAt(day: day, wakeTime: "06:45", calendar: utc))
+        #expect(backend.kickoffWrites.count == 1)
+        #expect(backend.kickoffWrites[0]["due_at"] != nil)
+        // shown again (the card re-renders): not written twice
+        await service.offerKickoff(patientId: "p-1") { "06:45" }
+        #expect(backend.kickoffWrites.count == 1)
+
+        service.kickoffSteps(2)
+        service.kickoffSteps(1)   // going back never lowers the count
+        service.finishKickoff(steps: 6)
+        service.finishKickoff(steps: 6)   // a second walk the same day does not move it
+        await service.settleWrites()
         #expect(service.kickoffDone)
-        #expect(defaults.string(forKey: KickoffRowLogic.doneDayKey) == today)
-        // a new launch the same day still sees it ticked; another day's mark does not count
-        let again = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
+        #expect(service.kickoffRun?.stepsDone == 6)
+        #expect(backend.kickoffWrites.count == 3)   // offer, steps, finish
+        #expect(backend.kickoffWrites[1]["steps_done"] == .int(2))
+        #expect(backend.kickoffWrites[2]["completed_at"] == .string("2026-11-13T07:00:00.000Z"))
+    }
+
+    @MainActor
+    @Test func theTablesRowWinsAndAFailedWriteNeverBreaksTheWalk() async throws {
+        let (defaults, cleanup) = try isolatedDefaults()
+        defer { cleanup() }
+        let backend = StubBackend()
+        let service = try makeService(backend, defaults: defaults, clock: moment(9, 0))
+        await service.load()
+        let day = try #require(service.focus?.day)
+        backend.kickoffRunResult = KickoffRun(day: day, focusCell: "P5", offeredAt: moment(7, 0), dueAt: moment(7, 45), completedAt: moment(7, 20), stepsDone: 6)
+        await service.offerKickoff(patientId: "p-1") { nil }
+        #expect(service.kickoffDone)
+        #expect(backend.kickoffWrites.isEmpty)   // nothing to offer: the day already has its row
+
+        // a write that fails: shown done all the same, kept on this phone, and sent again the next time the row is offered
+        let (defaults2, cleanup2) = try isolatedDefaults()
+        defer { cleanup2() }
+        let failing = StubBackend()
+        failing.kickoffWriteFails = true
+        let second = try makeService(failing, defaults: defaults2, clock: moment(9, 0))
+        await second.load()
+        await second.offerKickoff(patientId: "p-1") { nil }
+        second.finishKickoff(steps: 6)
+        await second.settleWrites()
+        #expect(second.kickoffDone)
+        let secondDay = try #require(second.focus?.day)
+        #expect(second.kickoffRun?.dueAt == KickoffDeadline.dueAt(day: secondDay, wakeTime: nil, calendar: utc))   // the 10:00 fallback
+        let again = try makeService(failing, defaults: defaults2, clock: moment(9, 5))
         await again.load()
-        #expect(again.kickoffDone)
-        defaults.set("1999-01-01", forKey: KickoffRowLogic.doneDayKey)
-        let other = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
-        await other.load()
-        #expect(!other.kickoffDone)
+        await again.offerKickoff(patientId: "p-1") { nil }
+        #expect(again.kickoffDone)   // from this phone's copy, the table could not be written
+    }
+
+    @MainActor
+    @Test func aReadThatFailsNeverOverwritesTheTablesRow() async throws {
+        let (defaults, cleanup) = try isolatedDefaults()
+        defer { cleanup() }
+        let backend = StubBackend()
+        backend.kickoffReadFails = true
+        let service = try makeService(backend, defaults: defaults, clock: moment(7, 0))
+        await service.load()
+        await service.offerKickoff(patientId: "p-1") { "06:45" }
+        await service.settleWrites()
+        #expect(service.kickoffRun != nil)       // the row still shows, from what the phone knows
+        #expect(backend.kickoffWrites.isEmpty)   // but the offer is not sent over a row that may be finished
+    }
+
+    // MARK: The Foundation Track (owner, 2026-11-13)
+
+    @Test func aTrackMemberGetsTheRoutineCardWithoutTheNoActionsPlace() {
+        // the card is on Home from track day 2 (not on day 1, which is the welcome)
+        #expect(TrackLogic.showsRoutine(trackDay: 2))
+        #expect(TrackLogic.showsRoutine(trackDay: 14))
+        #expect(!TrackLogic.showsRoutine(trackDay: 1))
+        // no plan habits at all: the kickoff row (or the morning check-in) alone makes the card
+        #expect(PlanTodayLogic.mode(onTrack: true, hasPlanHabits: false, hasKickoff: true, showsCheckin: false) == .card)
+        #expect(PlanTodayLogic.mode(onTrack: true, hasPlanHabits: false, hasKickoff: false, showsCheckin: true) == .card)
+        #expect(PlanTodayLogic.mode(onTrack: true, hasPlanHabits: true, hasKickoff: false, showsCheckin: false) == .card)
+        // nothing to say: a track member sees no blurred place (their actions are in the track card); everyone else does
+        #expect(PlanTodayLogic.mode(onTrack: true, hasPlanHabits: false, hasKickoff: false, showsCheckin: false) == .hidden)
+        #expect(PlanTodayLogic.mode(onTrack: false, hasPlanHabits: false, hasKickoff: false, showsCheckin: false) == .placeholder)
+        #expect(!PlanTodayLogic.showsNoActionsArea(onTrack: true, withCheckin: true, hasPlanHabits: false))
+        #expect(PlanTodayLogic.showsNoActionsArea(onTrack: false, withCheckin: true, hasPlanHabits: false))
     }
 
     @Test func pillsToggle() {

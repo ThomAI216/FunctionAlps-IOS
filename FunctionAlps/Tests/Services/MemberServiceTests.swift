@@ -11,6 +11,19 @@ final class StubBackend: FunctionAlpsBackend, @unchecked Sendable {
     var unread = 0
     private(set) var patientIdCalls = 0
 
+    var kickoffRunResult: KickoffRun?
+    var kickoffReadFails = false
+    var kickoffWriteFails = false
+    private(set) var kickoffWrites: [ColumnPatch] = []
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? {
+        if kickoffReadFails { throw AppError.notFound }
+        return kickoffRunResult
+    }
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {
+        kickoffWrites.append(columns)
+        if kickoffWriteFails { throw AppError.notFound }
+    }
+
     func currentPatientId() async throws -> String? { patientIdCalls += 1; return patientId }
     func memberProfile(patientId: String) async throws -> MemberProfile? { profile }
     func meals(patientId: String, since: Date) async throws -> [MealLog] { meals }

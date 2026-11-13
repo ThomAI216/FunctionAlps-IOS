@@ -80,7 +80,10 @@ struct HomeView: View {
         return true
     }
 
-    private var hasPlanHabits: Bool { dependencies.habits.plan?.activeHabits.isEmpty == false }
+    /// Last night's wake time as the morning check-in recorded it (`HH:mm`); nil when it recorded none.
+    private func morningWakeTime(_ today: TodaySnapshot) -> String? {
+        SleepSpecials.clock(CheckinEngine.moment(for: .morning, in: today.moments)?.sleepWakeTime)
+    }
 
     /// Whether the member has a care plan; nil while the plan is still being read.
     private var hasPlan: Bool? {
@@ -122,14 +125,14 @@ struct HomeView: View {
                         Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources, from: content.careTeam.firstName) }
                             .buttonStyle(.plain)
                     }
-                    if trackDay != nil {
-                        // On the track (Thomas, 2026-11-07): the habits by moment of the day, one pack at a time. A care plan's
-                        // own routine still shows under it for a member who has one.
-                        if showsTrackActions { TrackActionsCard().id("showcase.habits") }
-                        if hasPlanHabits { PlanTodayCard(morningCheckinDone: content.today.isDone(.morning)) }
-                    } else if TrackLogic.showsRoutine(trackDay: trackDay) {
-                        PlanTodayCard(morningCheckinDone: content.today.isDone(.morning))
+                    // The routine card for everyone but track day 1 (owner, 2026-11-13: a track member sees it too, so the green kickoff row
+                    // reaches them). On the track it never shows the "no actions" place: their own actions are in the card under it.
+                    if TrackLogic.showsRoutine(trackDay: trackDay) {
+                        PlanTodayCard(morningCheckinDone: content.today.isDone(.morning), wakeTime: morningWakeTime(content.today),
+                                      patientId: content.member.patientId, onTrack: trackDay != nil)
                     }
+                    // On the track (Thomas, 2026-11-07): the habits by moment of the day, one pack at a time.
+                    if showsTrackActions { TrackActionsCard().id("showcase.habits") }
                     if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
                         TrackFeatureBanner()
                     }
@@ -178,6 +181,9 @@ struct HomeView: View {
             .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habitOpen, anchor: UnitPoint(x: 0.5, y: 0.12)) }
             .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHome, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeDone, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeMissed, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeLate, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusTrackHome, anchor: UnitPoint(x: 0.5, y: 0.3)) }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }
