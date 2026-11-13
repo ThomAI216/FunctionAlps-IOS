@@ -82,7 +82,11 @@ final class AppDependencies {
         self.focus = FocusService(backend: backend, auth: auth)
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
         self.documents = DocumentsService(backend: backend, members: members, auth: auth)
+        #if DEBUG
+        self.habits = HabitsService(backend: backend, auth: auth, now: ShowcaseFocus.clock())
+        #else
         self.habits = HabitsService(backend: backend, auth: auth)
+        #endif
         self.clientPlan = ClientCarePlanService(backend: backend, members: members, auth: auth)
         self.track = TrackService(backend: backend, auth: auth)
         self.unlocks = UnlockService(backend: backend)

@@ -49,6 +49,8 @@ enum Showcase {
         case focusKickoff = "focus-kickoff", focusKickoffDone = "focus-kickoff-done", focusEvening = "focus-evening"
         /// The page the morning check-in opens once saved (owner, 2026-11-13), on P1 and on P5.
         case focusPageP1 = "focus-page-p1", focusPageP5 = "focus-page-p5"
+        /// Home's "During the day" list with the green "Kickoff morning routine" row (owner, 2026-11-13): not done, and done.
+        case focusHome = "focus-home", focusHomeDone = "focus-home-done"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -110,10 +112,11 @@ enum Showcase {
         guard let screen else { return nil }
         let link: String = switch screen {
         case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen,
-             .morningEndGreen, .morningEndLowEnergy, .focusP1, .focusP5, .focusG1, .focusSheet: "functionalps://home"
+             .morningEndGreen, .morningEndLowEnergy, .focusHome, .focusHomeDone: "functionalps://home"
         case .focusAction: "functionalps://focus/card/\(ShowcaseFocus.actionCardId)"
         case .focusKickoff, .focusKickoffDone: "functionalps://focus/kickoff"
-        case .focusPageP1, .focusPageP5: "functionalps://focus/today"
+        // Today's focus lives on its own page now (Home no longer carries the card): the page, and the habit-choice sheet over it.
+        case .focusPageP1, .focusPageP5, .focusP1, .focusP5, .focusG1, .focusSheet: "functionalps://focus/today"
         case .focusEvening: "functionalps://checkin/evening"
         case .morningTop, .morningBottom, .morningYesterday: "functionalps://checkin/morning"
         case .checkinLocked: "functionalps://checkin/evening"

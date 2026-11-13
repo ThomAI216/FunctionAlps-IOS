@@ -32,7 +32,7 @@ struct EveningFollowupCard: View {
     }
 
     private func card(_ model: EveningFollowupModel) -> some View {
-        let options = EveningFollowupLogic.options(plan: dependencies.habits.plan, offers: dependencies.focus.focus?.offers ?? [], saved: model.followup.pills)
+        let options = EveningFollowupLogic.options(plan: dependencies.habits.plan, focus: dependencies.focus.focus, saved: model.followup.pills)
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
                 Text(String(localized: "followup.title", defaultValue: "This morning was hard. How was the rest of your day?"))

@@ -3,7 +3,7 @@ import SwiftUI
 /// "Kickoff morning routine" — the routine for a slow or difficult morning, walked one step per screen: movement, breathing,
 /// light, connection & positivity, hydration, a high-protein breakfast — in that order, each a real action card. Tick to go on,
 /// then a finish screen. The routine (its order, its title, its words) is the server's (`member-daily-focus` → `cell.kickoff`);
-/// the phone only walks it. Nothing here is written: it is a guided moment, not a plan entry.
+/// the phone only walks it. Finishing it ticks today's green row on Home (kept on the phone, `FocusService.markKickoffDone`); nothing else is written.
 struct KickoffRoutineView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
@@ -37,6 +37,9 @@ struct KickoffRoutineView: View {
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .task { await begin() }
+        .onChange(of: progress.isFinished) { _, finished in
+            if finished, started { dependencies.focus.markKickoffDone() }
+        }
     }
 
     /// The first open: the focus may still be loading (a deep link), so wait for it; start on the first step.

@@ -17,6 +17,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         return ShowcaseData.dailyCheckins(includeToday: eveningDone).first { $0.day == day }
     }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { 1 }
+    /// Home with the green kickoff row: the morning check-in is in (a feeling saved), so the day's list opens with it.
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        ShowcaseFocus.homeIsOn ? DayFeeling(day: day, mood: 35, energy: 30, motivation: 40) : nil
+    }
 
     func meal(id: String) async throws -> MealLog? { ShowcaseData.meal(id: id) }
     func createPendingMeal(_ input: PendingMealInput) async throws -> String { "stub" }

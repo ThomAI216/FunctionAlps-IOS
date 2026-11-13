@@ -60,6 +60,29 @@ struct KickoffProgress: Sendable, Equatable {
     mutating func back() { if index > 0 { index -= 1 } }
 }
 
+// MARK: - The kickoff row on Home
+
+/// The one green row Home's routine card carries on a hard morning (owner, 2026-11-13): "Kickoff morning routine", at the top of the
+/// list once the morning check-in is done. Tapping it walks the routine; finishing the walk ticks it for the day.
+struct KickoffRow: Sendable, Equatable {
+    /// The focus headline of the day.
+    let subtitle: String
+    let done: Bool
+}
+
+enum KickoffRowLogic {
+    /// Only on a hard morning whose cell offers a routine with something to walk, once the morning check-in is saved, in the morning
+    /// and the day's routines (never the evening's, never on a day with no cell).
+    static func row(focus: TodayFocus?, slot: HabitSlot, morningCheckinDone: Bool, done: Bool) -> KickoffRow? {
+        guard morningCheckinDone, slot != .evening, let focus, !focus.needsCheckin,
+              let cell = focus.cell, cell.hardMorning, FocusCardLogic.kickoff(cell) != nil else { return nil }
+        return KickoffRow(subtitle: cell.headline, done: done)
+    }
+
+    /// Where "done" is kept: the member's own day, on this phone (no table records a walked routine). One string, so a new day is a new key.
+    static let doneDayKey = "fa.focus.kickoffDoneDay"
+}
+
 // MARK: - The evening follow-up
 
 /// After a hard morning, the daily check-in asks how the rest of the day went and what made the difference. Stored on today's
@@ -95,6 +118,10 @@ enum EveningFollowupLogic {
 
     static func habitKey(_ id: String) -> String { "habit:\(id)" }
 
+    /// The pill for the kickoff morning routine (offered that morning).
+    static let kickoffKey = "kickoff"
+    static func kickoffLabel() -> String { String(localized: "kickoff.row.title", defaultValue: "Kickoff morning routine") }
+
     /// The habits done today: the plan's habits with a completion today, and the focus offers ticked as done — each once, by title.
     static func completedToday(plan: HabitPlan?, offers: [FocusOffer]) -> [PillOption] {
         var out: [PillOption] = []
@@ -117,12 +144,39 @@ enum EveningFollowupLogic {
         return out
     }
 
-    /// The pills shown: what the member did today first, then the generic ones. A key already saved (a habit since undone) stays offered.
-    static func options(plan: HabitPlan?, offers: [FocusOffer], saved: [String]) -> [PillOption] {
-        var options = completedToday(plan: plan, offers: offers) + genericOptions()
-        let known = Set(options.map(\.key))
-        for key in saved where !known.contains(key) && key.hasPrefix("habit:") {
-            options.insert(PillOption(key: key, label: String(localized: "followup.pill.habit", defaultValue: "A habit")), at: 0)
+    /// Everything the morning proposed, in the order it proposed it: the kickoff routine when the cell offered it, then one pill per
+    /// habit the day's focus offered (rank order, by title) — whether or not the member did it.
+    static func proposed(focus: TodayFocus?) -> [PillOption] {
+        guard let focus else { return [] }
+        var out: [PillOption] = []
+        if let cell = focus.cell, FocusCardLogic.kickoff(cell) != nil { out.append(PillOption(key: kickoffKey, label: kickoffLabel())) }
+        let ranked = focus.offers.enumerated().sorted { ($0.element.rank ?? 99, $0.offset) < ($1.element.rank ?? 99, $1.offset) }
+        for (_, offer) in ranked { out.append(PillOption(key: habitKey(offer.bankCardId ?? offer.id), label: offer.title)) }
+        return out
+    }
+
+    /// The pills shown, deduped by key and by title: what the morning proposed, then the habits done today that are not already
+    /// listed, then the generic answers. A key already saved (a habit since undone) stays offered.
+    static func options(plan: HabitPlan?, focus: TodayFocus?, saved: [String]) -> [PillOption] {
+        var options: [PillOption] = []
+        var keys: Set<String> = []
+        var titles: Set<String> = []
+        func append(_ list: [PillOption]) {
+            for option in list where !keys.contains(option.key) && !titles.contains(option.label.lowercased()) {
+                keys.insert(option.key)
+                titles.insert(option.label.lowercased())
+                options.append(option)
+            }
+        }
+        append(proposed(focus: focus))
+        append(completedToday(plan: plan, offers: focus?.offers ?? []))
+        append(genericOptions())
+        for key in saved where !keys.contains(key) {
+            if key == kickoffKey {
+                options.insert(PillOption(key: key, label: kickoffLabel()), at: 0)
+            } else if key.hasPrefix("habit:") {
+                options.insert(PillOption(key: key, label: String(localized: "followup.pill.habit", defaultValue: "A habit")), at: 0)
+            }
         }
         return options
     }

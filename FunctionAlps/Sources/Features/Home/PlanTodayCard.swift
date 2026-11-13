@@ -33,10 +33,15 @@ struct PlanTodayCard: View {
         case .loaded(let plan):
             // The day's band is the focus service's — one server read of the day, shared by the focus and the faces.
             let readiness = dependencies.focus.focus?.readiness
-            if let routine = habits.routineNow(band: readiness?.bandValue),
-               !plan.activeHabits.isEmpty || HabitEngine.showsMorningCheckin(routine.slot, hour: habits.hour, done: morningCheckinDone) {
+            let routineNow = habits.routineNow(band: readiness?.bandValue)
+            // A hard morning's green row (owner, 2026-11-13): "Kickoff morning routine", first in the list once the check-in is done.
+            let kickoff: KickoffRow? = routineNow.flatMap {
+                KickoffRowLogic.row(focus: dependencies.focus.focus, slot: $0.slot, morningCheckinDone: morningCheckinDone, done: dependencies.focus.kickoffDone)
+            }
+            if let routine = routineNow,
+               !plan.activeHabits.isEmpty || kickoff != nil || HabitEngine.showsMorningCheckin(routine.slot, hour: habits.hour, done: morningCheckinDone) {
                 // The card shows for everyone while the morning check-in is on it, even before any action exists.
-                card(plan, routine: routine, readiness: readiness, hour: habits.hour)
+                card(plan, routine: routine, readiness: readiness, hour: habits.hour, kickoff: kickoff)
             } else {
                 // No actions yet: the card's place, blurred, with the foundation bank as the way to start.
                 FACard {
@@ -49,11 +54,12 @@ struct PlanTodayCard: View {
         }
     }
 
-    private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?, hour: Int) -> some View {
+    private func card(_ plan: HabitPlan, routine: HabitEngine.RoutineNow, readiness: FocusReadiness?, hour: Int, kickoff: KickoffRow?) -> some View {
         let actions = routine.actions
         // The morning routine opens with the check-in; missed, it stays on the day's card until 17:00 (not counted there).
         let withCheckin = HabitEngine.showsMorningCheckin(routine.slot, hour: hour, done: morningCheckinDone)
-        let count = HabitEngine.routineCount(routine, morningCheckinDone: morningCheckinDone)
+        var count = HabitEngine.routineCount(routine, morningCheckinDone: morningCheckinDone)
+        if let kickoff { count = (done: count.done + (kickoff.done ? 1 : 0), total: count.total + 1) }
         let remaining = count.total - count.done
         let headline = routine.slot.routineTitle
         // Nothing in this routine today (a weekly action on its off day, or a routine left empty): say so plainly.
@@ -90,8 +96,9 @@ struct PlanTodayCard: View {
                         .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                if withCheckin || !actions.isEmpty {
+                if withCheckin || !actions.isEmpty || kickoff != nil {
                     VStack(alignment: .leading, spacing: 6) {
+                        if let kickoff { KickoffRoutineLine(row: kickoff) }
                         if withCheckin { MorningCheckinLine(done: morningCheckinDone) }
                         ForEach(actions) { HabitLine(action: $0) }
                     }
@@ -165,6 +172,54 @@ private struct HabitLine: View {
     private var meta: String? {
         let parts = [action.cardKind?.label, action.durationMin.map { String(localized: "action.minutes", defaultValue: "\($0) min") }].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+/// "Kickoff morning routine": the one green row on a hard morning (owner, 2026-11-13). Forest ground with white words (about 8.6:1), so it
+/// stands out from the other rows; done is said by the tick, the strikethrough AND the word "Done", never by colour alone (rule 10).
+/// The whole row walks the routine; finishing the walk ticks it for the day (`FocusService.markKickoffDone`).
+struct KickoffRoutineLine: View {
+    let row: KickoffRow
+
+    var body: some View {
+        let title = String(localized: "kickoff.row.title", defaultValue: "Kickoff morning routine")
+        let state = row.done
+            ? String(localized: "kickoff.row.done", defaultValue: "Done")
+            : String(localized: "kickoff.row.start", defaultValue: "Start")
+        NavigationLink(value: Route.kickoff) {
+            HStack(spacing: 10) {
+                Image(systemName: row.done ? "checkmark.circle.fill" : "sunrise.fill")
+                    .font(.system(size: 22)).foregroundStyle(Color.white)
+                    .frame(width: 32, height: 44)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(FATypography.sans(16, .bold, relativeTo: .callout))
+                        .strikethrough(row.done)
+                        .foregroundStyle(Color.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(row.subtitle)
+                        .font(FATypography.caption).foregroundStyle(FAColor.cream)
+                        .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 4)
+                Text(state)
+                    .font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(FAColor.forest)
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(FAColor.cream, in: Capsule())
+                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.cream)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+            .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+            .background(FAColor.forest, in: RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(row.done ? String(localized: "plan.a11y.done", defaultValue: "Done: \(title)") : title)
+        .accessibilityHint(row.done ? row.subtitle : String(localized: "kickoff.row.hint", defaultValue: "Starts the routine, one step at a time"))
+        .id("showcase.kickoffRow")
     }
 }
 

@@ -19,14 +19,39 @@ final class FocusService {
 
     private(set) var phase: Phase = .idle
 
+    /// The day the kickoff morning routine was last walked to its end (kept on this phone, `KickoffRowLogic.doneDayKey`).
+    private(set) var kickoffDoneDay: String?
+
     private let backend: any FunctionAlpsBackend
     private let auth: AuthService
+    private let defaults: UserDefaults
     private var inflight: Task<Void, Never>?
     private var generation = 0
 
-    init(backend: any FunctionAlpsBackend, auth: AuthService) {
+    init(backend: any FunctionAlpsBackend, auth: AuthService, defaults: UserDefaults = .standard) {
         self.backend = backend
         self.auth = auth
+        self.defaults = defaults
+        self.kickoffDoneDay = defaults.string(forKey: KickoffRowLogic.doneDayKey)
+    }
+
+    /// The kickoff morning routine was walked to its end today: the green row on Home is ticked.
+    var kickoffDone: Bool {
+        #if DEBUG
+        if Showcase.screen == .focusHomeDone { return true }
+        #endif
+        guard let day = focus?.day else { return false }
+        return kickoffDoneDay == day
+    }
+
+    /// Finishing the walk ticks today's row. Nothing is written to the server: no table records a walked routine, so the day is kept here.
+    func markKickoffDone() {
+        #if DEBUG
+        guard !Showcase.isOn else { return }
+        #endif
+        guard let day = focus?.day else { return }
+        kickoffDoneDay = day
+        defaults.set(day, forKey: KickoffRowLogic.doneDayKey)
     }
 
     var focus: TodayFocus? {

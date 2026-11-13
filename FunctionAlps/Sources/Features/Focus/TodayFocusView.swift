@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Today's focus as a page (owner, 2026-11-13): where the member lands once they save the morning check-in. The cell's headline and
 /// line, the practitioner line when it applies, the habit choices (choose one, "Do it now" or "Add to my morning routine"), and the
-/// kickoff morning routine on a hard morning, all drawn by `TodayFocusCard`, the same card Home keeps under "My health plan".
+/// kickoff morning routine on a hard morning, all drawn by `TodayFocusCard`. Home no longer carries this card (owner, 2026-11-13): a hard morning
+/// puts the green "Kickoff morning routine" row at the top of its "During the day" list instead.
 struct TodayFocusView: View {
     @Environment(AppRouter.self) private var router
 

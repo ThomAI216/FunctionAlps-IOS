@@ -116,11 +116,6 @@ struct HomeView: View {
                     if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
                         CarePlanTodayCard()   // the client's care plan when the practice has shared one, else "My health plan"
                     }
-                    // Today's focus (owner, 2026-11-13): under "My health plan", never above it. It opens by itself after the morning
-                    // check-in (`TodayFocusView`); this card is where the member finds it again. Not on the track's day 1.
-                    if trackDay == nil || showsTrackActions {
-                        TodayFocusCard()
-                    }
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
                         // under the plan: a card that sits below the fold nudges nobody. Gone once they open it.
@@ -181,12 +176,8 @@ struct HomeView: View {
             }
             .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habits, anchor: UnitPoint(x: 0.5, y: 0.12)) }
             .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habitOpen, anchor: UnitPoint(x: 0.5, y: 0.12)) }
-            .task {
-                // Home with Today's focus under "My health plan": the plan card stays in frame above it.
-                for screen in [Showcase.Screen.focusP1, .focusP5, .focusG1, .focusSheet] {
-                    await Showcase.scroll(proxy, to: "showcase.focus", on: screen, anchor: UnitPoint(x: 0.5, y: 0.3))
-                }
-            }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHome, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeDone, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }

@@ -8,9 +8,19 @@ import Foundation
 enum ShowcaseFocus {
     static var isOn: Bool {
         switch Showcase.screen {
-        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening, .focusPageP1, .focusPageP5: true
+        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening, .focusPageP1, .focusPageP5, .focusHome, .focusHomeDone: true
         default: false
         }
+    }
+
+    /// Home with the green "Kickoff morning routine" row (owner, 2026-11-13).
+    static var homeIsOn: Bool { Showcase.screen == .focusHome || Showcase.screen == .focusHomeDone }
+
+    /// The phone's clock for the routine card: Home's During the day list is the midday routine, so those two shots read 12:00 (the
+    /// others keep the real clock, as every screenshot does).
+    static func clock() -> @Sendable () -> Date {
+        guard homeIsOn else { return { Date() } }
+        return { Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date() }
     }
 
     /// The cell each screen shows; every screen but P1 and G1 is a hard morning (P5).
@@ -147,6 +157,7 @@ enum ShowcaseFocus {
     }
 
     /// What the evening follow-up shows already answered: better, thanks to this morning's routine and people.
-    static let evening = EveningFollowup(choice: .better, pills: [EveningFollowupLogic.habitKey("showcase-card-rhythm"), "people"])
+    static let evening = EveningFollowup(choice: .better, pills: [EveningFollowupLogic.kickoffKey, EveningFollowupLogic.habitKey(habits["water"]?.id ?? "water"),
+                                                                    EveningFollowupLogic.habitKey("showcase-card-rhythm")])
 }
 #endif

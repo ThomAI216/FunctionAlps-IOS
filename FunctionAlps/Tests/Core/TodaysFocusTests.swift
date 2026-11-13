@@ -146,7 +146,7 @@ struct TodaysFocusTests {
         #expect(!EveningFollowupLogic.isAsked(cell: nil, slot: .evening, catchingUp: false))
     }
 
-    @Test func thePillsAreWhatWasDoneTodayThenTheGenericOnes() throws {
+    @Test func thePillsAreEverythingProposedThenWhatWasDoneThenTheGenericOnes() throws {
         let habit = HabitRow(id: "h1", carePlanItemId: nil, title: "Morning circadian routine", description: nil, frequencyRule: nil, status: "active",
                              source: "prescribed", pillar: nil, slot: "morning", appearsAfterHabitId: nil, easyTitle: nil, easyDescription: nil,
                              revTitle: nil, revDescription: nil, createdAt: "2026-10-01T08:00:00Z", habitBankId: "card-1")
@@ -157,10 +157,12 @@ struct TodaysFocusTests {
                              completions: [HabitCompletionRow(id: "c1", habitId: "h1", completionDate: "2026-11-12"),
                                            HabitCompletionRow(id: "c0", habitId: "h2", completionDate: "2026-11-11")])
         let focus = try decode(p5)
-        let options = EveningFollowupLogic.options(plan: plan, offers: focus.offers, saved: [])
-        // the plan habit done today, the focus offer ticked as done, then the six generic answers; yesterday's completion is not listed
-        #expect(options.map(\.key) == ["habit:card-1", "habit:rest"] + EveningFollowupLogic.genericKeys)
-        #expect(options.first?.label == "Morning circadian routine")
+        let options = EveningFollowupLogic.options(plan: plan, focus: focus, saved: [])
+        // the kickoff routine and every habit the morning proposed (rank order), then the plan habit done today that is not among them,
+        // then the six generic answers; yesterday's completion is not listed
+        #expect(options.map(\.key) == ["kickoff", "habit:rest", "habit:hyd", "habit:card-1"] + EveningFollowupLogic.genericKeys)
+        #expect(options.first?.label == "Kickoff morning routine")
+        #expect(options.contains { $0.label == "Morning circadian routine" })
         #expect(!options.contains { $0.label == "Evening walk" })
     }
 
@@ -168,6 +170,78 @@ struct TodaysFocusTests {
         let focus = try decode(p5)
         let doubled = focus.offers + focus.offers
         #expect(EveningFollowupLogic.completedToday(plan: nil, offers: doubled).count == 1)
+    }
+
+    @Test func proposedHabitsAreListedWhetherOrNotTheyWereDone() throws {
+        let focus = try decode(p5)
+        // rest was ticked, hyd was not: both are proposals, in rank order, after the kickoff pill
+        let options = EveningFollowupLogic.options(plan: nil, focus: focus, saved: [])
+        #expect(options.map(\.label).prefix(3) == ["Kickoff morning routine", "A real pause at lunch", "A glass of water before coffee"])
+        #expect(Array(options.map(\.key).suffix(6)) == EveningFollowupLogic.genericKeys)
+    }
+
+    @Test func noKickoffPillWhenTheMorningDidNotOfferTheRoutine() throws {
+        let json = #"{"day":"d","needsCheckin":false,"offers":[],"cell":{"id":"O1","headline":"h","line":"l","tone":"soft","practitionerLine":null,"hardMorning":true,"kickoff":null}}"#
+        let options = EveningFollowupLogic.options(plan: nil, focus: try decode(json), saved: [])
+        #expect(options.map(\.key) == EveningFollowupLogic.genericKeys)
+        #expect(EveningFollowupLogic.options(plan: nil, focus: nil, saved: []).map(\.key) == EveningFollowupLogic.genericKeys)
+    }
+
+    @Test func pillsAreDedupedByKeyAndByTitleAndASavedKeyStays() throws {
+        let focus = try decode(p5)
+        // the same card twice, and an offer titled like a generic answer ("Movement"): each is listed once
+        let twice = focus.replacing(offers: focus.offers + focus.offers + [
+            try JSON.decode(FocusOffer.self, from: Data(#"{"id":"o9","offerKey":"bank:mv","cardId":"mv","rank":9,"title":"Movement","description":null,"pillar":null,"slot":null,"variant":null,"reason":"focus","trigger":"P5","stateTitle":null,"accepted":null,"completed":true}"#.utf8))])
+        let options = EveningFollowupLogic.options(plan: nil, focus: twice, saved: ["habit:gone", "kickoff"])
+        let keys = options.map(\.key)
+        #expect(Set(keys).count == keys.count)
+        let titles = options.map { $0.label.lowercased() }
+        #expect(Set(titles).count == titles.count)
+        #expect(keys.contains("habit:gone"))   // saved earlier, since undone: still offered
+        #expect(keys.first == "habit:gone")
+        #expect(keys.filter { $0 == "kickoff" }.count == 1)
+    }
+
+    // MARK: The green row on Home
+
+    @Test func theKickoffRowAppearsOnlyOnHardMorningCellsOnceTheCheckinIsDone() throws {
+        let hard = try decode(p5)
+        let easy = try decode(#"{"day":"d","needsCheckin":false,"offers":[],"cell":{"id":"G1","headline":"h","line":"l","tone":"peak","practitionerLine":null,"hardMorning":false,"kickoff":null}}"#)
+        let noRoutine = try decode(#"{"day":"d","needsCheckin":false,"offers":[],"cell":{"id":"P2","headline":"h","line":"l","tone":"soft","practitionerLine":null,"hardMorning":true,"kickoff":null}}"#)
+        let row = KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: true, done: false)
+        #expect(row == KickoffRow(subtitle: "Today is for holding steady", done: false))
+        #expect(KickoffRowLogic.row(focus: hard, slot: .morning, morningCheckinDone: true, done: false) != nil)
+        #expect(KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: false, done: false) == nil)   // check-in not done
+        #expect(KickoffRowLogic.row(focus: hard, slot: .evening, morningCheckinDone: true, done: false) == nil)
+        #expect(KickoffRowLogic.row(focus: easy, slot: .midday, morningCheckinDone: true, done: false) == nil)
+        #expect(KickoffRowLogic.row(focus: noRoutine, slot: .midday, morningCheckinDone: true, done: false) == nil)
+        #expect(KickoffRowLogic.row(focus: nil, slot: .midday, morningCheckinDone: true, done: false) == nil)
+        #expect(KickoffRowLogic.row(focus: hard, slot: .midday, morningCheckinDone: true, done: true)?.done == true)
+    }
+
+    @MainActor
+    @Test func finishingTheWalkTicksTheRowForTodayOnly() async throws {
+        let suite = "fa.test.kickoff.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = InMemorySessionStore(session: Fixtures.session(expiresAt: .distantFuture))
+        let sessions = SessionManager(auth: SupabaseAuthClient(environment: Fixtures.environment, transport: MockTransport()), store: store)
+        let auth = AuthService(sessions: sessions, state: AppState())
+        let service = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
+        await service.load()
+        let today = try #require(service.focus?.day)
+        #expect(!service.kickoffDone)
+        service.markKickoffDone()
+        #expect(service.kickoffDone)
+        #expect(defaults.string(forKey: KickoffRowLogic.doneDayKey) == today)
+        // a new launch the same day still sees it ticked; another day's mark does not count
+        let again = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
+        await again.load()
+        #expect(again.kickoffDone)
+        defaults.set("1999-01-01", forKey: KickoffRowLogic.doneDayKey)
+        let other = FocusService(backend: StubBackend(), auth: auth, defaults: defaults)
+        await other.load()
+        #expect(!other.kickoffDone)
     }
 
     @Test func pillsToggle() {
