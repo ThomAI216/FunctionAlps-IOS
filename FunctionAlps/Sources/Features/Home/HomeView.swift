@@ -24,7 +24,7 @@ struct HomeView: View {
         .toolbar(.hidden, for: .navigationBar)
         .mealCaptureHost(capture) {
             Task { await model?.load(refresh: true) }
-            Task { await dependencies.unlocks.refresh() }   // the first meal opens Food
+            Task { await dependencies.unlocks.refresh(force: true) }   // the first meal opens Food
         }
         .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
         .onChange(of: dependencies.track.reminders, initial: true) { _, plan in
@@ -34,7 +34,7 @@ struct HomeView: View {
         }
         .task {
             if model == nil {
-                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging)
+                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging, freshness: dependencies.freshness)
                 model = m
                 await m.load()
             }
@@ -48,8 +48,9 @@ struct HomeView: View {
         }
         #endif
         .onAppear {
-            // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
-            if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
+            // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place, but only when
+            // a write marked Home stale or its data is older than a minute.
+            if let model { Task { await model.loadIfStale() } }
         }
         .onChange(of: model?.state.value?.today) { _, today in
             // Every fresh Today re-plans the phone's reminders (done moments dropped, logged meals dropped).
@@ -170,7 +171,7 @@ struct HomeView: View {
                 #endif
             }
             .refreshable {
-                await model.load(refresh: true)
+                await model.load(refresh: true, force: true)
                 await dependencies.clientPlan.load(force: true)
                 await dependencies.track.load()
             }

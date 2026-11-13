@@ -74,7 +74,7 @@ private struct FoodLockedView: View {
         ) {
             capture.openPhotoChooser()
         }
-        .mealCaptureHost(capture) { Task { await dependencies.unlocks.refresh() } }
+        .mealCaptureHost(capture) { Task { await dependencies.unlocks.refresh(force: true) } }
     }
 }
 

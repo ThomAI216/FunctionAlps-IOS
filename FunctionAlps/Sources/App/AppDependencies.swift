@@ -10,6 +10,8 @@ final class AppDependencies {
     let state: AppState
     let auth: AuthService
     let members: MemberService
+    /// Bumped by the write paths Home's snapshot reflects; Home reloads on re-appear when it moved or went stale.
+    let freshness: DataFreshness
     let dashboard: DashboardService
     let meals: MealService
     let checkins: CheckinService
@@ -64,24 +66,26 @@ final class AppDependencies {
             ?? SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions),
                                clinical: clinical)
 
+        let freshness = DataFreshness()
+        self.freshness = freshness
         let auth = AuthService(sessions: sessions, state: state)
         self.auth = auth
         let members = MemberService(sessions: sessions, backend: backend)
         self.members = members
         self.dashboard = DashboardService(backend: backend)
-        self.meals = MealService(backend: backend)
-        self.checkins = CheckinService(backend: backend)
+        self.meals = MealService(backend: backend, freshness: freshness)
+        self.checkins = CheckinService(backend: backend, freshness: freshness)
         self.library = LibraryService(backend: backend)
         self.shows = ShowService(backend: backend)
-        self.profile = ProfileService(backend: backend)
-        self.messaging = MessagingService(backend: backend)
+        self.profile = ProfileService(backend: backend, members: members)
+        self.messaging = MessagingService(backend: backend, members: members)
         self.account = AccountService(backend: backend)
         let wearables = WearableService(backend: backend)
         self.wearables = wearables
         let notifications = NotificationService(backend: backend)
         self.notifications = notifications
         self.supplements = SupplementService(backend: backend, auth: auth, notifications: notifications)
-        self.gut = GutService(backend: backend)
+        self.gut = GutService(backend: backend, freshness: freshness)
         self.protocols = ProtocolService(backend: backend)
         #if DEBUG
         self.focus = FocusService(backend: backend, auth: auth, now: ShowcaseFocus.clock())
@@ -96,11 +100,19 @@ final class AppDependencies {
         self.habits = HabitsService(backend: backend, auth: auth)
         #endif
         self.clientPlan = ClientCarePlanService(backend: backend, members: members, auth: auth)
-        self.track = TrackService(backend: backend, auth: auth)
-        self.unlocks = UnlockService(backend: backend)
-        self.trends = TrendsService(backend: backend, auth: auth, wearables: wearables)
+        self.track = TrackService(backend: backend, auth: auth, members: members)
+        let unlocks = UnlockService(backend: backend, members: members, freshness: freshness)
+        self.unlocks = unlocks
+        let trends = TrendsService(backend: backend, auth: auth, wearables: wearables, members: members)
+        self.trends = trends
         self.signals = SignalContentService(backend: backend)
         self.backend = backend
+        // A session that ends (sign-out, dead token) drops everything cached for that member.
+        auth.onSessionEnded = { [members, unlocks, trends] in
+            await members.invalidate()
+            await unlocks.reset()
+            await trends.reset()
+        }
     }
 
     /// Production wiring. Throws only on a misconfigured build (missing xcconfig values).

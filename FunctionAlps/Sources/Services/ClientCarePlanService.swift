@@ -49,7 +49,7 @@ final class ClientCarePlanService {
 
     private func fetch() async {
         do {
-            let member = try await members.currentMember()
+            let member = try await members.currentMember(forceRefresh: true)   // medical records: the patient is always re-confirmed with the server, never taken from the member cache
             if member.patientId != patientId {
                 patientId = member.patientId
                 state = .loading

@@ -26,7 +26,7 @@ struct TrendsView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .task { await trends.load() }
+        .task { await trends.loadIfNeeded() }
         .task { await dependencies.signals.loadIfNeeded() }
         .onAppear {
             // The scores hub used to hand a pillar over here; Trends no longer has pillars, so the hand-over is dropped.

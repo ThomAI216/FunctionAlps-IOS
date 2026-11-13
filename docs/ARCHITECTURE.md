@@ -54,8 +54,11 @@ validation · invalidCredentials · server · decoding · network · configurati
 
 ## 5. State
 - `AppState.phase` (launching / signedOut / signedIn) is the only global state.
-- Each screen's view model owns a `Loadable<T>`-style state; no shared caches yet
-  (offline caching is Phase G — the seam is the service layer).
+- Each screen's view model owns a `Loadable<T>`-style state. Shared in-memory caches are deliberately tiny and
+  live in the service layer: `MemberCache` (inside `MemberService`: the resolved member / patient id, keyed by
+  user id, 10 min TTL, one shared in-flight resolution, dropped on sign-out, profile writes and 401/403) and
+  60 s staleness windows on Home / Trends / unlocks (`DataFreshness` is bumped by check-in and meal writes).
+  Nothing is persisted; offline caching is Phase G — the seam is the service layer.
 - Server is canonical; iOS holds a representation (PRD §12).
 
 ## 6. Design system (PRD §19)

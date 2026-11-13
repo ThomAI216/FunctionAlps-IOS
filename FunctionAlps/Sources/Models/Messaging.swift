@@ -26,10 +26,7 @@ enum MessageContext: Sendable, Equatable {
             let name = mealName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             return name.isEmpty ? String(localized: "messages.context.meal", defaultValue: "A meal you logged") : name
         case .day(let day):
-            let parser = DateFormatter()
-            parser.locale = Locale(identifier: "en_US_POSIX")
-            parser.dateFormat = "yyyy-MM-dd"
-            guard let date = parser.date(from: day) else { return day }
+            guard let date = MessageDayParser.formatter.date(from: day) else { return day }
             return date.formatted(.dateTime.day().month(.abbreviated).year())
         }
     }
@@ -230,4 +227,14 @@ enum MessagingLogic {
             return DayGroup(label: label, items: items)
         }
     }
+}
+
+/// The fixed `yyyy-MM-dd` parser, built once (immutable after configuration; see `PlanDayParser`).
+private enum MessageDayParser {
+    nonisolated(unsafe) static let formatter: DateFormatter = {
+        let parser = DateFormatter()
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.dateFormat = "yyyy-MM-dd"
+        return parser
+    }()
 }

@@ -19,16 +19,41 @@ final class UnlockService {
     private(set) var streak = 0
 
     private let backend: any FunctionAlpsBackend
+    private let members: MemberService?
     private let now: @Sendable () -> Date
+    private let freshness: DataFreshness?
+    private var refreshedAt: Date?
+    private var refreshedVersion = 0
+    private var isRefreshing = false
 
-    init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { Date() }) {
+    /// A tab switch or a foreground inside this window re-uses what is held; a real write calls `refresh(force: true)`.
+    static let staleAfter: TimeInterval = 60
+
+    init(backend: any FunctionAlpsBackend, members: MemberService? = nil, freshness: DataFreshness? = nil, now: @escaping @Sendable () -> Date = { Date() }) {
+        self.freshness = freshness
         self.backend = backend
+        self.members = members
         self.now = now
     }
 
-    func refresh() async {
+    /// Sign-out: forget the previous member's unlocks so the next member never inherits them.
+    func reset() {
+        phase = .unknown
+        trendsOpen = true
+        foodOpen = true
+        streak = 0
+        refreshedAt = nil
+        refreshedVersion = 0
+    }
+
+    func refresh(force: Bool = false) async {
+        guard force || !isRefreshing else { return }
+        let version = freshness?.homeVersion ?? 0   // a check-in or meal since the last read moves it
+        if !force, phase == .known, version == refreshedVersion, let refreshedAt, now().timeIntervalSince(refreshedAt) < Self.staleAfter { return }
+        isRefreshing = true
+        defer { isRefreshing = false; refreshedAt = now(); refreshedVersion = version }
         do {
-            guard let patientId = try await backend.currentPatientId() else { phase = .known; return }
+            guard let patientId = try await MemberService.patientId(via: members, backend: backend) else { phase = .known; return }
             let since = Calendar.current.date(byAdding: .day, value: -30, to: now()) ?? now()
             async let meals = backend.meals(patientId: patientId, since: since)
             async let checkins = backend.dailyCheckins(patientId: patientId, since: ISO8601.dayString(since))
@@ -38,6 +63,7 @@ final class UnlockService {
             foodOpen = TrackUnlocks.foodOpen(mealCount: m.count)
             streak = TrackUnlocks.currentRun(days, today: ISO8601.dayString(now()))
         } catch {
+            if let app = error as? AppError, app == .forbidden || app == .unauthorized { await members?.invalidate() }
             trendsOpen = true
             foodOpen = true
         }

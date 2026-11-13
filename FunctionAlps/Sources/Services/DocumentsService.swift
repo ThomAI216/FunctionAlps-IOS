@@ -49,7 +49,7 @@ final class DocumentsService {
 
     private func fetch(force: Bool) async {
         do {
-            let member = try await members.currentMember()
+            let member = try await members.currentMember(forceRefresh: true)   // medical records: the patient is always re-confirmed with the server, never taken from the member cache
             adopt(member)
             var firstLoad = false
             if case .loading = state { firstLoad = true }
@@ -78,7 +78,7 @@ final class DocumentsService {
 
     /// The plan screen's read. Never throws: a failure means "not known", which shows nothing extra.
     func loadDraftPlan() async {
-        guard let member = try? await members.currentMember() else { return }
+        guard let member = try? await members.currentMember(forceRefresh: true) else { return }
         adopt(member)
         hasDraftPlan = (try? await backend.hasDraftPlan()) ?? false
     }

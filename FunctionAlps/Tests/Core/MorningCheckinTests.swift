@@ -242,7 +242,7 @@ struct MorningCheckinTests {
         let savedYesterday = try await gut.save(patientId: "p1", answers: answers, notes: nil, day: "2026-11-11")
         let savedToday = try await gut.save(patientId: "p1", answers: answers, notes: nil)
         #expect(savedYesterday && savedToday)
-        #expect(backend.calls.filter { $0.hasPrefix("gut:") } == ["gut:2026-11-11", "gut:2026-11-12"])
+        #expect(backend.calls.filter { $0.hasPrefix("gutUpsert:") } == ["gutUpsert:2026-11-11", "gutUpsert:2026-11-12"])
     }
 
     @Test("Yesterday's digestion is read from yesterday's row")

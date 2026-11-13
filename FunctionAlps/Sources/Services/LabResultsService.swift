@@ -50,7 +50,7 @@ final class LabResultsService {
 
     private func fetch(force: Bool) async {
         do {
-            let member = try await members.currentMember()
+            let member = try await members.currentMember(forceRefresh: true)   // medical records: the patient is always re-confirmed with the server, never taken from the member cache
             if member.patientId != patientId {
                 // Someone else, or nobody yet: whatever is held is not theirs.
                 patientId = member.patientId

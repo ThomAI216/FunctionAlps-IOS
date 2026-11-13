@@ -95,7 +95,9 @@ struct MemberGateView: View {
     private func resolve() async {
         let m: Member
         do {
-            m = try await dependencies.members.currentMember()
+            // Always a fresh read here (never the cache): every gate decision is the server's, and this pass
+            // is also what re-primes the cache the rest of the app reads for the next minutes.
+            m = try await dependencies.members.currentMember(forceRefresh: true)
         } catch MemberService.MemberError.notRegistered {
             stage = .notRegistered
             return
@@ -112,8 +114,17 @@ struct MemberGateView: View {
         }
         member = m
 
+        // Access window and consents do not depend on each other — only on the patient id — so they are read
+        // together. Decisions below are still taken in the same order (access first, then consents).
+        let profile = dependencies.profile, account = dependencies.account
+        let patientId = m.patientId
+        async let accessRead: AppAccess = profile.access(patientId: patientId)
+        async let consentsRead: Result<AccountService.ConsentsBundle, Error> = {
+            do { return .success(try await account.consents()) } catch { return .failure(error) }
+        }()
+        let (access, consentsResult) = await (accessRead, consentsRead)
+
         // Access window — FAIL-OPEN: a read error is "allowed, unknown", never a locked door.
-        let access = await dependencies.profile.access(patientId: m.patientId)
         if !access.allowed {
             stage = .accessClosed(access)
             return
@@ -121,15 +132,14 @@ struct MemberGateView: View {
 
         // Consents. Nothing approved yet ⇒ no rows ⇒ nothing to accept ⇒ the gate must not block
         // (fail-open here and ONLY here). A read failure blocks with a retry — the screen shows it.
-        do {
-            let b = try await dependencies.account.consents()
+        switch consentsResult {
+        case .success(let b):
             bundle = b
-            let requiredOpen = b.consents.contains { $0.required && !$0.accepted }
-            if requiredOpen {
+            if b.consents.contains(where: { $0.required && !$0.accepted }) {
                 stage = .consent
                 return
             }
-        } catch {
+        case .failure:
             bundle = nil
             stage = .consent
             return

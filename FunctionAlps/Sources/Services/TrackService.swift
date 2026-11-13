@@ -43,12 +43,14 @@ final class TrackService {
 
     private let backend: any FunctionAlpsBackend
     private let auth: AuthService
+    private let members: MemberService?
     private let now: @Sendable () -> Date
     private var patientId: String?
     private var running: Task<Void, Never>?
     private var lastForeground: Date?
 
-    init(backend: any FunctionAlpsBackend, auth: AuthService, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(backend: any FunctionAlpsBackend, auth: AuthService, members: MemberService? = nil, now: @escaping @Sendable () -> Date = { Date() }) {
+        self.members = members
         self.backend = backend
         self.auth = auth
         self.now = now
@@ -94,7 +96,7 @@ final class TrackService {
     func load() async {
         if status == nil { phase = .loading }
         do {
-            guard let pid = try await backend.currentPatientId() else { clear(); phase = .loaded; return }
+            guard let pid = try await MemberService.patientId(via: members, backend: backend) else { clear(); phase = .loaded; return }
             if let known = patientId, known != pid { clear() }
             patientId = pid
             let fresh = try await backend.trackStatus(code: TrackLogic.trackCode)
@@ -222,7 +224,7 @@ final class TrackService {
     /// a submit re-reads the status (the modules and the review rule may have moved).
     func save(_ questionnaire: TrackQuestionnaire, answers: [String: JSONValue], submit: Bool) async throws {
         let pid: String
-        if let patientId { pid = patientId } else if let resolved = try await backend.currentPatientId() { pid = resolved; patientId = resolved } else {
+        if let patientId { pid = patientId } else if let resolved = try await MemberService.patientId(via: members, backend: backend) { pid = resolved; patientId = resolved } else {
             throw AppError.unauthorized
         }
         let stored = try await backend.saveTrackResponse(TrackResponseWrite(
