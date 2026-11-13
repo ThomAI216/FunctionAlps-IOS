@@ -263,9 +263,9 @@ enum NutritionMath {
 
     /// Mean coverage of a group (each nutrient capped at 100 %), 0–100.
     static func groupCoverage(_ group: NutrientCatalog.GroupKey, sex: MemberProfile.Sex?, consumed: [String: Double]) -> Int {
-        let ns = NutrientCatalog.nutrients(in: group)
+        let ns = NutrientCatalog.nutrients(in: group).filter { $0.target(sex: sex) != nil }
         guard !ns.isEmpty else { return 0 }
-        let total = ns.reduce(0.0) { $0 + min((consumed[$1.key] ?? 0) / $1.target(sex: sex), 1) }
+        let total = ns.reduce(0.0) { acc, n in acc + min((consumed[n.key] ?? 0) / (n.target(sex: sex) ?? 1), 1) }
         return Int((total / Double(ns.count) * 100).rounded())
     }
 
@@ -274,7 +274,10 @@ enum NutritionMath {
     static func gaps(threshold: Double, sex: MemberProfile.Sex?, limit: Int, consumed: [String: Double], available: Set<String>? = nil) -> [(nutrient: NutrientCatalog.Nutrient, pct: Double)] {
         NutrientCatalog.nutrients
             .filter { available?.contains($0.key) ?? true }
-            .map { (nutrient: $0, pct: (consumed[$0.key] ?? 0) / $0.target(sex: sex)) }
+            .compactMap { n -> (nutrient: NutrientCatalog.Nutrient, pct: Double)? in
+                guard let target = n.target(sex: sex) else { return nil }
+                return (nutrient: n, pct: (consumed[n.key] ?? 0) / target)
+            }
             .filter { $0.pct < threshold }
             .sorted { $0.pct < $1.pct }
             .prefix(limit)

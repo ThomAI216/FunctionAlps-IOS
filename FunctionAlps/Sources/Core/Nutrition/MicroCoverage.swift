@@ -9,8 +9,9 @@ enum MicroCoverage {
         let key: String
         /// The `micronutrient_totals` field the edge functions write.
         let field: String
-        let rdaMale: Double
-        let rdaFemale: Double
+        /// nil = no EFSA reference (vitamin K2 has none; 120/90 µg is the K1 intake): listed, never scored.
+        let rdaMale: Double?
+        let rdaFemale: Double?
     }
 
     static let nutrients: [Nutrient] = [
@@ -19,7 +20,7 @@ enum MicroCoverage {
         Nutrient(key: "vitamin_b12", field: "b12_mcg", rdaMale: 2.4, rdaFemale: 2.4),
         Nutrient(key: "folate", field: "folate_mcg", rdaMale: 400, rdaFemale: 400),
         Nutrient(key: "vitamin_a", field: "vitamin_a_mcg", rdaMale: 900, rdaFemale: 700),
-        Nutrient(key: "vitamin_k2", field: "vitamin_k2_mcg", rdaMale: 120, rdaFemale: 90),
+        Nutrient(key: "vitamin_k2", field: "vitamin_k2_mcg", rdaMale: nil, rdaFemale: nil),
         Nutrient(key: "vitamin_e", field: "vitamin_e_mg", rdaMale: 15, rdaFemale: 15),
         Nutrient(key: "biotin", field: "biotin_mcg", rdaMale: 30, rdaFemale: 30),
         Nutrient(key: "magnesium", field: "magnesium_mg", rdaMale: 420, rdaFemale: 320),
@@ -69,12 +70,12 @@ enum MicroCoverage {
     /// data. `sex` nil → female targets, the web default.
     static func overallDetail(meals: [MealLog], sex: MemberProfile.Sex?) -> Overall? {
         let statuses = MicroPresence.statuses(meals: meals)
-        let included = nutrients.filter { statuses[$0.key]?.hasValue == true }
+        let included = nutrients.filter { statuses[$0.key]?.hasValue == true && ($0.rdaMale != nil || $0.rdaFemale != nil) }
         guard !included.isEmpty else { return nil }
         let sums = consumed(from: meals)
         let male = sex == .male
         let total = included.reduce(0.0) { acc, n in
-            let target = male ? n.rdaMale : n.rdaFemale
+            guard let target = male ? n.rdaMale : n.rdaFemale else { return acc }
             return acc + min((sums[n.key] ?? 0) / target, 1)
         }
         return Overall(percent: Int((total / Double(included.count) * 100).rounded()), included: included.count, total: nutrients.count)

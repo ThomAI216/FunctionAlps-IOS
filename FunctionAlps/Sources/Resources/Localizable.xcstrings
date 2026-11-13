@@ -23618,6 +23618,22 @@
         }
       }
     },
+    "micros.noReference": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No reference set"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune référence définie"
+          }
+        }
+      }
+    },
     "micros.target": {
       "localizations": {
         "en": {
