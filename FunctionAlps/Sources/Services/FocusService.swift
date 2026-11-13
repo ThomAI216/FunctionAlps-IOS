@@ -130,7 +130,7 @@ final class FocusService {
         writes = Task { await previous?.value; await work() }
     }
 
-    private func write(_ columns: ColumnPatch, context: String) async {
+    private func write(_ columns: ColumnPatch, context: StaticString) async {
         guard let patientId else { return }
         do {
             try await backend.saveKickoffRun(patientId: patientId, columns: columns)
