@@ -33,6 +33,7 @@ import { scoreMeal, type MealScores } from "./meal-scores.ts"
 import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
 import { aliasKey, isPlaceholder, resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
 import { priceItemsWithOpenAI } from "./ai-pricing.ts"
+import { computeMicroCoverage } from "./micro-keys.ts"
 import { priceSovereign, type Candidate, type ReferenceDb, type SovereignCounts, type SovereignTarget } from "./sovereign-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
@@ -982,6 +983,8 @@ export function completionPatch(
       attempts,
       basis,
       needs_review: priced.resolved.filter((r) => r.needs_review).length,
+      // How much of the nutrient list this meal really measured. Additive: totals above are summed as before.
+      micro_coverage: computeMicroCoverage(priced.items),
       ...(priced.pricing ? { pricing: priced.pricing } : {}),
       resolved_at: now.toISOString(),
     },
