@@ -31,7 +31,8 @@ struct TodaySnapshot: Sendable, Equatable {
 /// One `nb_meal_logs` row as the member-facing app understands it.
 struct MealLog: Identifiable, Sendable, Equatable {
     enum MealType: String, Sendable, CaseIterable { case breakfast, lunch, dinner, snack, other }
-    enum Source: String, Sendable { case photo, text, voice }
+    /// `plan` is a meal the server logged from the clinician's plan ("I ate this"); it has no photo and no analysis.
+    enum Source: String, Sendable { case photo, text, voice, plan }
 
     /// Mirrors the live `nb_meal_logs_analysis_status_check` constraint:
     /// queued → identifying → pricing → complete | needs_input | failed.
@@ -347,7 +348,8 @@ struct RelogSource: Sendable, Equatable {
     let scores: MealScores?
 
     init(meal m: MealLog) {
-        name = m.displayName; mealType = m.mealType ?? MealService.mealType(at: Date(), calendar: .current); source = m.source ?? .photo
+        // "Log again" on a planned meal has no plan slot to claim: it is a plain text log, never a second "from your plan".
+        name = m.displayName; mealType = m.mealType ?? MealService.mealType(at: Date(), calendar: .current); source = m.source == .plan ? .text : (m.source ?? .photo)
         items = m.items; kcal = m.totalCalories; proteinG = m.totalProteinG; carbsG = m.totalCarbsG; fatG = m.totalFatG
         fiberG = m.totalFiberG; micros = m.micros; scores = m.scores
     }

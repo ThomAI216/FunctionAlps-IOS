@@ -85,7 +85,8 @@ struct MicroPresenceTests {
     @Test("Gaps leave out nutrients with no data")
     func gapsSkipNoData() {
         let all = NutritionMath.gaps(threshold: 0.7, sex: .female, limit: 99, consumed: [:])
-        #expect(all.count == 21)
+        // 21 listed, 20 scored: vitamin K2 has no EFSA reference so it can never be a gap.
+        #expect(all.count == 20)
         let some = NutritionMath.gaps(threshold: 0.7, sex: .female, limit: 99, consumed: [:], available: ["iron", "zinc"])
         #expect(some.map(\.nutrient.key).sorted() == ["iron", "zinc"])
         #expect(NutritionMath.gaps(threshold: 0.7, sex: .female, limit: 99, consumed: [:], available: []).isEmpty)

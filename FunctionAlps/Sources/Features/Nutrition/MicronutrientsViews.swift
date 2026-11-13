@@ -104,7 +104,7 @@ private struct GroupCard: View {
         let nutrients = NutrientCatalog.nutrients(in: group.key)
         let coverage = NutritionMath.groupCoverage(group.key, sex: sex, consumed: consumed)
         let withData = nutrients.filter { statuses[$0.key]?.hasValue == true }
-        let gaps = withData.filter { NutritionMath.coveragePercent(consumed: consumed[$0.key] ?? 0, target: $0.target(sex: sex)) < 75 }
+        let gaps = withData.filter { n in n.target(sex: sex).map { NutritionMath.coveragePercent(consumed: consumed[n.key] ?? 0, target: $0) < 75 } ?? false }
         Button(action: onTap) {
             FACard {
                 HStack(spacing: 12) {
@@ -126,8 +126,8 @@ private struct GroupCard: View {
                     Spacer(minLength: 4)
                     VStack(alignment: .trailing, spacing: 5) {
                         ForEach(nutrients.prefix(4)) { n in
-                            let pct = NutritionMath.coveragePercent(consumed: consumed[n.key] ?? 0, target: n.target(sex: sex))
-                            let hasValue = statuses[n.key]?.hasValue == true
+                            let pct = n.target(sex: sex).map { NutritionMath.coveragePercent(consumed: consumed[n.key] ?? 0, target: $0) } ?? 0
+                            let hasValue = statuses[n.key]?.hasValue == true && n.target(sex: sex) != nil
                             HStack(spacing: 5) {
                                 Text(n.name).font(FATypography.sans(10, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted).lineLimit(1)
                                 // No value: an empty ring, never a colour that reads as a shortfall.
@@ -167,10 +167,11 @@ struct MicroGroupView: View {
                     } else {
                         let consumed = model.consumedToday
                         let nutrients = NutrientCatalog.nutrients(in: group.key)
-                        let avg = nutrients.isEmpty ? 0 : Int((nutrients.reduce(0.0) { $0 + Double(NutritionMath.coveragePercent(consumed: consumed[$1.key] ?? 0, target: $1.target(sex: model.sex))) } / Double(nutrients.count)).rounded())
+                        let scored = nutrients.filter { $0.target(sex: model.sex) != nil }
+                        let avg = scored.isEmpty ? 0 : Int((scored.reduce(0.0) { $0 + Double(NutritionMath.coveragePercent(consumed: consumed[$1.key] ?? 0, target: $1.target(sex: model.sex) ?? 1)) } / Double(scored.count)).rounded())
                         let statuses = model.todayStatuses
                         let withData = nutrients.filter { statuses[$0.key]?.hasValue == true }
-                        let gaps = withData.filter { NutritionMath.coveragePercent(consumed: consumed[$0.key] ?? 0, target: $0.target(sex: model.sex)) < 75 }.count
+                        let gaps = withData.filter { n in n.target(sex: model.sex).map { NutritionMath.coveragePercent(consumed: consumed[n.key] ?? 0, target: $0) < 75 } ?? false }.count
                         VStack(alignment: .leading, spacing: 0) {
                             overview(group: group, avg: avg, measured: withData.count, count: nutrients.count, gaps: gaps).padding(.bottom, 20)
                             Text(String(localized: "micros.nutrients", defaultValue: "Nutrients").uppercased())
@@ -227,14 +228,14 @@ struct MicroGroupView: View {
 private struct NutrientRow: View {
     let nutrient: NutrientCatalog.Nutrient
     let consumed: Double
-    let target: Double
+    let target: Double?
     let color: Color
     let status: MicroPresence.Status
     let onTap: () -> Void
 
     var body: some View {
-        let hasValue = status.hasValue
-        let pct = NutritionMath.coveragePercent(consumed: consumed, target: target)
+        let hasValue = status.hasValue && target != nil
+        let pct = target.map { NutritionMath.coveragePercent(consumed: consumed, target: $0) } ?? 0
         let bar = hasValue ? CoverageTone.color(pct) : ProfilePalette.muted
         let note = MicroPresence.note(status: status, field: MicroCoverage.field(for: nutrient.key)).map(MicroNoteText.text)
         Button(action: onTap) {
@@ -255,10 +256,13 @@ private struct NutrientRow: View {
                                 }
                             }
                             .frame(height: 5)
-                            if hasValue {
+                            if target == nil {
+                                Text(String(localized: "micros.noReference", defaultValue: "No reference set"))
+                                    .font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
+                            } else if let target, hasValue {
                                 Text("\(NutrientFormat.amount(consumed))\(nutrient.unit) · \(String(localized: "micros.target", defaultValue: "target")) \(NutrientFormat.amount(target))\(nutrient.unit)")
                                     .font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
-                            } else {
+                            } else if let target {
                                 Text("\(String(localized: "micros.target", defaultValue: "target")) \(NutrientFormat.amount(target))\(nutrient.unit)")
                                     .font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
                             }
@@ -297,7 +301,7 @@ struct MicroNutrientView: View {
                         let group = NutrientCatalog.group(nutrient.groupKey)
                         let consumed = model.consumedToday[nutrient.key] ?? 0
                         let target = nutrient.target(sex: model.sex)
-                        let pct = NutritionMath.coveragePercent(consumed: consumed, target: target)
+                        let pct = target.map { NutritionMath.coveragePercent(consumed: consumed, target: $0) } ?? 0
                         let series = model.dailySeries(nutrientKey: nutrient.key, days: 7)
                         let status = model.todayStatuses[nutrient.key] ?? .noData
                         VStack(alignment: .leading, spacing: 12) {
@@ -332,7 +336,7 @@ struct MicroNutrientView: View {
         return .stable
     }
 
-    private func heroCard(nutrient: NutrientCatalog.Nutrient, color: Color, consumed: Double, target: Double, pct: Int, series: [Double], status: MicroPresence.Status) -> some View {
+    private func heroCard(nutrient: NutrientCatalog.Nutrient, color: Color, consumed: Double, target: Double?, pct: Int, series: [Double], status: MicroPresence.Status) -> some View {
         let dir = direction(series)
         let note = MicroPresence.note(status: status, field: MicroCoverage.field(for: nutrient.key)).map(MicroNoteText.text)
         let tone: Color = dir == .up ? Color(hex: 0x059669) : dir == .down ? CoverageTone.red : ProfilePalette.muted
@@ -343,14 +347,14 @@ struct MicroNutrientView: View {
                 MoleculeBackdrop(nutrient: nutrient, color: color)
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 20) {
-                        if status.hasValue {
+                        if status.hasValue, target != nil {
                             CoverageRing(pct: pct, size: 100, strokeWidth: 8, color: CoverageTone.color(pct), subLabel: String(localized: "micros.ofTarget", defaultValue: "of target"))
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             MicroLabel(text: String(localized: "micros.today", defaultValue: "Today"))
                             Text(status.hasValue ? "\(NutrientFormat.amount(consumed))\(nutrient.unit)" : String(localized: "micros.noData", defaultValue: "No data")).font(FATypography.sans(26, .bold, relativeTo: .title)).foregroundStyle(FAColor.ink)
                             if let note { Text(note).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted) }
-                            Text("\(String(localized: "micros.target", defaultValue: "target")): \(NutrientFormat.amount(target))\(nutrient.unit)").font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted)
+                            Text(target.map { "\(String(localized: "micros.target", defaultValue: "target")): \(NutrientFormat.amount($0))\(nutrient.unit)" } ?? String(localized: "micros.noReference", defaultValue: "No reference set")).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted)
                             HStack(spacing: 5) {
                                 Image(systemName: symbol).font(.system(size: 11, weight: .bold))
                                 Text(word).font(FATypography.sans(12, .semibold, relativeTo: .caption))
