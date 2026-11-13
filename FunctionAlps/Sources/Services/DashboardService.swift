@@ -12,6 +12,8 @@ struct DashboardService: Sendable {
         self.now = now
     }
 
+    /// The fast reads only. The server-computed scores ride `scores()` instead: `member-scores` is an edge function
+    /// (cold starts), and Home's first paint must not wait for it. `TodaySnapshot.scores` is left nil here.
     func today(patientId: String) async throws -> TodaySnapshot {
         let current = now()
         let day = ISO8601.dayString(current, calendar: calendar)
@@ -22,10 +24,14 @@ struct DashboardService: Sendable {
         async let moments = backend.checkinMoments(patientId: patientId, day: day)
         let since = ISO8601.dayString(calendar.date(byAdding: .day, value: -13, to: current) ?? current, calendar: calendar)
         async let history = backend.dailyCheckins(patientId: patientId, since: since)
-        // Best-effort: a scoring hiccup must never blank Home.
-        async let scores: MemberScores? = { try? await backend.memberScores(tzOffsetMinutes: calendar.timeZone.secondsFromGMT(for: current) / 60) }()
         // Best-effort too: a failed read of the day feeling means "not done", never a blank Home.
         async let feelingSaved: Bool = { ((try? await backend.dayFeeling(patientId: patientId, day: day)) ?? nil) != nil }()
-        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history, scores: scores, dayFeelingSaved: feelingSaved)
+        return try await TodaySnapshot(day: day, meals: meals, checkin: checkin, unreadClinicianMessages: unread, moments: moments, history: history, dayFeelingSaved: feelingSaved)
+    }
+
+    /// Best-effort: a scoring hiccup must never blank Home, so a failure is nil.
+    func scores() async -> MemberScores? {
+        let current = now()
+        return try? await backend.memberScores(tzOffsetMinutes: calendar.timeZone.secondsFromGMT(for: current) / 60)
     }
 }

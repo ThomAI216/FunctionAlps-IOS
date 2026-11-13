@@ -4,10 +4,12 @@ import Foundation
 /// (fail-open), and the baseline edit that re-runs the DB's energy trigger.
 struct ProfileService: Sendable {
     private let backend: any FunctionAlpsBackend
+    private let members: MemberService?
     private let now: @Sendable () -> Date
 
-    init(backend: any FunctionAlpsBackend, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(backend: any FunctionAlpsBackend, members: MemberService? = nil, now: @escaping @Sendable () -> Date = { Date() }) {
         self.backend = backend
+        self.members = members
         self.now = now
     }
 
@@ -32,6 +34,7 @@ struct ProfileService: Sendable {
     /// Writes the inputs, then reads the profile back so the compass shows the trigger's number.
     func saveBaseline(patientId: String, values: BaselineValues) async throws -> MemberProfile? {
         try await backend.saveBaseline(patientId: patientId, values: values)
+        await members?.invalidate()   // the cached member carries the profile that was just rewritten
         return try? await backend.memberProfile(patientId: patientId)
     }
 
@@ -43,12 +46,15 @@ struct ProfileService: Sendable {
     /// The last onboarding screen's stamp (`onboarding_completed_at` + `onboarding_source='app_baseline'`).
     /// Returns the timestamp CM OS now holds — the gate trusts the row, never a local flag.
     func completeOnboarding(patientId: String) async throws -> Date {
-        try await backend.stampOnboardingComplete(patientId: patientId)
+        let stamped = try await backend.stampOnboardingComplete(patientId: patientId)
+        await members?.invalidate()
+        return stamped
     }
 
     /// The targets page's Validate: writes, then reads the row back so the page shows the trigger's targets.
     func saveNutritionProfile(patientId: String, profile: NutritionProfileWrite) async throws -> MemberProfile? {
         try await backend.saveNutritionProfile(patientId: patientId, profile: profile)
+        await members?.invalidate()
         return try? await backend.memberProfile(patientId: patientId)
     }
 }
@@ -109,7 +115,7 @@ struct MessagingService: Sendable {
 
     /// Slugs the member has opened (for the "N new" on a track card); fails soft to none.
     func openedSlugs() async -> Set<String> {
-        guard let patientId = try? await backend.currentPatientId() else { return [] }
+        guard let patientId = try? await MemberService.patientId(via: members, backend: backend) else { return [] }
         return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
     }
 
@@ -120,7 +126,7 @@ struct MessagingService: Sendable {
         let tracks = try await backend.personalTracks()
         guard let track = tracks.first(where: { $0.id == id }) else { return nil }
         async let opened: Set<String> = {
-            guard let patientId = try? await backend.currentPatientId() else { return [] }
+            guard let patientId = try? await MemberService.patientId(via: members, backend: backend) else { return [] }
             return (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
         }()
         async let cards = (try? await backend.ladderCards()) ?? []
@@ -154,7 +160,7 @@ struct MessagingService: Sendable {
         let found = await tracks
         let loose = PersonalTrackLogic.looseResources(await resources, tracks: found)
         let looseCount = MessagingLogic.unopenedCount(loose)
-        guard !found.isEmpty, let patientId = try? await backend.currentPatientId() else { return looseCount }
+        guard !found.isEmpty, let patientId = try? await MemberService.patientId(via: members, backend: backend) else { return looseCount }
         let opened = (try? await backend.openedLibrarySlugs(patientId: patientId)) ?? []
         let counted = Set(MessagingLogic.sentForLibrary(loose).map(\.slug))
         return looseCount + PersonalTrackLogic.unopenedCount(found, openedSlugs: opened, alreadyCounted: counted)
