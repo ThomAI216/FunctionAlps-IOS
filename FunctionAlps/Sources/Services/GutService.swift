@@ -15,8 +15,10 @@ struct GutService: Sendable {
     private let backend: any FunctionAlpsBackend
     private let calendar: Calendar
     private let now: @Sendable () -> Date
+    private let freshness: DataFreshness?
 
-    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, freshness: DataFreshness? = nil) {
+        self.freshness = freshness
         self.backend = backend
         self.calendar = calendar
         self.now = now
@@ -51,6 +53,7 @@ struct GutService: Sendable {
         )
         try await backend.upsertGutCheckin(patientId: patientId, day: today, write: write)
         try await backend.insertCheckinEvents(patientId: patientId, events: GutEngine.events(answers, at: at))
+        freshness?.homeChanged()
         return true
     }
 

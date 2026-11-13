@@ -85,7 +85,7 @@ final class AppDependencies {
         let notifications = NotificationService(backend: backend)
         self.notifications = notifications
         self.supplements = SupplementService(backend: backend, auth: auth, notifications: notifications)
-        self.gut = GutService(backend: backend)
+        self.gut = GutService(backend: backend, freshness: freshness)
         self.protocols = ProtocolService(backend: backend)
         self.focus = FocusService(backend: backend, auth: auth)
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)

@@ -127,6 +127,7 @@ The practice's supplements on the phone: **Home → "Supplements today"** (under
 - Home reloads on re-appear only when older than 60 s or a check-in / meal write bumped `DataFreshness`; pull-to-refresh forces. `DashboardService.today` no longer waits on `member-scores`; `scores()` loads after first paint (`HomeViewModel.scores` / `scoresLoading`).
 - `UnlockService.refresh` is TTL'd (60 s, `force:` after a meal); Trends uses `loadIfNeeded`; `TrendsService` / `UnlockService` reset on sign-out.
 - Fixed-format `DateFormatter` parsers are built once. Not done: concurrent check-in writes (they share the `member_submit_checkin` RPC and a retry would duplicate gut events).
+- Check-in save stays ordered, by RPC analysis (2026-11-13): `member_submit_checkin` and the gut upsert both write `patient_daily_checkins` for the day (`completed_at`, `last_submission_form`), and the gut events insert (`nb_checkin_events`) is a plain insert, so concurrency or retry could reorder metadata or duplicate events; the sheet also has no post-dismiss error surface, so it stays open with the Save button in its saving state. Gained: a gut-only save now bumps `DataFreshness` (`GutService(freshness:)`), so Home reloads.
 
 ## Decisions for the owner
 - **Bundle id**: keep `com.functionalps.patient` (ship as an update to the existing record) or start `ch.functionalps.app` (parallel app). Default in `Config/Base.xcconfig` is the former.
