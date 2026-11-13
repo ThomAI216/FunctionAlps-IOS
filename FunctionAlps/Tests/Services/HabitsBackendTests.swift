@@ -57,14 +57,14 @@ struct HabitsBackendTests {
 
         let paths = transport.requests.map { $0.url.path }
         #expect(paths == ["/rest/v1/care_plans", "/rest/v1/habits", "/rest/v1/habit_completions", "/rest/v1/care_plan_phases",
-                          "/rest/v1/care_plan_goals", "/rest/v1/care_plan_items"])
+                          "/rest/v1/care_plan_goals", "/rest/v1/rpc/member_care_plan_items"])
         let q = transport.requests.map { $0.url.query ?? "" }
         #expect(q[0].contains("status=eq.active") && q[0].contains("objective_line") && q[0].contains("limit=1"))
         #expect(q[1].contains("status=neq.cancelled") && q[1].contains("patient_id=eq.p-1") && !q[1].contains("gate_criteria"))
         #expect(q[2].contains("completion_date=gte.2026-07-18") && q[2].contains("completion_date=lte.2026-09-25"))
         #expect(q[3].contains("care_plan_id=eq.cp-1") && !q[3].contains("gate_criteria"))
         #expect(q[4].contains("care_plan_id=eq.cp-1") && q[4].contains("visibility_class=in.(patient_visible,patient_visible_after_approval)"))
-        #expect(q[5].contains("care_plan_id=eq.cp-1") && q[5].contains("is_weekly_focus=eq.true"))
+        #expect(q[5].contains("care_plan_id=eq.cp-1") && q[5].contains("is_weekly_focus=eq.true") && !q[5].contains("visibility_class"))
     }
 
     @Test func goalsAndPrioritiesFailSoft() async throws {
