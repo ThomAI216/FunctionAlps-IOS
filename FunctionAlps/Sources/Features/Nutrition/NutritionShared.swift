@@ -51,13 +51,24 @@ final class NutritionScreenModel {
     /// Per-nutrient sums over today's meals.
     var consumedToday: [String: Double] { MicroCoverage.consumed(from: todayMeals) }
 
-    /// One value per day for a nutrient, the last `days` days, oldest first.
-    func dailySeries(nutrientKey: String, days: Int) -> [(day: Date, value: Double)] {
-        guard let field = MicroCoverage.nutrients.first(where: { $0.key == nutrientKey })?.field else { return [] }
+    /// Presence of each tracked nutrient in today's meals (no data / some meals / measured).
+    var todayStatuses: [String: MicroPresence.Status] { MicroPresence.statuses(meals: todayMeals) }
+
+    /// Nutrient keys that have a value today; the others are "no data", not a shortfall.
+    var availableNutrientKeys: Set<String> { Set(todayStatuses.filter { $0.value.hasValue }.keys) }
+
+    /// "N of 34 measured" over today's meals; nil when no meal carries a value.
+    var microSummary: MicroPresence.Summary? { MicroPresence.summary(meals: todayMeals) }
+
+    /// One value per day for a nutrient, the last `days` days, oldest first. Nil = no analysed meal that day has a value
+    /// for it (not zero).
+    func dailySeries(nutrientKey: String, days: Int) -> [(day: Date, value: Double?)] {
+        let field = MicroCoverage.field(for: nutrientKey)
+        guard MicroCoverage.nutrients.contains(where: { $0.key == nutrientKey }) else { return [] }
         return (0..<days).reversed().compactMap { back in
             guard let day = calendar.date(byAdding: .day, value: -back, to: Date()) else { return nil }
-            let value = meals.filter { calendar.isDate($0.loggedAt, inSameDayAs: day) }.reduce(0.0) { $0 + ($1.micros[field] ?? 0) }
-            return (day: calendar.startOfDay(for: day), value: value)
+            let withValue = meals.filter { calendar.isDate($0.loggedAt, inSameDayAs: day) && $0.isAnalysed }.compactMap { $0.micros[field] }
+            return (day: calendar.startOfDay(for: day), value: withValue.isEmpty ? nil : withValue.reduce(0, +))
         }
     }
 }

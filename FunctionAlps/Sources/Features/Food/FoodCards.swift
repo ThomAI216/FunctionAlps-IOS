@@ -191,7 +191,8 @@ struct MacrosTodayCard: View {
         return MicroCoverage.macroProximity(protein: c.protein, carbs: c.carbs, fat: c.fat, targetProtein: profile?.targetProteinG, targetCarbs: profile?.targetCarbsG, targetFat: profile?.targetFatG)
     }
 
-    private var microToday: Int? { MicroCoverage.overall(meals: todayMeals, sex: profile?.sex) }
+    private var microTodayDetail: MicroCoverage.Overall? { MicroCoverage.overallDetail(meals: todayMeals, sex: profile?.sex) }
+    private var microToday: Int? { microTodayDetail?.percent }
 
     private var microA11y: String {
         if let microToday {
@@ -219,9 +220,16 @@ struct MacrosTodayCard: View {
                                 .foregroundStyle(FoodPalette.muted)
                         }
                         Spacer()
-                        Text(microToday.map { "\($0)" } ?? "·")
-                            .font(FATypography.sans(12, .bold, relativeTo: .caption))
-                            .foregroundStyle(FAColor.ink)
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text(microToday.map { "\($0)" } ?? String(localized: "micros.noData", defaultValue: "No data"))
+                                .font(FATypography.sans(12, .bold, relativeTo: .caption))
+                                .foregroundStyle(microToday == nil ? FoodPalette.muted : FAColor.ink)
+                            if let d = microTodayDetail {
+                                Text(String(localized: "micros.basedOn", defaultValue: "based on \(d.included) of \(d.total) nutrients"))
+                                    .font(FATypography.sans(9.5, relativeTo: .caption2))
+                                    .foregroundStyle(FoodPalette.muted)
+                            }
+                        }
                     }
                     MicroTrendBars(values: microTrend)
                 }

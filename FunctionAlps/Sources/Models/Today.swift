@@ -67,6 +67,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let patientNote: String?
     /// `micronutrient_totals` — per-meal micro sums keyed like the edge functions write them (`vitamin_c_mg`…).
     let micros: [String: Double]
+    /// `resolution_meta.micro_coverage` — how many nutrients this meal measured; nil on meals analysed before it existed.
+    let microCoverage: MealMicroCoverage?
     /// `analysis_coverage` — the model's verdict on the photos: "full", "partial", or nil when never judged.
     let analysisCoverage: String?
     /// `protocol_flags` — the Protocol Lens matches `analyze-meal` stored; nil = never computed (no active protocol / legacy row).
@@ -92,7 +94,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         patientNote: String? = nil,
         micros: [String: Double] = [:],
         analysisCoverage: String? = nil,
-        protocolFlags: [ProtocolLens.Flag]? = nil
+        protocolFlags: [ProtocolLens.Flag]? = nil,
+        microCoverage: MealMicroCoverage? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -111,6 +114,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.scores = scores
         self.patientNote = patientNote
         self.micros = micros
+        self.microCoverage = microCoverage
         self.analysisCoverage = analysisCoverage
         self.protocolFlags = protocolFlags
     }

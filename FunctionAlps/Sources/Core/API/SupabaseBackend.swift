@@ -99,13 +99,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     /// Columns BY NAME, never `*`. `ai_coaching_response` is deliberately not read: it is model
     /// prose and must never sit next to `patient_note` under one label.
-    private static let mealColumns = [
+    private static let baseMealColumns = [
         "id", "logged_at", "meal_type", "name", "source", "analysis_status", "analysis_last_error",
         "total_calories", "total_protein_g", "total_carbs_g", "total_fat_g", "total_fiber_g",
         "photo_url", "photo_urls", "ai_identified_foods",
         "inflammation_score", "glycemic_score", "gut_score", "patient_note", "micronutrient_totals",
         "analysis_coverage", "protocol_flags",
-    ].joined(separator: ",")
+    ]
+
+    /// Plus one key out of the `resolution_meta` jsonb, not the whole record (it also holds the model's food list and timings).
+    private static let mealColumns = (baseMealColumns + ["micro_coverage:resolution_meta->micro_coverage"]).joined(separator: ",")
+
+    /// Runs the meal read with the coverage key; a database without `resolution_meta` fails the select, so the plain
+    /// columns are the fallback (the meals still load, just without the coverage note).
+    private func withCoverageFallback<T>(_ read: (String) async throws -> T) async throws -> T {
+        do { return try await read(Self.mealColumns) } catch AppError.validation { return try await read(Self.baseMealColumns.joined(separator: ",")) }
+    }
+
+    /// `resolution_meta.micro_coverage` as `analyze-meal` writes it. Any other shape reads as "not recorded".
+    private struct MicroCoverageRow: Decodable, Sendable {
+        let tracked: Int
+        let measured: Int
+        let items: Int
+        let itemsFromCatalogue: Int
+        let partial: [String]
+        var model: MealMicroCoverage { MealMicroCoverage(tracked: tracked, measured: measured, items: items, itemsFromCatalogue: itemsFromCatalogue, partial: partial) }
+    }
+
+    /// A realtime payload carries the whole `resolution_meta`, a REST read only the aliased `micro_coverage`.
+    private struct ResolutionMetaRow: Decodable, Sendable {
+        let microCoverage: MicroCoverageRow?
+    }
 
     private struct MealRow: Decodable, Sendable {
         let id: String
@@ -130,12 +154,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let micronutrientTotals: [String: Double]
         let analysisCoverage: String?
         let protocolFlags: [ProtocolLens.Flag]?
+        let microCoverage: MealMicroCoverage?
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
             case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
-            case analysisCoverage, protocolFlags
+            case analysisCoverage, protocolFlags, microCoverage, resolutionMeta
         }
 
         init(from decoder: any Decoder) throws {
@@ -165,6 +190,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
             analysisCoverage = try? c.decodeIfPresent(String.self, forKey: .analysisCoverage)
             // A jsonb array of matches, or null; an odd shape reads as "not computed", never as a wrong flag.
             protocolFlags = (try? c.decodeIfPresent([ProtocolLens.Flag].self, forKey: .protocolFlags)) ?? nil
+            // Additive jsonb: absent, null or an odd shape all read as "not recorded", never as a lost meal.
+            let direct = (try? c.decodeIfPresent(MicroCoverageRow.self, forKey: .microCoverage)) ?? nil
+            let viaMeta = (try? c.decodeIfPresent(ResolutionMetaRow.self, forKey: .resolutionMeta)) ?? nil
+            microCoverage = (direct ?? viaMeta?.microCoverage)?.model
         }
 
         var model: MealLog {
@@ -191,24 +220,29 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 patientNote: patientNote,
                 micros: micronutrientTotals,
                 analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil,
-                protocolFlags: protocolFlags
+                protocolFlags: protocolFlags,
+                microCoverage: microCoverage
             )
         }
     }
 
     func meals(patientId: String, since: Date) async throws -> [MealLog] {
-        let rows: [MealRow] = try await rest.select("nb_meal_logs", query: [
-            PG.select(Self.mealColumns),
-            PG.eq("patient_id", patientId),
-            PG.gte("logged_at", ISO8601.string(since)),
-            PG.order("logged_at", descending: true),
-            PG.limit(100),
-        ])
+        let rows: [MealRow] = try await withCoverageFallback { columns in
+            try await rest.select("nb_meal_logs", query: [
+                PG.select(columns),
+                PG.eq("patient_id", patientId),
+                PG.gte("logged_at", ISO8601.string(since)),
+                PG.order("logged_at", descending: true),
+                PG.limit(100),
+            ])
+        }
         return rows.map(\.model)
     }
 
     func meal(id: String) async throws -> MealLog? {
-        let row: MealRow? = try await rest.selectOne("nb_meal_logs", query: [PG.select(Self.mealColumns), PG.eq("id", id)])
+        let row: MealRow? = try await withCoverageFallback { columns in
+            try await rest.selectOne("nb_meal_logs", query: [PG.select(columns), PG.eq("id", id)])
+        }
         return row?.model
     }
 
