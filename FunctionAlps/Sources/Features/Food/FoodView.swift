@@ -4,11 +4,12 @@ import SwiftUI
 struct FoodView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: FoodViewModel?
+    @State private var plan: MealPlanViewModel?
 
     var body: some View {
         ZStack {
-            if let model {
-                FoodScreen(model: model)
+            if let model, let plan {
+                FoodScreen(model: model, plan: plan)
             }
         }
         .faWall()
@@ -18,8 +19,15 @@ struct FoodView: View {
                 let m = FoodViewModel(members: dependencies.members, meals: dependencies.meals, auth: dependencies.auth)
                 let notifications = dependencies.notifications
                 m.onMealLogged = { id in Task { await notifications.mealLogged(id: id, at: Date()) } }
+                let p = MealPlanViewModel(service: dependencies.mealPlan, meals: dependencies.meals, members: dependencies.members, auth: dependencies.auth)
+                // "I ate this" shows the same toast as "Log again"; an undo from the plan reloads the meals.
+                p.onLogged = { [weak m] id, name, kcal in m?.planMealLogged(mealId: id, name: name, kcal: kcal) }
+                p.onMealsChanged = { [weak m] in Task { await m?.load(refresh: true) } }
                 model = m
+                plan = p
+                async let planLoad: Void = p.load()
                 await m.load()
+                await planLoad
             }
         }
     }
@@ -29,8 +37,11 @@ struct FoodView: View {
 /// glass card (photo scan hero · favorites · describe), then the recent meals with no label.
 private struct FoodScreen: View {
     @Bindable var model: FoodViewModel
+    @Bindable var plan: MealPlanViewModel
     @Environment(AppRouter.self) private var router
+    @Environment(AppDependencies.self) private var dependencies
     @State private var capture = MealCaptureCoordinator()
+    @State private var section: FoodSection = .logging
 
     var body: some View {
         content
@@ -42,6 +53,30 @@ private struct FoodScreen: View {
             }
             .overlay(alignment: .bottom) { toast }
             .animation(.spring(duration: 0.35, bounce: 0.15), value: model.relogToast)
+            // The meal logs moved (an undo, a capture, "I ate this"): the plan's "logged" marks follow.
+            .onChange(of: model.mealsVersion) { _, _ in Task { await plan.load(refresh: true) } }
+            .onChange(of: section) { _, new in
+                if new == .groceries { Task { await plan.loadGroceries(refresh: plan.groceries.value != nil) } }
+            }
+            .sheet(item: $plan.openMeal) { open in
+                RecipeCardView(plan: plan, open: open)
+            }
+            .sheet(item: Binding(
+                get: { plan.swapRequest?.origin == .list ? plan.swapRequest : nil },
+                set: { if $0 == nil { plan.swapRequest = nil } }
+            )) { request in
+                SwapSheet(service: dependencies.mealPlan, request: request) { changed in
+                    plan.swapRequest = nil
+                    if changed { Task { await plan.load(refresh: true); await plan.loadGroceries(refresh: true) } }
+                }
+                .presentationDetents([.large])
+            }
+            .sheet(isPresented: $plan.showShareSheet) {
+                if let list = plan.groceries.value {
+                    GrocerySaveShareSheet(list: list) { plan.showShareSheet = false }
+                        .presentationDetents([.large])
+                }
+            }
             .alert(String(localized: "food.error.title", defaultValue: "Couldn't load your meals"), isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
                 Button(String(localized: "action.ok", defaultValue: "OK"), role: .cancel) {}
             } message: {
@@ -67,27 +102,40 @@ private struct FoodScreen: View {
         case .loaded(let content):
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Button {
-                        router.push(content.member.profile?.hasBodyData == true ? .macros : .nutritionTargets)
-                    } label: {
-                        MacrosTodayCard(
-                            todayMeals: model.todayMeals(content),
-                            profile: content.member.profile,
-                            microTrend: model.microTrend(content),
-                            todayScores: model.todayScores(content),
-                            onMacroTap: { router.push(.macro($0)) }
-                        )
+                    FASegmentedControl(options: FoodSection.allCases, selection: section, title: \.title) { section = $0 }
+                        .padding(.bottom, 14)
+                    switch section {
+                    case .logging:
+                        Button {
+                            router.push(content.member.profile?.hasBodyData == true ? .macros : .nutritionTargets)
+                        } label: {
+                            MacrosTodayCard(
+                                todayMeals: model.todayMeals(content),
+                                profile: content.member.profile,
+                                microTrend: model.microTrend(content),
+                                todayScores: model.todayScores(content),
+                                onMacroTap: { router.push(.macro($0)) }
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        captureCard.padding(.top, 14)
+                        recent(content).padding(.top, 22)
+                    case .plan:
+                        PlanView(plan: plan)
+                    case .groceries:
+                        GroceriesView(plan: plan)
                     }
-                    .buttonStyle(.plain)
-                    captureCard.padding(.top, 14)
-                    recent(content).padding(.top, 22)
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 34)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
             .scrollDismissesKeyboard(.interactively)
-            .refreshable { await model.load(refresh: true) }
+            .refreshable {
+                await model.load(refresh: true)
+                await plan.load(refresh: true)
+                if section == .groceries { await plan.loadGroceries(refresh: true) }
+            }
         }
     }
 
@@ -96,6 +144,18 @@ private struct FoodScreen: View {
         FACard {
             VStack(alignment: .leading, spacing: 0) {
                 PhotoScanCard { capture.openPhotoChooser() }
+                if let next = plan.nextMeal {
+                    FromYourPlanStrip(
+                        meal: next.meal,
+                        canSwap: plan.canSwap(on: plan.todayDay),
+                        busy: plan.isBusy(next.meal.slotId),
+                        onOpen: { plan.openMeal = OpenMeal(slotId: next.meal.slotId, date: next.date) },
+                        onEat: { plan.ateThis(next.meal, on: next.date) },
+                        onSwap: { plan.askSwap(next.meal, on: next.date, from: .list) },
+                        onSomethingElse: { capture.openPhotoChooser() }
+                    )
+                    .padding(.top, 12)
+                }
                 FavoritesStrip(favorites: model.favorites) { fav in
                     model.relog(RelogSource(favorite: fav), favoriteId: fav.id)
                 }

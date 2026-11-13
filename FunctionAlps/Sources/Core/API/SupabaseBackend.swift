@@ -2185,3 +2185,101 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return try TrackJSON.decode([NotificationDataWire].self, from: data).first?.data
     }
 }
+
+// MARK: - Meal plan, recipes, groceries (menus programme, P6)
+//
+// Everything the plan shows is decided on the server: `member_meal_plan` returns each day with the member's own
+// swaps applied and the meals that break their exclusions flagged; "I ate this" is one RPC that writes the
+// meal log; the grocery list is derived. The app reads, taps and formats. Table and RPC names stay in this file.
+
+extension SupabaseBackend {
+    private struct PlanBody: Encodable, Sendable { let pFrom: String?; let pTo: String? }
+    private struct SlotDateBody: Encodable, Sendable { let pSlot: String; let pPlanDate: String }
+    private struct CandidatesBody: Encodable, Sendable { let pSlot: String; let pPlanDate: String; let pAnyMeal: Bool; let pLimit: Int }
+    private struct SwapBody: Encodable, Sendable { let pSlot: String; let pRecipe: String; let pPlanDate: String }
+
+    func mealPlan() async throws -> MealPlanRange {
+        let wire: MealPlanWire.Plan = try await rest.rpc("member_meal_plan", body: PlanBody(pFrom: nil, pTo: nil))
+        return wire.model
+    }
+
+    func logPlannedMeal(slotId: String, planDate: String) async throws -> PlannedMealLog {
+        let reply: MealPlanWire.LogReply = try await rest.rpc("member_log_planned_meal", body: SlotDateBody(pSlot: slotId, pPlanDate: planDate))
+        return reply.model
+    }
+
+    func swapCandidates(slotId: String, planDate: String, anyMeal: Bool) async throws -> [SwapCandidate] {
+        let rows: [MealPlanWire.CandidateRow] = try await rest.rpc(
+            "member_swap_candidates", body: CandidatesBody(pSlot: slotId, pPlanDate: planDate, pAnyMeal: anyMeal, pLimit: 60))
+        return rows.map(\.model)
+    }
+
+    func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome {
+        let reply: MealPlanWire.SwapReply = try await rest.rpc("member_swap_meal", body: SwapBody(pSlot: slotId, pRecipe: recipeId, pPlanDate: planDate))
+        return reply.model
+    }
+
+    /// The recipe and its lines, both under the member's own RLS (approved, member-visible, never a book recipe).
+    func recipeCard(id: String) async throws -> RecipeCard? {
+        let recipe: MealPlanWire.Recipe? = try await rest.selectOne("recipes", query: [
+            PG.select("id,title,body_md,steps,servings,prep_minutes,cook_minutes,yield_text,variant_kind,computed_nutrition"),
+            PG.eq("id", id),
+        ])
+        guard let recipe else { return nil }
+        let lines: [MealPlanWire.Ingredient] = try await rest.select("recipe_ingredients", query: [
+            PG.select("id,raw_text,qty,unit_code,is_to_taste,is_optional,prep_note"),
+            PG.eq("recipe_id", id), PG.order("sort_order"),
+        ])
+        return recipe.model(ingredients: lines)
+    }
+
+    func groceryList() async throws -> GroceryList {
+        let wire: MealPlanWire.Grocery = try await rest.rpc("member_grocery_list", body: EmptyBody())
+        return wire.model
+    }
+
+    /// One row per (plan week, food): the same ticks on the web and on the phone. A write with `checked_at` null
+    /// is an untick; it keeps the row (and any "I have this") instead of deleting it.
+    private struct FoodTickBody: Encodable, Sendable {
+        let patientId: String
+        let planId: String
+        let periodStart: String
+        let foodItemId: String
+        let checkedAt: String?
+
+        private enum CodingKeys: String, CodingKey { case patientId, planId, periodStart, foodItemId, customLabel, checkedAt }
+
+        func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(patientId, forKey: .patientId)
+            try c.encode(planId, forKey: .planId)
+            try c.encode(periodStart, forKey: .periodStart)
+            try c.encode(foodItemId, forKey: .foodItemId)
+            try c.encodeNil(forKey: .customLabel)
+            try c.encode(checkedAt, forKey: .checkedAt)   // explicit null clears the tick
+        }
+    }
+
+    private struct CustomTickBody: Encodable, Sendable {
+        let checkedAt: String?
+        private enum CodingKeys: String, CodingKey { case checkedAt }
+        func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(checkedAt, forKey: .checkedAt)
+        }
+    }
+
+    func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws {
+        let stamp = checked ? ISO8601.string(Date()) : nil
+        switch target {
+        case .food(let foodId):
+            guard let planId = list.planId, let start = list.periodStart else { throw AppError.notFound }
+            try await rest.upsert(
+                "member_grocery_state", onConflict: "patient_id,plan_id,period_start,food_item_id,custom_label",
+                body: [FoodTickBody(patientId: patientId, planId: planId, periodStart: start, foodItemId: foodId, checkedAt: stamp)]
+            )
+        case .custom(let id):
+            try await rest.update("member_grocery_state", query: [PG.eq("id", id)], body: CustomTickBody(checkedAt: stamp))
+        }
+    }
+}
