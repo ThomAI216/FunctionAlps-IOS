@@ -50,7 +50,7 @@ enum ShowcaseFocus {
         "water": Habit(id: "fd592c9e-34d9-4a8c-b548-e7b6605aab04", en: "A glass of water before coffee", fr: "Un verre d’eau avant le café",
                        detailEn: "Start hydrated and the coffee lands softer.", detailFr: "Commencez par vous hydrater et le café passe plus en douceur."),
         "protein": Habit(id: "8ba3035e-a61f-4458-b078-9918624b8b18", en: "Anything at breakfast counts", fr: "Des protéines au petit-déjeuner",
-                         detailEn: "Eggs, skyr, leftovers — anything. Steadier energy before 11:00.", detailFr: "Œufs, skyr, restes — peu importe. Une énergie plus stable jusqu’à 11 h."),
+                         detailEn: "Eggs, skyr, leftovers: anything. Steadier energy before 11:00.", detailFr: "Œufs, skyr, restes : peu importe. Une énergie plus stable jusqu’à 11 h."),
         "move": Habit(id: "623658e7-bea0-41a9-9fe5-d646a3340dda", en: "Morning activation, five minutes", fr: "Activation matinale, cinq minutes",
                       detailEn: "Wake the body before the day claims it.", detailFr: "Réveillez le corps avant que la journée ne s’en empare."),
         "further": Habit(id: "eb7923e5-def2-4243-a265-1d9d8c4c4634", en: "Make the walk 20 minutes", fr: nil,
