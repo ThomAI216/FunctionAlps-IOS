@@ -51,6 +51,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let mealsPerDay: Int?
         let snacksPerDay: Int?
         let macrosCustomized: Bool?
+        let createdAt: Date?
     }
 
     private static let profileColumns = [
@@ -58,7 +59,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
         "goal_mode", "onboarding_completed_at", "adult_confirmed_at", "locale", "tdee_kcal",
-        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized",
+        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized", "created_at",
     ].joined(separator: ",")
 
     func memberProfile(patientId: String) async throws -> MemberProfile? {
@@ -89,7 +90,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             customCalorieOffsetKcal: row.customCalorieOffsetKcal,
             mealsPerDay: row.mealsPerDay,
             snacksPerDay: row.snacksPerDay,
-            macrosCustomized: row.macrosCustomized ?? false
+            macrosCustomized: row.macrosCustomized ?? false,
+            createdAt: row.createdAt
         )
     }
 
@@ -713,6 +715,66 @@ struct SupabaseBackend: FunctionAlpsBackend {
             "end_rule": .string(f.endRule),
         ]
         try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day", body: row, snakeCase: false)
+    }
+
+    private struct EveningFollowupRow: Decodable, Sendable {
+        let eveningFollowup: Int?
+        let eveningPills: [String]?
+        private enum CodingKeys: String, CodingKey { case eveningFollowup, eveningPills }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            eveningFollowup = try c.decodeIfPresent(Int.self, forKey: .eveningFollowup)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost answer.
+            eveningPills = try? c.decodeIfPresent([String].self, forKey: .eveningPills)
+        }
+    }
+
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? {
+        let row: EveningFollowupRow? = try await rest.selectOne("patient_day_feelings", query: [
+            PG.select("evening_followup,evening_pills"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+        ])
+        guard let row else { return nil }
+        let followup = EveningFollowup(choice: row.eveningFollowup.flatMap(EveningFollowup.Choice.init(rawValue:)), pills: row.eveningPills ?? [])
+        return followup.isEmpty ? nil : followup
+    }
+
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {
+        try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day",
+                              body: EveningFollowupLogic.columns(followup, patientId: patientId, day: day), snakeCase: false)
+    }
+
+    // MARK: Routine runs (patient_routine_runs)
+
+    private struct RoutineRunRow: Decodable, Sendable {
+        let day: String
+        let focusCell: String?
+        let offeredAt: String?
+        let dueAt: String?
+        let completedAt: String?
+        let stepsDone: Int?
+        private enum CodingKeys: String, CodingKey { case day, focusCell, offeredAt, dueAt, completedAt, stepsDone }
+
+        var model: KickoffRun {
+            KickoffRun(day: day, focusCell: focusCell, offeredAt: offeredAt.flatMap(ISO8601.parse) ?? Date(),
+                       dueAt: dueAt.flatMap(ISO8601.parse), completedAt: completedAt.flatMap(ISO8601.parse), stepsDone: stepsDone ?? 0)
+        }
+    }
+
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? {
+        let row: RoutineRunRow? = try await rest.selectOne("patient_routine_runs", query: [
+            PG.select("day,focus_cell,offered_at,due_at,completed_at,steps_done"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+            PG.eq("routine", KickoffRun.routine),
+        ])
+        return row?.model
+    }
+
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {
+        try await rest.upsert("patient_routine_runs", onConflict: "patient_id,day,routine", body: columns, snakeCase: false)
     }
 
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
@@ -1550,6 +1612,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
         // one fires the `red_flag` event server-side (trg_checkin_red_flag_event).
         for flag in RedFlag.allCases { row[flag.column] = .bool(w.redFlags.contains(flag)) }
         try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
+    }
+
+    // MARK: Supplements (member_supplements · member_log_supplement)
+
+    private struct LogSupplementBody: Encodable, Sendable {
+        let pPlan: String
+        let pMoment: String
+        let pTaken: Bool
+        /// `YYYY-MM-DD`; nil is omitted, and the function's default (today) applies.
+        let pDay: String?
+    }
+
+    func supplements() async throws -> [Supplement] {
+        try await rest.rpc("member_supplements", body: EmptyBody())
+    }
+
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {
+        _ = try await rest.rpcRaw("member_log_supplement", body: LogSupplementBody(pPlan: planId, pMoment: moment.rawValue, pTaken: taken, pDay: day))
     }
 
     // MARK: Notifications (patient_notification_preferences)

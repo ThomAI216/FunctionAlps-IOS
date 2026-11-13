@@ -41,16 +41,18 @@ final class GutCheckinViewModel {
     private let gut: GutService
     private let members: MemberService
     private let auth: AuthService
+    /// Nil = today. The morning screen's caught-up "Yesterday" names its day: the digestion is read from and saved to that day's row.
+    let day: String?
 
-    init(gut: GutService, members: MemberService, auth: AuthService) {
-        self.gut = gut; self.members = members; self.auth = auth
+    init(gut: GutService, members: MemberService, auth: AuthService, day: String? = nil) {
+        self.gut = gut; self.members = members; self.auth = auth; self.day = day
     }
 
     func prefill() async {
         defer { loaded = true }
         do {
             let member = try await members.currentMember()
-            let state = try await gut.load(patientId: member.patientId)
+            let state = try await gut.load(patientId: member.patientId, day: day)
             todayMeals = state.meals.filter { ISO8601.dayString($0.loggedAt) == state.day }
             reactions = state.reactions
             if let today = state.today {
@@ -96,7 +98,7 @@ final class GutCheckinViewModel {
         defer { isSaving = false }
         do {
             let member = try await members.currentMember()
-            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes, redFlags: redFlags)
+            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes, redFlags: redFlags, day: day)
             return true
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "gut.save")

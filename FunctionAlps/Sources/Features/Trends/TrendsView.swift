@@ -26,8 +26,9 @@ struct TrendsView: View {
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .task { await trends.load() }
+        .task { await trends.loadIfNeeded() }
         .task { await dependencies.signals.loadIfNeeded() }
+        .task { await dependencies.supplements.load() }   // the strip follows every tick: this is the same shared read
         .onAppear {
             // The scores hub used to hand a pillar over here; Trends no longer has pillars, so the hand-over is dropped.
             router.pendingPillar = nil
@@ -81,6 +82,7 @@ struct TrendsView: View {
             .refreshable { await trends.load(refresh: true) }
             #if DEBUG
             .task { await Showcase.scroll(proxy, to: "trends.plan", on: .trendsMiddle) }
+            .task { await Showcase.scroll(proxy, to: "trends.supplements", on: .trendsSupplements, anchor: UnitPoint(x: 0.5, y: 0.3)) }
             .task { await Showcase.scroll(proxy, to: "trends.food", on: .trendsBottom) }
             .task { await Showcase.scroll(proxy, to: "trends.signals", on: .trendsEnergyOpen) }
             #endif
@@ -90,7 +92,7 @@ struct TrendsView: View {
     @ViewBuilder
     private func sections(_ page: TrendsEngine.Page) -> some View {
         TrendsScoreCard(page: page, onLearn: learn(.score))
-        TrendsPlanCard(page: page).id("trends.plan")
+        TrendsPlanCard(page: page, supplementRows: TrendsEngine.supplementRows(dependencies.supplements.supplements, window: page.window)).id("trends.plan")
         if !page.devices.isEmpty {
             TrendsDevicesCard(devices: page.devices) { router.push(.trendDevice($0.key)) }
         }

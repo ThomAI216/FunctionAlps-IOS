@@ -32,12 +32,12 @@ enum ShowcaseTrack {
     /// True for every track scene: the backend then answers the track calls (and keeps Home a lead's Home).
     static var isOn: Bool {
         switch Showcase.screen {
-        case .track?, .trackQuestionnaire?, .trackCard?, .trackRead?, .trackSummary?: true
+        case .track?, .trackQuestionnaire?, .trackCard?, .trackRead?, .trackSummary?, .focusTrackHome?: true
         default: ShowcaseLibrary.isOn
         }
     }
 
-    static var day: Int { min(max(Int(arg("-FATrackDay") ?? "") ?? ShowcaseHabits.defaultDay ?? (ShowcaseLibrary.isOn ? 10 : 1), 1), 15) }
+    static var day: Int { min(max(Int(arg("-FATrackDay") ?? "") ?? ShowcaseHabits.defaultDay ?? (Showcase.screen == .focusTrackHome ? 3 : ShowcaseLibrary.isOn ? 10 : 1), 1), 15) }
     static var page: Int { max(Int(arg("-FAPage") ?? "") ?? 0, 0) }
     static var questionnaireId: String? { Showcase.screen == .trackQuestionnaire ? arg("-FAQuestionnaire") : nil }
     static var questionnaireStep: QuestionnaireStep {

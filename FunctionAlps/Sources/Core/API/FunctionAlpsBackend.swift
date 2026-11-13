@@ -61,6 +61,16 @@ protocol FunctionAlpsBackend: Sendable {
     func dayFeeling(patientId: String, day: String) async throws -> DayFeeling?
     /// One row per (patient, day); saving again edits it.
     func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws
+    /// After a hard morning, the daily check-in's "how was the rest of your day?" — the two `evening_*` columns of the day's
+    /// feelings row, read apart from the morning's answers (a database without the columns reads as "none saved").
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup?
+    /// Today's kickoff morning routine run (`patient_routine_runs`, `routine = 'kickoff_morning'`); nil when the day has none (or the
+    /// database has no such table yet).
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun?
+    /// One row per (patient, day, routine): the columns sent are the ones that change (`KickoffRunLogic`).
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws
+    /// Writes ONLY the follow-up columns; the morning's answers on the same row are never touched.
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws
 
     // MARK: Scores (server-side engine)
 
@@ -342,6 +352,15 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// One notification row's content-free pointers (`data_json`) — where a tap on a push without a route belongs.
     func notificationData(id: String) async throws -> JSONValue?
+
+    // MARK: Supplements (CM OS migration 333; every figure computed server-side)
+
+    /// `member_supplements()`: the member's supplements — what the practice prescribed (patient-visible, approved),
+    /// today's ticks and the observance (days, taken, percent, band, 14-day strip). Default: none.
+    func supplements() async throws -> [Supplement]
+    /// `member_log_supplement(p_plan, p_moment, p_taken, p_day)`: ticks (or un-ticks) one moment. Idempotent. `day` nil =
+    /// today; the server accepts only today or yesterday (`22023` otherwise). `planId` is the supplement's `id`.
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
@@ -463,6 +482,12 @@ extension FunctionAlpsBackend {
     func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
     func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
     func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { nil }
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? { nil }
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {}
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
+    func supplements() async throws -> [Supplement] { [] }
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {}
 }

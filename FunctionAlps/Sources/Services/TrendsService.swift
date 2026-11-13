@@ -26,17 +26,19 @@ final class TrendsService {
     @ObservationIgnored private let backend: any FunctionAlpsBackend
     @ObservationIgnored private let auth: AuthService
     @ObservationIgnored private let wearables: WearableService
+    @ObservationIgnored private let members: MemberService?
     @ObservationIgnored private let calendar: Calendar
     @ObservationIgnored private let now: @Sendable () -> Date
 
     /// A re-appearing page re-reads only when what it holds is older than this.
     static let staleAfter: TimeInterval = 60
 
-    init(backend: any FunctionAlpsBackend, auth: AuthService, wearables: WearableService,
+    init(backend: any FunctionAlpsBackend, auth: AuthService, wearables: WearableService, members: MemberService? = nil,
          calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }) {
         self.backend = backend
         self.auth = auth
         self.wearables = wearables
+        self.members = members
         self.calendar = calendar
         self.now = now
     }
@@ -45,6 +47,14 @@ final class TrendsService {
         guard newWindow != window else { return }
         window = newWindow
         rebuild()
+    }
+
+    /// Sign-out: nothing of the previous member stays on screen or in memory.
+    func reset() {
+        raw = nil
+        page = nil
+        loadedAt = nil
+        phase = .idle
     }
 
     /// For a page opened straight onto a detail (a link): read once when nothing has been read yet.
@@ -65,7 +75,7 @@ final class TrendsService {
         defer { isLoading = false }
         if page == nil { phase = .loading }
         do {
-            guard let patientId = try await backend.currentPatientId() else {
+            guard let patientId = try await MemberService.patientId(via: members, backend: backend) else {
                 phase = .empty
                 return
             }
@@ -74,6 +84,7 @@ final class TrendsService {
             rebuild()
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "trends.load")
+            if case .forbidden = error { await members?.invalidate() }
             if case .unauthorized = error { await auth.handleUnauthorized(); return }
             if page == nil { phase = .failed(error.userMessage) }
         } catch {

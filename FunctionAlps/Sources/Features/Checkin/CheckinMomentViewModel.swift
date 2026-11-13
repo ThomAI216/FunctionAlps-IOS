@@ -49,8 +49,8 @@ final class CheckinMomentViewModel {
         self.members = members
         self.auth = auth
         self.wearables = wearables
-        // The daily check-in owns the day's digestion; a caught-up day has none (the gut write is today's).
-        self.gut = (slot == .evening && list.contains(.digestion)) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth) } : nil
+        // The daily check-in owns the day's digestion — a caught-up day's too (`day` set: its row, today or yesterday).
+        self.gut = (slot == .evening && list.contains(.digestion)) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth, day: day) } : nil
     }
 
     /// The day this screen reads and writes.

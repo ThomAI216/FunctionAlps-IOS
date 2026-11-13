@@ -9,6 +9,12 @@ final class LocalNotifications {
     static let categoryCheckin = "FA_CHECKIN"
     static let categoryMeal = "FA_MEAL"
     static let categoryReaction = "FA_REACTION"
+    static let categorySupplement = "FA_SUPPLEMENT"
+    /// The two buttons on a supplement reminder.
+    static let actionSupplementTaken = "supp.taken"
+    static let actionSupplementLater = "supp.later"
+    /// A "Later" snooze lives under this id prefix; `apply` leaves it alone.
+    static let snoozeIdPrefix = "supp.later."
 
     private let center = UNUserNotificationCenter.current()
 
@@ -23,7 +29,11 @@ final class LocalNotifications {
             UNNotificationAction(identifier: "open", title: String(localized: "notif.action.rate", defaultValue: "Rate it"), options: [.foreground]),
             UNNotificationAction(identifier: "fine", title: String(localized: "notif.action.fine", defaultValue: "Felt fine"), options: []),
         ], intentIdentifiers: [])
-        center.setNotificationCategories([checkin, meal, reaction])
+        let supplement = UNNotificationCategory(identifier: Self.categorySupplement, actions: [
+            UNNotificationAction(identifier: Self.actionSupplementTaken, title: String(localized: "supp.notif.action.taken", defaultValue: "Taken"), options: []),
+            UNNotificationAction(identifier: Self.actionSupplementLater, title: String(localized: "supp.notif.action.later", defaultValue: "Later"), options: []),
+        ], intentIdentifiers: [])
+        center.setNotificationCategories([checkin, meal, reaction, supplement])
     }
 
     func authorizationStatus() async -> UNAuthorizationStatus {
@@ -40,20 +50,11 @@ final class LocalNotifications {
     func apply(_ plan: [NotificationPlanner.Planned]) async {
         let pending = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(Self.prefix) }
         let wanted = Set(plan.map { Self.prefix + $0.id })
-        let stale = pending.filter { !wanted.contains($0) }
+        let stale = pending.filter { !wanted.contains($0) && !$0.hasPrefix(Self.prefix + Self.snoozeIdPrefix) }
         if !stale.isEmpty { center.removePendingNotificationRequests(withIdentifiers: stale) }
         let existing = Set(pending)
         for p in plan where !existing.contains(Self.prefix + p.id) {
-            let content = UNMutableNotificationContent()
-            content.title = p.title
-            content.body = p.body
-            content.sound = .default
-            content.threadIdentifier = p.threadId
-            content.userInfo = ["route": p.route, "kind": p.kind.rawValue]
-            content.categoryIdentifier = category(for: p.kind)
-            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: p.fireAt)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-            try? await center.add(UNNotificationRequest(identifier: Self.prefix + p.id, content: content, trigger: trigger))
+            await add(p)
         }
     }
 
@@ -64,7 +65,7 @@ final class LocalNotifications {
         content.body = p.body
         content.sound = .default
         content.threadIdentifier = p.threadId
-        content.userInfo = ["route": p.route, "kind": p.kind.rawValue]
+        content.userInfo = ["route": p.route, "kind": p.kind.rawValue].merging(p.extra) { current, _ in current }
         content.categoryIdentifier = category(for: p.kind)
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: p.fireAt)
         try? await center.add(UNNotificationRequest(identifier: Self.prefix + p.id, content: content, trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
@@ -73,6 +74,18 @@ final class LocalNotifications {
     func cancel(id: String) {
         center.removePendingNotificationRequests(withIdentifiers: [Self.prefix + id])
         center.removeDeliveredNotifications(withIdentifiers: [Self.prefix + id])
+    }
+
+    /// A grouped supplement reminder was answered (ticked in the app or from its button): its delivered banner and
+    /// any "Later" snooze for that moment and day go.
+    func clearSupplementReminders(moment: String, day: String) async {
+        center.removePendingNotificationRequests(withIdentifiers: [Self.prefix + Self.snoozeIdPrefix + moment + "." + day])
+        let delivered = await center.deliveredNotifications()
+        let ids = delivered.filter {
+            let info = $0.request.content.userInfo
+            return info["kind"] as? String == NotificationPlanner.Kind.supplements.rawValue && info["moment"] as? String == moment && info["day"] as? String == day
+        }.map(\.request.identifier)
+        if !ids.isEmpty { center.removeDeliveredNotifications(withIdentifiers: ids) }
     }
 
     func clearBadge() {
@@ -84,6 +97,7 @@ final class LocalNotifications {
         case .morningCheckin, .middayCheckin, .eveningCheckin: Self.categoryCheckin
         case .lunchNotLogged, .dinnerNotLogged: Self.categoryMeal
         case .mealReaction: Self.categoryReaction
+        case .supplements: Self.categorySupplement
         case .weeklySummary, .wearableStale, .trackMorning, .trackMidday, .trackEvening: ""
         }
     }

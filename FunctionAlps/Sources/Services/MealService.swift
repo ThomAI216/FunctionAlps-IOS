@@ -33,8 +33,10 @@ struct MealService: Sendable {
     private let now: @Sendable () -> Date
     private let retryDelayNanoseconds: UInt64
     private let photoURLs = PhotoURLCache()
+    private let freshness: DataFreshness?
 
-    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, retryDelayNanoseconds: UInt64 = 600_000_000) {
+    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, retryDelayNanoseconds: UInt64 = 600_000_000, freshness: DataFreshness? = nil) {
+        self.freshness = freshness
         self.backend = backend
         self.calendar = calendar
         self.now = now
@@ -113,6 +115,7 @@ struct MealService: Sendable {
     /// toast appears) and Undo deletes it again. Returns the new row id.
     func relog(_ source: RelogSource, patientId: String, favoriteId: String? = nil) async throws -> String {
         let id = try await backend.relogMeal(source, patientId: patientId)
+        freshness?.homeChanged()
         if let favoriteId { try? await backend.touchFavorite(id: favoriteId) }
         return id
     }
@@ -136,6 +139,7 @@ struct MealService: Sendable {
             description: words,
             loggedAt: now()
         ))
+        freshness?.homeChanged()
         await onRowCreated(mealId)
 
         // Sequential on purpose: hundreds of KB each on a phone connection.
@@ -246,6 +250,7 @@ struct MealService: Sendable {
     /// Photos first (best-effort), then the row. Deleting lives on meal detail only.
     /// A row minted for a photo nobody will review (removed mid-flight, or the batch cancelled). Best effort.
     func discard(id: String) async {
+        freshness?.homeChanged()
         do { try await backend.deleteMeal(id: id) } catch {
             Log.data.error("meal.discard: \(String(describing: error), privacy: .public)")
         }
@@ -265,6 +270,7 @@ struct MealService: Sendable {
             }
         }
         try await backend.deleteMeal(id: meal.id)
+        freshness?.homeChanged()
     }
 
     // MARK: Photos

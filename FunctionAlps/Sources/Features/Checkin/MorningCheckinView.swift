@@ -31,7 +31,8 @@ private struct MorningCheckinScreen: View {
     @Bindable var model: MorningCheckinViewModel
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
-    @Environment(\.dismiss) private var dismiss
+    /// Between the save and the focus page opening (the day's focus is computed from the morning).
+    @State private var openingFocus = false
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -59,10 +60,6 @@ private struct MorningCheckinScreen: View {
             .task { await Showcase.scroll(proxy, to: "showcase.morningBottom", on: .morningBottom, anchor: .bottom) }
             .task { await Showcase.scroll(proxy, to: "showcase.yesterday", on: .morningYesterday) }
             #endif
-        }
-        .fullScreenCover(item: $model.ending) { rule in
-            MorningEndView(rule: rule, onAction: { openAction($0) }, onContinue: { goHome() })
-                .environment(dependencies)
         }
     }
 
@@ -130,8 +127,8 @@ private struct MorningCheckinScreen: View {
     }
 
     private var doneButton: some View {
-        FAButton(title: model.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "morning.done", defaultValue: "Morning check-in done"),
-                 isLoading: model.isSaving, isEnabled: model.canFinish) {
+        FAButton(title: model.isSaving || openingFocus ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "morning.done", defaultValue: "Morning check-in done"),
+                 isLoading: model.isSaving || openingFocus, isEnabled: model.canFinish && !openingFocus) {
             Task {
                 if await model.done() { savedMorning() }
             }
@@ -190,7 +187,7 @@ private struct MorningCheckinScreen: View {
             }
             if let error = yesterday.saveError { CheckinSaveErrorCard(error: error) }
             FAButton(title: yesterday.isSaving ? String(localized: "action.saving", defaultValue: "Saving…") : String(localized: "morning.yesterday.save", defaultValue: "Save yesterday"),
-                     isLoading: yesterday.isSaving, isEnabled: !yesterday.lock.isLocked) {
+                     isLoading: yesterday.isSaving, isEnabled: !yesterday.lock.isLocked && (yesterday.gut.map(\.loaded) ?? true)) {
                 Task { _ = await model.saveYesterday() }
             }
         }
@@ -200,36 +197,19 @@ private struct MorningCheckinScreen: View {
     // MARK: After saving
 
     /// Saved: this morning's reminder is no longer needed; the first save is the moment to ask for notifications; today's focus is
-    /// computed from the morning — it reads the night, and copes without the retired intent / priority pills.
+    /// computed from the morning, then shown on its own page.
     private func savedMorning() {
         let notifications = dependencies.notifications
         notifications.momentDone(.morning, day: dependencies.checkins.today)
         Task { await notifications.askIfNeeded() }
+        // Owner, 2026-11-13: finishing the morning check-in opens Today's focus (it replaces the old end screen). The page
+        // opens once the day's focus is computed, in place of this screen, so Back returns to where the check-in was opened.
         let focus = dependencies.focus
-        Task { await focus.load(recompute: true) }
-    }
-
-    private func goHome() {
-        model.ending = nil
+        openingFocus = true
         Task {
-            try? await Task.sleep(for: .milliseconds(350))
-            dismiss()
-        }
-    }
-
-    /// "+ <action>": the practice's own card from the action bank when one matches, else the bank itself — then this screen
-    /// steps aside so Back returns Home.
-    private func openAction(_ action: MorningAction) {
-        model.ending = nil
-        let habits = dependencies.habits
-        Task {
-            await habits.loadBank()
-            var cards: [ActionCardRow] = []
-            if case .loaded(let loaded) = habits.bank { cards = loaded }
-            let match = SignalActionMatch.card(for: action.habitHint, in: cards)
-            let route: Route = match.map { Route.bankCard($0.id) } ?? Route.actionBank
-            try? await Task.sleep(for: .milliseconds(350))
-            router.replaceCheckin(with: route)
+            await focus.load(recompute: true)
+            openingFocus = false
+            router.replaceCheckin(with: .todayFocus)
         }
     }
 }

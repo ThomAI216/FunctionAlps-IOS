@@ -8,6 +8,8 @@ import Observation
 final class AuthService {
     private let sessions: SessionManager
     private let state: AppState
+    /// Called whenever the session ends (sign-out, dead session) so in-memory caches keyed to the member are dropped.
+    var onSessionEnded: (@Sendable () async -> Void)?
 
     init(sessions: SessionManager, state: AppState) {
         self.sessions = sessions
@@ -56,12 +58,14 @@ final class AuthService {
 
     func signOut() async {
         await sessions.signOut()
+        await onSessionEnded?()
         state.phase = .signedOut
     }
 
     /// Any service that receives `.unauthorized` routes here so the UI returns to login exactly once.
     func handleUnauthorized() async {
         await sessions.clearLocal()
+        await onSessionEnded?()
         state.phase = .signedOut
     }
 

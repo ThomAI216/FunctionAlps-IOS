@@ -215,4 +215,57 @@ struct MorningCheckinTests {
         #expect(CheckinMomentViewModel.sections(for: .morning) == [.sleep, .dayFeeling])
         #expect(CheckinMomentViewModel.sections(for: .evening).first == .sleep)
     }
+
+    // MARK: Yesterday's catch-up (owner, 2026-11-12)
+
+    @Test("The caught-up day asks its digestion, before what fuelled / drained; its night only when unanswered")
+    @MainActor
+    func yesterdaySectionsIncludeDigestion() {
+        #expect(MorningCheckinViewModel.yesterdaySections(sleepUnanswered: false) == [.markers, .digestion, .context])
+        #expect(MorningCheckinViewModel.yesterdaySections(sleepUnanswered: true) == [.sleep, .markers, .digestion, .context])
+    }
+
+    private var utcCalendar: Calendar {
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = TimeZone(secondsFromGMT: 0)!
+        return utc
+    }
+
+    @Test("Yesterday's digestion is saved on yesterday's row; the default is still today's")
+    func gutSaveCarriesTheDay() async throws {
+        let utc = utcCalendar
+        let now = utc.date(from: DateComponents(year: 2026, month: 11, day: 12, hour: 9)) ?? Date()
+        let backend = RecordingBackend()
+        let gut = GutService(backend: backend, calendar: utc, now: { now })
+        var answers = GutAnswerSet.blank
+        answers[.comfort] = GutAnswers(sliders: ["comfort": 66])
+        let savedYesterday = try await gut.save(patientId: "p1", answers: answers, notes: nil, day: "2026-11-11")
+        let savedToday = try await gut.save(patientId: "p1", answers: answers, notes: nil)
+        #expect(savedYesterday && savedToday)
+        #expect(backend.calls.filter { $0.hasPrefix("gutUpsert:") } == ["gutUpsert:2026-11-11", "gutUpsert:2026-11-12"])
+    }
+
+    @Test("Yesterday's digestion is read from yesterday's row")
+    func gutLoadReadsTheDay() async throws {
+        let utc = utcCalendar
+        let now = utc.date(from: DateComponents(year: 2026, month: 11, day: 12, hour: 9)) ?? Date()
+        let backend = RecordingBackend()
+        let gut = GutService(backend: backend, calendar: utc, now: { now })
+        let state = try await gut.load(patientId: "p1", day: "2026-11-11")
+        #expect(state.day == "2026-11-11")
+        #expect(backend.calls.contains("gutRead:2026-11-11"))
+    }
+
+    @Test("A member who started today is not offered yesterday; one who started before is; an unknown start keeps the prompt")
+    @MainActor
+    func yesterdayHiddenForANewMember() {
+        let utc = utcCalendar
+        let morning = utc.date(from: DateComponents(year: 2026, month: 11, day: 12, hour: 6, minute: 30)) ?? Date()
+        let lateYesterday = utc.date(from: DateComponents(year: 2026, month: 11, day: 11, hour: 23, minute: 59)) ?? Date()
+        let tomorrow = utc.date(from: DateComponents(year: 2026, month: 11, day: 13, hour: 1)) ?? Date()
+        #expect(!MorningCheckinViewModel.yesterdayApplies(startedAt: morning, today: "2026-11-12", calendar: utc))
+        #expect(MorningCheckinViewModel.yesterdayApplies(startedAt: lateYesterday, today: "2026-11-12", calendar: utc))
+        #expect(!MorningCheckinViewModel.yesterdayApplies(startedAt: tomorrow, today: "2026-11-12", calendar: utc))
+        #expect(MorningCheckinViewModel.yesterdayApplies(startedAt: nil, today: "2026-11-12", calendar: utc))
+    }
 }

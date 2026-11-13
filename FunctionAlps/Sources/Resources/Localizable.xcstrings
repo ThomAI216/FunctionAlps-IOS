@@ -4786,6 +4786,22 @@
         }
       }
     },
+    "checkin.digestion.yesterday": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your digestion yesterday"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre digestion hier"
+          }
+        }
+      }
+    },
     "checkin.editing": {
       "localizations": {
         "en": {
@@ -8215,13 +8231,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A minute on last night and how you feel — your focus appears here."
+            "value": "A minute on last night and how you feel, and your focus appears here."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une minute sur la nuit et sur ce que vous ressentez — votre essentiel apparaît ici."
+            "value": "Une minute sur la nuit et sur ce que vous ressentez, et votre essentiel apparaît ici."
           }
         }
       }
@@ -8263,13 +8279,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing in your morning called for a change — carry on as you are."
+            "value": "Nothing in your morning called for a change. Carry on as you are."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rien dans votre matinée n'appelait de changement — continuez ainsi."
+            "value": "Rien dans votre matinée n'appelait de changement. Continuez ainsi."
           }
         }
       }
@@ -8343,13 +8359,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your recovery is below your usual — an easier version today."
+            "value": "Your recovery is below your usual, so today's version is easier."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre récupération est en dessous de l'habitude — une version plus douce aujourd'hui."
+            "value": "Votre récupération est en dessous de l'habitude, donc la version d'aujourd'hui est plus douce."
           }
         }
       }
@@ -48930,6 +48946,38 @@
         }
       }
     },
+    "trends.supp.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken per day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pris chaque jour"
+          }
+        }
+      }
+    },
+    "trends.supp.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld days"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld jours"
+          }
+        }
+      }
+    },
     "trends.plan.title": {
       "localizations": {
         "en": {
@@ -52990,6 +53038,1390 @@
           "stringUnit": {
             "state": "translated",
             "value": "You are here ▾"
+          }
+        }
+      }
+    },
+    "focus.kickoff.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start the kickoff morning routine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lancer la routine de démarrage du matin"
+          }
+        }
+      }
+    },
+    "focus.chip.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose what to do now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir quoi faire maintenant"
+          }
+        }
+      }
+    },
+    "focus.sheet.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose one for now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez-en une pour maintenant"
+          }
+        }
+      }
+    },
+    "focus.sheet.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One small thing is enough."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une petite chose suffit."
+          }
+        }
+      }
+    },
+    "focus.sheet.doNow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do it now"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le faire maintenant"
+          }
+        }
+      }
+    },
+    "focus.sheet.alreadyDone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I've already done this"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je l’ai déjà fait"
+          }
+        }
+      }
+    },
+    "focus.addMorning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to my morning routine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter à ma routine du matin"
+          }
+        }
+      }
+    },
+    "kickoff.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This routine isn't available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette routine n’est pas disponible"
+          }
+        }
+      }
+    },
+    "kickoff.missing.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Today's focus again from Home."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrez le focus du jour depuis l’accueil."
+          }
+        }
+      }
+    },
+    "kickoff.stepOf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$lld of %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étape %1$lld sur %2$lld"
+          }
+        }
+      }
+    },
+    "kickoff.seeCard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the full action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir l’action en détail"
+          }
+        }
+      }
+    },
+    "kickoff.finish": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done · finish"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait · terminer"
+          }
+        }
+      }
+    },
+    "kickoff.next": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done · next step"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait · étape suivante"
+          }
+        }
+      }
+    },
+    "kickoff.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous step"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étape précédente"
+          }
+        }
+      }
+    },
+    "kickoff.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à l’accueil"
+          }
+        }
+      }
+    },
+    "followup.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This morning was hard. How was the rest of your day?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce matin a été difficile. Comment s'est passé le reste de votre journée ?"
+          }
+        }
+      }
+    },
+    "followup.pills.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What made the difference?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qu’est-ce qui a fait la différence ?"
+          }
+        }
+      }
+    },
+    "followup.saveFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save this · tap again to retry."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement impossible · touchez à nouveau pour réessayer."
+          }
+        }
+      }
+    },
+    "followup.better": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Better"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mieux"
+          }
+        }
+      }
+    },
+    "followup.same": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About the same"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À peu près pareil"
+          }
+        }
+      }
+    },
+    "followup.harder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Harder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus difficile"
+          }
+        }
+      }
+    },
+    "followup.pill.rest": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rest"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repos"
+          }
+        }
+      }
+    },
+    "followup.pill.food": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alimentation"
+          }
+        }
+      }
+    },
+    "followup.pill.people": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les autres"
+          }
+        }
+      }
+    },
+    "followup.pill.work": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travail"
+          }
+        }
+      }
+    },
+    "followup.pill.movement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movement"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mouvement"
+          }
+        }
+      }
+    },
+    "followup.pill.sleepDebt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep debt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette de sommeil"
+          }
+        }
+      }
+    },
+    "followup.pill.habit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A habit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une habitude"
+          }
+        }
+      }
+    },
+    "focus.page.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning check-in done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in du matin terminé"
+          }
+        }
+      }
+    },
+    "focus.page.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Here is what your morning points to for today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voici ce que votre matinée indique pour aujourd'hui."
+          }
+        }
+      }
+    },
+    "focus.page.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à l'accueil"
+          }
+        }
+      }
+    },
+    "kickoff.row.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kickoff morning routine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Routine de démarrage du matin"
+          }
+        }
+      }
+    },
+    "kickoff.row.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer"
+          }
+        }
+      }
+    },
+    "kickoff.row.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        }
+      }
+    },
+    "kickoff.row.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts the routine, one step at a time"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarre la routine, une étape à la fois"
+          }
+        }
+      }
+    },
+    "kickoff.row.until": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jusqu’à %@"
+          }
+        }
+      }
+    },
+    "kickoff.row.missed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manqué"
+          }
+        }
+      }
+    },
+    "kickoff.row.doneLate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done late"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait en retard"
+          }
+        }
+      }
+    },
+    "kickoff.row.missedLine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still open, start whenever you can"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toujours possible, lancez-la quand vous pouvez"
+          }
+        }
+      }
+    },
+    "notif.row.supplements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplement reminders"
+          }
+        }
+      }
+    },
+    "notif.row.supplements.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One reminder per moment, only on days something is due"
+          }
+        }
+      }
+    },
+    "notif.section.supplements": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplements"
+          }
+        }
+      }
+    },
+    "notif.supplements.a11y": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ reminder time"
+          }
+        }
+      }
+    },
+    "notif.supplements.onlyIfDue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only if something is due"
+          }
+        }
+      }
+    },
+    "notif.supplements.quiet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiet hours %@–%@ are respected."
+          }
+        }
+      }
+    },
+    "supp.a11y.adherence": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How regularly you take it: %@"
+          }
+        }
+      }
+    },
+    "supp.a11y.no": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not yet"
+          }
+        }
+      }
+    },
+    "supp.a11y.now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This moment is now"
+          }
+        }
+      }
+    },
+    "supp.a11y.strip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last %lld days: %@"
+          }
+        }
+      }
+    },
+    "supp.a11y.strip.summary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld taken, %lld missed"
+          }
+        }
+      }
+    },
+    "supp.a11y.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken: %@"
+          }
+        }
+      }
+    },
+    "supp.a11y.yes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes"
+          }
+        }
+      }
+    },
+    "supp.adherence.daily": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld days"
+          }
+        }
+      }
+    },
+    "supp.adherence.due": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld due"
+          }
+        }
+      }
+    },
+    "supp.adherence.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How regularly you take it"
+          }
+        }
+      }
+    },
+    "supp.adherence.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just getting started"
+          }
+        }
+      }
+    },
+    "supp.adherence.spoken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld percent"
+          }
+        }
+      }
+    },
+    "supp.body.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it does in your body"
+          }
+        }
+      }
+    },
+    "supp.brand.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your brand"
+          }
+        }
+      }
+    },
+    "supp.buy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where to buy"
+          }
+        }
+      }
+    },
+    "supp.buy.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens %@ in your browser."
+          }
+        }
+      }
+    },
+    "supp.buy.noteChecked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens %@ in your browser · link checked %@"
+          }
+        }
+      }
+    },
+    "supp.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load your supplements"
+          }
+        }
+      }
+    },
+    "supp.explain.body": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One gentle reminder per moment, only on days something is due. Never during your quiet hours."
+          }
+        }
+      }
+    },
+    "supp.explain.no": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
+    "supp.explain.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remind you to take them?"
+          }
+        }
+      }
+    },
+    "supp.explain.yes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on reminders"
+          }
+        }
+      }
+    },
+    "supp.home.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld taken"
+          }
+        }
+      }
+    },
+    "supp.home.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplements today"
+          }
+        }
+      }
+    },
+    "supp.howto.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to take it"
+          }
+        }
+      }
+    },
+    "supp.inside.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's inside"
+          }
+        }
+      }
+    },
+    "supp.learnMore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn more"
+          }
+        }
+      }
+    },
+    "supp.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading your supplements…"
+          }
+        }
+      }
+    },
+    "supp.mark.missed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "missed"
+          }
+        }
+      }
+    },
+    "supp.mark.notDue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not due"
+          }
+        }
+      }
+    },
+    "supp.mark.partial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "partly taken"
+          }
+        }
+      }
+    },
+    "supp.mark.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "still to take"
+          }
+        }
+      }
+    },
+    "supp.mark.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taken"
+          }
+        }
+      }
+    },
+    "supp.missing.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practitioner may have changed your plan."
+          }
+        }
+      }
+    },
+    "supp.missing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This supplement is no longer in your plan"
+          }
+        }
+      }
+    },
+    "supp.moment.bedtime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Night"
+          }
+        }
+      }
+    },
+    "supp.moment.day": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any time"
+          }
+        }
+      }
+    },
+    "supp.moment.evening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening"
+          }
+        }
+      }
+    },
+    "supp.moment.morning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning"
+          }
+        }
+      }
+    },
+    "supp.moment.noon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midday"
+          }
+        }
+      }
+    },
+    "supp.notif.action.later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
+    "supp.notif.action.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken"
+          }
+        }
+      }
+    },
+    "supp.notif.body.many": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld supplements to take."
+          }
+        }
+      }
+    },
+    "supp.notif.body.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time for your supplement."
+          }
+        }
+      }
+    },
+    "supp.page.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplement"
+          }
+        }
+      }
+    },
+    "supp.page.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplement"
+          }
+        }
+      }
+    },
+    "supp.paused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
+          }
+        }
+      }
+    },
+    "supp.plan.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplements"
+          }
+        }
+      }
+    },
+    "supp.prescribed.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prescribed"
+          }
+        }
+      }
+    },
+    "supp.prescribed.nameSince": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · since %@"
+          }
+        }
+      }
+    },
+    "supp.prescribed.since": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Since %@"
+          }
+        }
+      }
+    },
+    "supp.reminder.many": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders at %@"
+          }
+        }
+      }
+    },
+    "supp.reminder.off": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders are off"
+          }
+        }
+      }
+    },
+    "supp.reminder.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder at %@"
+          }
+        }
+      }
+    },
+    "supp.reminder.sub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only on days it is due"
+          }
+        }
+      }
+    },
+    "supp.rhythm.alternate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every other day"
+          }
+        }
+      }
+    },
+    "supp.rhythm.weekdays": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only on set days"
+          }
+        }
+      }
+    },
+    "supp.strip.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days ago"
+          }
+        }
+      }
+    },
+    "supp.strip.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "supp.taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken"
+          }
+        }
+      }
+    },
+    "supp.taken.at": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · taken at %@"
+          }
+        }
+      }
+    },
+    "supp.taken.bedtime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken tonight"
+          }
+        }
+      }
+    },
+    "supp.taken.day": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken today"
+          }
+        }
+      }
+    },
+    "supp.taken.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · taken"
+          }
+        }
+      }
+    },
+    "supp.taken.evening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken this evening"
+          }
+        }
+      }
+    },
+    "supp.taken.morning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken this morning"
+          }
+        }
+      }
+    },
+    "supp.taken.noon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken at midday"
+          }
+        }
+      }
+    },
+    "supp.taken.notYet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · not yet"
+          }
+        }
+      }
+    },
+    "supp.why.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why it's in your plan"
+          }
+        }
+      }
+    },
+    "supp.rhythm.weekdaysNamed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On %@"
           }
         }
       }

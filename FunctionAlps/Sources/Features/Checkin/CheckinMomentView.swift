@@ -65,6 +65,9 @@ private struct CheckinMomentScreen: View {
                 }
                 .padding(.top, FASpacing.sm)
 
+                // After a hard morning: "how was the rest of your day?" — only in the daily check-in, never on a caught-up day.
+                EveningFollowupCard(slot: model.slot, catchingUp: model.day != nil)
+
                 if model.lock.isLocked { CheckinLockedNote(day: dayKey) }
 
                 VStack(alignment: .leading, spacing: FASpacing.md) {

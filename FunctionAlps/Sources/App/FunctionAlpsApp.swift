@@ -21,6 +21,9 @@ struct FunctionAlpsApp: App {
             // HealthKit background delivery must be re-armed at every launch (iOS wakes the app for new samples).
             let wearables = live.wearables
             Task { @MainActor in await wearables.armBackgroundDeliveryIfConnected() }
+            // A supplement reminder's "Taken" button can launch the app in the background, before any screen exists.
+            let supplements = live.supplements
+            Task { @MainActor in AppDelegate.supplements = supplements }
         } catch {
             _configurationError = State(initialValue: String(describing: error))
         }

@@ -214,11 +214,7 @@ enum CarePlanLogic {
     /// "2026-09-01" → "September 2026" (the Expo `en-GB` month + year).
     static func formatStartDate(_ raw: String?, locale: Locale = .current) -> String {
         guard let raw, !raw.isEmpty else { return "" }
-        let parser = DateFormatter()
-        parser.calendar = Calendar(identifier: .gregorian)
-        parser.locale = Locale(identifier: "en_US_POSIX")
-        parser.dateFormat = "yyyy-MM-dd"
-        guard let date = parser.date(from: String(raw.prefix(10))) else { return "" }
+        guard let date = PlanDayParser.formatter.date(from: String(raw.prefix(10))) else { return "" }
         let out = DateFormatter()
         out.locale = locale
         out.setLocalizedDateFormatFromTemplate("MMMM yyyy")
@@ -315,11 +311,7 @@ enum CarePlanLogic {
     /// "2026-12-12" → "12 December 2026".
     static func formatDay(_ raw: String?, locale: Locale = .current) -> String? {
         guard let raw, !raw.isEmpty else { return nil }
-        let parser = DateFormatter()
-        parser.calendar = Calendar(identifier: .gregorian)
-        parser.locale = Locale(identifier: "en_US_POSIX")
-        parser.dateFormat = "yyyy-MM-dd"
-        guard let date = parser.date(from: String(raw.prefix(10))) else { return nil }
+        guard let date = PlanDayParser.formatter.date(from: String(raw.prefix(10))) else { return nil }
         let out = DateFormatter()
         out.locale = locale
         out.setLocalizedDateFormatFromTemplate("d MMMM yyyy")
@@ -342,4 +334,16 @@ enum ComplaintLabels {
         default: key.replacingOccurrences(of: "_", with: " ")
         }
     }
+}
+
+/// The fixed `yyyy-MM-dd` parser shared by the plan's date helpers. Built once: it never changes after
+/// configuration, and `DateFormatter.date(from:)` is safe to call from any thread, hence `nonisolated(unsafe)`.
+private enum PlanDayParser {
+    nonisolated(unsafe) static let formatter: DateFormatter = {
+        let parser = DateFormatter()
+        parser.calendar = Calendar(identifier: .gregorian)
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.dateFormat = "yyyy-MM-dd"
+        return parser
+    }()
 }

@@ -113,7 +113,7 @@ struct YouTubePlayerView: UIViewRepresentable {
         web.scrollView.backgroundColor = .black
         web.scrollView.isScrollEnabled = false
         web.navigationDelegate = context.coordinator
-        web.loadHTMLString(Self.html(videoID: videoID), baseURL: Self.origin)
+        web.load(Self.request(videoID: videoID))
         return web
     }
 
@@ -121,6 +121,19 @@ struct YouTubePlayerView: UIViewRepresentable {
 
     /// The page the iframe is embedded from: a real https origin, which YouTube's embed player asks to identify.
     static let origin = URL(string: "https://www.functionalps.ch")
+
+    /// The embed page itself, loaded directly with our origin as the referrer: YouTube's embed player refuses to play
+    /// ("Video unavailable") when it cannot identify the embedding site, which an iframe inside a local HTML string
+    /// does not reliably give it in WKWebView.
+    static func request(videoID: String) -> URLRequest {
+        var c = URLComponents(string: "https://www.youtube-nocookie.com/embed/\(videoID)")!
+        c.queryItems = [URLQueryItem(name: "playsinline", value: "1"), URLQueryItem(name: "rel", value: "0"),
+                        URLQueryItem(name: "autoplay", value: "1"), URLQueryItem(name: "origin", value: "https://www.functionalps.ch"),
+                        URLQueryItem(name: "widget_referrer", value: "https://www.functionalps.ch")]
+        var r = URLRequest(url: c.url!)
+        r.setValue("https://www.functionalps.ch/", forHTTPHeaderField: "Referer")
+        return r
+    }
 
     static func html(videoID: String) -> String {
         let src = "https://www.youtube-nocookie.com/embed/\(videoID)?playsinline=1&rel=0&modestbranding=1&autoplay=1"

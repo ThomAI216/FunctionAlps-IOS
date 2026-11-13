@@ -338,7 +338,7 @@ private struct VendorCard: View {
                             .foregroundStyle(ProfilePalette.muted)
                             .padding(.horizontal, 10).padding(.vertical, 5)
                             .background(Capsule().fill(Color.white.opacity(0.14)))
-                            .overlay(Capsule().stroke(Color.white.opacity(0.35), lineWidth: 0.5))
+                            .overlay(Capsule().stroke(Color.white.opacity(0.06), lineWidth: 0.5))
                     }
                 }
                 if isLive || presentation == .reconnect {

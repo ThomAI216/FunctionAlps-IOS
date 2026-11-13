@@ -26,11 +26,21 @@ enum Route: Hashable {
     case carePlanWhy
     case carePlanSituation
     case carePlanJourney
+    case carePlanFocus(String)
+    case carePlanAction(String)
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
+    /// One supplement's page (Home's "Supplements today", the Plan's list), by its plan id.
+    case supplement(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
     case actionBank
     case bankCard(String)
+    /// One of today's-focus habits (`habit_bank` id), opened from Home's "Do it now": the action card with the two focus buttons under it.
+    case focusCard(String)
+    /// The kickoff morning routine, walked one step per screen.
+    case kickoff
+    /// Today's focus as a page: where the morning check-in lands once it is saved (owner, 2026-11-13).
+    case todayFocus
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
     /// One Foundation Track habit's page (Home's actions card → "See the habit"), by its action key.
@@ -158,8 +168,8 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · supplements · supplement/<planId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   bank[/<cardId>] · focus/today · focus/kickoff · focus/card/<cardId> · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -200,10 +210,22 @@ final class AppRouter {
             // habit/<action key> — one Foundation Track habit's page.
             tab = .home; homePath = []
             if let key = parts.dropFirst().first, !key.isEmpty { homePath.append(.habit(key)) }
+        case "supplements": tab = .home; homePath = []   // a supplement reminder's tap: Home, where today's list is
+        case "supplement":
+            // supplement/<planId> — one supplement's page.
+            tab = .home; homePath = []
+            if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.supplement(id)) }
         case "bank":
             // bank · bank/<cardId> — the foundation action bank, or one card in it.
             tab = .home; homePath = [.actionBank]
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
+        case "focus":
+            // focus/kickoff — the kickoff morning routine · focus/card/<cardId> — one of today's focus habits, with the two focus buttons.
+            tab = .home; homePath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "kickoff" { homePath.append(.kickoff) }
+            else if rest.first == "today" { homePath.append(.todayFocus) }
+            else if rest.first == "card", rest.count > 1, !rest[1].isEmpty { homePath.append(.focusCard(rest[1])) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
             // (an experiment reminder lands there) · library/track/<uuid> — one personal mini track (an email link lands there).
@@ -377,6 +399,7 @@ struct MainTabView: View {
             if phase == .active {
                 Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
                 Task { await dependencies.unlocks.refresh() }
+                Task { await dependencies.supplements.load() }   // a new day's ticks, and its reminders
             }
         }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
@@ -386,6 +409,7 @@ struct MainTabView: View {
             if ShowFeature.comingSoon { Task { await ShowReminders().cancelAll() } }
             AppDelegate.router = router
             AppDelegate.notifications = dependencies.notifications
+            AppDelegate.supplements = dependencies.supplements
             if let url = AppDelegate.pendingRoute {
                 AppDelegate.pendingRoute = nil
                 Task { @MainActor in
@@ -438,9 +462,15 @@ struct MainTabView: View {
         case .carePlanWhy: ClientWhyView()
         case .carePlanSituation: ClientSituationView()
         case .carePlanJourney: ClientJourneyView()
+        case .carePlanFocus(let id): HabitDetailView(habitId: id, kind: .focus)
+        case .carePlanAction(let id): HabitDetailView(habitId: id, kind: .action)
         case .action(let habitId): ActionCardView(source: .habit(habitId))
+        case .supplement(let id): SupplementPage(supplementId: id)
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
+        case .focusCard(let cardId): ActionCardView(source: .focusCard(cardId))
+        case .kickoff: KickoffRoutineView()
+        case .todayFocus: TodayFocusView()
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .habit(let key): HabitPageView(key: key)
         case .trackSummary: TrackSummaryView()

@@ -7,7 +7,7 @@ enum TrendKind: String, Sendable, Equatable, CaseIterable {
 
 /// The one-line read under a signal on Trends ("Your energy has been steady this week, keep it up.").
 ///
-/// ⚠ THE WORDING SET IS FIXED AND APPROVED BY THE OWNER (2026-11-10). A sentence is chosen from this closed
+/// ⚠ THE WORDING SET IS FIXED AND APPROVED BY THE OWNER (2026-11-12). A sentence is chosen from this closed
 /// table — six signals × {steady, rising, dipped} plus one "not enough data" line — by a pure function of the
 /// member's own daily series. Nothing is generated, nothing interprets a value clinically, and a "dipped" line
 /// only ever says it will be looked at WITH the practitioner. Do not add a sentence without the owner's sign-off.

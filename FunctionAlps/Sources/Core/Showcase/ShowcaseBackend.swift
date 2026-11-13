@@ -17,6 +17,10 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         return ShowcaseData.dailyCheckins(includeToday: eveningDone).first { $0.day == day }
     }
     func unreadClinicianMessageCount(patientId: String) async throws -> Int { 1 }
+    /// Home with the green kickoff row: the morning check-in is in (a feeling saved), so the day's list opens with it.
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        ShowcaseFocus.homeIsOn ? DayFeeling(day: day, mood: 35, energy: 30, motivation: 40) : nil
+    }
 
     func meal(id: String) async throws -> MealLog? { ShowcaseData.meal(id: id) }
     func createPendingMeal(_ input: PendingMealInput) async throws -> String { "stub" }
@@ -80,6 +84,9 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func touchFavorite(id: String) async throws {}
     func relogMeal(_ source: RelogSource, patientId: String) async throws -> String { "relog" }
 
+    /// The sample supplements (a Foundation Track lead has none). Ticks are not stored: the screenshots show the sample as it is.
+    func supplements() async throws -> [Supplement] { ShowcaseTrack.isOn ? [] : ShowcaseData.supplements }
+
     /// A lead on the Foundation Track has no care plan yet.
     func carePlan(patientId: String) async throws -> CarePlan? { ShowcaseTrack.isOn ? nil : ShowcaseData.carePlan }
     func labResults() async throws -> [LabResultRow] { [] }
@@ -114,15 +121,22 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
         if Showcase.isTrends { return ShowcaseData.ouraNights(since: since) }
         return screen == .checkinWearable ? ShowcaseData.ouraNight(day: since) : []
     }
-    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus { TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: []) }
+    func dailyFocus(recompute: Bool, locale: String) async throws -> TodayFocus {
+        ShowcaseFocus.isOn ? ShowcaseFocus.focus() : TodayFocus(day: ShowcaseData.day(0), needsCheckin: false, offers: [])
+    }
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? { ShowcaseFocus.kickoffRun(day: day) }
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {}
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { screen == .focusEvening ? ShowcaseFocus.evening : nil }
     func habitPlan(patientId: String, day: String, since: String) async throws -> HabitPlan {
         // A lead has no prescribed plan: the track's own actions are the day's actions.
-        if ShowcaseTrack.isOn { return HabitPlan(day: day, header: nil, phases: [], habits: [], completions: []) }
+        // A Foundation Track member who also has a plan (`focus-track-home`): the plan's habits sit in the routine card, the track's own in theirs.
+        if ShowcaseTrack.isOn && screen != .focusTrackHome { return HabitPlan(day: day, header: nil, phases: [], habits: [], completions: []) }
         return ShowcaseData.habitPlan(day: day)
     }
     func completeHabit(patientId: String, habitId: String, day: String, at: Date) async throws -> String { "c-1" }
     func actionBank() async throws -> [ActionCardRow] {
-        ShowcaseData.cards.values.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
+        let cards = Array(ShowcaseData.cards.values) + (ShowcaseFocus.isOn ? ShowcaseFocus.cards : [])
+        return cards.filter { $0.memberCanAdd == true }.sorted { ($0.pillar ?? "", $0.title) < ($1.pillar ?? "", $1.title) }
     }
     func addOwnHabit(_ habit: OwnHabitInsert) async throws -> String { "h-own" }
     func removeOwnHabit(id: String) async throws {}
@@ -170,6 +184,8 @@ final class ShowcaseBackend: FunctionAlpsBackend, @unchecked Sendable {
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment] {
         // The wearable shot is a first check-in of the day, so the ring's night fills the card.
         if screen == .checkinWearable || Showcase.isMorningShot { return [] }
+        // Home with the green kickoff row: this morning's check-in is in, and woke at 06:45 (so the routine is due at 07:45).
+        if ShowcaseFocus.homeIsOn { return [CheckinMoment(slot: .morning, submittedAt: Date(), sleepWakeTime: ShowcaseFocus.wakeTime)] }
         // `checkin-locked`: today's daily check-in is saved, so the screen is read-only and asks before it lets go.
         return Showcase.isCheckinInProgress || eveningDone || screen == .checkinLocked ? [ShowcaseData.eveningMoment()] : []
     }

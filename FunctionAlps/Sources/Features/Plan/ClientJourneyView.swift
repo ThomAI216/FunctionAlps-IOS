@@ -17,38 +17,13 @@ struct ClientJourneyView: View {
                     }
                 }
             }
-            winsCard(ClientCarePlanLogic.wins(raw))
-            if programmes.isEmpty && raw.wins.isEmpty {
+            if programmes.isEmpty {
                 FAEmptyState(title: String(localized: "clientplan.journey.empty", defaultValue: "Your journey will appear here"),
-                             message: String(localized: "clientplan.journey.emptyHint", defaultValue: "Your practitioner shares your programmes and wins here."))
+                             message: String(localized: "clientplan.journey.emptyHint", defaultValue: "Your practitioner shares your programmes here."))
             }
         }
     }
 
-    @ViewBuilder
-    private func winsCard(_ wins: [ClientWin]) -> some View {
-        if !wins.isEmpty {
-            FACard {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        CPLabel(String(localized: "clientplan.wins", defaultValue: "My wins"))
-                        Spacer(minLength: 8)
-                        Text(String(localized: "clientplan.wins.count", defaultValue: "\(wins.count) so far"))
-                            .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
-                    }
-                    ForEach(wins) { win in
-                        HStack(alignment: .top, spacing: 10) {
-                            Text(win.achievedAt.map(ClientPlanFormat.shortDate) ?? "")
-                                .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary).frame(width: 52, alignment: .leading)
-                            Text(win.text ?? "").font(FATypography.sans(14, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .accessibilityElement(children: .combine)
-                    }
-                }
-            }
-        }
-    }
 }
 
 private struct ProgrammeRailRow: View {

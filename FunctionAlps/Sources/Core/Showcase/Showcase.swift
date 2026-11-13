@@ -29,6 +29,8 @@ enum Showcase {
         /// The Trends rework (owner-validated mockup v2, 2026-11-10): the page from its middle and its bottom, the Energy row
         /// opened in place, and the pages behind it — Sleep, Digestion, a device (Oura), the patterns the practitioner shared.
         case trendsMiddle = "trends-middle", trendsBottom = "trends-bottom", trendsEnergyOpen = "trends-energy-open"
+        /// Supplement ticking (2026-11-13): Home's "Supplements today", one supplement's page, and Trends' "taken per day" strips.
+        case supplementsHome = "supplements-home", supplementPage = "supplement-page", trendsSupplements = "trends-supplements"
         case trendsSleep = "trends-sleep", trendsDigestion = "trends-digestion", trendsDevice = "trends-device", trendsPatterns = "trends-patterns"
         /// The signal explanations (owner, 2026-11-11): "About energy" from its top and scrolled to the plate and the actions,
         /// "About sleep", "About digestion".
@@ -43,6 +45,16 @@ enum Showcase {
         /// done button, yesterday prompt), yesterday revealed, the two end screens, and a saved daily check-in showing the lock question.
         case morningTop = "morning-top", morningBottom = "morning-bottom", morningYesterday = "morning-yesterday"
         case morningEndGreen = "morning-end-green", morningEndLowEnergy = "morning-end-lowenergy", checkinLocked = "checkin-locked"
+        /// Today's focus (owner-approved matrix, 2026-11-12): Home's card on P1 · P5 (with the practitioner line) · G1, the habit-choice
+        /// sheet, an action opened from it (the two focus buttons), the kickoff morning routine (first step, finish) and the evening follow-up.
+        case focusP1 = "focus-p1", focusP5 = "focus-p5", focusG1 = "focus-g1", focusSheet = "focus-sheet", focusAction = "focus-action"
+        case focusKickoff = "focus-kickoff", focusKickoffDone = "focus-kickoff-done", focusEvening = "focus-evening"
+        /// The page the morning check-in opens once saved (owner, 2026-11-13), on P1 and on P5.
+        case focusPageP1 = "focus-page-p1", focusPageP5 = "focus-page-p5"
+        /// Home's "During the day" list with the green "Kickoff morning routine" row (owner, 2026-11-13): not done, and done.
+        case focusHome = "focus-home", focusHomeDone = "focus-home-done"
+        /// The same row past its deadline (Missed), finished after it (Done late), and a Foundation Track member's Home with it.
+        case focusHomeMissed = "focus-home-missed", focusHomeLate = "focus-home-late", focusTrackHome = "focus-track-home"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -70,7 +82,7 @@ enum Showcase {
         }
     }
 
-    /// The end-screen shots draw `MorningEndView` over the app (`FunctionAlpsApp`).
+    /// The old end-screen shots (`MorningEndView`, no longer shown after the check-in since 2026-11-13) draw it over the app (`FunctionAlpsApp`).
     static var morningEndRule: MorningRule? {
         switch screen {
         case .morningEndGreen: MorningRules.rule(mood: 82, energy: 74, motivation: 76)
@@ -82,7 +94,7 @@ enum Showcase {
     /// The Trends screenshots: the sample member also has an Oura ring, 35 days of check-ins and two validated patterns.
     static var isTrends: Bool {
         switch screen {
-        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns,
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSupplements, .trendsSleep, .trendsDigestion, .trendsDevice, .trendsPatterns,
              .signalAboutEnergy, .signalAboutEnergyBottom, .signalAboutSleep, .signalAboutDigestion: true
         default: false
         }
@@ -104,7 +116,12 @@ enum Showcase {
         guard let screen else { return nil }
         let link: String = switch screen {
         case .today, .todayBottom, .checkinDone, .onboarding, .track, .trackQuestionnaire, .bonAppetit, .habits, .habitOpen,
-             .morningEndGreen, .morningEndLowEnergy: "functionalps://home"
+             .morningEndGreen, .morningEndLowEnergy, .focusHome, .focusHomeDone, .focusHomeMissed, .focusHomeLate, .focusTrackHome: "functionalps://home"
+        case .focusAction: "functionalps://focus/card/\(ShowcaseFocus.actionCardId)"
+        case .focusKickoff, .focusKickoffDone: "functionalps://focus/kickoff"
+        // Today's focus lives on its own page now (Home no longer carries the card): the page, and the habit-choice sheet over it.
+        case .focusPageP1, .focusPageP5, .focusP1, .focusP5, .focusG1, .focusSheet: "functionalps://focus/today"
+        case .focusEvening: "functionalps://checkin/evening"
         case .morningTop, .morningBottom, .morningYesterday: "functionalps://checkin/morning"
         case .checkinLocked: "functionalps://checkin/evening"
         case .habitPage, .habitFirst: "functionalps://habit/\(ShowcaseHabits.pageKey)"
@@ -115,7 +132,9 @@ enum Showcase {
         case .checkin, .checkinMood, .checkinSleep, .checkinSleepDrag, .checkinWearable, .checkinStool, .checkinNote, .bristolChart: "functionalps://checkin/evening"
         case .meal: "functionalps://meal/\(ShowcaseData.heroMealId)"
         case .food: "functionalps://food"
-        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen: "functionalps://trends"
+        case .trends, .trendsMiddle, .trendsBottom, .trendsEnergyOpen, .trendsSupplements: "functionalps://trends"
+        case .supplementsHome: "functionalps://home"
+        case .supplementPage: "functionalps://supplement/\(ShowcaseData.supplementPageId)"
         case .trendsSleep: "functionalps://trends/signal/sleep"
         case .trendsDigestion: "functionalps://trends/signal/digestion"
         case .trendsDevice: "functionalps://trends/device/\(ShowcaseData.trendsDeviceKey)"

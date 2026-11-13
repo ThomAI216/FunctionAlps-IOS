@@ -9,8 +9,10 @@ struct CheckinService: Sendable {
     private let backend: any FunctionAlpsBackend
     private let calendar: Calendar
     private let now: @Sendable () -> Date
+    private let freshness: DataFreshness?
 
-    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(backend: any FunctionAlpsBackend, calendar: Calendar = .current, now: @escaping @Sendable () -> Date = { Date() }, freshness: DataFreshness? = nil) {
+        self.freshness = freshness
         self.backend = backend
         self.calendar = calendar
         self.now = now
@@ -42,6 +44,7 @@ struct CheckinService: Sendable {
 
     func saveDayFeeling(_ feeling: DayFeeling, patientId: String) async throws {
         try await backend.saveDayFeeling(patientId: patientId, feeling: feeling)
+        freshness?.homeChanged()
     }
 
     /// Returns the moment as the SERVER scored it (+ the day's red flags), or nil when the member answered nothing at all.
@@ -53,7 +56,9 @@ struct CheckinService: Sendable {
         let reference = CheckinEngine.momentFromAnswers(slot: slot, answers: answers, catalogPills: catalogPills, note: note, submittedAt: submittedAt)
         guard CheckinEngine.momentHasContent(reference) else { return nil }
 
-        return try await backend.submitCheckin(day: day, slot: slot, submission: CheckinEngine.submission(from: reference, answers: answers))
+        let result = try await backend.submitCheckin(day: day, slot: slot, submission: CheckinEngine.submission(from: reference, answers: answers))
+        freshness?.homeChanged()
+        return result
     }
 
     /// Last night is ONE answer: the MORNING slot's moment is its single source of truth, whichever check-in the member was
