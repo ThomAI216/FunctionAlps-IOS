@@ -162,7 +162,7 @@ struct PlannedMealRow: View {
     }
 
     private var slotLabel: String {
-        if let moment = meal.moment?.nilIfEmpty, PlanLogic.mealType(moment) == .other { return moment }
+        if let moment = meal.moment?.nonBlank, PlanLogic.mealType(moment) == .other { return moment }
         return meal.mealType.localizedName
     }
 

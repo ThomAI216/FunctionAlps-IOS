@@ -21,7 +21,7 @@ enum GroceryLogic {
     static func quantityLabel(_ item: GroceryItem, locale: Locale = .current) -> String {
         if item.toTaste { return String(localized: "grocery.toTaste", defaultValue: "to taste") }
         var text: String
-        if let count = item.buyCount, count > 0, let label = (item.buyLabel ?? item.buyUnit)?.nilIfEmpty {
+        if let count = item.buyCount, count > 0, let label = (item.buyLabel ?? item.buyUnit)?.nonBlank {
             text = "\(count) × \(label)"
         } else if let qty = item.qty {
             text = amount(qty, unit: item.unit, locale: locale)
@@ -106,7 +106,7 @@ enum GroceryLogic {
     }
 
     static func line(_ item: GroceryCustomItem) -> String {
-        if let qty = item.qtyText?.nilIfEmpty { return "\(item.label), \(qty)" }
+        if let qty = item.qtyText?.nonBlank { return "\(item.label), \(qty)" }
         return item.label
     }
 
@@ -114,11 +114,11 @@ enum GroceryLogic {
     /// it is for and, after a swap, what it replaces.
     static func context(_ item: GroceryItem) -> String? {
         var parts: [String] = []
-        if let instead = item.insteadOf.first?.nilIfEmpty {
+        if let instead = item.insteadOf.first?.nonBlank {
             parts.append(String(localized: "grocery.insteadOf", defaultValue: "instead of \(instead)"))
         }
         var seen = Set<String>()
-        let recipes = item.uses.compactMap { $0.recipe?.nilIfEmpty }.filter { seen.insert($0).inserted }
+        let recipes = item.uses.compactMap { $0.recipe?.nonBlank }.filter { seen.insert($0).inserted }
         if !recipes.isEmpty { parts.append(recipes.prefix(2).joined(separator: ", ")) }
         if item.excluded { parts.append(String(localized: "grocery.excluded", defaultValue: "no longer fits your plan")) }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")

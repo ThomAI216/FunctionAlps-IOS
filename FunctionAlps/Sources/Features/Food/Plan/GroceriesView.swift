@@ -102,7 +102,7 @@ struct GroceriesView: View {
             FACheck(done: item.checked, title: item.label) { plan.toggle(.custom(item.id), checked: !item.checked) }
             Text(item.label).font(FATypography.body).strikethrough(item.checked).foregroundStyle(FAColor.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if let qty = item.qtyText?.nilIfEmpty {
+            if let qty = item.qtyText?.nonBlank {
                 Text(qty).font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
             }
         }

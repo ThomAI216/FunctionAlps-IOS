@@ -88,7 +88,7 @@ enum MealPlanWire {
             PlannedMeal(
                 slotId: slotId, momentUid: momentUid, moment: moment,
                 mealType: PlanLogic.mealType(mealType ?? moment),
-                note: note?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
+                note: note?.trimmingCharacters(in: .whitespacesAndNewlines).nonBlank,
                 portions: portions, servings: servings, swapped: swapped ?? false, swapKind: swapKind,
                 recipe: recipe.model, prescribedId: prescribed?.id, prescribedTitle: prescribed?.title,
                 excluded: excluded ?? false, alternativeIds: alternativeIds ?? [], loggedMealId: loggedMealId
@@ -152,7 +152,7 @@ enum MealPlanWire {
         private struct StepObject: Decodable, Sendable { let phase: String?; let text: String? }
 
         var model: RecipeStep? {
-            guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else { return nil }
+            guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines).nonBlank else { return nil }
             return RecipeStep(phase: phase.flatMap(RecipeStep.Phase.init(rawValue:)), text: text)
         }
     }
@@ -209,8 +209,8 @@ enum MealPlanWire {
             yieldText = try? c.decodeIfPresent(String.self, forKey: .yieldText)
             variantKind = try? c.decodeIfPresent(String.self, forKey: .variantKind)
             computedNutrition = (try? c.decodeIfPresent(NutritionRow.self, forKey: .computedNutrition)) ?? nil
-            whyLine = (try? c.decodeIfPresent(String.self, forKey: .whyLine))?.nilIfEmpty
-            description = (try? c.decodeIfPresent(String.self, forKey: .description))?.nilIfEmpty
+            whyLine = (try? c.decodeIfPresent(String.self, forKey: .whyLine))?.nonBlank
+            description = (try? c.decodeIfPresent(String.self, forKey: .description))?.nonBlank
         }
 
         func model(ingredients: [Ingredient]) -> RecipeCard {
@@ -234,7 +234,7 @@ enum MealPlanWire {
 
         var model: RecipeIngredient {
             RecipeIngredient(id: id, rawText: rawText ?? "", qty: qty, unitCode: unitCode, isToTaste: isToTaste ?? false,
-                             isOptional: isOptional ?? false, prepNote: prepNote?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty)
+                             isOptional: isOptional ?? false, prepNote: prepNote?.trimmingCharacters(in: .whitespacesAndNewlines).nonBlank)
         }
     }
 
@@ -315,7 +315,7 @@ enum MealPlanWire {
 
 extension String {
     /// nil for an empty or blank string.
-    var nilIfEmpty: String? {
+    var nonBlank: String? {
         trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : self
     }
 }
