@@ -965,10 +965,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 ])
             }
             let focus = await soft { () -> [FocusItemRow] in
-                try await rest.select("care_plan_items", query: [
-                    PG.select("id,title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
-                    PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
-                ])
+                try await rest.selectRPC(Self.carePlanItemsFunction, query: Self.focusItemsQuery(planId: header.id))
             }
             plan.goals = (goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
             plan.focusItemIds = Set((focus ?? []).compactMap(\.id))
@@ -1682,6 +1679,33 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
+    /// A member's session can read every column of its own visible `care_plan_items` rows (clinician rationale,
+    /// refinement transcripts, dismissal reasons), so the app never reads the table: it reads the SECURITY DEFINER
+    /// function `member_care_plan_items()` (CLINICAL migration 350), which returns only patient-safe columns of the
+    /// member's own patient-visible, approved or pushed rows. `visibility_class` is not a returned column; the
+    /// function enforces it, so no such filter is sent.
+    nonisolated static let carePlanItemsFunction = "member_care_plan_items"
+
+    /// Plan items as the "My health plan" page reads them. Curriculum rows are the personalised space's
+    /// sub-courses, not instructions; `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
+    nonisolated static func planItemsQuery(planId: String) -> [URLQueryItem] {
+        [
+            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order,item_kind,cadence,frequency_text,dose_value,dose_unit"),
+            PG.eq("care_plan_id", planId),
+            URLQueryItem(name: "status", value: "in.(pushed_to_app,approved)"),
+            PG.or("item_kind.is.null,item_kind.neq.curriculum"),
+            PG.order("sort_order"),
+        ]
+    }
+
+    /// The weekly-focus items behind Home's priorities (same function, narrower columns).
+    nonisolated static func focusItemsQuery(planId: String) -> [URLQueryItem] {
+        [
+            PG.select("id,title,objective,sort_order"), PG.eq("care_plan_id", planId), PG.eq("is_weekly_focus", "true"),
+            PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
+        ]
+    }
+
     /// The member's plan as the clinician's Plan page lays it out, member-safe — the members web `getMemberCarePlan`
     /// read for read: the plan, its patient-visible approved items, the active patient-visible goals, the supplement
     /// plans behind the supplement items, and the tests actually ordered. Every clinical filter is applied twice (RLS
@@ -1697,14 +1721,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let visible = "in.(patient_visible,patient_visible_after_approval)"
         // Curriculum rows pass the RLS gate but are the personalised space's sub-courses, not
         // instructions. `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
-        let items: [CarePlanItemRow] = try await rest.select("care_plan_items", query: [
-            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order,item_kind,cadence,frequency_text,dose_value,dose_unit"),
-            PG.eq("care_plan_id", plan.id),
-            URLQueryItem(name: "visibility_class", value: visible),
-            URLQueryItem(name: "status", value: "in.(pushed_to_app,approved)"),
-            PG.or("item_kind.is.null,item_kind.neq.curriculum"),
-            PG.order("sort_order"),
-        ])
+        let items: [CarePlanItemRow] = try await rest.selectRPC(Self.carePlanItemsFunction, query: Self.planItemsQuery(planId: plan.id))
         let rest = self.rest
         let goals = await soft { () -> [CarePlanGoalRow] in
             try await rest.select("care_plan_goals", query: [
