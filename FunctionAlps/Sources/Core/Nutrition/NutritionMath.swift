@@ -260,9 +260,11 @@ enum NutritionMath {
         return Int((total / Double(ns.count) * 100).rounded())
     }
 
-    /// Nutrients under `threshold` of their target, worst first, at most `limit`.
-    static func gaps(threshold: Double, sex: MemberProfile.Sex?, limit: Int, consumed: [String: Double]) -> [(nutrient: NutrientCatalog.Nutrient, pct: Double)] {
+    /// Nutrients under `threshold` of their target, worst first, at most `limit`. `available` (nutrient keys that have a
+    /// value in the period) leaves out nutrients with no data: unknown is not a shortfall. Nil = every nutrient.
+    static func gaps(threshold: Double, sex: MemberProfile.Sex?, limit: Int, consumed: [String: Double], available: Set<String>? = nil) -> [(nutrient: NutrientCatalog.Nutrient, pct: Double)] {
         NutrientCatalog.nutrients
+            .filter { available?.contains($0.key) ?? true }
             .map { (nutrient: $0, pct: (consumed[$0.key] ?? 0) / $0.target(sex: sex)) }
             .filter { $0.pct < threshold }
             .sorted { $0.pct < $1.pct }

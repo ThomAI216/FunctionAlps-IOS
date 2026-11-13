@@ -88,8 +88,9 @@ struct MacrosDetailsView: View {
 
     private var micronutrientsCard: some View {
         let consumedMicros = model.consumedToday
-        let score = MicroCoverage.overall(meals: model.todayMeals, sex: model.sex) ?? 0
-        let gaps = NutritionMath.gaps(threshold: 0.7, sex: model.sex, limit: 99, consumed: consumedMicros).count
+        let overall = MicroCoverage.overall(meals: model.todayMeals, sex: model.sex)
+        let score = overall ?? 0
+        let gaps = NutritionMath.gaps(threshold: 0.7, sex: model.sex, limit: 99, consumed: consumedMicros, available: model.availableNutrientKeys).count
         let tone: Color = score >= 75 ? FAColor.forestSoft : score >= 50 ? FAColor.warning : CoverageTone.red
         return Button { router.push(.micronutrients) } label: {
             FACard {
@@ -98,11 +99,16 @@ struct MacrosDetailsView: View {
                         Text(String(localized: "micros.title", defaultValue: "Micronutrients")).font(FATypography.sans(15, .semibold, relativeTo: .body)).foregroundStyle(FAColor.ink)
                         Spacer()
                         VStack(alignment: .trailing, spacing: 0) {
-                            Text("\(score)%").font(FATypography.sans(17, .bold, relativeTo: .body)).foregroundStyle(tone)
+                            Text(overall == nil ? String(localized: "micros.noData", defaultValue: "No data") : "\(score)%").font(FATypography.sans(17, .bold, relativeTo: .body)).foregroundStyle(overall == nil ? ProfilePalette.muted : tone)
                             Text(String(localized: "micros.coverage", defaultValue: "coverage")).font(FATypography.sans(11, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
                         }
                     }
                     Text(String(localized: "micros.belowTarget", defaultValue: "\(gaps) below target")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).padding(.top, 2)
+                    if let summary = model.microSummary {
+                        Text(String(localized: "micros.hero.measured", defaultValue: "\(summary.measured) of \(summary.tracked) nutrients measured in today's meals")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).padding(.top, 2)
+                    } else {
+                        Text(String(localized: "micros.noData", defaultValue: "No data")).font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).padding(.top, 2)
+                    }
                     VStack(spacing: 12) {
                         ForEach(NutrientCatalog.groups) { group in
                             let pct = NutritionMath.groupCoverage(group.key, sex: model.sex, consumed: consumedMicros)
@@ -110,7 +116,7 @@ struct MacrosDetailsView: View {
                                 HStack {
                                     Text(group.name).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
                                     Spacer()
-                                    Text("\(pct)%").font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(group.color)
+                                    Text(overall == nil ? "·" : "\(pct)%").font(FATypography.sans(12.5, .bold, relativeTo: .caption)).foregroundStyle(group.color)
                                 }
                                 HashedBar(color: group.color, pct: Double(pct) / 100, height: 12)
                             }

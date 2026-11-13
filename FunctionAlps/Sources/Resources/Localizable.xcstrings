@@ -23410,22 +23410,6 @@
         }
       }
     },
-    "micros.count": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld nutrients"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld nutriments"
-          }
-        }
-      }
-    },
     "micros.coverage": {
       "localizations": {
         "en": {
@@ -23511,13 +23495,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today's micronutrient coverage across all tracked nutrients"
+            "value": "Today's micronutrient coverage across the nutrients measured in your meals"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couverture en micronutriments du jour sur l’ensemble des nutriments suivis"
+            "value": "Couverture en micronutriments du jour sur les nutriments mesurés dans vos repas"
           }
         }
       }
@@ -23694,22 +23678,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aliments phares"
-          }
-        }
-      }
-    },
-    "micros.tracked": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld nutrients tracked"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld nutriments suivis"
           }
         }
       }
@@ -54422,6 +54390,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "On %@"
+          }
+        }
+      }
+    },
+    "micros.noData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No data"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de données"
+          }
+        }
+      }
+    },
+    "micros.note.notInFoodData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not in the food data yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore dans les données alimentaires"
+          }
+        }
+      }
+    },
+    "micros.note.fromMeals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "from %lld of %lld meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dans %lld repas sur %lld"
+          }
+        }
+      }
+    },
+    "micros.note.someFoods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not every food has a value"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certains aliments n’ont pas de valeur"
+          }
+        }
+      }
+    },
+    "micros.measuredOf": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld measured"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sur %lld mesurés"
+          }
+        }
+      }
+    },
+    "micros.hero.measured": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld nutrients measured in today's meals"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nutriments sur %lld mesurés dans les repas du jour"
           }
         }
       }

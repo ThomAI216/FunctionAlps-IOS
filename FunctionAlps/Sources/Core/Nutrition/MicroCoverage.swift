@@ -37,6 +37,9 @@ enum MicroCoverage {
         Nutrient(key: "choline", field: "choline_mg", rdaMale: 550, rdaFemale: 425),
     ]
 
+    /// The `micronutrient_totals` field of a tracked nutrient key (the key itself when unknown).
+    static func field(for key: String) -> String { nutrients.first { $0.key == key }?.field ?? key }
+
     /// Per-nutrient sums over the meals, keyed by nutrient key.
     static func consumed(from meals: [MealLog]) -> [String: Double] {
         var out: [String: Double] = [:]
