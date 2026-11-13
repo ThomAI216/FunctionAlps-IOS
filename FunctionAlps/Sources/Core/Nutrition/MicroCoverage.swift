@@ -2,7 +2,7 @@ import Foundation
 
 /// Micronutrient coverage — the Expo `lib/data/nutrients.ts` RDA table and `getOverallCoverage`,
 /// summed from each meal's `micronutrient_totals`. Coverage is capped per nutrient (over-eating
-/// vitamin C does not cover a magnesium gap), then averaged across the 21 tracked nutrients.
+/// vitamin C does not cover a magnesium gap), then averaged across the tracked nutrients that have data (a missing one is left out, never a 0).
 /// Arithmetic on server-written numbers, not scoring: the same numbers the web app shows.
 enum MicroCoverage {
     struct Nutrient: Sendable {
@@ -54,17 +54,35 @@ enum MicroCoverage {
         meals.contains { meal in meal.micros.values.contains { $0 > 0 } }
     }
 
-    /// 0–100 mean coverage (each nutrient capped at 100 %), the Expo `getOverallCoverage`. Nil when no
-    /// meal carries micros. `sex` nil → female targets, the web default.
-    static func overall(meals: [MealLog], sex: MemberProfile.Sex?) -> Int? {
-        guard !meals.isEmpty, hasMicros(meals) else { return nil }
+    /// The headline coverage and how many nutrients it rests on.
+    struct Overall: Sendable, Equatable {
+        /// 0–100 mean coverage over the nutrients that have data.
+        let percent: Int
+        /// Nutrients with a value in the period or meal (the ones averaged).
+        let included: Int
+        /// Tracked nutrients (21).
+        let total: Int
+    }
+
+    /// Mean coverage (each nutrient capped at 100 %) over only the nutrients that have a value in
+    /// these meals (`MicroPresence`: a real 0 counts, a missing value does not). Nil when none has
+    /// data. `sex` nil → female targets, the web default.
+    static func overallDetail(meals: [MealLog], sex: MemberProfile.Sex?) -> Overall? {
+        let statuses = MicroPresence.statuses(meals: meals)
+        let included = nutrients.filter { statuses[$0.key]?.hasValue == true }
+        guard !included.isEmpty else { return nil }
         let sums = consumed(from: meals)
         let male = sex == .male
-        let total = nutrients.reduce(0.0) { acc, n in
+        let total = included.reduce(0.0) { acc, n in
             let target = male ? n.rdaMale : n.rdaFemale
             return acc + min((sums[n.key] ?? 0) / target, 1)
         }
-        return Int((total / Double(nutrients.count) * 100).rounded())
+        return Overall(percent: Int((total / Double(included.count) * 100).rounded()), included: included.count, total: nutrients.count)
+    }
+
+    /// `overallDetail`'s percent alone.
+    static func overall(meals: [MealLog], sex: MemberProfile.Sex?) -> Int? {
+        overallDetail(meals: meals, sex: sex)?.percent
     }
 
     /// The Expo `macroProximityScore`: mean adherence of P/C/F to their targets (capped at 100 %). Nil

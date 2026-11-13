@@ -17,7 +17,7 @@ struct MicronutrientsView: View {
                     FALoadingState().padding(.top, 60)
                 } else {
                     let consumed = model.consumedToday
-                    let overall = MicroCoverage.overall(meals: model.todayMeals, sex: model.sex)
+                    let overall = MicroCoverage.overallDetail(meals: model.todayMeals, sex: model.sex)
                     let gaps = NutritionMath.gaps(threshold: 0.7, sex: model.sex, limit: 99, consumed: consumed, available: model.availableNutrientKeys).map(\.nutrient)
                     VStack(alignment: .leading, spacing: 0) {
                         heroCard(overall: overall, gaps: gaps, summary: model.microSummary).padding(.bottom, 20)
@@ -38,9 +38,9 @@ struct MicronutrientsView: View {
         .task { await model.load(dependencies) }
     }
 
-    private func heroCard(overall: Int?, gaps: [NutrientCatalog.Nutrient], summary: MicroPresence.Summary?) -> some View {
-        let color = overall.map(CoverageTone.color) ?? ProfilePalette.muted
-        let score = overall ?? 0
+    private func heroCard(overall: MicroCoverage.Overall?, gaps: [NutrientCatalog.Nutrient], summary: MicroPresence.Summary?) -> some View {
+        let score = overall?.percent ?? 0
+        let color = overall.map { CoverageTone.color($0.percent) } ?? ProfilePalette.muted
         let label = overall == nil ? String(localized: "micros.noData", defaultValue: "No data") : score >= 75 ? String(localized: "micros.band.onTrack", defaultValue: "On Track") : score >= 50 ? String(localized: "micros.band.attention", defaultValue: "Needs Attention") : String(localized: "micros.band.critical", defaultValue: "Critical Gaps")
         return FACard {
             VStack(alignment: .leading, spacing: 0) {
@@ -49,6 +49,9 @@ struct MicronutrientsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(label).font(FATypography.display(20, relativeTo: .title3)).foregroundStyle(FAColor.ink)
                         Text(String(localized: "micros.hero.body", defaultValue: "Today's micronutrient coverage across the nutrients measured in your meals")).font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(ProfilePalette.muted).lineSpacing(4)
+                        if let overall {
+                            Text(String(localized: "micros.basedOn", defaultValue: "based on \(overall.included) of \(overall.total) nutrients")).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(3)
+                        }
                         if let summary {
                             Text(String(localized: "micros.hero.measured", defaultValue: "\(summary.measured) of \(summary.tracked) nutrients measured in today's meals")).font(FATypography.sans(12, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink).lineSpacing(3)
                         }

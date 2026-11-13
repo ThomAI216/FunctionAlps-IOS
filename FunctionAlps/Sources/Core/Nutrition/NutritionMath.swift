@@ -239,12 +239,21 @@ enum NutritionMath {
 
     // MARK: Macros pages
 
-    /// Per-meal micronutrient score (0–100), nil when the meal carries no micro at all: the meal's
-    /// daily-RDA coverage scaled up by its expected share (1 / meals today).
-    static func mealNutrientScore(_ meal: MealLog, sex: MemberProfile.Sex?, mealsToday: Int) -> Int? {
-        guard let coverage = MicroCoverage.overall(meals: [meal], sex: sex) else { return nil }
+    struct MealNutrientScore: Sendable, Equatable {
+        /// 0–100.
+        let score: Int
+        /// Nutrients with data in the meal (the ones averaged), out of `total` tracked.
+        let included: Int
+        let total: Int
+    }
+
+    /// Per-meal micronutrient score (0–100), nil when the meal carries no nutrient data: the meal's
+    /// daily-RDA coverage over the nutrients it has data for, scaled up by its expected share
+    /// (1 / meals today).
+    static func mealNutrientScore(_ meal: MealLog, sex: MemberProfile.Sex?, mealsToday: Int) -> MealNutrientScore? {
+        guard let c = MicroCoverage.overallDetail(meals: [meal], sex: sex) else { return nil }
         let share = 1.0 / Double(max(1, mealsToday))
-        return max(0, min(100, Int((Double(coverage) / share).rounded())))
+        return MealNutrientScore(score: max(0, min(100, Int((Double(c.percent) / share).rounded()))), included: c.included, total: c.total)
     }
 
     /// Coverage of one nutrient, uncapped percent (the pages show 130 % when a meal overshoots).

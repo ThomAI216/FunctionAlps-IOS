@@ -88,8 +88,8 @@ struct MacrosDetailsView: View {
 
     private var micronutrientsCard: some View {
         let consumedMicros = model.consumedToday
-        let overall = MicroCoverage.overall(meals: model.todayMeals, sex: model.sex)
-        let score = overall ?? 0
+        let overall = MicroCoverage.overallDetail(meals: model.todayMeals, sex: model.sex)
+        let score = overall?.percent ?? 0
         let gaps = NutritionMath.gaps(threshold: 0.7, sex: model.sex, limit: 99, consumed: consumedMicros, available: model.availableNutrientKeys).count
         let tone: Color = score >= 75 ? FAColor.forestSoft : score >= 50 ? FAColor.warning : CoverageTone.red
         return Button { router.push(.micronutrients) } label: {
@@ -196,7 +196,7 @@ struct MacrosDetailsView: View {
 /// The Expo `MealCard` as the macros page uses it: name, time, macro line, the per-meal nutrient score.
 struct MealSummaryRow: View {
     let meal: MealLog
-    let nutrientScore: Int?
+    let nutrientScore: NutritionMath.MealNutrientScore?
 
     var body: some View {
         FACard(padded: false) {
@@ -208,10 +208,15 @@ struct MealSummaryRow: View {
                     LogMacroLine(kcal: meal.totalCalories, protein: meal.totalProteinG, carbs: meal.totalCarbsG, fat: meal.totalFatG)
                 }
                 Spacer(minLength: 6)
-                HStack(spacing: 4) {
-                    Text(String(localized: "macros.meal.nutrients", defaultValue: "Nutrients")).font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
-                    Text(nutrientScore.map { "\($0)" } ?? "·").font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
-                    Text("›").foregroundStyle(ProfilePalette.muted).padding(.leading, 2)
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text(String(localized: "macros.meal.nutrients", defaultValue: "Nutrients")).font(FATypography.sans(10.5, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
+                        Text(nutrientScore.map { "\($0.score)" } ?? String(localized: "micros.noData", defaultValue: "No data")).font(FATypography.sans(12, .bold, relativeTo: .caption)).foregroundStyle(nutrientScore == nil ? ProfilePalette.muted : FAColor.forestSoft)
+                        Text("›").foregroundStyle(ProfilePalette.muted).padding(.leading, 2)
+                    }
+                    if let nutrientScore {
+                        Text(String(localized: "micros.basedOn", defaultValue: "based on \(nutrientScore.included) of \(nutrientScore.total) nutrients")).font(FATypography.sans(10, relativeTo: .caption2)).foregroundStyle(ProfilePalette.muted)
+                    }
                 }
             }
             .padding(12)

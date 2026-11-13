@@ -54474,6 +54474,22 @@
         }
       }
     },
+    "micros.basedOn": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "based on %lld of %lld nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sur la base de %lld nutriments sur %lld"
+          }
+        }
+      }
+    },
     "micros.hero.measured": {
       "localizations": {
         "en": {
