@@ -45,6 +45,8 @@ final class FoodViewModel {
     /// A meal was inserted by re-log — the notification engine schedules its 2.5 h follow-up.
     @ObservationIgnored var onMealLogged: (@MainActor (String) -> Void)?
     var relogToast: RelogToast?
+    /// Bumped after every successful load of the meals: the plan view re-reads its "logged" marks when it moves.
+    private(set) var mealsVersion = 0
     var errorMessage: String?
     /// "Say or type your meal, watch the ingredients appear" — shared with the capture screen's needs-input card.
     let describe: MealDictationModel
@@ -74,6 +76,7 @@ final class FoodViewModel {
             state = .loaded(Content(member: member, meals: try await recent))
             favorites = await favs
             reactions = await felt
+            mealsVersion += 1
         } catch MemberService.MemberError.notRegistered {
             state = .empty
         } catch let error as AppError {
@@ -133,6 +136,13 @@ final class FoodViewModel {
                 errorMessage = String(describing: error)
             }
         }
+    }
+
+    /// "I ate this" on a planned meal: the server already wrote the log; this shows the same toast (Undo deletes it, Adjust opens it).
+    func planMealLogged(mealId: String, name: String, kcal: Double?) {
+        showToast(RelogToast(mealId: mealId, name: name, kcal: kcal))
+        onMealLogged?(mealId)
+        Task { await load(refresh: true) }
     }
 
     func undoRelog() {
