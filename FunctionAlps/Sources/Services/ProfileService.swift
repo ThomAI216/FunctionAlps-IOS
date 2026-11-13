@@ -62,8 +62,12 @@ struct ProfileService: Sendable {
 /// The in-app thread with the nutritionist (`patient_messages`), on the member's own session.
 struct MessagingService: Sendable {
     private let backend: any FunctionAlpsBackend
+    private let members: MemberService?
 
-    init(backend: any FunctionAlpsBackend) { self.backend = backend }
+    init(backend: any FunctionAlpsBackend, members: MemberService? = nil) {
+        self.backend = backend
+        self.members = members
+    }
 
     /// The thread with the practice's resources and mini tracks under their messages. Both reads fail soft
     /// (the bubbles still show; the cards come back on the next load).
@@ -123,6 +127,7 @@ struct MessagingService: Sendable {
     /// has an error state); titles and opens fail soft (a title falls back to the slug, nothing shows opened).
     func personalTrackPage(id: String) async throws -> PersonalTrackPage? {
         let backend = self.backend
+        let members = self.members
         let tracks = try await backend.personalTracks()
         guard let track = tracks.first(where: { $0.id == id }) else { return nil }
         async let opened: Set<String> = {

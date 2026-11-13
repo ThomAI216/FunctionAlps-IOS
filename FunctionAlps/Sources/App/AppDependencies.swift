@@ -78,7 +78,7 @@ final class AppDependencies {
         self.library = LibraryService(backend: backend)
         self.shows = ShowService(backend: backend)
         self.profile = ProfileService(backend: backend, members: members)
-        self.messaging = MessagingService(backend: backend)
+        self.messaging = MessagingService(backend: backend, members: members)
         self.account = AccountService(backend: backend)
         let wearables = WearableService(backend: backend)
         self.wearables = wearables
