@@ -35,7 +35,7 @@ struct EveningFollowupCard: View {
         let options = EveningFollowupLogic.options(plan: dependencies.habits.plan, offers: dependencies.focus.focus?.offers ?? [], saved: model.followup.pills)
         return FACard {
             VStack(alignment: .leading, spacing: 12) {
-                Text(String(localized: "followup.title", defaultValue: "This morning was hard — how was the rest of your day?"))
+                Text(String(localized: "followup.title", defaultValue: "This morning was hard. How was the rest of your day?"))
                     .font(FATypography.headline).foregroundStyle(FAColor.ink)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 8) {

@@ -39,8 +39,6 @@ final class MorningCheckinViewModel {
 
     var isSaving = false
     var saveError: String?
-    /// The rule the end screen shows; set once "Morning check-in done" has saved.
-    var ending: MorningRule?
 
     let today: String
     let yesterday: String
@@ -167,9 +165,8 @@ final class MorningCheckinViewModel {
     /// Revealed digestion has not loaded yet: saving now could put a blank read on top of today's.
     var canFinish: Bool { !revealOpen || (reveal.gut.map(\.loaded) ?? true) }
 
-    /// "Morning check-in done": saves what changed — last night, the feeling, the revealed daily cards — then shows the end
-    /// screen. Nothing is required: it works with whatever was answered. Parts that are locked are not saved again.
-    /// True when the end screen may show; false leaves everything in place with `saveError`.
+    /// "Morning check-in done": saves what changed — last night, the feeling, the revealed daily cards — then the caller opens Today's focus. Nothing is required: it works with whatever was answered. Parts that are locked are not saved again.
+    /// True when the focus page may open; false leaves everything in place with `saveError`.
     func done() async -> Bool {
         saveError = nil
         isSaving = true
@@ -211,7 +208,6 @@ final class MorningCheckinViewModel {
         if currentFeeling(endRule: nil).hasAnswer || sleep.lock.saved || nightAnswered {
             lock.didSave()
         }
-        ending = rule
         return true
     }
 

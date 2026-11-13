@@ -8,7 +8,7 @@ import Foundation
 enum ShowcaseFocus {
     static var isOn: Bool {
         switch Showcase.screen {
-        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening: true
+        case .focusP1, .focusP5, .focusG1, .focusSheet, .focusAction, .focusKickoff, .focusKickoffDone, .focusEvening, .focusPageP1, .focusPageP5: true
         default: false
         }
     }
@@ -16,31 +16,29 @@ enum ShowcaseFocus {
     /// The cell each screen shows; every screen but P1 and G1 is a hard morning (P5).
     static var cellId: String {
         switch Showcase.screen {
-        case .focusP1: "P1"
+        case .focusP1, .focusPageP1: "P1"
         case .focusG1: "G1"
         default: "P5"
         }
     }
 
     /// The card the "Do it now" action opens.
-    static let actionCardId = "8b2ec07f-8d5e-4358-a89a-a88a4838bf61"
+    static let actionCardId = "fd592c9e-34d9-4a8c-b548-e7b6605aab04"
 
     private static var fr: Bool { TodayFocus.locale() == "fr" }
 
     private struct Habit { let id: String; let en: String; let fr: String?; let detailEn: String; let detailFr: String? }
 
     private static let habits: [String: Habit] = [
-        "daylight": Habit(id: "afa499c9-5033-43d3-bf0c-81f2b8e70819", en: "Open the window — two minutes counts", fr: nil,
+        "daylight": Habit(id: "afa499c9-5033-43d3-bf0c-81f2b8e70819", en: "Open the window, two minutes counts", fr: nil,
                           detailEn: "Right when you wake up: daylight and fresh air, before your phone.", detailFr: nil),
-        "coffee": Habit(id: "09934b99-c538-4afb-80fb-c3606e58a7c7", en: "First coffee 60–90 minutes after waking", fr: "Le premier café 60 à 90 minutes après le lever",
+        "coffee": Habit(id: "09934b99-c538-4afb-80fb-c3606e58a7c7", en: "First coffee 60 to 90 minutes after waking", fr: "Le premier café 60 à 90 minutes après le lever",
                         detailEn: "Wait 60 minutes after waking before your first coffee or tea, and up to 90 if it suits you.",
                         detailFr: "Attendez 60 minutes après le réveil avant votre premier café ou thé, et jusqu’à 90 si cela vous convient."),
         "screens": Habit(id: "47613f35-cb86-4122-b168-ea3135a7a208", en: "Screens off 60 minutes before bed", fr: "Écrans éteints 60 minutes avant le coucher",
                          detailEn: "A full hour without screens before you sleep.", detailFr: "Une heure entière sans écrans avant de dormir."),
-        "nsdr": Habit(id: actionCardId, en: "10 minutes to wind down: box breathing or NSDR", fr: nil,
-                      detailEn: "10 minutes to wind down: box breathing or an NSDR.", detailFr: nil),
         "water": Habit(id: "fd592c9e-34d9-4a8c-b548-e7b6605aab04", en: "A glass of water before coffee", fr: "Un verre d’eau avant le café",
-                       detailEn: "Start hydrated — the coffee lands softer.", detailFr: "Commencez par vous hydrater — le café passe plus en douceur."),
+                       detailEn: "Start hydrated and the coffee lands softer.", detailFr: "Commencez par vous hydrater et le café passe plus en douceur."),
         "protein": Habit(id: "8ba3035e-a61f-4458-b078-9918624b8b18", en: "Anything at breakfast counts", fr: "Des protéines au petit-déjeuner",
                          detailEn: "Eggs, skyr, leftovers — anything. Steadier energy before 11:00.", detailFr: "Œufs, skyr, restes — peu importe. Une énergie plus stable jusqu’à 11 h."),
         "move": Habit(id: "623658e7-bea0-41a9-9fe5-d646a3340dda", en: "Morning activation, five minutes", fr: "Activation matinale, cinq minutes",
@@ -94,7 +92,7 @@ enum ShowcaseFocus {
                      lineEn: "Keep one priority, lighten the rest, and rest when you can. Water and a proper breakfast first.",
                      headlineFr: "Aujourd’hui, on tient le cap",
                      lineFr: "Gardez une seule priorité, allégez le reste et reposez-vous dès que possible. De l’eau et un vrai petit-déjeuner d’abord.",
-                     tone: "rest", offers: [("nsdr", "standard"), ("water", "standard"), ("protein", "easy")])
+                     tone: "rest", offers: [("water", "standard"), ("protein", "easy"), ("connect", "easy")])
         }
     }
 
@@ -141,7 +139,7 @@ enum ShowcaseFocus {
             card.description = h.detailEn
             card.titleFr = h.fr
             card.descriptionFr = h.detailFr
-            card.pillar = h.id == actionCardId ? "sleep" : nil
+            card.pillar = h.id == actionCardId ? "nutrition" : nil
             card.defaultSlot = "morning"
             card.memberCanAdd = true
             return card

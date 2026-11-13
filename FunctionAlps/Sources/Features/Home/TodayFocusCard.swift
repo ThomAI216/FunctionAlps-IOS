@@ -45,7 +45,7 @@ struct TodayFocusCard: View {
             case .nothing:
                 FACard {
                     FAEmptyState(title: String(localized: "focus.empty.title", defaultValue: "Nothing to add today"),
-                                 message: String(localized: "focus.empty.message", defaultValue: "Nothing in your morning called for a change — carry on as you are."),
+                                 message: String(localized: "focus.empty.message", defaultValue: "Nothing in your morning called for a change. Carry on as you are."),
                                  systemImage: "sun.max")
                 }
             }
@@ -106,7 +106,7 @@ struct TodayFocusCard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(localized: "focus.checkin.title", defaultValue: "Check in to get today's focus"))
                             .font(FATypography.headline).foregroundStyle(FAColor.ink)
-                        Text(String(localized: "focus.checkin.message", defaultValue: "A minute on last night and how you feel — your focus appears here."))
+                        Text(String(localized: "focus.checkin.message", defaultValue: "A minute on last night and how you feel, and your focus appears here."))
                             .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -153,7 +153,7 @@ private struct OfferRow: View {
     private var because: String? {
         switch offer.reasonKind {
         case .readinessLow:
-            return String(localized: "focus.reason.readinessLow", defaultValue: "Your recovery is below your usual — an easier version today.")
+            return String(localized: "focus.reason.readinessLow", defaultValue: "Your recovery is below your usual, so today's version is easier.")
         case .priority:
             return offer.priority.map { String(localized: "focus.for", defaultValue: "For: \($0.label)") }
         default:

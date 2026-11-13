@@ -330,6 +330,13 @@ const CELL_PREFERS: Partial<Record<CellId, Partial<Record<HabitType, string[]>>>
   P2: { move: ["3a3e9dbd-d0ea-46cf-8046-bfaa546740fc", "7e6ee768-30fe-4781-ba62-52669aeab7c3"] },
 }
 
+/** The focus is a MORNING offer (owner, 2026-11-13): a card whose own moment is the evening (a wind-down, box breathing or NSDR
+ *  before sleep, legs up the wall) is never offered for a type that is not "wind" ("rest" and "calm" are daytime rests). Only P1's
+ *  "wind-down tonight" (type "wind") may hold one. */
+export function fitsMorningFocus(type: HabitType, habit: BankHabit): boolean {
+  return type === "wind" || habit.defaultSlot !== "evening"
+}
+
 export interface ChosenHabit {
   type: HabitType
   habit: BankHabit
@@ -348,7 +355,7 @@ export function chooseHabits(cell: Cell, slots: HabitType[][], eligible: BankHab
     for (const type of slot) {
       if (cell.avoid.includes(type)) continue
       const ids = [...(CELL_PREFERS[cell.id]?.[type] ?? []), ...TYPE_CARDS[type]]
-      const habit = ids.map((id) => byId.get(id)).find((h): h is BankHabit => !!h && !taken.has(h.id) && (type !== "prog" || !!h.revTitle))
+      const habit = ids.map((id) => byId.get(id)).find((h): h is BankHabit => !!h && !taken.has(h.id) && fitsMorningFocus(type, h) && (type !== "prog" || !!h.revTitle))
       if (!habit) continue
       taken.add(habit.id)
       out.push({ type, habit, variant: type === "prog" ? "progression" : variantFor(habit, band) })
@@ -392,7 +399,7 @@ export function kickoffSteps(eligible: BankHabit[], band: "low" | "mid" | "high"
   const byId = new Map(eligible.map((h) => [h.id, h]))
   const out = []
   for (const step of KICKOFF.steps) {
-    const habit = step.cards.map((id) => byId.get(id)).find((h): h is BankHabit => !!h)
+    const habit = step.cards.map((id) => byId.get(id)).find((h): h is BankHabit => !!h && fitsMorningFocus("rest", h))
     if (habit) out.push({ kind: step.kind, label: step.label, habit, variant: variantFor(habit, band) })
   }
   return out.length >= 2 ? out : []

@@ -209,3 +209,20 @@ Deno.test("the card reads in the member's language", () => {
   assertEquals(en.tone, "rest"); assertEquals(en.id, "P5")
   assertEquals(presentFocus({ cellId: "XX" as CellId, locale: "en", depletedDays: 0, sleepKnown: true, eligible: [], band: null }), null)
 })
+
+Deno.test("a morning cell never offers an evening wind-down card for rest or calm (2026-11-13)", () => {
+  const evening = new Set([idOf("rest", 0), idOf("rest", 1)])
+  // The library as stored: the "rest" cards 0 and 1 belong to the evening (NSDR, legs up the wall).
+  const bank = FULL.map((h) => evening.has(h.id) || h.id === idOf("wind", 0) ? { ...h, defaultSlot: "evening" } : h)
+  for (const id of Object.keys(CELLS) as CellId[]) {
+    const chosen = chooseHabits(CELLS[id], slotsFor(CELLS[id], sig()), bank, null)
+    for (const c of chosen) assert(c.type === "wind" || c.habit.defaultSlot !== "evening", `${id}: ${c.type} -> ${c.habit.title}`)
+  }
+  // P5 asks for rest first: the evening NSDR is skipped, the daytime pause (midday) takes its place.
+  const p5 = chooseHabits(CELLS.P5, slotsFor(CELLS.P5, sig()), bank, null)
+  assert(!p5.some((c) => c.habit.id === idOf("rest", 0)))
+  assertEquals(p5[0].habit.id, idOf("rest", 2))
+  // P1 keeps its "wind-down tonight".
+  const p1 = chooseHabits(CELLS.P1, slotsFor(CELLS.P1, sig()), bank, null)
+  assert(p1.some((c) => c.type === "wind" && c.habit.id === idOf("wind", 0)))
+})

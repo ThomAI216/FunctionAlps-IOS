@@ -8231,13 +8231,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A minute on last night and how you feel — your focus appears here."
+            "value": "A minute on last night and how you feel, and your focus appears here."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une minute sur la nuit et sur ce que vous ressentez — votre essentiel apparaît ici."
+            "value": "Une minute sur la nuit et sur ce que vous ressentez, et votre essentiel apparaît ici."
           }
         }
       }
@@ -8279,13 +8279,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing in your morning called for a change — carry on as you are."
+            "value": "Nothing in your morning called for a change. Carry on as you are."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rien dans votre matinée n'appelait de changement — continuez ainsi."
+            "value": "Rien dans votre matinée n'appelait de changement. Continuez ainsi."
           }
         }
       }
@@ -8359,13 +8359,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your recovery is below your usual — an easier version today."
+            "value": "Your recovery is below your usual, so today's version is easier."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre récupération est en dessous de l'habitude — une version plus douce aujourd'hui."
+            "value": "Votre récupération est en dessous de l'habitude, donc la version d'aujourd'hui est plus douce."
           }
         }
       }
@@ -53255,13 +53255,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This morning was hard — how was the rest of your day?"
+            "value": "This morning was hard. How was the rest of your day?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce matin a été difficile : et le reste de votre journée ?"
+            "value": "Ce matin a été difficile. Comment s'est passé le reste de votre journée ?"
           }
         }
       }
@@ -53454,6 +53454,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Une habitude"
+          }
+        }
+      }
+    },
+    "focus.page.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning check-in done"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check-in du matin terminé"
+          }
+        }
+      }
+    },
+    "focus.page.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Here is what your morning points to for today."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voici ce que votre matinée indique pour aujourd'hui."
+          }
+        }
+      }
+    },
+    "focus.page.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour à l'accueil"
           }
         }
       }

@@ -35,6 +35,8 @@ enum Route: Hashable {
     case focusCard(String)
     /// The kickoff morning routine, walked one step per screen.
     case kickoff
+    /// Today's focus as a page: where the morning check-in lands once it is saved (owner, 2026-11-13).
+    case todayFocus
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
     /// One Foundation Track habit's page (Home's actions card → "See the habit"), by its action key.
@@ -163,7 +165,7 @@ final class AppRouter {
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
     ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · focus/kickoff · focus/card/<cardId> · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   bank[/<cardId>] · focus/today · focus/kickoff · focus/card/<cardId> · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
     ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
@@ -213,6 +215,7 @@ final class AppRouter {
             tab = .home; homePath = []
             let rest = Array(parts.dropFirst())
             if rest.first == "kickoff" { homePath.append(.kickoff) }
+            else if rest.first == "today" { homePath.append(.todayFocus) }
             else if rest.first == "card", rest.count > 1, !rest[1].isEmpty { homePath.append(.focusCard(rest[1])) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
@@ -453,6 +456,7 @@ struct MainTabView: View {
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
         case .focusCard(let cardId): ActionCardView(source: .focusCard(cardId))
         case .kickoff: KickoffRoutineView()
+        case .todayFocus: TodayFocusView()
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
         case .habit(let key): HabitPageView(key: key)
         case .trackSummary: TrackSummaryView()

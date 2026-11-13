@@ -136,8 +136,6 @@ jobs:
           shoot 60-morning-top morning-top 12
           shoot 61-morning-bottom morning-bottom 12
           shoot 62-morning-yesterday morning-yesterday 13
-          shoot 63-morning-end-green morning-end-green 10
-          shoot 64-morning-end-lowenergy morning-end-lowenergy 10
           shoot 65-checkin-locked checkin-locked 12
           shootfr 60-morning-top-fr morning-top 12
           # Today's focus (2026-11-12, the owner-approved matrix): Home's card on P1 (borrowed energy), P5 (low battery, with the practitioner
@@ -152,6 +150,11 @@ jobs:
           shoot 76-kickoff-finish focus-kickoff-done 12
           shoot 77-evening-followup focus-evening 13
           shootfr 71-focus-p5-fr focus-p5 12
+          # 2026-11-13: the morning check-in now ends on the Today's focus page (it replaced the old end screen); Home keeps the card
+          # under "My health plan" (70 to 74 above scroll to it).
+          shoot 78-focus-page-p1 focus-page-p1 13
+          shoot 79-focus-page-p5 focus-page-p5 13
+          shootfr 79-focus-page-p5-fr focus-page-p5 13
           if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12

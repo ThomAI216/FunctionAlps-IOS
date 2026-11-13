@@ -47,6 +47,8 @@ enum Showcase {
         /// sheet, an action opened from it (the two focus buttons), the kickoff morning routine (first step, finish) and the evening follow-up.
         case focusP1 = "focus-p1", focusP5 = "focus-p5", focusG1 = "focus-g1", focusSheet = "focus-sheet", focusAction = "focus-action"
         case focusKickoff = "focus-kickoff", focusKickoffDone = "focus-kickoff-done", focusEvening = "focus-evening"
+        /// The page the morning check-in opens once saved (owner, 2026-11-13), on P1 and on P5.
+        case focusPageP1 = "focus-page-p1", focusPageP5 = "focus-page-p5"
     }
 
     /// The screen asked for on the command line, nil in every normal launch.
@@ -74,7 +76,7 @@ enum Showcase {
         }
     }
 
-    /// The end-screen shots draw `MorningEndView` over the app (`FunctionAlpsApp`).
+    /// The old end-screen shots (`MorningEndView`, no longer shown after the check-in since 2026-11-13) draw it over the app (`FunctionAlpsApp`).
     static var morningEndRule: MorningRule? {
         switch screen {
         case .morningEndGreen: MorningRules.rule(mood: 82, energy: 74, motivation: 76)
@@ -111,6 +113,7 @@ enum Showcase {
              .morningEndGreen, .morningEndLowEnergy, .focusP1, .focusP5, .focusG1, .focusSheet: "functionalps://home"
         case .focusAction: "functionalps://focus/card/\(ShowcaseFocus.actionCardId)"
         case .focusKickoff, .focusKickoffDone: "functionalps://focus/kickoff"
+        case .focusPageP1, .focusPageP5: "functionalps://focus/today"
         case .focusEvening: "functionalps://checkin/evening"
         case .morningTop, .morningBottom, .morningYesterday: "functionalps://checkin/morning"
         case .checkinLocked: "functionalps://checkin/evening"

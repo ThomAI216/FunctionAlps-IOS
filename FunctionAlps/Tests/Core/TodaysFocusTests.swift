@@ -9,7 +9,7 @@ struct TodaysFocusTests {
     {"day":"2026-11-12","needsCheckin":false,
      "offers":[
        {"id":"o2","offerKey":"bank:hyd","cardId":"hyd","rank":2,"title":"A glass of water before coffee","description":"Start hydrated.","pillar":"nutrition","slot":"morning","variant":"standard","reason":"focus","trigger":"P5","stateTitle":null,"accepted":null,"completed":false},
-       {"id":"o1","offerKey":"bank:rest","cardId":"rest","rank":1,"title":"10 minutes to wind down","description":null,"pillar":"sleep","slot":"evening","variant":"standard","reason":"focus","trigger":"P5","stateTitle":null,"accepted":true,"completed":true}
+       {"id":"o1","offerKey":"bank:rest","cardId":"rest","rank":1,"title":"A real pause at lunch","description":null,"pillar":"recovery","slot":"midday","variant":"standard","reason":"focus","trigger":"P5","stateTitle":null,"accepted":true,"completed":true}
      ],
      "readiness":{"band":"low","vsBaseline":false,"source":"self_report"},
      "cell":{"id":"P5","headline":"Today is for holding steady","line":"Keep one priority, lighten the rest.","tone":"rest",

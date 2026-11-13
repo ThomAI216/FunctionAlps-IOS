@@ -113,13 +113,13 @@ struct HomeView: View {
                     if let day = trackDay, let slug = dependencies.track.today?.readSlug {
                         TrackHomeReadCard(slug: slug, day: day)
                     }
-                    // Today's focus (owner-approved matrix, 2026-11-12): last night x how the member feels, as one headline and up to
-                    // three habits — above the plan, because it is the day's lead. Not on the track's day 1 ("Welcome to your space").
-                    if trackDay == nil || showsTrackActions {
-                        TodayFocusCard()
-                    }
                     if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
                         CarePlanTodayCard()   // the client's care plan when the practice has shared one, else "My health plan"
+                    }
+                    // Today's focus (owner, 2026-11-13): under "My health plan", never above it. It opens by itself after the morning
+                    // check-in (`TodayFocusView`); this card is where the member finds it again. Not on the track's day 1.
+                    if trackDay == nil || showsTrackActions {
+                        TodayFocusCard()
                     }
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
@@ -181,6 +181,12 @@ struct HomeView: View {
             }
             .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habits, anchor: UnitPoint(x: 0.5, y: 0.12)) }
             .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habitOpen, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            .task {
+                // Home with Today's focus under "My health plan": the plan card stays in frame above it.
+                for screen in [Showcase.Screen.focusP1, .focusP5, .focusG1, .focusSheet] {
+                    await Showcase.scroll(proxy, to: "showcase.focus", on: screen, anchor: UnitPoint(x: 0.5, y: 0.3))
+                }
+            }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }
