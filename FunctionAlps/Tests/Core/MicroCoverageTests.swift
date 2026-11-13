@@ -55,9 +55,9 @@ struct MicroCoverageTests {
         let meal = MealLog(id: "m", loggedAt: Date(), micros: ["vitamin_c_mg": 75, "iron_mg": 9])
         let s = NutritionMath.mealNutrientScore(meal, sex: .female, mealsToday: 3)
         #expect(s == NutritionMath.MealNutrientScore(score: 100, included: 2, total: 21))
-        // One meal of 4 with iron 2.25 mg (12.5 % of 18) alone: 12.5 / (1/4) = 50.
-        let small = MealLog(id: "n", loggedAt: Date(), micros: ["iron_mg": 2.25])
-        #expect(NutritionMath.mealNutrientScore(small, sex: .female, mealsToday: 4) == NutritionMath.MealNutrientScore(score: 50, included: 1, total: 21))
+        // One meal of 2 with iron 4.5 mg (25 % of 18) alone: 25 / (1/2) = 50.
+        let small = MealLog(id: "n", loggedAt: Date(), micros: ["iron_mg": 4.5])
+        #expect(NutritionMath.mealNutrientScore(small, sex: .female, mealsToday: 2) == NutritionMath.MealNutrientScore(score: 50, included: 1, total: 21))
     }
 
     @Test func mealWithoutNutrientDataHasNoScore() {
