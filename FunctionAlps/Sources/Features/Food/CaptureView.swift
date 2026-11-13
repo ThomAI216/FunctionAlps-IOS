@@ -5,8 +5,11 @@ import SwiftUI
 /// identified — the Expo `analyzing.tsx` → `confirm.tsx` pair, ON ONE SCREEN.
 struct CaptureView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppRouter.self) private var router
     let request: CaptureRequest
     let onFinish: () -> Void
+    /// The meal is validated: "Bon appétit" fills the screen for a moment, then Home (owner, 2026-11-10).
+    @State private var farewell: BonAppetit.Phrase?
     @State private var model: CaptureViewModel?
     /// "Separate meals": the next queued photo is captured while the member reads this one, so "Next meal" is
     /// instant (the Expo queue prefetch). Never cancelled with the screen — its row is real and the server owns it.
@@ -17,7 +20,7 @@ struct CaptureView: View {
             ZStack {
                 if let model {
                     if model.showsResult {
-                        MealResultPage(model: model, onFinish: close, onNext: model.request.nextPosition == nil ? nil : { next() })
+                        MealResultPage(model: model, onFinish: bonAppetit, onNext: model.request.nextPosition == nil ? nil : { next() })
                             .transition(.opacity)
                     } else {
                         AnalyzingScreen(model: model, onFinish: close)
@@ -25,7 +28,17 @@ struct CaptureView: View {
                     }
                 }
             }
+            .overlay {
+                if let farewell {
+                    BonAppetitView(phrase: farewell) {
+                        close()
+                        router.tab = .home
+                    }
+                    .transition(.opacity)
+                }
+            }
             .animation(.easeInOut(duration: 0.35), value: model?.showsResult ?? false)
+            .animation(.easeInOut(duration: 0.3), value: farewell)
             .faWall()
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -53,6 +66,12 @@ struct CaptureView: View {
             let notifications = dependencies.notifications
             Task { await notifications.askIfNeeded(); await notifications.mealLogged(id: id, at: Date()) }
         }
+    }
+
+    /// The meal page is done with (validated, kept as is, or the queue stopped): the phrase, then home.
+    private func bonAppetit() {
+        guard farewell == nil else { return }
+        farewell = BonAppetit.next()
     }
 
     /// The member leaves: edits saved, the watch stopped. A capture whose row exists runs to its end anyway.

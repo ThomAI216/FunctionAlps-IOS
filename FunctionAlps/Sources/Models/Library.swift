@@ -113,6 +113,8 @@ struct ReaderResult: Sendable, Equatable {
     let pair: Pair?
     /// Set only for a resource card (`structured.card` on the row); nil for every other article.
     var card: ReaderCard? = nil
+    /// The list row of a library article (its summary, day, reading time, topic) — nil off the list.
+    var article: LibraryArticle? = nil
 }
 
 /// A resource card's own fields, from `member_library_get` (`structured.card` plus the row's
@@ -243,13 +245,15 @@ struct LibraryGetRow: Sendable, Equatable, Decodable {
     var template: String? = nil
     /// Non-nil only when `structured.card` is present (with the row's kicker and summary folded in).
     var card: ReaderCard? = nil
+    /// Present when the RPC returns it; the reader otherwise takes the summary from the list it already read.
+    var summary: String? = nil
 
     private enum CodingKeys: String, CodingKey { case title, tags, bodyMd, locked, template, kicker, summary, structured }
     private struct Structured: Decodable { let card: ReaderCard? }
 
-    init(title: String?, tags: [String]?, bodyMd: String?, locked: Bool?, template: String? = nil, card: ReaderCard? = nil) {
+    init(title: String?, tags: [String]?, bodyMd: String?, locked: Bool?, summary: String? = nil, template: String? = nil, card: ReaderCard? = nil) {
         self.title = title; self.tags = tags; self.bodyMd = bodyMd; self.locked = locked
-        self.template = template; self.card = card
+        self.summary = summary; self.template = template; self.card = card
     }
 
     init(from decoder: any Decoder) throws {
@@ -261,6 +265,7 @@ struct LibraryGetRow: Sendable, Equatable, Decodable {
         template = try? c.decodeIfPresent(String.self, forKey: .template)
         let kicker = try? c.decodeIfPresent(String.self, forKey: .kicker)
         let summary = try? c.decodeIfPresent(String.self, forKey: .summary)
+        self.summary = summary
         let structured = try? c.decodeIfPresent(Structured.self, forKey: .structured)
         if var decoded = structured?.card {
             decoded.kicker = kicker

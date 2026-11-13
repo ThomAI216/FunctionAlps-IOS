@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       set:
-        description: "showcase (the members showcase) or track (the Foundation Track, every screen)"
+        description: "showcase (the members showcase), checkin (only the daily check-in) or track (the Foundation Track, every screen)"
         default: showcase
 
 # Queue, never cancel: a later push without "[screens]" also starts this workflow (its job is skipped), and
@@ -27,7 +27,7 @@ defaults:
 jobs:
   shoot:
     name: Shoot the showcase screens
-    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]')
+    if: (github.event_name == 'workflow_dispatch' && inputs.set != 'track') || contains(github.event.head_commit.message, '[screens]') || contains(github.event.head_commit.message, '[checkin-screens]')
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -76,6 +76,9 @@ jobs:
           xcrun simctl install "$UDID" "$APP"
 
       - name: Shoot
+        env:
+          # "[checkin-screens]" in the message (or set = checkin by hand): only the daily check-in set, a few minutes.
+          ONLY_CHECKIN: ${{ (contains(github.event.head_commit.message, '[checkin-screens]') || inputs.set == 'checkin') && '1' || '0' }}
         run: |
           UDID=${{ steps.sim.outputs.udid }}
           BUNDLE=com.functionalps.patient
@@ -93,6 +96,77 @@ jobs:
             echo "shot $1"
           }
           shootfr() { LANG_CODE=fr LOCALE_CODE=fr_CH shoot "$@"; }
+          # The daily functional check-in (2026-11-10): Home's glass, last night on the dial and from a ring, the
+          # sliders, the stool card, the Bristol chart, the red-flag card with the voice note.
+          shoot 01-today today 12
+          shoot 30-checkin-sleep checkin-sleep 10
+          shoot 30b-checkin-sleep-drag checkin-sleep-drag 10
+          shoot 31-checkin-wearable checkin-wearable 10
+          shoot 02-checkin checkin
+          shoot 32-checkin-stool checkin-stool 11
+          shoot 33-bristol-chart bristol-chart 13
+          shoot 34-checkin-note checkin-note 11
+          shootfr 30-checkin-sleep-fr checkin-sleep 10
+          shoot 35-bon-appetit bon-appetit 10
+          shootfr 35-bon-appetit-fr bon-appetit 10
+          # My health plan (2026-11-10): objective + approach, goals + journey, supplements + tests + review.
+          shoot 07-care-plan careplan 12
+          shoot 07c-care-plan-middle careplan-middle 12
+          shoot 07d-care-plan-bottom careplan-bottom 12
+          # Trends, reworked (2026-11-10, owner-validated mockup v2): the page from its top, middle and bottom, the Energy
+          # row opened in place, then the pages behind it — Sleep, Digestion, a device (Oura) and the shared patterns.
+          shoot 40-trends trends 14
+          shoot 41-trends-middle trends-middle 14
+          shoot 42-trends-bottom trends-bottom 14
+          shoot 43-trends-energy-open trends-energy-open 14
+          shoot 44-trends-sleep trends-sleep 12
+          shoot 45-trends-digestion trends-digestion 12
+          shoot 46-trends-device trends-device 12
+          shoot 47-trends-patterns trends-patterns 12
+          # Signal explanations (2026-11-11): "About energy" from its top and scrolled to the plate and the actions (EN, then FR),
+          # "About sleep", "About digestion". The Energy row opened in place (43) shows the new "What influences it" block.
+          shoot 50-about-energy signal-about-energy 12
+          shoot 51-about-energy-bottom signal-about-energy-bottom 12
+          shoot 52-about-sleep signal-about-sleep 12
+          shoot 53-about-digestion signal-about-digestion 12
+          shootfr 50-about-energy-fr signal-about-energy 12
+          # The new MORNING check-in (2026-11-12, owner-validated): sleep + "Feeling for the day" (energy low pills, motivation good
+          # pills), the reveal row / done button / yesterday prompt, yesterday revealed, the two end screens, and a saved daily
+          # check-in showing the lock question.
+          shoot 60-morning-top morning-top 12
+          shoot 61-morning-bottom morning-bottom 12
+          shoot 62-morning-yesterday morning-yesterday 13
+          shoot 65-checkin-locked checkin-locked 12
+          shootfr 60-morning-top-fr morning-top 12
+          # Today's focus (2026-11-12, the owner-approved matrix; 2026-11-13: Home no longer carries the card). The Today's focus page the
+          # morning check-in ends on (P1, P5 with the practitioner line, G1), the habit-choice sheet over it, an action opened from it with
+          # its two focus buttons, the kickoff morning routine (first step, finish), the evening follow-up at the top of the daily check-in
+          # (with everything the morning proposed), and Home's During the day list with the green "Kickoff morning routine" row.
+          shoot 72-focus-g1 focus-g1 13
+          shoot 73-focus-sheet focus-sheet 14
+          shoot 74-focus-action focus-action 12
+          shoot 75-kickoff-first focus-kickoff 12
+          shoot 76-kickoff-finish focus-kickoff-done 12
+          shoot 77-evening-followup focus-evening 13
+          shoot 78-focus-page-p1 focus-page-p1 13
+          shoot 79-focus-page-p5 focus-page-p5 13
+          shootfr 79-focus-page-p5-fr focus-page-p5 13
+          shoot 80-home-kickoff focus-home 14
+          shoot 81-home-kickoff-done focus-home-done 14
+          shootfr 80-home-kickoff-fr focus-home 14
+          # The kickoff row's deadline (2026-11-13): due an hour after waking (here 06:45 -> "Until 07:45"), "Missed" past it, "Done late"
+          # after it, and a Foundation Track member's Home with the routine card and the row.
+          shoot 82-home-kickoff-missed focus-home-missed 14
+          shoot 83-home-kickoff-late focus-home-late 14
+          shoot 84-track-home-kickoff focus-track-home 14
+          shootfr 82-home-kickoff-missed-fr focus-home-missed 14
+          shootfr 83-home-kickoff-late-fr focus-home-late 14
+          # Supplement ticking (2026-11-13): Home's "Supplements today", one supplement's page, Trends' taken-per-day strips; the Library's video player.
+          shoot 85-supplements-home supplements-home 14
+          shoot 86-supplement-page supplement-page 12
+          shoot 87-trends-supplements trends-supplements 14
+          shoot 88-library-watch library-watch 12
+          if [ "$ONLY_CHECKIN" = "1" ]; then ls -la shots; exit 0; fi
           shoot 13-onboarding onboarding 10
           shoot 01-today today 12
           shoot 01b-today-bottom today-bottom 14
@@ -108,6 +182,16 @@ jobs:
           shoot 07b-action-card action 10
           shoot 08-library library 14
           shoot 09-symptoms symptoms
+          # The new Library and the habit screens (Foundation Track v2, 2026-11-10).
+          shoot 30-library-home library 14
+          shoot 31-library-locked library-locked 12
+          shoot 32-library-search library-search 12
+          shoot 33-library-read library-read 12
+          shoot 34-library-watch library-watch 12
+          shoot 35-habits habits 12
+          shoot 36-habit-open habit-open 12
+          shoot 37-habit-page habit-page 12
+          shoot 38-habit-first habit-first 12
           shoot 11-article article 10
           # The practice's answer with resources, and the mini track it points to (2026-11-05).
           shoot 12-messages messages 10

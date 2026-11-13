@@ -45,6 +45,8 @@ struct MemberProfile: Sendable, Equatable {
     var mealsPerDay: Int? = nil
     var snacksPerDay: Int? = nil
     var macrosCustomized: Bool = false
+    /// `created_at` of the profile row: the day the member started in the app (the morning screen hides "yesterday" on that day).
+    var createdAt: Date? = nil
 
     /// The Expo `profileComplete`: what the macro pages need before they can show targets.
     var hasBodyData: Bool { weightKg != nil && heightCm != nil && age != nil }

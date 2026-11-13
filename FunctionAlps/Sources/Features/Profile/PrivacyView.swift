@@ -52,8 +52,8 @@ struct PrivacyView: View {
                     actionRow("arrow.down.circle", 0x4A8A5C, String(localized: "privacy.export", defaultValue: "Export my data"), exporting ? String(localized: "privacy.export.busy", defaultValue: "Preparing your file…") : String(localized: "privacy.export.sub", defaultValue: "Download a complete copy of your health data as JSON")) { Task { await export() } }
                     // GDPR Art. 7(3): withdrawal as easy as giving — the documents promise this row by name.
                     actionRow("lock", 0xA98FD0, String(localized: "privacy.consents", defaultValue: "Your consents"), String(localized: "privacy.consents.sub", defaultValue: "Review what you agreed to, and withdraw any of it")) { router.profilePath.append(.consents) }
-                    actionRow("exclamationmark.circle", 0x4A8A5C, String(localized: "privacy.dpo", defaultValue: "Contact Data Protection Officer"), "data@functionalps.ch") {
-                        if let url = URL(string: "mailto:data@functionalps.ch?subject=Data%20request") { openURL(url) }
+                    actionRow("exclamationmark.circle", 0x4A8A5C, String(localized: "privacy.dpo", defaultValue: "Contact Data Protection Officer"), "thomas@functionalps.ch") {
+                        if let url = URL(string: "mailto:thomas@functionalps.ch?subject=Data%20request") { openURL(url) }
                     }
                     actionRow("trash", 0xC0453A, String(localized: "privacy.delete", defaultValue: "Delete my account"), String(localized: "privacy.delete.sub", defaultValue: "Permanently erase all your data. This cannot be undone."), destructive: true) { showDelete = true }
                 }

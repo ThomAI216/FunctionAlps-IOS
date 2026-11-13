@@ -54,8 +54,11 @@ validation · invalidCredentials · server · decoding · network · configurati
 
 ## 5. State
 - `AppState.phase` (launching / signedOut / signedIn) is the only global state.
-- Each screen's view model owns a `Loadable<T>`-style state; no shared caches yet
-  (offline caching is Phase G — the seam is the service layer).
+- Each screen's view model owns a `Loadable<T>`-style state. Shared in-memory caches are deliberately tiny and
+  live in the service layer: `MemberCache` (inside `MemberService`: the resolved member / patient id, keyed by
+  user id, 10 min TTL, one shared in-flight resolution, dropped on sign-out, profile writes and 401/403) and
+  60 s staleness windows on Home / Trends / unlocks (`DataFreshness` is bumped by check-in and meal writes).
+  Nothing is persisted; offline caching is Phase G — the seam is the service layer.
 - Server is canonical; iOS holds a representation (PRD §12).
 
 ## 6. Design system (PRD §19)
@@ -68,6 +71,10 @@ the theme audit in `APP_MAP.md`.
 - **Glass rule (owner, 2026-09-03):** every card on every screen — and the floating tab bar — is the see-through glass, and only that: `FACard` / `FAGlassSurface` (clear Liquid Glass on iOS 26, the web `GlassCard` "seethrough" veil before it). No `.regularMaterial`/`.ultraThinMaterial`, no tinted `.regular` glass (iOS 26 renders it as an opaque grey slab over a light wall), no solid card fills. New screens get the wall (`.faWall()`) + `FACard`s, nothing else.
 
 - **Library data rule (2026-09-03):** the library is a SECOND CONSUMER of the members catalog — same tables and RPCs (`library_tracks`, `library_track_lessons`, `member_lesson_progress`, `member_library_list/get/stage`, `member_library_access`, `patient_track_priority`, `care_plans` + goals), read in parallel under the member's session. Only the catalog read may fail the tab (→ the labelled sample library, never an empty screen); every other read fails soft. The activation veils fail CLOSED (no row = every section veiled), the stage gate fails closed to `lead`. Rules live in `LibraryLogic` (pure, tested); `LibraryService` is the only IO.
+
+- **Library home (owner, 2026-11-10):** the tab is built from `member_library_list` alone (the cards home: Foundation Track by day, For your habits, Watch, search). The list row's STUDIO tags are the contract (`day:N`, `minutes:N`, `foundation-track`, the pillar tag); the member's day is `member_track_status` through the shared `TrackService`; "read" is a `member_lesson_progress` row by slug. Habit cards (`habit_bank`, readable by members when active) feed Practice it, For your habits and Watch through `HabitsService` / `TrackService`. Rules live in `FoundationLibraryLogic` (pure, tested); views never touch a table.
+
+- **YouTube in the app — the one web view (owner, 2026-11-10; rule 8 justification).** A habit's video can be a YouTube address (`habit_bank.resources`, `source: "youtube"`). YouTube's terms allow playing it only in YouTube's own player, and there is no native way to do that without a third-party package or leaving the app; so `YouTubePlayerView` is a minimal `WKWebView` (Apple's own framework — no package, no SDK) that loads the iframe embed page of that ONE video from `youtube-nocookie.com`: non-persistent data store (no cookies or storage survive the screen), every link and new window refused, nothing else loaded, only for a video the member tapped. Our own videos play with AVKit. This is not a wrapped web app (CLAUDE.md "Do not"): one embedded player on one screen. The screen alone may rotate (`PlayerOrientation`; the rest of the app stays portrait).
 
 - **Show launch switch (owner, 2026-10-06):** `ShowFeature.comingSoon` (currently true) makes `ShowService` inert and the Library show a blurred "Coming soon" preview; see `docs/IOS_MIGRATION_MAP.md`. The rule below applies when it is false.
 
@@ -103,3 +110,4 @@ decoding fixtures from real rows, `MemberService`/`DashboardService` over
 | 2026-09-25 | **Member-facing = iOS only.** No more web app for members: new member features ship in this repo, not in `FunctionAlps-MEMBERS` (web) or the Expo app (owner) | one client to keep true; the Expo app and MEMBERS become references/legacy; CLINICAL, STUDIO and WEBSITE stay web (the practice's tools and the funnel) |
 | 2026-10-03 | The show is read from CLINICAL's public library API (a second host next to CM OS), progress written to `member_lesson_progress` like the web | the members dashboard already consumes these two routes and rows; no schema change, one rulebook for web and phone |
 | 2026-09-25 | Lab results are read through ONE function, `get_member_lab_results()`, never through table selects | the approval edge lives in the database (a `security_invoker` view had widened member RLS on every table it joined — CLINICAL lesson); a named-column contract fails loudly when it drifts |
+| 2026-11-10 | Library home as cards; YouTube played by a minimal `WKWebView` embed for that one video | the approved first-release library; YouTube has no native player, and a package would break rule 8 (justification in §6, "YouTube in the app") |

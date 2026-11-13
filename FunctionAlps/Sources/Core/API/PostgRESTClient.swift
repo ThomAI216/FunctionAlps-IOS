@@ -22,6 +22,13 @@ struct PostgRESTClient: Sendable {
         return try JSON.decode([Row].self, from: response.body)
     }
 
+    /// `GET /rest/v1/rpc/{function}?{query}` decoded as an array: a set-returning, argument-less function
+    /// read like a table (`select=`, filters, `order=` all apply to its result). Used where the table itself
+    /// holds columns a member must not read, so the SECURITY DEFINER function is the only door.
+    func selectRPC<Row: Decodable & Sendable>(_ function: String, query: [URLQueryItem]) async throws -> [Row] {
+        try await select("rpc/\(function)", query: query)
+    }
+
     /// Single row or nil (uses `limit=1`, never the object header, so 0 rows is not an error).
     func selectOne<Row: Decodable & Sendable>(_ table: String, query: [URLQueryItem]) async throws -> Row? {
         var q = query

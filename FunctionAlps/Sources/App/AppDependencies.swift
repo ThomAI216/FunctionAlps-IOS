@@ -10,6 +10,8 @@ final class AppDependencies {
     let state: AppState
     let auth: AuthService
     let members: MemberService
+    /// Bumped by the write paths Home's snapshot reflects; Home reloads on re-appear when it moved or went stale.
+    let freshness: DataFreshness
     let dashboard: DashboardService
     let meals: MealService
     let checkins: CheckinService
@@ -21,20 +23,31 @@ final class AppDependencies {
     let account: AccountService
     let wearables: WearableService
     let notifications: NotificationService
+    /// The member's supplements: Home's card, the Plan's list, each supplement's page and the grouped reminders.
+    let supplements: SupplementService
     let gut: GutService
     let protocols: ProtocolService
     /// Today's focus — shared, so the check-in screen's recomputation lands on the Home card.
     let focus: FocusService
     /// Released lab results — shared, so the list, the result and the marker sheet read one load.
     let labs: LabResultsService
+    /// The member's released documents, and whether a draft plan is being prepared.
+    let documents: DocumentsService
     /// The clinician's habits for today, with the check-off.
     let habits: HabitsService
+    /// The client's care plan as the practice shared it (programmes, objectives, wins, complaints, hypotheses) —
+    /// shared by Today's card, the Plan page and its screens.
+    let clientPlan: ClientCarePlanService
     /// The Foundation Track (the 14-day start): status, days, questionnaires, answers and ticks — shared by Home's
     /// card, the questionnaire flow and the reminder plan.
     let track: TrackService
     /// What the track unlocks by use: Trends after 3 days in a row, Food with the first meal.
     let unlocks: UnlockService
-    /// The domain seam, for screens that read a single server-computed object (Trends).
+    /// The Trends tab and its detail pages: one shared read of the member's own logs, with the window they chose.
+    let trends: TrendsService
+    /// The practice's signal explanations (`signal_explanations`), read once per launch; no content = the blocks stay hidden.
+    let signals: SignalContentService
+    /// The domain seam, for screens that read a single server-computed object.
     let backend: any FunctionAlpsBackend
 
     init(environment: AppEnvironment, transport: any HTTPTransport, sessionStore: any SessionStore, backendOverride: (any FunctionAlpsBackend)? = nil) {
@@ -53,28 +66,53 @@ final class AppDependencies {
             ?? SupabaseBackend(rest: rest, functions: functions, storage: storage, realtime: RealtimeClient(environment: environment, sessions: sessions),
                                clinical: clinical)
 
+        let freshness = DataFreshness()
+        self.freshness = freshness
         let auth = AuthService(sessions: sessions, state: state)
         self.auth = auth
         let members = MemberService(sessions: sessions, backend: backend)
         self.members = members
         self.dashboard = DashboardService(backend: backend)
-        self.meals = MealService(backend: backend)
-        self.checkins = CheckinService(backend: backend)
+        self.meals = MealService(backend: backend, freshness: freshness)
+        self.checkins = CheckinService(backend: backend, freshness: freshness)
         self.library = LibraryService(backend: backend)
         self.shows = ShowService(backend: backend)
-        self.profile = ProfileService(backend: backend)
-        self.messaging = MessagingService(backend: backend)
+        self.profile = ProfileService(backend: backend, members: members)
+        self.messaging = MessagingService(backend: backend, members: members)
         self.account = AccountService(backend: backend)
-        self.wearables = WearableService(backend: backend)
-        self.notifications = NotificationService(backend: backend)
-        self.gut = GutService(backend: backend)
+        let wearables = WearableService(backend: backend)
+        self.wearables = wearables
+        let notifications = NotificationService(backend: backend)
+        self.notifications = notifications
+        self.supplements = SupplementService(backend: backend, auth: auth, notifications: notifications)
+        self.gut = GutService(backend: backend, freshness: freshness)
         self.protocols = ProtocolService(backend: backend)
+        #if DEBUG
+        self.focus = FocusService(backend: backend, auth: auth, now: ShowcaseFocus.clock())
+        #else
         self.focus = FocusService(backend: backend, auth: auth)
+        #endif
         self.labs = LabResultsService(backend: backend, members: members, auth: auth)
+        self.documents = DocumentsService(backend: backend, members: members, auth: auth)
+        #if DEBUG
+        self.habits = HabitsService(backend: backend, auth: auth, now: ShowcaseFocus.clock())
+        #else
         self.habits = HabitsService(backend: backend, auth: auth)
-        self.track = TrackService(backend: backend, auth: auth)
-        self.unlocks = UnlockService(backend: backend)
+        #endif
+        self.clientPlan = ClientCarePlanService(backend: backend, members: members, auth: auth)
+        self.track = TrackService(backend: backend, auth: auth, members: members)
+        let unlocks = UnlockService(backend: backend, members: members, freshness: freshness)
+        self.unlocks = unlocks
+        let trends = TrendsService(backend: backend, auth: auth, wearables: wearables, members: members)
+        self.trends = trends
+        self.signals = SignalContentService(backend: backend)
         self.backend = backend
+        // A session that ends (sign-out, dead token) drops everything cached for that member.
+        auth.onSessionEnded = { [members, unlocks, trends] in
+            await members.invalidate()
+            await unlocks.reset()
+            await trends.reset()
+        }
     }
 
     /// Production wiring. Throws only on a misconfigured build (missing xcconfig values).

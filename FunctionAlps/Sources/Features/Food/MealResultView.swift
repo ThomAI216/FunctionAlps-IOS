@@ -136,6 +136,17 @@ struct MealItemRow: View {
                     }
                 }
             }
+            if item.fromHabit == true {
+                // The server filled or adjusted this item from the member's own habits — said out loud; removing it works as for any item.
+                let label = String(localized: "meal.item.fromHabit", defaultValue: "From your habits")
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 10, weight: .semibold)).accessibilityHidden(true)
+                    Text(label)
+                }
+                .font(FATypography.sans(11, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(label)
+            }
             if let protocolFlag { ProtocolMarker(flag: protocolFlag, onWhy: onWhy) }
             if item.needsReview {
                 // The resolver could not identify this food and answered with zeros — said out loud, never counted silently.

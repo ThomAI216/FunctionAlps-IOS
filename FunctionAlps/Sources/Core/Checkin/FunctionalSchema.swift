@@ -202,7 +202,8 @@ enum Pillar: String, Sendable, CaseIterable {
         case .exercise: 0x3F7D68
         case .mind: 0x7A6BA8
         case .emotion: 0xC97B7B
-        case .recovery: 0xD4A84E
+        // Was 0xD4A84E, a yellow the owner couldn't read on the glass (2026-11-10) — now a clay.
+        case .recovery: 0xB45F35
         case .sleep: 0x5B7FB8
         }
     }

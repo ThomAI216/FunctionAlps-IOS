@@ -21,6 +21,9 @@ struct FunctionAlpsApp: App {
             // HealthKit background delivery must be re-armed at every launch (iOS wakes the app for new samples).
             let wearables = live.wearables
             Task { @MainActor in await wearables.armBackgroundDeliveryIfConnected() }
+            // A supplement reminder's "Taken" button can launch the app in the background, before any screen exists.
+            let supplements = live.supplements
+            Task { @MainActor in AppDelegate.supplements = supplements }
         } catch {
             _configurationError = State(initialValue: String(describing: error))
         }
@@ -33,6 +36,12 @@ struct FunctionAlpsApp: App {
                     .environment(dependencies)
                     .environment(dependencies.state)
                     .tint(FAColor.brand)
+                    #if DEBUG
+                    .overlay {
+                        if Showcase.screen == .bonAppetit { BonAppetitView(phrase: BonAppetit.phrases[0], onDone: {}, holds: true) }
+                        if let rule = Showcase.morningEndRule { MorningEndView(rule: rule, onAction: { _ in }, onContinue: {}, holds: true) }
+                    }
+                    #endif
             } else {
                 // A build with missing xcconfig values must fail loudly, never ship half-configured.
                 FAErrorState(

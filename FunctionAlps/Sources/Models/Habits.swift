@@ -192,6 +192,8 @@ struct HabitPlan: Sendable, Equatable {
     var goals: [String] = []
     /// The clinician's current priorities: the plan items flagged `is_weekly_focus`, as the member reads them.
     var priorities: [String] = []
+    /// The care-plan item ids behind those priorities — a habit whose `care_plan_item_id` is here is "this week's focus".
+    var focusItemIds: Set<String> = []
     /// The published action cards the habits point at, by `habit_bank` id (absent = unpublished or none).
     var cards: [String: ActionCardRow] = [:]
 
@@ -471,7 +473,7 @@ enum HabitEngine {
     /// opens the morning routine for everyone (owner, 2026-10-12). The check-in is not a habit: no cap counts it.
     /// Does the routine card carry the morning check-in? Always in the morning routine, which it opens (owner,
     /// 2026-10-12). Missed before 10:00, it stays at the top of the day's card until it is done or the morning
-    /// check-in's window closes at 17:00 (`MomentSlot.current`), when the evening check-in takes over: a late morning
+    /// check-in's window closes at 14:00 (`MomentSlot.current`), when the daily check-in takes over: a late morning
     /// still gets its sleep and its focus. Only the morning routine counts it (`routineCount`).
     static func showsMorningCheckin(_ slot: HabitSlot, hour: Int, done: Bool) -> Bool {
         if slot == .morning { return true }

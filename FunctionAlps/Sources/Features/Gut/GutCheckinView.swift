@@ -41,16 +41,18 @@ final class GutCheckinViewModel {
     private let gut: GutService
     private let members: MemberService
     private let auth: AuthService
+    /// Nil = today. The morning screen's caught-up "Yesterday" names its day: the digestion is read from and saved to that day's row.
+    let day: String?
 
-    init(gut: GutService, members: MemberService, auth: AuthService) {
-        self.gut = gut; self.members = members; self.auth = auth
+    init(gut: GutService, members: MemberService, auth: AuthService, day: String? = nil) {
+        self.gut = gut; self.members = members; self.auth = auth; self.day = day
     }
 
     func prefill() async {
         defer { loaded = true }
         do {
             let member = try await members.currentMember()
-            let state = try await gut.load(patientId: member.patientId)
+            let state = try await gut.load(patientId: member.patientId, day: day)
             todayMeals = state.meals.filter { ISO8601.dayString($0.loggedAt) == state.day }
             reactions = state.reactions
             if let today = state.today {
@@ -64,6 +66,16 @@ final class GutCheckinViewModel {
             if answers[.reactions]?.specials.reactionsScore == nil {
                 answers[.reactions, default: .empty].specials.reactionsScore = GutEngine.mealReactionsScore(todayMeals.compactMap { reactions[$0.id] })
             }
+            #if DEBUG
+            if Showcase.isDigestionShot {
+                answers[.comfort] = GutAnswers(sliders: ["comfort": 66])
+                answers[.stool] = GutAnswers(sliders: ["ease": 72], specials: GutSpecials(bristol: 4, frequency: 2))
+                if Showcase.screen == .checkinNote {
+                    notes = "Felt bloated after lunch, better after the walk."
+                    notesOpen = true
+                }
+            }
+            #endif
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "gut.prefill")
             if case .unauthorized = error { await auth.handleUnauthorized() }
@@ -86,7 +98,7 @@ final class GutCheckinViewModel {
         defer { isSaving = false }
         do {
             let member = try await members.currentMember()
-            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes, redFlags: redFlags)
+            _ = try await gut.save(patientId: member.patientId, answers: answers, notes: notes, redFlags: redFlags, day: day)
             return true
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "gut.save")
@@ -102,30 +114,64 @@ final class GutCheckinViewModel {
 /// "Anything serious to flag?" — the six red-flag symptoms (Expo `red-flags.ts`, the `red_flag_*` columns).
 /// Stored as booleans, never scored, never linked to a food. Ticking one shows the doctor signpost right here
 /// and on Home, and reaches the practitioner as one `red_flag` event.
+/// Owner, 2026-11-10: a SMALL card with a "be aware" sign, closed until opened — and open by itself whenever a
+/// flag is already ticked, so nothing serious hides behind a fold.
 struct GutRedFlagsCard: View {
     @Binding var flags: RedFlags
+    @State private var open = false
+
+    private var expanded: Bool { open || flags.any }
 
     var body: some View {
-        FACard {
+        FACard(padded: false) {
             VStack(alignment: .leading, spacing: 10) {
-                Text(String(localized: "gut.redflags.title", defaultValue: "Anything serious to flag?"))
-                    .font(FATypography.sans(15, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                Text(String(localized: "gut.redflags.intro", defaultValue: "Optional · these are for a doctor's eye, not a nutrition read. Tick anything that applies today."))
-                    .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-                PillGroupView(
-                    title: nil,
-                    options: RedFlag.allCases.map { PillOption(key: $0.rawValue, label: $0.label) },
-                    isOn: { key in RedFlag(rawValue: key).map(flags.contains) ?? false },
-                    onToggle: { key in if let flag = RedFlag(rawValue: key) { flags.toggle(flag) } },
-                    accent: ProfilePalette.red
-                )
-                if flags.any {
-                    Text(RedFlags.signpost)
-                        .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
-                        .fixedSize(horizontal: false, vertical: true).padding(.top, 2)
-                        .transition(.opacity)
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { open.toggle() }
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(ProfilePalette.red)
+                            .frame(width: 28, height: 28)
+                            .background(ProfilePalette.red.opacity(0.10), in: Circle())
+                            .accessibilityHidden(true)
+                        Text(String(localized: "gut.redflags.title", defaultValue: "Anything serious to flag?"))
+                            .font(FATypography.sans(14, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                        Spacer(minLength: 4)
+                        if !flags.any {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkSecondary)
+                                .rotationEffect(.degrees(expanded ? 180 : 0))
+                                .accessibilityHidden(true)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(flags.any)
+                .accessibilityHint(expanded ? "" : String(localized: "gut.redflags.openHint", defaultValue: "Shows the symptoms to flag"))
+
+                if expanded {
+                    Text(String(localized: "gut.redflags.intro", defaultValue: "Optional · these are for a doctor's eye, not a nutrition read. Tick anything that applies today."))
+                        .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
+                    PillGroupView(
+                        title: nil,
+                        options: RedFlag.allCases.map { PillOption(key: $0.rawValue, label: $0.label) },
+                        isOn: { key in RedFlag(rawValue: key).map(flags.contains) ?? false },
+                        onToggle: { key in if let flag = RedFlag(rawValue: key) { flags.toggle(flag) } },
+                        accent: ProfilePalette.red
+                    )
+                    .padding(.top, -12)
+                    if flags.any {
+                        Text(RedFlags.signpost)
+                            .font(FATypography.sans(12.5, relativeTo: .footnote)).foregroundStyle(FAColor.ink)
+                            .fixedSize(horizontal: false, vertical: true).padding(.top, 2)
+                            .transition(.opacity)
+                    }
                 }
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 11)
         }
         .animation(.easeInOut(duration: 0.2), value: flags.any)
     }
@@ -201,28 +247,12 @@ struct GutCheckinScreen: View {
         Binding(get: { model.answers[key] ?? .empty }, set: { model.answers[key] = $0 })
     }
 
-    @ViewBuilder
     private var notesBlock: some View {
-        Button { withAnimation(.easeInOut(duration: 0.2)) { model.notesOpen.toggle() } } label: {
-            HStack {
-                Text(model.notesOpen ? String(localized: "gut.notes.hide", defaultValue: "Hide note") : String(localized: "gut.notes.add", defaultValue: "Add a note (optional)"))
-                    .font(FATypography.sans(14, .semibold, relativeTo: .body)).foregroundStyle(FAColor.inkSecondary)
-                Spacer()
-                Text(model.notesOpen ? "−" : "+").font(.system(size: 18, weight: .medium)).foregroundStyle(FAColor.inkSecondary)
-            }
-            .padding(.vertical, 13).padding(.horizontal, 18)
-            .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-        if model.notesOpen {
-            TextField(String(localized: "gut.notes.placeholder", defaultValue: "Add meal context, symptom timing, stool changes, or anything relevant."), text: $model.notes, axis: .vertical)
-                .lineLimit(4...8)
-                .font(FATypography.sans(14.5, relativeTo: .body)).foregroundStyle(FAColor.ink)
-                .padding(14)
-                .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
-        }
+        VoiceNoteBlock(
+            addTitle: String(localized: "gut.notes.add", defaultValue: "Add a note (optional)"),
+            placeholder: String(localized: "gut.notes.placeholder", defaultValue: "Add meal context, symptom timing, stool changes, or anything relevant."),
+            text: $model.notes, open: $model.notesOpen
+        )
     }
 }
 
@@ -246,25 +276,77 @@ struct GutDimensionCard: View {
                     Spacer()
                     Text(score.map(String.init) ?? "·")
                         .font(FATypography.headline)
-                        .foregroundStyle(score.map { FunctionalSliderView.ramp[CheckinEngine.stateRampIndex(Double($0))] } ?? FAColor.inkMuted)
+                        .foregroundStyle(score.map { FunctionalSliderView.textColor(for: Double($0)) } ?? FAColor.inkMuted)
                         .monospacedDigit()
                 }
                 .padding(.bottom, 14)
                 .accessibilityElement(children: .combine)
 
-                if spec.key == .stool { stoolInputs.padding(.bottom, 10) }
+                // Stool, in the owner's order (2026-11-10): how often, how easy, THEN the type — Bristol last.
+                if spec.key == .stool { frequencyInput.padding(.bottom, 12) }
                 if spec.key == .reactions, !ratedMeals.isEmpty { mealsBlock.padding(.bottom, 10) }
 
                 FunctionalSliderView(spec: spec.slider, value: Binding(get: { answers.sliders[spec.slider.key] }, set: { answers.sliders[spec.slider.key] = $0 }))
                 pillBlock(after(spec.slider.key))
+
+                if spec.key == .stool { bristolInput.padding(.top, 8) }
             }
+        }
+        #if DEBUG
+        .task {
+            guard spec.key == .stool, Showcase.screen == .bristolChart else { return }
+            try? await Task.sleep(for: .seconds(3))
+            chartOpen = true
+        }
+        #endif
+        .sheet(isPresented: $chartOpen) {
+            BristolChartSheet(selected: answers.specials.bristol, accent: accent) { answers.specials.bristol = $0 }
+                .presentationDetents([.large])
         }
     }
 
-    private var stoolInputs: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            PillSelectView(title: String(localized: "gut.bristol.title", defaultValue: "Stool type (Bristol scale)"), options: GutSchema.bristolOptions,
+    @State private var chartOpen = false
+
+    /// The type, 1–7, with the chart one tap away: a small card showing the drawings, which opens the full
+    /// chart over the check-in — tap a row there and it answers.
+    private var bristolInput: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Divider().overlay(FAColor.separator).padding(.bottom, 10)
+            Button { chartOpen = true } label: {
+                HStack(spacing: 12) {
+                    if let thumb = FAMedia.image(BristolChart.imageName, ext: BristolChart.imageExt) {
+                        Image(uiImage: thumb)
+                            .resizable()
+                            .aspectRatio(BristolChart.aspectRatio, contentMode: .fit)
+                            .frame(height: 64)
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(FAColor.separator, lineWidth: 1))
+                            .accessibilityHidden(true)
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(localized: "gut.bristol.title", defaultValue: "Stool type (Bristol scale)"))
+                            .font(FATypography.sans(13.5, .semibold, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                        Text(answers.specials.bristol.map { String(localized: "gut.bristol.chart.yours", defaultValue: "Yours · \(GutSchema.bristolLabel($0)) · tap to see the chart") }
+                             ?? String(localized: "gut.bristol.chart.open", defaultValue: "See what each type looks like · tap the one that's yours"))
+                            .font(FATypography.sans(11.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 4)
+                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(FAColor.inkMuted).accessibilityHidden(true)
+                }
+                .padding(10)
+                .contentShape(Rectangle())
+                .modifier(FAGlassSurface(cornerRadius: 14, inset: true))
+            }
+            .buttonStyle(.plain)
+            PillSelectView(title: nil, options: GutSchema.bristolOptions,
                            value: Binding(get: { answers.specials.bristol.map(String.init) }, set: { answers.specials.bristol = $0.flatMap(Int.init) }), accent: accent)
+        }
+    }
+
+    private var frequencyInput: some View {
+        VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 10) {
                 Text(String(localized: "gut.frequency.title", defaultValue: "Frequency (stools / 24h)")).font(FATypography.sans(11, .medium, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
                 HStack(spacing: 14) {

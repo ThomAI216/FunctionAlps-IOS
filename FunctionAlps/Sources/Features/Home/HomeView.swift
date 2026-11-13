@@ -24,7 +24,7 @@ struct HomeView: View {
         .toolbar(.hidden, for: .navigationBar)
         .mealCaptureHost(capture) {
             Task { await model?.load(refresh: true) }
-            Task { await dependencies.unlocks.refresh() }   // the first meal opens Food
+            Task { await dependencies.unlocks.refresh(force: true) }   // the first meal opens Food
         }
         .fullScreenCover(item: $questionnaire) { TrackQuestionnaireView(questionnaireId: $0.id) }
         .onChange(of: dependencies.track.reminders, initial: true) { _, plan in
@@ -34,7 +34,7 @@ struct HomeView: View {
         }
         .task {
             if model == nil {
-                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging)
+                let m = HomeViewModel(members: dependencies.members, dashboard: dependencies.dashboard, auth: dependencies.auth, messaging: dependencies.messaging, freshness: dependencies.freshness)
                 model = m
                 await m.load()
             }
@@ -48,13 +48,16 @@ struct HomeView: View {
         }
         #endif
         .onAppear {
-            // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place.
-            if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
+            // Returning from a pushed screen (a saved check-in, a deleted meal): refresh in place, but only when
+            // a write marked Home stale or its data is older than a minute.
+            if let model { Task { await model.loadIfStale() } }
         }
         .onChange(of: model?.state.value?.today) { _, today in
             // Every fresh Today re-plans the phone's reminders (done moments dropped, logged meals dropped).
             guard let today, let patientId = model?.state.value?.member.patientId else { return }
             let notifications = dependencies.notifications, wearables = dependencies.wearables, focus = dependencies.focus, habits = dependencies.habits
+            let supplements = dependencies.supplements
+            Task { await supplements.load() }   // today's ticks; the grouped reminders follow the read
             Task { await focus.load() }   // read back — the day is computed once and holds still
             Task { await habits.load(patientId: patientId, day: today.day); await habits.loadNextCall() }
             Task {
@@ -70,6 +73,19 @@ struct HomeView: View {
     private var trackDay: Int? {
         if case .today(let day) = dependencies.track.mode { return day }
         return nil
+    }
+
+    /// Day 1 before its questionnaire is "Welcome to your space" and nothing else; every other track day shows the actions.
+    private var showsTrackActions: Bool {
+        let track = dependencies.track
+        guard let day = trackDay else { return false }
+        if case .welcome = TrackLogic.homeCard(day: day, questionnaires: track.questionnaires, submitted: track.submitted) { return false }
+        return true
+    }
+
+    /// Last night's wake time as the morning check-in recorded it (`HH:mm`); nil when it recorded none.
+    private func morningWakeTime(_ today: TodaySnapshot) -> String? {
+        SleepSpecials.clock(CheckinEngine.moment(for: .morning, in: today.moments)?.sleepWakeTime)
     }
 
     /// Whether the member has a care plan; nil while the plan is still being read.
@@ -104,7 +120,7 @@ struct HomeView: View {
                         TrackHomeReadCard(slug: slug, day: day)
                     }
                     if TrackLogic.showsHealthPlan(trackDay: trackDay, hasPlan: hasPlan) {
-                        HealthPlanCard()
+                        CarePlanTodayCard()   // the client's care plan when the practice has shared one, else "My health plan"
                     }
                     if content.newResources > 0 {
                         // Owner, 2026-11-05: a nudge while something the practice sent is unopened. Near the top,
@@ -112,9 +128,14 @@ struct HomeView: View {
                         Button { router.openSentTrack() } label: { NewResourcesCard(count: content.newResources, from: content.careTeam.firstName) }
                             .buttonStyle(.plain)
                     }
+                    // The routine card for everyone but track day 1 (owner, 2026-11-13: a track member sees it too, so the green kickoff row
+                    // reaches them). On the track it never shows the "no actions" place: their own actions are in the card under it.
                     if TrackLogic.showsRoutine(trackDay: trackDay) {
-                        PlanTodayCard(morningCheckinDone: CheckinEngine.slotIsDone(content.today.moments, .morning))
+                        PlanTodayCard(morningCheckinDone: content.today.isDone(.morning), wakeTime: morningWakeTime(content.today),
+                                      patientId: content.member.patientId, onTrack: trackDay != nil)
                     }
+                    // On the track (Thomas, 2026-11-07): the habits by moment of the day, one pack at a time.
+                    if showsTrackActions { TrackActionsCard().id("showcase.habits") }
                     if TrackLogic.showsFeatureBanner(trackDay: trackDay) {
                         TrackFeatureBanner()
                     }
@@ -130,6 +151,8 @@ struct HomeView: View {
                             .aspectRatio(1, contentMode: .fit)
                     }
                     .frame(maxHeight: 230)
+
+                    HomeSupplementsCard().id("showcase.supplements")
 
                     if content.today.checkin?.redFlags.any == true {
                         RedFlagSignpostCard()
@@ -148,7 +171,8 @@ struct HomeView: View {
                 #endif
             }
             .refreshable {
-                await model.load(refresh: true)
+                await model.load(refresh: true, force: true)
+                await dependencies.clientPlan.load(force: true)
                 await dependencies.track.load()
             }
             #if DEBUG
@@ -158,6 +182,14 @@ struct HomeView: View {
                 try? await Task.sleep(for: .seconds(4))
                 proxy.scrollTo("fa-page-\(ShowcaseTrack.page)", anchor: .top)
             }
+            .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habits, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.habits", on: .habitOpen, anchor: UnitPoint(x: 0.5, y: 0.12)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHome, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeDone, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeMissed, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusHomeLate, anchor: UnitPoint(x: 0.5, y: 0.4)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.kickoffRow", on: .focusTrackHome, anchor: UnitPoint(x: 0.5, y: 0.3)) }
+            .task { await Showcase.scroll(proxy, to: "showcase.supplements", on: .supplementsHome, anchor: UnitPoint(x: 0.5, y: 0.4)) }
             .task { await Showcase.scroll(proxy, to: "showcase.messages", on: .todayBottom, anchor: UnitPoint(x: 0.5, y: 0.84)) }
             #endif
             }

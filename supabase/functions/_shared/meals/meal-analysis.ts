@@ -33,6 +33,8 @@ import { scoreMeal, type MealScores } from "./meal-scores.ts"
 import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
 import { aliasKey, isPlaceholder, resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
 import { priceItemsWithOpenAI } from "./ai-pricing.ts"
+import { computeMicroCoverage } from "./micro-keys.ts"
+import { priceSovereign, type Candidate, type ReferenceDb, type SovereignCounts, type SovereignTarget } from "./sovereign-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
 import { buildIdentifyUserParts, MAX_IDENTIFY_IMAGES } from "./identify-parts.ts"
@@ -207,20 +209,21 @@ const UPSTREAM: Upstream = IDENTIFY_PROVIDER === "openai" ? OPENAI_UPSTREAM : SO
 const API_KEY = UPSTREAM.key
 const TEXT_MODEL = UPSTREAM.textModel
 
-// WHICH SOURCE PRICES THE IDENTIFIED FOODS (owner, 2026-10-12, for testing: "make all the process on OpenAI").
-//   openai   — OpenAI gives each distinct food's nutrients per 100 g, in parallel (ai-pricing.ts); a food it cannot
-//              price falls back to the reference database. No in-process embeddings, so no CPU-time kill.
-//   database — the reference database ladder (food-resolver.ts), as before.
-// MEAL_PRICING picks; unset, it follows MEAL_AI_PROVIDER (OpenAI identification → OpenAI pricing). Without
-// OPENAI_API_KEY it is always the database. Only food names leave Supabase on this path, never anything about the member.
-export type PricingSource = "openai" | "database"
+// WHICH SOURCE PRICES THE IDENTIFIED FOODS.
+//   sovereign — THE DEFAULT (Thomas, 2026-11-10: "put everything in a sovereign environment"). The numbers come from
+//               our reference plane (USDA SR Legacy + CIQUAL, nb_food_items); Infomaniak models only say what each
+//               food is (sovereign-pricing.ts). No food name leaves Switzerland.
+//   openai    — OpenAI's per-100 g estimates (ai-pricing.ts). Only on an explicit MEAL_PRICING=openai, with its key.
+//   database  — the reference database ladder alone (food-resolver.ts). MEAL_PRICING=database, or no Infomaniak key.
+// It no longer follows MEAL_AI_PROVIDER: identification may use OpenAI (Thomas, 2026-11-09), pricing stays sovereign.
+export type PricingSource = "sovereign" | "openai" | "database"
 const PRICING_CHOICE = (Deno.env.get("MEAL_PRICING") ?? "").trim().toLowerCase()
 const PRICING_KEY = Deno.env.get("OPENAI_API_KEY")
-export const PRICING_SOURCE: PricingSource = !PRICING_KEY
+export const PRICING_SOURCE: PricingSource = PRICING_CHOICE === "openai" && PRICING_KEY
+  ? "openai"
+  : PRICING_CHOICE === "database" || !Deno.env.get("INFOMANIAK_AI_API_KEY")
   ? "database"
-  : PRICING_CHOICE === "openai" || PRICING_CHOICE === "database"
-  ? PRICING_CHOICE
-  : IDENTIFY_PROVIDER === "openai" ? "openai" : "database"
+  : "sovereign"
 const PRICING_MODEL = Deno.env.get("OPENAI_PRICING_MODEL") ?? Deno.env.get("OPENAI_MEAL_MODEL") ?? "gpt-5.4-mini"
 const VISION_MODEL = UPSTREAM.visionModel
 
@@ -247,6 +250,14 @@ function fallbackTarget(kind: "vision" | "text"): Target | null {
 }
 const VISION_FALLBACK = fallbackTarget("vision")
 const TEXT_FALLBACK = fallbackTarget("text")
+
+// The two Infomaniak models the sovereign pricing asks, in order: Qwen 3.8 (text), then gemma as the second door.
+// SOVEREIGN_PRICING_MODEL overrides the first.
+const SOVEREIGN_PRICING_TARGETS: SovereignTarget[] = SOVEREIGN_UPSTREAM.key
+  ? [...new Set([Deno.env.get("SOVEREIGN_PRICING_MODEL")?.trim() || SOVEREIGN_UPSTREAM.textModel, SOVEREIGN_UPSTREAM.visionModel])]
+    .filter(Boolean)
+    .map((model) => ({ base: SOVEREIGN_UPSTREAM.base, key: SOVEREIGN_UPSTREAM.key as string, model }))
+  : []
 
 export const IDENTIFY_CONFIGURED = Boolean(API_KEY)
 /** The refusal both entry points return when the selected provider has no key. */
@@ -300,7 +311,9 @@ export type IdentifyInput = {
    */
   statedItems?: StatedItem[]
 }
-export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[] }
+/** `from_habit` is set only by the habits step (habits.ts) on an item a member's habit added or changed — never by
+ *  the model. Absent means the photo said it. */
+export type IdentifiedItem = { name: string; estimated_grams: number; flags: FoodFlagKey[]; from_habit?: boolean }
 
 export type IdentifySuccess = {
   ok: true
@@ -317,6 +330,14 @@ export type IdentifySuccess = {
   coverage_note: string | null
   model: string
   elapsed_ms: number
+  /** Set by the habits step (habits.ts withMealHabits) on a PHOTO meal: the model's own list, before any habit
+   *  touched `items`. completionPatch records THIS as `resolution_meta.identified`, never the post-habit list, or
+   *  the learner would read its own habits back as the member's corrections. Absent on text/voice meals. */
+  model_items?: IdentifiedItem[]
+  /** The habit rule keys applied to `items` (`[]` when none). Recorded as `resolution_meta.habits_applied` — it is how
+   *  the learner tells "the member kept the habit" from "the member undid it", and its presence is what lets a meal
+   *  into the learner at all. Absent on text/voice meals. */
+  habits_applied?: string[]
 }
 
 export type IdentifyFailure = {
@@ -673,7 +694,7 @@ export async function identifyMeal(input: IdentifyInput): Promise<IdentifyResult
 // and the query embedding is produced by `Supabase.ai` INSIDE the Edge Runtime.
 // That is why the worker never retries this half — a throw here is a bug, not
 // a dice roll.
-export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[] }
+export type MergedItem = ResolvedItem & { flags?: FoodFlagKey[]; from_habit?: boolean }
 export type MealTotals = { kcal: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number }
 export type PricedMeal = {
   items: MergedItem[]
@@ -683,7 +704,16 @@ export type PricedMeal = {
   scores: MealScores
   /** Where the numbers came from (`resolution_meta.pricing`): the source, its model, how long, how many foods fell
    *  back to the database. Absent on an empty meal. */
-  pricing?: { source: PricingSource; model: string | null; ms: number; fallback: number; pinned: number }
+  pricing?: {
+    source: PricingSource
+    model: string | null
+    ms: number
+    /** Foods that went down the resolver's ladder because this source could not price them. */
+    fallback: number
+    pinned: number
+    /** Sovereign only: how each food was priced. */
+    counts?: SovereignCounts
+  }
 }
 
 /** A fresh object every call — the result is handed straight to JSON.stringify
@@ -696,6 +726,50 @@ export function emptyPriced(): PricedMeal {
     totals: { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 },
     micros: {},
     scores: scoreMeal([]),
+  }
+}
+
+/** Indexes priced by the resolver whatever the source: placeholders, and the names this member corrected (tier 0a).
+ *  One query finds the corrections among this meal's names; an error just means none are pinned. */
+async function pinnedIndexes(
+  db: SupabaseClient,
+  asked: Array<{ name: string; grams: number }>,
+  patientId: string | null,
+): Promise<Set<number>> {
+  const pinned = new Set<number>()
+  asked.forEach((it, i) => {
+    if (isPlaceholder(it.name)) pinned.add(i)
+  })
+  if (!patientId) return pinned
+  const keys = [...new Set(asked.map((it) => aliasKey(it.name)).filter(Boolean))]
+  if (!keys.length) return pinned
+  try {
+    const { data } = await db.from("nb_patient_food_aliases").select("alias_norm")
+      .eq("patient_id", patientId).in("alias_norm", keys)
+    const corrected = new Set(((data ?? []) as Array<{ alias_norm: string }>).map((r) => r.alias_norm))
+    asked.forEach((it, i) => {
+      if (corrected.has(aliasKey(it.name))) pinned.add(i)
+    })
+  } catch {
+    // The ladder still reads tier 0a for anything that falls back; a lost lookup is never a lost meal.
+  }
+  return pinned
+}
+
+/** The reference plane as the sovereign pricing reads it: candidates in one RPC, then the chosen rows. PostgREST
+ *  errors are values here — a failed read throws, and priceSovereign treats it as "the table had nothing". */
+function referenceDb(db: SupabaseClient): ReferenceDb {
+  return {
+    async candidates(terms) {
+      const { data, error } = await db.rpc("match_food_reference", { q_terms: terms, per_term: 6 })
+      if (error) throw new Error(error.message)
+      return ((data ?? []) as Array<Candidate & { sim: number | string }>).map((c) => ({ ...c, sim: Number(c.sim) }))
+    },
+    async rows(ids) {
+      const { data, error } = await db.from("nb_food_items").select("*").in("id", ids)
+      if (error) throw new Error(error.message)
+      return (data ?? []) as Array<Record<string, unknown>>
+    },
   }
 }
 
@@ -735,38 +809,30 @@ export async function priceMeal(
   let resolved: ResolvedItem[]
   let fallback = 0
   let pinnedCount = 0
-  if (PRICING_SOURCE === "openai" && PRICING_KEY) {
-    // PINNED FIRST, by the resolver, never by OpenAI: a placeholder ("dinner items") is not a food, and a food this
+  let pricingModel: string | null = null
+  let counts: SovereignCounts | undefined
+  if ((PRICING_SOURCE === "openai" && PRICING_KEY) || (PRICING_SOURCE === "sovereign" && SOVEREIGN_PRICING_TARGETS.length)) {
+    // PINNED FIRST, by the resolver, never by a model: a placeholder ("dinner items") is not a food, and a food this
     // member corrected is priced from the row THEY chose (tier 0a — a hit costs one indexed read, no embedding).
-    // One query finds the member's corrections among this meal's names; an error just means no pinned corrections.
-    const pinned = new Set<number>()
-    asked.forEach((it, i) => {
-      if (isPlaceholder(it.name)) pinned.add(i)
-    })
-    if (patientId) {
-      const keys = [...new Set(asked.map((it) => aliasKey(it.name)).filter(Boolean))]
-      if (keys.length) {
-        try {
-          const { data } = await db.from("nb_patient_food_aliases").select("alias_norm")
-            .eq("patient_id", patientId).in("alias_norm", keys)
-          const corrected = new Set(((data ?? []) as Array<{ alias_norm: string }>).map((r) => r.alias_norm))
-          asked.forEach((it, i) => {
-            if (corrected.has(aliasKey(it.name))) pinned.add(i)
-          })
-        } catch {
-          // The ladder below still reads tier 0a for anything that falls back; a lost lookup is never a lost meal.
-        }
-      }
-    }
+    const pinned = await pinnedIndexes(db, asked, patientId)
     pinnedCount = pinned.size
     const open = asked.flatMap((_, i) => (pinned.has(i) ? [] : [i]))
-    const ai = await priceItemsWithOpenAI(open.map((i) => asked[i]), { apiKey: PRICING_KEY, model: PRICING_MODEL })
+    let ai: Array<ResolvedItem | null>
+    if (PRICING_SOURCE === "sovereign") {
+      const s = await priceSovereign(open.map((i) => asked[i]), SOVEREIGN_PRICING_TARGETS, referenceDb(db))
+      ai = s.resolved
+      pricingModel = s.model
+      counts = s.counts
+    } else {
+      ai = await priceItemsWithOpenAI(open.map((i) => asked[i]), { apiKey: PRICING_KEY as string, model: PRICING_MODEL })
+      pricingModel = PRICING_MODEL
+    }
     const out: Array<ResolvedItem | null> = asked.map(() => null)
     open.forEach((i, k) => {
       out[i] = ai[k]
     })
-    // The pinned foods, and any food OpenAI could not price (timeout, bad answer, "not a food"), go to the database
-    // ladder together: a few items stay well inside the CPU budget that eight in a row exhaust.
+    // The pinned foods, and any food the model path could not price (timeout, bad answer, "not a food"), go to the
+    // database ladder together: a few items stay well inside the CPU budget that eight in a row exhaust.
     const missing = out.flatMap((r, i) => (r ? [] : [i]))
     fallback = missing.length - pinnedCount
     if (missing.length) {
@@ -781,10 +847,11 @@ export async function priceMeal(
   }
   const pricing = {
     source: PRICING_SOURCE,
-    model: PRICING_SOURCE === "openai" ? PRICING_MODEL : null,
+    model: pricingModel,
     ms: Date.now() - startedAt,
     fallback,
     pinned: pinnedCount,
+    ...(counts ? { counts } : {}),
   }
 
   // MERGE, by index. The resolver returns items in the order it was given them.
@@ -802,6 +869,9 @@ export async function priceMeal(
       ...r,
       name: identified[i]?.name ?? r.name,
       ...(flags.length ? { flags } : {}),
+      // The habits mark rides from identification to the row the app reads, like the flags: only when true, so an
+      // ordinary item never carries a `from_habit: false` the app would have to interpret.
+      ...(identified[i]?.from_habit ? { from_habit: true } : {}),
     }
   })
 
@@ -839,9 +909,9 @@ export async function priceMeal(
     }
   }
 
-  // The rules engine sees the PRICED macros — the reference database's, or under
-  // MEAL_PRICING=openai OpenAI's per-100 g estimate scaled to the portion — never
-  // the identification model's guesses (it is told not to give any).
+  // The rules engine sees the PRICED macros — the reference database's (directly, or
+  // chosen by the sovereign path), an Infomaniak or OpenAI per-100 g estimate where
+  // no row fits — never the identification model's guesses (it is told not to give any).
   return { items, resolved, totals, micros, scores: scoreMeal(items), pricing }
 }
 
@@ -901,12 +971,20 @@ export function completionPatch(
     resolved_foods: priced.resolved,
     resolution_meta: {
       model: ident.model,
+      // WHAT THE MODEL SAW, kept apart from ai_identified_foods: that column is rewritten here (priced items) and again
+      // by the app when the member edits the meal. This is the only record of the model's own list — what the meal
+      // model review judges, and what learning the member's habits compares their edits against.
+      // On a photo meal the habits step has already rewritten ident.items; model_items is the list the model returned.
+      identified: (ident.model_items ?? ident.items).map((it) => ({ name: it.name, grams: it.estimated_grams })),
+      ...(ident.habits_applied ? { habits_applied: ident.habits_applied } : {}),
       confidence: ident.confidence,
       duplicates_dropped: ident.duplicates_dropped,
       identify_ms: ident.elapsed_ms,
       attempts,
       basis,
       needs_review: priced.resolved.filter((r) => r.needs_review).length,
+      // How much of the nutrient list this meal really measured. Additive: totals above are summed as before.
+      micro_coverage: computeMicroCoverage(priced.items),
       ...(priced.pricing ? { pricing: priced.pricing } : {}),
       resolved_at: now.toISOString(),
     },

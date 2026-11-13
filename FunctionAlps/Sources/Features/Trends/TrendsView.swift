@@ -1,267 +1,160 @@
 import SwiftUI
 
-/// The web app's Trends tab (`app/(tabs)/health.tsx`): the Functional Score crown, Gut Intelligence,
-/// the check-in entry. Every number comes from `member-scores` — the app renders, it never scores.
+/// The Trends tab, reworked after the owner-validated mockup (2026-11-10): the member's data as they logged it —
+/// the functional score (six equal signals), the plan day by day, their devices, each signal (tap to open it in
+/// place, tap again for its page), what they ate and how they felt, and the patterns their practitioner shared.
+/// Every number is a count, an average or a plain read-back of the member's own logs (`TrendsEngine`); the one
+/// sentence per signal comes from a fixed, owner-approved set (`TrendSentence`). Nothing here scores or diagnoses.
 struct TrendsView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(AppRouter.self) private var router
-    @State private var model: TrendsViewModel?
+    @State private var expanded: TrendSignal? = TrendsView.initialExpanded
+
+    /// The showcase screenshot of an open Energy row starts with it open (there is no finger in the simulator).
+    private static var initialExpanded: TrendSignal? {
+        #if DEBUG
+        return Showcase.screen == .trendsEnergyOpen ? .energy : nil
+        #else
+        return nil
+        #endif
+    }
 
     var body: some View {
+        let trends = dependencies.trends
         ZStack {
-            if let model { content(model) }
+            content(trends)
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
-        .task {
-            if model == nil {
-                let m = TrendsViewModel(backend: dependencies.backend, auth: dependencies.auth)
-                model = m
-                await m.load()
-            }
-        }
+        .task { await trends.loadIfNeeded() }
+        .task { await dependencies.signals.loadIfNeeded() }
+        .task { await dependencies.supplements.load() }   // the strip follows every tick: this is the same shared read
         .onAppear {
-            if let model, model.state.value != nil { Task { await model.load(refresh: true) } }
-            consumePendingPillar()
+            // The scores hub used to hand a pillar over here; Trends no longer has pillars, so the hand-over is dropped.
+            router.pendingPillar = nil
+            Task { await trends.refreshIfStale() }
         }
-        .onChange(of: router.pendingPillar) { _, _ in consumePendingPillar() }
-    }
-
-    /// The hub handed over a pillar to expand: open it once the model exists, then clear the hand-over.
-    private func consumePendingPillar() {
-        guard let pillar = router.pendingPillar, let model else { return }
-        model.openPillar = pillar
-        router.pendingPillar = nil
     }
 
     @ViewBuilder
-    private func content(_ model: TrendsViewModel) -> some View {
-        switch model.state {
-        case .loading:
+    private func content(_ trends: TrendsService) -> some View {
+        switch trends.phase {
+        case .idle, .loading:
             FALoadingState()
-        case .failed(let error):
-            FAErrorState(title: String(localized: "trends.error.title", defaultValue: "Couldn't compute your scores"), message: error.userMessage) {
-                Task { await model.load() }
+        case .failed(let message):
+            FAErrorState(title: String(localized: "trends.error.load", defaultValue: "Couldn't load your trends"), message: message) {
+                Task { await trends.load() }
             }
         case .empty:
-            FAErrorState(title: String(localized: "trends.error.title", defaultValue: "Couldn't compute your scores"), message: String(localized: "home.notRegistered.message", defaultValue: "This account isn't linked to a FunctionAlps client profile yet. Finish onboarding on the FunctionAlps web app, then come back."), retryTitle: nil, retry: nil)
-        case .loaded(let scores):
+            FAErrorState(title: String(localized: "trends.error.load", defaultValue: "Couldn't load your trends"),
+                         message: String(localized: "home.notRegistered.message", defaultValue: "This account isn't linked to a FunctionAlps client profile yet. Finish onboarding on the FunctionAlps web app, then come back."),
+                         retryTitle: nil, retry: nil)
+        case .loaded:
+            if let page = trends.page { loaded(page, trends: trends) }
+        }
+    }
+
+    private func loaded(_ page: TrendsEngine.Page, trends: TrendsService) -> some View {
+        ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    FunctionalScoreCrown(scores: scores, open: model.openPillar) { model.toggle($0) }
-                    NavigationLink(value: Route.scores) {
-                        HStack(spacing: 4) {
-                            Text(String(localized: "trends.allScores", defaultValue: "All your scores")).font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.forestSoft)
-                            Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
-                        }
-                        .frame(maxWidth: .infinity)
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(localized: "trends.title", defaultValue: "Trends"))
+                            .font(FATypography.display(34, relativeTo: .largeTitle))
+                            .foregroundStyle(FAColor.ink)
+                            .accessibilityAddTraits(.isHeader)
+                        Text(String(localized: "trends.subtitle", defaultValue: "Your data, as you logged it."))
+                            .font(FATypography.sans(14, relativeTo: .subheadline))
+                            .foregroundStyle(FAColor.inkSecondary)
                     }
-                    .buttonStyle(.plain)
-                    NavigationLink(value: Route.gutIntelligence) { GutIntelligenceCard(breakdown: scores.gut) }.buttonStyle(.plain)
-                    // One check-in a day, in the evening (owner, 2026-09-30).
-                    DailyCheckinCTA(slot: .evening)
-                    // Apple Health's readings as charts — moved here from Home (Trends is the data side).
-                    if HealthKitReader.isAvailable {
-                        healthReadings
+                    .padding(.horizontal, 2)
+                    TrendWindowPicker(selection: trends.window) { trends.setWindow($0) }
+                    if page.hasAnyLog {
+                        sections(page)
+                    } else {
+                        emptyState
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 38)
                 .padding(.bottom, FASpacing.navBarClearance)
             }
-            .refreshable { await model.load(refresh: true) }
-            .task { await dependencies.wearables.refreshSnapshot() }
+            .refreshable { await trends.load(refresh: true) }
+            #if DEBUG
+            .task { await Showcase.scroll(proxy, to: "trends.plan", on: .trendsMiddle) }
+            .task { await Showcase.scroll(proxy, to: "trends.supplements", on: .trendsSupplements, anchor: UnitPoint(x: 0.5, y: 0.3)) }
+            .task { await Showcase.scroll(proxy, to: "trends.food", on: .trendsBottom) }
+            .task { await Showcase.scroll(proxy, to: "trends.signals", on: .trendsEnergyOpen) }
+            #endif
         }
     }
 
-    /// Apple Health straight as its charts once connected; the invitation until then.
     @ViewBuilder
-    private var healthReadings: some View {
-        let wearables = dependencies.wearables
-        if !wearables.isConnected {
-            NavigationLink(value: Route.wearables) { AppleHealthConnectCard() }
-                .buttonStyle(.plain)
-        } else if let snapshot = wearables.snapshot {
-            if snapshot.hasAnyReading {
-                HealthCharts(snapshot: snapshot)
-            } else {
-                FACard {
-                    Text(String(localized: "home.health.empty", defaultValue: "No readings yet · open the Health app on your iPhone to check what it holds."))
-                        .font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary).fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        } else {
-            FACard {
-                HStack(spacing: 8) {
-                    ProgressView().controlSize(.small)
-                    Text(String(localized: "home.health.reading", defaultValue: "Reading Health…")).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                }
-            }
+    private func sections(_ page: TrendsEngine.Page) -> some View {
+        TrendsScoreCard(page: page, onLearn: learn(.score))
+        TrendsPlanCard(page: page, supplementRows: TrendsEngine.supplementRows(dependencies.supplements.supplements, window: page.window)).id("trends.plan")
+        if !page.devices.isEmpty {
+            TrendsDevicesCard(devices: page.devices) { router.push(.trendDevice($0.key)) }
         }
-    }
-}
-
-/// Wheel (left) + 14-day chart (right), then the three pillar wheel-tiles; tapping one expands
-/// inline: tip → factor bars → 14-day bars.
-struct FunctionalScoreCrown: View {
-    let scores: MemberScores
-    let open: MemberScores.Pillar?
-    let onToggle: (MemberScores.Pillar) -> Void
-    private static let green = Color(hex: 0x8FBF97)
-
-    private var series: [Int] { scores.crownSeries.compactMap { $0 } }
-
-    var body: some View {
-        FACard {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center, spacing: 14) {
-                    ActivityRing(pct: Double(scores.composite.intScore ?? 0) / 100, color: Self.green) {
-                        VStack(spacing: 1) {
-                            Text(scores.composite.intScore.map(String.init) ?? "·")
-                                .font(FATypography.display(30, relativeTo: .title))
-                                .foregroundStyle(scores.composite.intScore == nil ? FAColor.inkSecondary : FAColor.ink)
-                            Text(String(localized: "home.hero.functional", defaultValue: "Functional").uppercased())
-                                .font(FATypography.sans(7.5, .semibold, relativeTo: .caption2))
-                                .tracking(1.2)
-                                .foregroundStyle(FAColor.inkSecondary)
-                        }
-                    }
-                    VStack(alignment: .trailing, spacing: 6) {
-                        trendPill
-                        if series.count >= 2 {
-                            ScoreBarTrend(values: scores.crownSeries, color: Self.green, height: 84)
-                            HStack {
-                                Text(series.count >= 14 ? String(localized: "trends.days14", defaultValue: "14 days") : String(localized: "trends.daysN", defaultValue: "\(series.count) days"))
-                                    .font(FATypography.sans(10, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
-                                Spacer()
-                                Text(String(localized: "day.today", defaultValue: "Today"))
-                                    .font(FATypography.sans(10, .semibold, relativeTo: .caption2)).foregroundStyle(FAColor.ink)
-                            }
-                        } else {
-                            Text(series.count == 1
-                                 ? String(localized: "trends.baseline.one", defaultValue: "Baseline set · one more check-in and your bars grow.")
-                                 : String(localized: "trends.baseline.none", defaultValue: "Complete a check-in to start your 14-day trend."))
-                                .font(FATypography.sans(12, relativeTo: .caption))
-                                .foregroundStyle(FAColor.inkSecondary)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-
-                Divider().overlay(FAColor.separator).padding(.top, 14)
-
-                HStack(spacing: 8) {
-                    ForEach(MemberScores.Pillar.allCases, id: \.self) { pillar in
-                        let v = scores.breakdown(pillar).intScore
-                        let active = open == pillar
-                        Button { onToggle(pillar) } label: {
-                            VStack(spacing: 6) {
-                                ActivityRing(pct: Double(v ?? 0) / 100, color: Color(hex: pillar.tintHex), size: 62, strokeWidth: 8, trackColor: Color(white: 0.47, opacity: 0.16)) {
-                                    Text(v.map(String.init) ?? "·")
-                                        .font(FATypography.display(17, relativeTo: .headline))
-                                        .foregroundStyle(v == nil ? FAColor.inkSecondary : FAColor.ink)
-                                }
-                                Text(pillar.title)
-                                    .font(FATypography.sans(11, .semibold, relativeTo: .caption))
-                                    .foregroundStyle(active ? FAColor.ink : FAColor.inkSecondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(active ? Color.black.opacity(0.045) : Color.clear, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("\(pillar.title): \(v.map(String.init) ?? "·")")
-                    }
-                }
-                .padding(.top, 14)
-
-                if let open {
-                    PillarExpansion(pillar: open, breakdown: scores.breakdown(open))
-                        .padding(.top, 12)
-                }
-            }
-        }
-        .animation(.easeOut(duration: 0.22), value: open)
-    }
-
-    private var trendPill: some View {
-        let (label, symbol): (String, String) = {
-            switch scores.trend {
-            case .up: (String(localized: "trend.up", defaultValue: "Trending up"), "arrow.up.right")
-            case .down: (String(localized: "trend.down", defaultValue: "Off baseline"), "arrow.down.right")
-            case .flat: (String(localized: "trend.flat", defaultValue: "Holding steady"), "minus")
-            case nil: (String(localized: "trend.none", defaultValue: "Building baseline"), "minus")
-            }
-        }()
-        return HStack(spacing: 4) {
-            Image(systemName: symbol).font(.system(size: 11, weight: .semibold))
-            Text(label).font(FATypography.sans(11, .semibold, relativeTo: .caption))
-        }
-        .foregroundStyle(FAColor.ink)
-        .padding(.horizontal, 9).padding(.vertical, 5)
-        .background(Color(red: 74 / 255, green: 138 / 255, blue: 92 / 255, opacity: 0.12), in: Capsule())
-        .overlay(Capsule().strokeBorder(Color(red: 74 / 255, green: 138 / 255, blue: 92 / 255, opacity: 0.28), lineWidth: 1))
-    }
-}
-
-/// Tip first, then the factors, then the 14-day bars — for the tapped pillar.
-struct PillarExpansion: View {
-    let pillar: MemberScores.Pillar
-    let breakdown: ScoreBreakdown
-    private static let bad = Color(hex: 0xC2554C)
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Divider().overlay(FAColor.separator)
-            if let tip = breakdown.tip {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(tip.summaryText(label: pillar.title))
-                        .font(FATypography.sans(13, .semibold, relativeTo: .callout)).foregroundStyle(FAColor.ink)
-                    if !tip.good.isEmpty {
-                        Text(tip.good).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(FAColor.ink)
-                    }
-                    if !tip.bad.isEmpty {
-                        Text(tip.bad).font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(Self.bad)
-                    }
-                }
-            }
-            VStack(spacing: 7) {
-                ForEach(breakdown.factors.filter { $0.value != nil }) { factor in
-                    FactorBarRow(factor: factor, tint: Color(hex: pillar.tintHex))
-                }
-            }
-            if breakdown.series14d.contains(where: { $0 != nil }) {
-                VStack(alignment: .leading, spacing: 4) {
-                    ScoreBarTrend(values: breakdown.intSeries, color: Color(hex: pillar.tintHex), height: 78)
-                    Text(String(localized: "trends.last14", defaultValue: "Last 14 days"))
-                        .font(FATypography.sans(9.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
-                }
-            }
-        }
-    }
-}
-
-struct FactorBarRow: View {
-    let factor: ScoreFactor
-    let tint: Color
-
-    var body: some View {
-        HStack(spacing: 9) {
-            Text(factor.label)
-                .font(FATypography.sans(11.5, .medium, relativeTo: .caption))
+        HStack(alignment: .firstTextBaseline) {
+            TrendLabel(text: String(localized: "trends.signals.title", defaultValue: "Your signals"))
+            Spacer()
+            Text(String(localized: "trends.signals.hint", defaultValue: "Tap to expand · tap again for details"))
+                .font(FATypography.sans(10.5, relativeTo: .caption2))
                 .foregroundStyle(FAColor.inkSecondary)
-                .lineLimit(1)
-                .frame(width: 96, alignment: .leading)
-            HashedBar(color: tint, pct: Double(factor.intValue ?? 0) / 100, height: 14, raised: true)
-            Text(factor.intValue.map(String.init) ?? "·")
-                .font(FATypography.sans(12, .bold, relativeTo: .caption))
-                .foregroundStyle(factor.value == nil ? FAColor.inkSecondary : FAColor.ink)
-                .frame(width: 26, alignment: .trailing)
         }
-        .accessibilityElement(children: .combine)
+        .padding(.horizontal, 4)
+        .padding(.top, 6)
+        .id("trends.signals")
+        ForEach(TrendSignal.allCases) { signal in
+            TrendSignalRow(page: page, signal: signal, expanded: expanded == signal,
+                           cardText: dependencies.signals.content(for: signal.rawValue)?.cardText,
+                           onLearn: SignalAboutKey(rawValue: signal.rawValue).flatMap(learn)) { tap(signal) }
+        }
+        TrendsFoodCard(page: page).id("trends.food")
+        TrendsPatternsRow(count: page.patterns.count) { router.push(.trendPatterns) }
+        NavigationLink(value: Route.scores) {
+            HStack(spacing: 4) {
+                Text(String(localized: "trends.allScores", defaultValue: "All your scores"))
+                    .font(FATypography.sans(12.5, .semibold, relativeTo: .caption))
+                    .foregroundStyle(FAColor.forestSoft)
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(FAColor.forestSoft)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// The way to a signal's "About" page — nil (the link is hidden) until the practice's explanation of it is loaded.
+    private func learn(_ key: SignalAboutKey) -> (() -> Void)? {
+        guard dependencies.signals.content(for: key.rawValue) != nil else { return nil }
+        return { router.push(.signalAbout(key.rawValue)) }
+    }
+
+    /// First tap opens the row in place; a tap on the open row goes to its page.
+    private func tap(_ signal: TrendSignal) {
+        if expanded == signal {
+            router.push(.trendSignal(signal))
+        } else {
+            withAnimation(.easeOut(duration: 0.22)) { expanded = signal }
+        }
+    }
+
+    private var emptyState: some View {
+        FACard {
+            VStack(spacing: 12) {
+                FAEmptyState(
+                    title: String(localized: "trends.empty.title", defaultValue: "Your trends start with a check-in"),
+                    message: String(localized: "trends.empty.message", defaultValue: "Log how you feel and what you eat, and your days appear here."),
+                    systemImage: "chart.line.uptrend.xyaxis")
+                NavigationLink(value: Route.checkin(dependencies.checkins.currentSlot)) {
+                    Text(String(localized: "trends.empty.cta", defaultValue: "Start today's check-in"))
+                        .font(FATypography.sans(13, .semibold, relativeTo: .footnote))
+                        .foregroundStyle(FAColor.forest)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 
@@ -310,88 +203,5 @@ struct ScoreBarTrend: View {
             .offset(y: -height * 0.25 + 4)
         }
         .accessibilityHidden(true)
-    }
-}
-
-/// Gut Intelligence: wheel + tip + factor bars + 14-day bars (GutIntelligenceCard.tsx).
-struct GutIntelligenceCard: View {
-    let breakdown: ScoreBreakdown
-    private static let tint = Color(hex: 0x86B8A6)
-    private static let bad = Color(hex: 0xC2554C)
-
-    var body: some View {
-        FACard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(String(localized: "trends.gut.title", defaultValue: "Gut Intelligence"))
-                    .font(FATypography.sans(13, .semibold, relativeTo: .callout)).foregroundStyle(FAColor.ink)
-                HStack(alignment: .center, spacing: 14) {
-                    ActivityRing(pct: Double(breakdown.intScore ?? 0) / 100, color: Self.tint, size: 78, strokeWidth: 10, trackColor: Color(red: 120 / 255, green: 150 / 255, blue: 130 / 255, opacity: 0.3)) {
-                        VStack(spacing: 0) {
-                            Text(breakdown.intScore.map(String.init) ?? "·")
-                                .font(FATypography.display(22, relativeTo: .title2))
-                                .foregroundStyle(breakdown.intScore == nil ? FAColor.inkSecondary : FAColor.ink)
-                            Text(String(localized: "trends.gut.short", defaultValue: "Gut").uppercased())
-                                .font(FATypography.sans(7, .semibold, relativeTo: .caption2)).tracking(1.1).foregroundStyle(FAColor.inkSecondary)
-                        }
-                    }
-                    if let tip = breakdown.tip {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(tip.summaryText(label: String(localized: "trends.gut.label", defaultValue: "gut")))
-                                .font(FATypography.sans(12.5, .semibold, relativeTo: .caption)).foregroundStyle(FAColor.ink)
-                            if !tip.good.isEmpty { Text(tip.good).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(FAColor.ink) }
-                            if !tip.bad.isEmpty { Text(tip.bad).font(FATypography.sans(12, relativeTo: .caption)).foregroundStyle(Self.bad) }
-                        }
-                    }
-                }
-                VStack(spacing: 7) {
-                    ForEach(breakdown.factors.filter { $0.value != nil }) { factor in
-                        FactorBarRow(factor: factor, tint: Self.tint)
-                    }
-                }
-                if breakdown.series14d.contains(where: { $0 != nil }) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        ScoreBarTrend(values: breakdown.intSeries, color: Self.tint, height: 78)
-                        Text(String(localized: "trends.last14", defaultValue: "Last 14 days"))
-                            .font(FATypography.sans(9.5, relativeTo: .caption2)).foregroundStyle(FAColor.inkSecondary)
-                    }
-                }
-            }
-        }
-    }
-}
-
-/// The single entry into the daily check-in (DailyCheckinCTA.tsx) — opens the evening check-in, the one of the day.
-struct DailyCheckinCTA: View {
-    let slot: MomentSlot
-
-    var body: some View {
-        NavigationLink(value: Route.checkin(slot)) {
-            FACard {
-                HStack(spacing: 13) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 15, style: .continuous).fill(FAColor.accent.opacity(0.14))
-                        RoundedRectangle(cornerRadius: 15, style: .continuous).strokeBorder(FAColor.accent.opacity(0.3), lineWidth: 1)
-                        Image(systemName: "sun.max").font(.system(size: 20)).foregroundStyle(FAColor.ink)
-                    }
-                    .frame(width: 46, height: 46)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "trends.checkin.title", defaultValue: "Daily Check-in"))
-                            .font(FATypography.sans(16, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
-                        Text(String(localized: "trends.checkin.sub", defaultValue: "Log today’s signals in under 2 minutes"))
-                            .font(FATypography.sans(12.5, relativeTo: .caption)).foregroundStyle(FAColor.inkSecondary)
-                    }
-                    Spacer()
-                    HStack(spacing: 3) {
-                        Text(String(localized: "trends.checkin.start", defaultValue: "Start")).font(FATypography.sans(12, .semibold, relativeTo: .caption))
-                        Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
-                    }
-                    .foregroundStyle(FAColor.ink)
-                    .padding(.horizontal, 12).padding(.vertical, 7)
-                    .background(FAColor.accent.opacity(0.14), in: Capsule())
-                    .overlay(Capsule().strokeBorder(FAColor.accent.opacity(0.3), lineWidth: 1))
-                }
-            }
-        }
-        .buttonStyle(.plain)
     }
 }

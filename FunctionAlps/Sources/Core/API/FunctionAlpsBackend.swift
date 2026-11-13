@@ -41,6 +41,9 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// Today's saved moments, oldest first.
     func checkinMoments(patientId: String, day: String) async throws -> [CheckinMoment]
+    /// The member's moments from `since` (YYYY-MM-DD) to today, by day — Trends reads focus, the pills and the
+    /// check-in's own sleep clock from them. Default: none (test stubs that do not model Trends).
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]]
     /// One row per (patient, day, slot); re-saving a slot edits it.
     func upsertCheckinMoment(patientId: String, day: String, moment: CheckinMoment) async throws
     /// What the day row already holds (read before the summary write — no-wipe).
@@ -51,6 +54,23 @@ protocol FunctionAlpsBackend: Sendable {
     /// moment of the day and appends the events in one transaction; the patient is resolved from the JWT.
     /// RAW answers up, the SERVER-scored row back (`member_submit_checkin` v2) — one scorer for every client.
     func submitCheckin(day: String, slot: MomentSlot, submission: CheckinSubmission) async throws -> CheckinSubmitResult
+
+    // MARK: Feeling for the day (patient_day_feelings, 2026-11-12)
+
+    /// How the member said they feel as this day starts; nil when none was saved. Not a check-in moment.
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling?
+    /// One row per (patient, day); saving again edits it.
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws
+    /// After a hard morning, the daily check-in's "how was the rest of your day?" — the two `evening_*` columns of the day's
+    /// feelings row, read apart from the morning's answers (a database without the columns reads as "none saved").
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup?
+    /// Today's kickoff morning routine run (`patient_routine_runs`, `routine = 'kickoff_morning'`); nil when the day has none (or the
+    /// database has no such table yet).
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun?
+    /// One row per (patient, day, routine): the columns sent are the ones that change (`KickoffRunLogic`).
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws
+    /// Writes ONLY the follow-up columns; the morning's answers on the same row are never touched.
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws
 
     // MARK: Scores (server-side engine)
 
@@ -67,6 +87,12 @@ protocol FunctionAlpsBackend: Sendable {
     func libraryItem(slug: String) async throws -> LibraryGetRow?
     /// `library_topic_covers` — one cover per topic, shared with the members web (anon/authenticated select).
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow]
+
+    // MARK: Signal explanations (practice-curated content; the app renders it, never invents it)
+
+    /// `signal_explanations` for the app's language: approved rows only (RLS says so too), newest version first. The service
+    /// keeps the newest per signal. Default: none (test stubs that do not model it).
+    func signalExplanations(locale: String) async throws -> [SignalExplanation]
     /// `member_lesson_progress` insert (a nil track = a standalone-resource open).
     func insertLessonProgress(patientId: String, trackId: String?, contentSlug: String) async throws
 
@@ -134,6 +160,9 @@ protocol FunctionAlpsBackend: Sendable {
     func gutToday(patientId: String, day: String) async throws -> GutTodayRead?
     /// Days with a gut check-in in [since, before) (YYYY-MM-DD), oldest first — the 14-day dashboard.
     func gutHistory(patientId: String, since: String, before: String) async throws -> [GutDay]
+    /// Days with a gut check-in from `since` to today, WITH the Bristol type and the symptoms ticked — Trends'
+    /// Digestion page. Default: none.
+    func gutDays(patientId: String, since: String) async throws -> [GutDay]
     /// The Expo `saveGutCheckinV2` upsert on (patient_id, checkin_date); every listed column explicit.
     func upsertGutCheckin(patientId: String, day: String, write: GutCheckinWrite) async throws
 
@@ -172,6 +201,19 @@ protocol FunctionAlpsBackend: Sendable {
     /// One row per marker line of the member's APPROVED lab releases, from the frozen release content.
     /// The patient is resolved from the JWT inside the function; nothing else about labs is readable.
     func labResults() async throws -> [LabResultRow]
+
+    // MARK: Documents (member_documents — Documents tab programme)
+
+    /// The member's LIVE document releases (sent, not revoked), via `member_documents()`.
+    func memberDocuments() async throws -> [MemberDocument]
+    /// Where one release's frozen copy lives (`member_document_file`); nil when the release is not the caller's or not live.
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile?
+    /// A short-lived signed URL for an object of a document bucket (`document-releases`, `invoices`); other buckets throw.
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL
+    /// `member_mark_document_seen(p_release_id)` — stamps the first and last open.
+    func markDocumentSeen(releaseId: String) async throws
+    /// `member_has_draft_plan()` — a plan exists but is still a draft (shown blurred, never its content).
+    func hasDraftPlan() async throws -> Bool
 
     // MARK: Messaging (patient_messages)
 
@@ -265,6 +307,10 @@ protocol FunctionAlpsBackend: Sendable {
     func nextAppointment(after: Date) async throws -> AppointmentRow?
     /// The member's most recent appointment before `before`, not cancelled ("Your Pathway": "based on your consultation of …").
     func lastAppointment(before: Date) async throws -> AppointmentRow?
+    /// The client's care plan as the practice shared it (CLINICAL migrations 325 + 331): the seven member RPCs
+    /// `member_care_plan_programmes · _objectives · _wins · _complaints · _hypotheses · _evolution · _situation`.
+    /// Programmes and objectives may throw; the other five fail soft to empty so one missing function never hides the plan.
+    func clientCarePlan() async throws -> ClientCarePlanRaw
     /// `care_plans.objective_line` of the active plan — the clinician's own words, "Your focus" on the Pathway.
     func activePlanObjective(patientId: String) async throws -> String?
     /// Devices linked through Thryve on the web app (`wearable_connections`, member-read RLS).
@@ -306,6 +352,15 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// One notification row's content-free pointers (`data_json`) — where a tap on a push without a route belongs.
     func notificationData(id: String) async throws -> JSONValue?
+
+    // MARK: Supplements (CM OS migration 333; every figure computed server-side)
+
+    /// `member_supplements()`: the member's supplements — what the practice prescribed (patient-visible, approved),
+    /// today's ticks and the observance (days, taken, percent, band, 14-day strip). Default: none.
+    func supplements() async throws -> [Supplement]
+    /// `member_log_supplement(p_plan, p_moment, p_taken, p_day)`: ticks (or un-ticks) one moment. Idempotent. `day` nil =
+    /// today; the server accepts only today or yesterday (`22023` otherwise). `planId` is the supplement's `id`.
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
@@ -421,3 +476,18 @@ struct FoodAliasRow: Sendable, Equatable {
 }
 
 enum FoodAliasWrite: Sendable, Equatable { case inserted, corroborated }
+
+/// Reads only Trends needs: a backend that does not model them answers "nothing logged", never an error.
+extension FunctionAlpsBackend {
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] { [:] }
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? { nil }
+    func saveDayFeeling(patientId: String, feeling: DayFeeling) async throws {}
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? { nil }
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? { nil }
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {}
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {}
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
+    func supplements() async throws -> [Supplement] { [] }
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {}
+}

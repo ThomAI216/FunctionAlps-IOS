@@ -51,6 +51,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let mealsPerDay: Int?
         let snacksPerDay: Int?
         let macrosCustomized: Bool?
+        let createdAt: Date?
     }
 
     private static let profileColumns = [
@@ -58,7 +59,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
         "health_goals", "current_complaints", "dietary_pattern",
         "target_calories", "target_protein_g", "target_carbs_g", "target_fat_g",
         "goal_mode", "onboarding_completed_at", "adult_confirmed_at", "locale", "tdee_kcal",
-        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized",
+        "estimated_body_fat_percent", "custom_calorie_offset_kcal", "meals_per_day", "snacks_per_day", "macros_customized", "created_at",
     ].joined(separator: ",")
 
     func memberProfile(patientId: String) async throws -> MemberProfile? {
@@ -89,7 +90,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             customCalorieOffsetKcal: row.customCalorieOffsetKcal,
             mealsPerDay: row.mealsPerDay,
             snacksPerDay: row.snacksPerDay,
-            macrosCustomized: row.macrosCustomized ?? false
+            macrosCustomized: row.macrosCustomized ?? false,
+            createdAt: row.createdAt
         )
     }
 
@@ -97,13 +99,37 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     /// Columns BY NAME, never `*`. `ai_coaching_response` is deliberately not read: it is model
     /// prose and must never sit next to `patient_note` under one label.
-    private static let mealColumns = [
+    private static let baseMealColumns = [
         "id", "logged_at", "meal_type", "name", "source", "analysis_status", "analysis_last_error",
         "total_calories", "total_protein_g", "total_carbs_g", "total_fat_g", "total_fiber_g",
         "photo_url", "photo_urls", "ai_identified_foods",
         "inflammation_score", "glycemic_score", "gut_score", "patient_note", "micronutrient_totals",
         "analysis_coverage", "protocol_flags",
-    ].joined(separator: ",")
+    ]
+
+    /// Plus one key out of the `resolution_meta` jsonb, not the whole record (it also holds the model's food list and timings).
+    private static let mealColumns = (baseMealColumns + ["micro_coverage:resolution_meta->micro_coverage"]).joined(separator: ",")
+
+    /// Runs the meal read with the coverage key; a database without `resolution_meta` fails the select, so the plain
+    /// columns are the fallback (the meals still load, just without the coverage note).
+    private func withCoverageFallback<T>(_ read: (String) async throws -> T) async throws -> T {
+        do { return try await read(Self.mealColumns) } catch AppError.validation { return try await read(Self.baseMealColumns.joined(separator: ",")) }
+    }
+
+    /// `resolution_meta.micro_coverage` as `analyze-meal` writes it. Any other shape reads as "not recorded".
+    private struct MicroCoverageRow: Decodable, Sendable {
+        let tracked: Int
+        let measured: Int
+        let items: Int
+        let itemsFromCatalogue: Int
+        let partial: [String]
+        var model: MealMicroCoverage { MealMicroCoverage(tracked: tracked, measured: measured, items: items, itemsFromCatalogue: itemsFromCatalogue, partial: partial) }
+    }
+
+    /// A realtime payload carries the whole `resolution_meta`, a REST read only the aliased `micro_coverage`.
+    private struct ResolutionMetaRow: Decodable, Sendable {
+        let microCoverage: MicroCoverageRow?
+    }
 
     private struct MealRow: Decodable, Sendable {
         let id: String
@@ -128,12 +154,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let micronutrientTotals: [String: Double]
         let analysisCoverage: String?
         let protocolFlags: [ProtocolLens.Flag]?
+        let microCoverage: MealMicroCoverage?
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
             case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
-            case analysisCoverage, protocolFlags
+            case analysisCoverage, protocolFlags, microCoverage, resolutionMeta
         }
 
         init(from decoder: any Decoder) throws {
@@ -163,6 +190,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
             analysisCoverage = try? c.decodeIfPresent(String.self, forKey: .analysisCoverage)
             // A jsonb array of matches, or null; an odd shape reads as "not computed", never as a wrong flag.
             protocolFlags = (try? c.decodeIfPresent([ProtocolLens.Flag].self, forKey: .protocolFlags)) ?? nil
+            // Additive jsonb: absent, null or an odd shape all read as "not recorded", never as a lost meal.
+            let direct = (try? c.decodeIfPresent(MicroCoverageRow.self, forKey: .microCoverage)) ?? nil
+            let viaMeta = (try? c.decodeIfPresent(ResolutionMetaRow.self, forKey: .resolutionMeta)) ?? nil
+            microCoverage = (direct ?? viaMeta?.microCoverage)?.model
         }
 
         var model: MealLog {
@@ -189,24 +220,29 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 patientNote: patientNote,
                 micros: micronutrientTotals,
                 analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil,
-                protocolFlags: protocolFlags
+                protocolFlags: protocolFlags,
+                microCoverage: microCoverage
             )
         }
     }
 
     func meals(patientId: String, since: Date) async throws -> [MealLog] {
-        let rows: [MealRow] = try await rest.select("nb_meal_logs", query: [
-            PG.select(Self.mealColumns),
-            PG.eq("patient_id", patientId),
-            PG.gte("logged_at", ISO8601.string(since)),
-            PG.order("logged_at", descending: true),
-            PG.limit(100),
-        ])
+        let rows: [MealRow] = try await withCoverageFallback { columns in
+            try await rest.select("nb_meal_logs", query: [
+                PG.select(columns),
+                PG.eq("patient_id", patientId),
+                PG.gte("logged_at", ISO8601.string(since)),
+                PG.order("logged_at", descending: true),
+                PG.limit(100),
+            ])
+        }
         return rows.map(\.model)
     }
 
     func meal(id: String) async throws -> MealLog? {
-        let row: MealRow? = try await rest.selectOne("nb_meal_logs", query: [PG.select(Self.mealColumns), PG.eq("id", id)])
+        let row: MealRow? = try await withCoverageFallback { columns in
+            try await rest.selectOne("nb_meal_logs", query: [PG.select(columns), PG.eq("id", id)])
+        }
         return row?.model
     }
 
@@ -240,16 +276,23 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct PatternRow: Decodable, Sendable {
         let kind: String?; let subject: String?; let reaction: String?; let direction: String?
         let effect: Double?; let nObs: Int?; let consistency: Double?; let tier: String?
+        let clinicianReviewedAt: Date?
     }
 
+    /// Only clinician-validated rows come back (RLS). `clinician_reviewed_at` dates "Shared 8 Nov"; a database
+    /// that does not carry the column yet fails the whole select, so the plain list is the fallback.
     func userPatterns(patientId: String) async throws -> [UserPattern] {
-        let rows: [PatternRow] = try await rest.select("nb_user_patterns", query: [
-            PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier"),
-            PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24),
-        ])
+        let base = [PG.eq("patient_id", patientId), PG.order("computed_at", descending: true), PG.limit(24)]
+        let rows: [PatternRow]
+        do {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier,clinician_reviewed_at")] + base)
+        } catch AppError.validation {
+            rows = try await rest.select("nb_user_patterns", query: [PG.select("kind,subject,reaction,direction,effect,n_obs,consistency,tier")] + base)
+        }
         return rows.map {
             UserPattern(kind: $0.kind ?? "pattern", subject: $0.subject ?? "", reaction: $0.reaction ?? "", direction: $0.direction ?? "worse",
-                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint")
+                        effect: $0.effect, nObs: $0.nObs ?? 0, consistency: $0.consistency, tier: $0.tier ?? "hint",
+                        reviewedAt: $0.clinicianReviewedAt)
         }
     }
 
@@ -578,6 +621,32 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.compactMap(\.model)
     }
 
+    private struct MomentDayRow: Decodable, Sendable {
+        let checkinDate: String
+        let moment: MomentRow
+        private enum CodingKeys: String, CodingKey { case checkinDate }
+        init(from decoder: any Decoder) throws {
+            moment = try MomentRow(from: decoder)
+            checkinDate = try decoder.container(keyedBy: CodingKeys.self).decode(String.self, forKey: .checkinDate)
+        }
+    }
+
+    func checkinMomentsRange(patientId: String, since: String) async throws -> [String: [CheckinMoment]] {
+        let rows: [MomentDayRow] = try await rest.select("patient_checkin_moments", query: [
+            PG.select(Self.momentColumns + ",checkin_date"),
+            PG.eq("patient_id", patientId),
+            PG.gte("checkin_date", since),
+            PG.order("checkin_date"),
+            PG.limit(400),
+        ])
+        var out: [String: [CheckinMoment]] = [:]
+        for row in rows {
+            guard let moment = row.moment.model else { continue }
+            out[row.checkinDate, default: []].append(moment)
+        }
+        return out
+    }
+
     private struct SubmitCheckinBody: Encodable, Sendable {
         let pDay: String
         let pSlot: String
@@ -627,6 +696,119 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let reply: SubmitCheckinReply = try await rest.rpc("member_submit_checkin", body: SubmitCheckinBody(pDay: day, pSlot: slot.rawValue, pMoment: payload))
         guard let moment = reply.moment.model else { throw AppError.decoding(detail: "member_submit_checkin: slot outside the vocabulary in the reply") }
         return CheckinSubmitResult(moment: moment, momentCount: reply.momentCount ?? 1, scoredBy: reply.scoredBy ?? "server", redFlags: reply.redFlags?.model ?? .none)
+    }
+
+    // MARK: Feeling for the day (patient_day_feelings)
+
+    private struct DayFeelingRow: Decodable, Sendable {
+        let day: String
+        let mood: Int?
+        let energy: Int?
+        let motivation: Int?
+        let pills: [String: [String]]?
+        let endRule: String?
+
+        private enum CodingKeys: String, CodingKey { case day, mood, energy, motivation, pills, endRule }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            day = try c.decode(String.self, forKey: .day)
+            mood = try c.decodeIfPresent(Int.self, forKey: .mood)
+            energy = try c.decodeIfPresent(Int.self, forKey: .energy)
+            motivation = try c.decodeIfPresent(Int.self, forKey: .motivation)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost row.
+            pills = try? c.decodeIfPresent([String: [String]].self, forKey: .pills)
+            endRule = try c.decodeIfPresent(String.self, forKey: .endRule)
+        }
+
+        var model: DayFeeling {
+            // The decoder may have camel-cased the group keys (`mood_why` -> `moodWhy`): hand them back as written.
+            var groups: [String: [String]] = [:]
+            for (key, picked) in pills ?? [:] { groups[SnakeKeys.snake(key)] = picked }
+            return DayFeeling(day: day, mood: mood, energy: energy, motivation: motivation, pills: groups, endRule: endRule)
+        }
+    }
+
+    func dayFeeling(patientId: String, day: String) async throws -> DayFeeling? {
+        let row: DayFeelingRow? = try await rest.selectOne("patient_day_feelings", query: [
+            PG.select("day,mood,energy,motivation,pills,end_rule"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+        ])
+        return row?.model
+    }
+
+    func saveDayFeeling(patientId: String, feeling f: DayFeeling) async throws {
+        let row: ColumnPatch = [
+            "patient_id": .string(patientId),
+            "day": .string(f.day),
+            "mood": .int(f.mood),
+            "energy": .int(f.energy),
+            "motivation": .int(f.motivation),
+            "pills": .pills(f.pills), // NOT NULL (default '{}') — always an object
+            "end_rule": .string(f.endRule),
+        ]
+        try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day", body: row, snakeCase: false)
+    }
+
+    private struct EveningFollowupRow: Decodable, Sendable {
+        let eveningFollowup: Int?
+        let eveningPills: [String]?
+        private enum CodingKeys: String, CodingKey { case eveningFollowup, eveningPills }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            eveningFollowup = try c.decodeIfPresent(Int.self, forKey: .eveningFollowup)
+            // jsonb the client wrote: an odd shape degrades to "no pills", never to a lost answer.
+            eveningPills = try? c.decodeIfPresent([String].self, forKey: .eveningPills)
+        }
+    }
+
+    func eveningFollowup(patientId: String, day: String) async throws -> EveningFollowup? {
+        let row: EveningFollowupRow? = try await rest.selectOne("patient_day_feelings", query: [
+            PG.select("evening_followup,evening_pills"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+        ])
+        guard let row else { return nil }
+        let followup = EveningFollowup(choice: row.eveningFollowup.flatMap(EveningFollowup.Choice.init(rawValue:)), pills: row.eveningPills ?? [])
+        return followup.isEmpty ? nil : followup
+    }
+
+    func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {
+        try await rest.upsert("patient_day_feelings", onConflict: "patient_id,day",
+                              body: EveningFollowupLogic.columns(followup, patientId: patientId, day: day), snakeCase: false)
+    }
+
+    // MARK: Routine runs (patient_routine_runs)
+
+    private struct RoutineRunRow: Decodable, Sendable {
+        let day: String
+        let focusCell: String?
+        let offeredAt: String?
+        let dueAt: String?
+        let completedAt: String?
+        let stepsDone: Int?
+        private enum CodingKeys: String, CodingKey { case day, focusCell, offeredAt, dueAt, completedAt, stepsDone }
+
+        var model: KickoffRun {
+            KickoffRun(day: day, focusCell: focusCell, offeredAt: offeredAt.flatMap(ISO8601.parse) ?? Date(),
+                       dueAt: dueAt.flatMap(ISO8601.parse), completedAt: completedAt.flatMap(ISO8601.parse), stepsDone: stepsDone ?? 0)
+        }
+    }
+
+    func kickoffRun(patientId: String, day: String) async throws -> KickoffRun? {
+        let row: RoutineRunRow? = try await rest.selectOne("patient_routine_runs", query: [
+            PG.select("day,focus_cell,offered_at,due_at,completed_at,steps_done"),
+            PG.eq("patient_id", patientId),
+            PG.eq("day", day),
+            PG.eq("routine", KickoffRun.routine),
+        ])
+        return row?.model
+    }
+
+    func saveKickoffRun(patientId: String, columns: ColumnPatch) async throws {
+        try await rest.upsert("patient_routine_runs", onConflict: "patient_id,day,routine", body: columns, snakeCase: false)
     }
 
     func upsertCheckinMoment(patientId: String, day: String, moment m: CheckinMoment) async throws {
@@ -783,12 +965,10 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 ])
             }
             let focus = await soft { () -> [FocusItemRow] in
-                try await rest.select("care_plan_items", query: [
-                    PG.select("title,objective,sort_order"), PG.eq("care_plan_id", header.id), PG.eq("is_weekly_focus", "true"),
-                    PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
-                ])
+                try await rest.selectRPC(Self.carePlanItemsFunction, query: Self.focusItemsQuery(planId: header.id))
             }
             plan.goals = (goals ?? []).compactMap { $0.statement?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            plan.focusItemIds = Set((focus ?? []).compactMap(\.id))
             plan.priorities = (focus ?? []).compactMap { row in
                 [row.title, row.objective].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
             }
@@ -1002,7 +1182,7 @@ struct SupabaseBackend: FunctionAlpsBackend {
     private struct AccessRow: Decodable, Sendable { let tracksEnabled: Bool?; let foundationsEnabled: Bool?; let supplementsEnabled: Bool? }
     private struct PriorityRow: Decodable, Sendable { let trackId: String }
     private struct GoalRow: Decodable, Sendable { let statement: String? }
-    private struct FocusItemRow: Decodable, Sendable { let title: String?; let objective: String? }
+    private struct FocusItemRow: Decodable, Sendable { var id: String? = nil; let title: String?; let objective: String? }
     private struct ProgressBody: Encodable, Sendable { let patientId: String; let trackId: String?; let contentSlug: String }
 
     func libraryStage() async throws -> RelationshipStage {
@@ -1067,6 +1247,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func libraryTopicCovers() async throws -> [LibraryTopicCoverRow] {
         try await rest.select("library_topic_covers", query: [PG.select("topic,image_url")])
+    }
+
+    func signalExplanations(locale: String) async throws -> [SignalExplanation] {
+        try await rest.select("signal_explanations", query: [
+            PG.select(SignalExplanation.columns), PG.eq("locale", locale), PG.eq("review_status", "approved"),
+            PG.order("version", descending: true),
+        ])
     }
 
     func libraryItem(slug: String) async throws -> LibraryGetRow? {
@@ -1320,15 +1507,26 @@ struct SupabaseBackend: FunctionAlpsBackend {
         // The column means "when this member FIRST finished" — never moved once set.
         if let existing: Stamp = try? await rest.selectOne("nb_patient_app_profiles", query: [PG.select("onboarding_completed_at"), PG.eq("patient_id", patientId), PG.limit(1)]), let at = existing.onboardingCompletedAt { return at }
         let now = Date()
-        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String }
-        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String }
-        let body = Body(onboardingCompletedAt: ISO8601.string(now), onboardingSource: "app_baseline")
-        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
-        if touched.isEmpty {
-            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: body.onboardingSource)]) }
-            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        do {
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: "app_baseline")
+        } catch AppError.forbidden {
+            // `onboarding_source` is descriptive only — a column grant missing for it (live 2026-10-16) must
+            // never keep a member in onboarding. The stamp alone is what the gate reads.
+            try await writeOnboardingStamp(patientId: patientId, at: now, source: nil)
         }
         return now
+    }
+
+    private func writeOnboardingStamp(patientId: String, at date: Date, source: String?) async throws {
+        // Optionals encode as absent keys, so `source: nil` writes `onboarding_completed_at` alone.
+        struct Body: Encodable { let onboardingCompletedAt: String; let onboardingSource: String? }
+        struct InsertBody: Encodable { let patientId: String; let onboardingCompletedAt: String; let onboardingSource: String? }
+        let body = Body(onboardingCompletedAt: ISO8601.string(date), onboardingSource: source)
+        let touched: [PatientIdRow] = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body)
+        if touched.isEmpty {
+            do { try await rest.insertRows("nb_patient_app_profiles", body: [InsertBody(patientId: patientId, onboardingCompletedAt: body.onboardingCompletedAt, onboardingSource: source)]) }
+            catch { _ = try await rest.updateReturning("nb_patient_app_profiles", query: [PG.eq("patient_id", patientId), PG.select("patient_id")], body: body) as [PatientIdRow] }
+        }
     }
 
     func confirmAdult(dateOfBirth: String) async throws -> Bool {
@@ -1411,6 +1609,27 @@ struct SupabaseBackend: FunctionAlpsBackend {
         return rows.map(\.day)
     }
 
+    func gutDays(patientId: String, since: String) async throws -> [GutDay] {
+        // Raw JSON for the same reason as `gutToday`: `gut_detail` keeps its keys verbatim.
+        let data = try await rest.selectRaw("patient_daily_checkins", query: [
+            PG.select(Self.gutColumns + ",stool_type,gut_detail"), PG.eq("patient_id", patientId), PG.gte("checkin_date", since),
+            URLQueryItem(name: "intelligence_completed_at", value: "not.is.null"), PG.order("checkin_date", descending: false), PG.limit(60),
+        ])
+        guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        return rows.compactMap { row -> GutDay? in
+            guard let day = row["checkin_date"] as? String else { return nil }
+            let int = { (k: String) -> Int? in (row[k] as? NSNumber)?.intValue }
+            let decoded = GutDetailCodec.decode(row["gut_detail"])
+            return GutDay(
+                day: day, comfort: int("gut_comfort"), stool: int("gut_stool"), reactions: int("gut_reactions"), overall: int("gut_overall"),
+                stoolQuality: int("stool_quality"), stoolFrequency: int("stool_frequency"),
+                completedAt: (row["intelligence_completed_at"] as? String).flatMap(ISO8601.parse),
+                bristol: int("stool_type") ?? decoded?.answers[.stool]?.specials.bristol,
+                symptoms: decoded?.answers[.comfort]?.pills["symptoms"] ?? []
+            )
+        }
+    }
+
     func upsertGutCheckin(patientId: String, day: String, write w: GutCheckinWrite) async throws {
         let stamp = ISO8601.string(w.completedAt)
         var row: ColumnPatch = [
@@ -1424,6 +1643,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
         // one fires the `red_flag` event server-side (trg_checkin_red_flag_event).
         for flag in RedFlag.allCases { row[flag.column] = .bool(w.redFlags.contains(flag)) }
         try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
+    }
+
+    // MARK: Supplements (member_supplements · member_log_supplement)
+
+    private struct LogSupplementBody: Encodable, Sendable {
+        let pPlan: String
+        let pMoment: String
+        let pTaken: Bool
+        /// `YYYY-MM-DD`; nil is omitted, and the function's default (today) applies.
+        let pDay: String?
+    }
+
+    func supplements() async throws -> [Supplement] {
+        try await rest.rpc("member_supplements", body: EmptyBody())
+    }
+
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {
+        _ = try await rest.rpcRaw("member_log_supplement", body: LogSupplementBody(pPlan: planId, pMoment: moment.rawValue, pTaken: taken, pDay: day))
     }
 
     // MARK: Notifications (patient_notification_preferences)
@@ -1442,22 +1679,81 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     // MARK: Profile tab (care_plans · member_entitlements · baseline)
 
+    /// A member's session can read every column of its own visible `care_plan_items` rows (clinician rationale,
+    /// refinement transcripts, dismissal reasons), so the app never reads the table: it reads the SECURITY DEFINER
+    /// function `member_care_plan_items()` (CLINICAL migration 350), which returns only patient-safe columns of the
+    /// member's own patient-visible, approved or pushed rows. `visibility_class` is not a returned column; the
+    /// function enforces it, so no such filter is sent.
+    nonisolated static let carePlanItemsFunction = "member_care_plan_items"
+
+    /// Plan items as the "My health plan" page reads them. Curriculum rows are the personalised space's
+    /// sub-courses, not instructions; `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
+    nonisolated static func planItemsQuery(planId: String) -> [URLQueryItem] {
+        [
+            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order,item_kind,cadence,frequency_text,dose_value,dose_unit"),
+            PG.eq("care_plan_id", planId),
+            URLQueryItem(name: "status", value: "in.(pushed_to_app,approved)"),
+            PG.or("item_kind.is.null,item_kind.neq.curriculum"),
+            PG.order("sort_order"),
+        ]
+    }
+
+    /// The weekly-focus items behind Home's priorities (same function, narrower columns).
+    nonisolated static func focusItemsQuery(planId: String) -> [URLQueryItem] {
+        [
+            PG.select("id,title,objective,sort_order"), PG.eq("care_plan_id", planId), PG.eq("is_weekly_focus", "true"),
+            PG.or("item_kind.is.null,item_kind.neq.curriculum"), PG.order("sort_order"),
+        ]
+    }
+
+    /// The member's plan as the clinician's Plan page lays it out, member-safe — the members web `getMemberCarePlan`
+    /// read for read: the plan, its patient-visible approved items, the active patient-visible goals, the supplement
+    /// plans behind the supplement items, and the tests actually ordered. Every clinical filter is applied twice (RLS
+    /// and here). Only patient-safe columns: never `rationale`, `gate_criteria`, test `notes`. Each extra fails soft.
     func carePlan(patientId: String) async throws -> CarePlan? {
-        // RLS scopes care_plans to `patient_id = current_member_patient_id()`; the newest active plan wins.
+        // RLS scopes care_plans to `patient_id = current_member_patient_id()` (with no status gate — hence the filter);
+        // the newest active plan wins.
         let plans: [CarePlanRow] = try await rest.select("care_plans", query: [
-            PG.select("id,title,start_date,status"), PG.eq("status", "active"),
+            PG.select("id,title,start_date,status,objective_line,approach_md,review_date"), PG.eq("patient_id", patientId), PG.eq("status", "active"),
             PG.order("start_date", descending: true), PG.limit(1),
         ])
         guard let plan = plans.first else { return nil }
+        let visible = "in.(patient_visible,patient_visible_after_approval)"
         // Curriculum rows pass the RLS gate but are the personalised space's sub-courses, not
         // instructions. `or`, not `neq`: SQL `<>` would also drop rows whose item_kind is null.
-        let items: [CarePlanItemRow] = try await rest.select("care_plan_items", query: [
-            PG.select("id,domain,title,objective,instruction_text,patient_safe_explanation,status,sort_order"),
-            PG.eq("care_plan_id", plan.id),
-            PG.or("item_kind.is.null,item_kind.neq.curriculum"),
-            PG.order("sort_order"),
-        ])
-        return CarePlanLogic.assemble(plan: plan, items: items)
+        let items: [CarePlanItemRow] = try await rest.selectRPC(Self.carePlanItemsFunction, query: Self.planItemsQuery(planId: plan.id))
+        let rest = self.rest
+        let goals = await soft { () -> [CarePlanGoalRow] in
+            try await rest.select("care_plan_goals", query: [
+                PG.select("id,statement,phase_key,baseline_value,target_value,target_unit,cadence_text,sort_order"),
+                PG.eq("care_plan_id", plan.id), PG.eq("status", "active"),
+                URLQueryItem(name: "visibility_class", value: visible), PG.order("sort_order"),
+            ])
+        } ?? []
+        let supplementIds = items.filter(\.isSupplement).map(\.id)
+        var supplementPlans: [SupplementPlanRow] = []
+        if !supplementIds.isEmpty {
+            let ids = supplementIds.joined(separator: ",")
+            supplementPlans = await soft { () -> [SupplementPlanRow] in
+                try await rest.select("supplement_plans", query: [
+                    PG.select("care_plan_item_id,dosage_text,frequency_text,status"),
+                    URLQueryItem(name: "care_plan_item_id", value: "in.(\(ids))"),
+                ])
+            } ?? []
+        }
+        // `test_orders` RLS scopes rows to the member but does not gate on status: this filter is what keeps a
+        // `proposed` (never ordered) test from being announced. Asserted in `CarePlanLogic.testState`'s tests.
+        let tests = await soft { () -> [TestOrderRow] in
+            try await rest.select("test_orders", query: [
+                PG.select("id,test_type,status,ordered_at,diagnostic_tests(name,short_name)"), PG.eq("patient_id", patientId),
+                URLQueryItem(name: "status", value: "in.(ordered,pending,received,reviewed)"),
+                PG.order("ordered_at", descending: true),
+            ])
+        } ?? []
+        let expectations = await soft { () -> [CarePlanExpectationsRow] in
+            try await rest.select("care_plans", query: [PG.select("expectations_md"), PG.eq("id", plan.id), PG.limit(1)])
+        }?.first?.expectationsMd
+        return CarePlanLogic.assemble(plan: plan, items: items, goals: goals, supplementPlans: supplementPlans, tests: tests, expectations: expectations)
     }
 
     // MARK: Lab results (get_member_lab_results)
@@ -1466,6 +1762,33 @@ struct SupabaseBackend: FunctionAlpsBackend {
     /// have no SELECT on `lab_result_releases` / `biomarker_*` at all — this call IS the member contract.
     func labResults() async throws -> [LabResultRow] {
         try await rest.rpc("get_member_lab_results", body: EmptyBody(), query: [PG.select(LabResultRow.columns.joined(separator: ","))])
+    }
+
+    // MARK: Documents (member_documents, member_document_file, member_mark_document_seen, member_has_draft_plan)
+
+    /// All four are SECURITY DEFINER and read the patient from the JWT; a member has no table access to releases.
+    func memberDocuments() async throws -> [MemberDocument] {
+        try await rest.rpc("member_documents", body: EmptyBody())
+    }
+
+    private struct ReleaseBody: Encodable, Sendable { let pReleaseId: String }
+
+    func memberDocumentFile(releaseId: String) async throws -> DocumentFile? {
+        let data = try await rest.rpcRaw("member_document_file", body: ReleaseBody(pReleaseId: releaseId))
+        return try DocumentFile.decode(data)
+    }
+
+    func signedDocumentURL(bucket: String, path: String) async throws -> URL {
+        guard DocumentsLogic.allowedBuckets.contains(bucket) else { throw AppError.notFound }
+        return try await storage.signedURL(bucket: bucket, path: path, expiresIn: DocumentsLogic.signedURLSeconds)
+    }
+
+    func markDocumentSeen(releaseId: String) async throws {
+        _ = try await rest.rpcRaw("member_mark_document_seen", body: ReleaseBody(pReleaseId: releaseId))
+    }
+
+    func hasDraftPlan() async throws -> Bool {
+        try await rest.rpcScalar("member_has_draft_plan", body: EmptyBody()) == "true"
     }
 
     func entitlements(patientId: String) async throws -> [EntitlementRow] {
@@ -1576,6 +1899,22 @@ struct SupabaseBackend: FunctionAlpsBackend {
 
     func markMessagesRead() async throws {
         let _: Int = try await rest.rpc("member_mark_messages_read", body: EmptyBody())
+    }
+
+    // MARK: The client's care plan (member_care_plan_* RPCs — SECURITY DEFINER, keyed on the signed-in member)
+
+    func clientCarePlan() async throws -> ClientCarePlanRaw {
+        let rest = self.rest
+        async let programmes: [ClientProgramme] = rest.rpc("member_care_plan_programmes", body: EmptyBody())
+        async let objectives: [ClientObjective] = rest.rpc("member_care_plan_objectives", body: EmptyBody())
+        async let wins = soft { () -> [ClientWin] in try await rest.rpc("member_care_plan_wins", body: EmptyBody()) }
+        async let complaints = soft { () -> [ClientComplaint] in try await rest.rpc("member_care_plan_complaints", body: EmptyBody()) }
+        async let hypotheses = soft { () -> [ClientHypothesis] in try await rest.rpc("member_care_plan_hypotheses", body: EmptyBody()) }
+        async let evolution = soft { () -> [ClientEvolution] in try await rest.rpc("member_care_plan_evolution", body: EmptyBody()) }
+        async let situation = soft { () -> [ClientSituation] in try await rest.rpc("member_care_plan_situation", body: EmptyBody()) }
+        return try await ClientCarePlanRaw(
+            programmes: programmes, objectives: objectives, wins: wins ?? [], complaints: complaints ?? [],
+            hypotheses: hypotheses ?? [], evolution: evolution ?? [], situation: situation ?? [])
     }
 
     func careTeam() async throws -> [CareMember] {

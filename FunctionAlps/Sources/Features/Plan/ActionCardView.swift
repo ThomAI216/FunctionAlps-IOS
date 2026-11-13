@@ -16,6 +16,8 @@ struct ActionCardView: View {
         /// From the Foundation Track's day: the card read with the track (`TrackService.cards`), on the day's
         /// version, nothing to add or tick here — the tick lives on the day's card.
         case trackCard(String, face: String)
+        /// From Today's focus ("Do it now"): a bank card with the two focus buttons — add it to the morning routine, start the kickoff.
+        case focusCard(String)
     }
 
     @Environment(AppDependencies.self) private var dependencies
@@ -61,7 +63,7 @@ struct ActionCardView: View {
                             } else {
                                 missing
                             }
-                        case .bankCard(let cardId):
+                        case .bankCard(let cardId), .focusCard(let cardId):
                             if let card = bankCard(cardId, plan: plan) {
                                 bankPage(plan: plan, card: card)
                             } else if case .loading = habits.bank {
@@ -86,12 +88,13 @@ struct ActionCardView: View {
         #if DEBUG
         .task { await Showcase.scroll(proxy, to: "showcase.steps", on: .cardMiddle) }
         .task { await Showcase.scroll(proxy, to: "showcase.end", on: .cardBottom, anchor: UnitPoint(x: 0.5, y: 0.88)) }
+        .task { await Showcase.scroll(proxy, to: "showcase.end", on: .focusAction, anchor: UnitPoint(x: 0.5, y: 0.88)) }
         #endif
         }
         .faWall()
         .toolbar(.hidden, for: .navigationBar)
         .task {
-            if case .bankCard = source { await dependencies.habits.loadBank() }
+            if source.isBank || source.isFocus { await dependencies.habits.loadBank() }
             await dependencies.habits.loadLadders()
             laddersTried = true
         }
@@ -131,6 +134,8 @@ struct ActionCardView: View {
         Button { dismiss() } label: {
             Text("‹ " + (source.isTrack
                          ? String(localized: "track.title", defaultValue: "Foundation Track")
+                         : source.isFocus
+                         ? String(localized: "focus.title", defaultValue: "Today's focus")
                          : source.isBank
                          ? String(localized: "bank.title", defaultValue: "Foundation actions")
                          : String(localized: "plan.today.title", defaultValue: "Today's actions")))
@@ -166,6 +171,9 @@ struct ActionCardView: View {
                 .faFrost(cornerRadius: 14, horizontal: 14, vertical: 10)
                 .frame(maxWidth: .infinity)
             if own.isSelfInitiated { removeButton(own) }
+            if source.isFocus { kickoffButton }
+        } else if source.isFocus {
+            focusButtons(card, plan: plan)
         } else {
             addMenu(card, plan: plan)
         }
@@ -180,6 +188,35 @@ struct ActionCardView: View {
         if !content.steps.isEmpty { steps(content.steps).id("showcase.steps") }
         if let why = content.why { whyCard(why) }
         if let article = content.article { articleCard(article) }
+    }
+
+    /// Today's focus, under the card: "Add to my morning routine" (the card joins the member's own plan, in the morning — the same
+    /// mechanism as "Add to my plan", with the moment decided) and "Start the kickoff morning routine" when the day's cell offers it.
+    /// A full morning routine is said, not hidden (the owner's cap: 3, or 2 for a new member).
+    @ViewBuilder
+    private func focusButtons(_ card: ActionCardRow, plan: HabitPlan) -> some View {
+        let room = RoutineRules.canAdd(to: .morning, plan: plan)
+        FAButton(title: String(localized: "focus.addMorning", defaultValue: "Add to my morning routine"), isLoading: busy, isEnabled: room) {
+            add(card, slot: .morning)
+        }
+        .padding(.top, 4)
+        if !room {
+            Text(String(localized: "routine.full.all", defaultValue: "Your routines are full for now. Move an action up a level or remove one to make room."))
+                .font(FATypography.sans(13, relativeTo: .subheadline)).foregroundStyle(FAColor.ink)
+                .faFrost(cornerRadius: 14, horizontal: 14, vertical: 10)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        kickoffButton
+    }
+
+    /// "Start the kickoff morning routine" — only on the days whose focus offers it.
+    @ViewBuilder
+    private var kickoffButton: some View {
+        if let cell = dependencies.focus.focus?.cell, FocusCardLogic.kickoff(cell) != nil {
+            FAButton(title: String(localized: "focus.kickoff.start", defaultValue: "Start the kickoff morning routine"), style: .secondary) {
+                router.push(.kickoff)
+            }
+        }
     }
 
     /// "Add to my plan" at a moment of the member's choosing — the card's own suggestion listed first. A routine
@@ -677,5 +714,6 @@ private struct BreathPacer: View {
 
 private extension ActionCardView.Source {
     var isBank: Bool { if case .bankCard = self { return true } else { return false } }
+    var isFocus: Bool { if case .focusCard = self { return true } else { return false } }
     var isTrack: Bool { if case .trackCard = self { return true } else { return false } }
 }

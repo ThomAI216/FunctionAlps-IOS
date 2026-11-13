@@ -13,10 +13,13 @@ enum MomentSlot: String, Sendable, Hashable, CaseIterable {
     static let scheduled: [MomentSlot] = [.morning, .evening]
     var rank: Int { Self.order.firstIndex(of: self) ?? 0 }
 
-    /// Which moment "now" belongs to: the day is the morning's until the evening reflection is due.
-    /// `<17` morning, `>=17` evening (patient-local hour).
+    /// The patient-local hour from which the DAILY check-in (the evening slot) is the one offered. Owner, 2026-11-12:
+    /// before 14:00 the check-in is the morning's, from 14:00 it is the daily one.
+    static let dailyFromHour = 14
+
+    /// Which moment "now" belongs to: `<14` morning, `>=14` evening (the daily check-in), patient-local hour.
     static func current(hour: Int) -> MomentSlot {
-        hour < 17 ? .morning : .evening
+        hour < dailyFromHour ? .morning : .evening
     }
 
     var glyph: String {
@@ -31,7 +34,9 @@ enum MomentSlot: String, Sendable, Hashable, CaseIterable {
         switch self {
         case .morning: String(localized: "slot.morning", defaultValue: "Morning")
         case .midday: String(localized: "slot.midday", defaultValue: "Midday")
-        case .evening: String(localized: "slot.evening", defaultValue: "Evening")
+        // The `evening` slot is the DAILY functional check-in (owner, 2026-11-10: "it's not evening, it's
+        // just the daily functional check-in"). The row's slot value stays `evening` — only the name changed.
+        case .evening: String(localized: "slot.daily", defaultValue: "Functional check-in")
         }
     }
 }

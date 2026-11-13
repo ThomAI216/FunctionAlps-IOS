@@ -53,6 +53,7 @@ import {
   writeMealPatch,
 } from "../_shared/meals/meal-analysis.ts"
 import { bytesToBase64, photoPathsFor } from "../_shared/meals/identify-parts.ts"
+import { isPhotoOnlyInput, withMealHabits } from "../_shared/meals/habits.ts"
 
 const SECRET = Deno.env.get("REPORT_SECRET") ?? ""
 
@@ -338,10 +339,17 @@ Deno.serve(async (req: Request) => {
       continue
     }
 
+    // HABITS — the same step analyze-meal runs, at the same point: after
+    // identification, before WRITE 1 and pricing. Photo input only (a row retried
+    // from its `name` is the member's words); `raw.patient_id` is off the row this
+    // worker selected for itself, and `raw.id` keeps this meal out of its own
+    // history. A failed read is a meal without habits. See _shared/meals/habits.ts.
+    const meal = await withMealHabits(db, ident, { patientId: raw.patient_id, photo: isPhotoOnlyInput(input), mealLogId: raw.id })
+
     // WRITE 1 of 2 — identification. The same two-write shape analyze-meal uses,
     // from the same builder, so a patient watching the row sees exactly the same
     // sequence whether the interactive call or the worker did the work.
-    await writeMealPatch(db, raw.id, identificationPatch(ident), "retry:identification")
+    await writeMealPatch(db, raw.id, identificationPatch(meal), "retry:identification")
 
     let priced
     try {
@@ -349,7 +357,7 @@ Deno.serve(async (req: Request) => {
       // status and schedule — there is no request input anywhere in that path, so
       // it cannot be steered at another patient. It scopes the resolver's tier 0a
       // to this patient's learned foods; see the invariant on resolveItems.
-      priced = await priceMeal(db, ident.items, raw.patient_id)
+      priced = await priceMeal(db, meal.items, raw.patient_id)
     } catch (e) {
       // Pricing has no external dependency, so this is a bug, not a bad roll.
       // The row is left in `pricing` on purpose: the stale-claim branch above
@@ -362,11 +370,11 @@ Deno.serve(async (req: Request) => {
     const protocolFlags = await computeProtocolFlags(db, raw.patient_id, priced.items)
 
     // WRITE 2 of 2 — prices, totals, scores, complete.
-    await writeMealPatch(db, raw.id, completionPatch(ident, priced, attempts, protocolFlags), "retry:completion")
+    await writeMealPatch(db, raw.id, completionPatch(meal, priced, attempts, protocolFlags), "retry:completion")
     succeeded++
     console.log(
       `[retry-meal-analysis] ${raw.id} complete on attempt ${attempts} ` +
-        `(${ident.items.length} items, ${priced.totals.kcal} kcal, ${ident.elapsed_ms}ms)`,
+        `(${meal.items.length} items, ${priced.totals.kcal} kcal, ${ident.elapsed_ms}ms)`,
     )
   }
 

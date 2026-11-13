@@ -60,7 +60,7 @@ struct ConsentsView: View {
                     ForEach(bundle.notices) { n in noticeCard(n) }
                 }
 
-                Text(String(localized: "consents.footnote", defaultValue: "Every change is recorded with the date and the exact wording in force, so both of us can establish later what was agreed. Questions: data@functionalps.ch"))
+                Text(String(localized: "consents.footnote", defaultValue: "Every change is recorded with the date and the exact wording in force, so both of us can establish later what was agreed. Questions: thomas@functionalps.ch"))
                     .font(FATypography.sans(11, relativeTo: .caption)).foregroundStyle(ProfilePalette.muted).multilineTextAlignment(.center).lineSpacing(5)
                     .frame(maxWidth: .infinity).padding(.top, 20)
             }

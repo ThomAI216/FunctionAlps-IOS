@@ -27,37 +27,69 @@ struct FAGlassSurface: ViewModifier {
     /// `glassEffect` inside a card renders as a milky slab, which is exactly what the owner saw (2026-09-14).
     var inset = false
 
-    /// White frost laid over the glass, under the card's content, so text on cards reads over the photo
+    /// The wall behind the card decides how much frost it needs (see `frost(for:)`).
+    @AppStorage(FAWalls.storageKey) private var wallKey: String = FAWalls.defaultKey
+
+    init(cornerRadius: CGFloat, inset: Bool = false) {
+        self.cornerRadius = cornerRadius
+        self.inset = inset
+    }
+
+    /// White frost laid over the glass, under the card's content, so text on cards reads over the PHOTO
     /// walls. The owner's call (2026-09-30): 20 %, then 20 % more, then 20 % more again.
     static let frost = 0.60
+    /// On the light gradient walls (Sage Fog, the default since 2026-11-06) 60 % frost turned every card into a
+    /// flat white slab. Owner, 2026-11-10: "more glass effect, even with the new background, all the cards
+    /// through all the app". The wall is already light, so text reads at far less frost; the rim light, the
+    /// sheen and the shadow carry the glass.
+    static let lightWallFrost = 0.34
+
+    /// Frost for a wall: the photos keep the owner's 60 %, the light walls get the see-through glass.
+    static func frost(for wall: Wall) -> Double {
+        if case .photo = wall { return frost }
+        return lightWallFrost
+    }
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let frost = Self.frost(for: FAWalls.resolved(wallKey))
         if inset {
             content
                 .background(Color.white.opacity(0.12), in: shape)
-                .overlay {
-                    shape.strokeBorder(
-                        LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 1
-                    )
-                }
+                .overlay { Self.hairline(shape) }
         } else if #available(iOS 26.0, *) {
             content
-                .background(Color.white.opacity(Self.frost), in: shape)
+                .background { Self.veil(shape, frost: frost) }
                 .glassEffect(.clear, in: shape)
-                .shadow(color: .black.opacity(0.10), radius: 14, y: 8)
+                .overlay { Self.rim(shape) }
+                .shadow(color: .black.opacity(0.08), radius: 18, y: 10)
         } else {
             content
-                .background(Color.white.opacity(0.20 + Self.frost), in: shape)
-                .overlay {
-                    shape.strokeBorder(
-                        LinearGradient(colors: [Color.white.opacity(0.72), Color.white.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 1.5
-                    )
-                }
-                .shadow(color: .black.opacity(0.18), radius: 14, y: 8)
+                .background { Self.veil(shape, frost: frost + 0.10) }
+                .overlay { Self.rim(shape) }
+                .shadow(color: .black.opacity(0.12), radius: 18, y: 10)
         }
+    }
+
+    /// The frost, brighter at the top-left where the light falls, plus a soft sheen across the top third —
+    /// what makes a pane read as glass instead of paper.
+    private static func veil(_ shape: RoundedRectangle, frost: Double) -> some View {
+        ZStack {
+            shape.fill(LinearGradient(colors: [Color.white.opacity(min(1, frost + 0.14)), Color.white.opacity(max(0, frost - 0.10))],
+                                      startPoint: .topLeading, endPoint: .bottomTrailing))
+            shape.fill(LinearGradient(stops: [.init(color: Color.white.opacity(0.32), location: 0), .init(color: Color.white.opacity(0), location: 0.38)],
+                                      startPoint: .top, endPoint: .bottom))
+        }
+    }
+
+    /// The edge: an almost invisible hairline (6 %, Thomas 2026-11-12: no white band or border around any card). The
+    /// glass, the sheen and the shadow carry the surface; the edge only keeps its shape on light walls.
+    private static func rim(_ shape: RoundedRectangle) -> some View {
+        hairline(shape).allowsHitTesting(false)
+    }
+
+    private static func hairline(_ shape: RoundedRectangle) -> some View {
+        shape.strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5)
     }
 }
 

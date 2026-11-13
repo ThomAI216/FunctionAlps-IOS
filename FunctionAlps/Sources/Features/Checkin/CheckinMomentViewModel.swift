@@ -5,6 +5,10 @@ import Observation
 @Observable
 final class CheckinMomentViewModel {
     let slot: MomentSlot
+    /// Nil = today. A missed day being caught up (the morning screen's "Yesterday") names it; the RPC takes today or yesterday.
+    let day: String?
+    /// What this screen asks, in order.
+    let sectionList: [Section]
     var answers: FunctionalAnswers = .blank
     var catalogPills: [String: [String]] = [:]
     var isSaving = false
@@ -17,22 +21,40 @@ final class CheckinMomentViewModel {
     /// second errand on Home. Nil for every other slot; the standalone gut screen still uses its own.
     let gut: GutCheckinViewModel?
 
-    /// Last night as a wearable recorded it, when it prefilled the sleep inputs (morning, first save only).
-    private(set) var sleepFromWearable: WearableNight?
+    /// Last night as a wearable or Apple Health recorded it, when one did. The sleep card then shows the night
+    /// as recorded (bed → wake, in bed, asleep) instead of the dial; the member can still adjust it.
+    private(set) var recordedNight: WearableNight?
+
+    /// Read-only once saved; the member unlocks it with "Change" (`CheckinLock`).
+    var lock = CheckinLock()
+
+    /// The MORNING slot's moment as loaded: last night's ONE source of truth. A sleep save starts from it, so nothing else
+    /// on that row is wiped (`CheckinService.saveSleep`).
+    private(set) var morningMoment: CheckinMoment?
+    /// Sleep as it was when the screen opened (or last saved) — a sleep save is only sent when the member changed it.
+    private var sleepBaseline: DimAnswers = .empty
 
     private let checkins: CheckinService
     private let members: MemberService
     private let auth: AuthService
     private let wearables: WearableService?
 
-    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService, gut: GutService? = nil, wearables: WearableService? = nil) {
+    init(slot: MomentSlot, checkins: CheckinService, members: MemberService, auth: AuthService, gut: GutService? = nil, wearables: WearableService? = nil,
+         day: String? = nil, sections: [Section]? = nil) {
         self.slot = slot
+        self.day = day
+        let list = sections ?? Self.sections(for: slot)
+        self.sectionList = list
         self.checkins = checkins
         self.members = members
         self.auth = auth
         self.wearables = wearables
-        self.gut = (slot == .evening) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth) } : nil
+        // The daily check-in owns the day's digestion — a caught-up day's too (`day` set: its row, today or yesterday).
+        self.gut = (slot == .evening && list.contains(.digestion)) ? gut.map { GutCheckinViewModel(gut: $0, members: members, auth: auth, day: day) } : nil
     }
+
+    /// The day this screen reads and writes.
+    private var targetDay: String { day ?? checkins.today }
 
     /// The sleep inputs from whichever wearable recorded the night: bed → wake as the clock, the window
     /// as the duration, the wake-ups and how long falling asleep took, in the same bands the member would
@@ -45,42 +67,70 @@ final class CheckinMomentViewModel {
         if let latency = night.latency { sleep.specials.latency = latency }
         if let wakeCount = night.wakeCount { sleep.specials.wakeCount = wakeCount }
         answers[.sleep] = sleep
-        sleepFromWearable = night
+        recordedNight = night
     }
 
-    /// Named, because "adjust anything that's off" only means something once you know who said it.
-    var sleepFromWearableNote: String? {
-        guard let night = sleepFromWearable else { return nil }
-        let source = WearableVendor.sourceName(night.sourceId)
-        guard let bed = night.bedTime, let wake = night.wakeTime else {
-            return String(localized: "checkin.sleep.fromWearable.noClock", defaultValue: "From \(source) · it didn't record when you went to bed · set the times yourself")
-        }
-        if night.clockIsGuessed {
-            // The row carried no timezone: these times are this phone's reading of the instant, which
-            // is only right if the night was spent in this timezone. Say so rather than look certain.
-            return String(localized: "checkin.sleep.fromWearable.guessed", defaultValue: "From \(source) · in bed \(bed) → \(wake), read in this timezone · check them")
-        }
-        return String(localized: "checkin.sleep.fromWearable", defaultValue: "From \(source) · in bed \(bed) → \(wake) · adjust anything that's off")
+    /// True while a wearable sync runs for last night: the sleep card says it is looking.
+    private(set) var syncingNight = false
+
+    private func useRecordedNight(_ night: WearableNight) {
+        if CheckinEngine.sleepIsUnanswered(answers[.sleep]) { applyWearableNight(night) } else { recordedNight = night }
     }
 
-    /// Re-opening a saved moment EDITS it (same row, upsert on the slot).
+    /// Nothing recorded yet: the night may be on the ring but not synced. Sync the vendor accounts in the
+    /// background while the dial is on screen; when the night arrives it takes the card, unless the member has
+    /// started answering the night by hand in the meantime — then it only sits beside their answer.
+    private func syncNight(patientId: String, wearables: WearableService) {
+        Task {
+            guard await wearables.mayHaveNight(patientId: patientId) else { return }
+            syncingNight = true
+            defer { syncingNight = false }
+            if let night = await wearables.lastNightAfterSync(patientId: patientId) { useRecordedNight(night) }
+        }
+    }
+
+    /// The moments that ask about last night: the morning, and the daily functional check-in (owner,
+    /// 2026-11-10: "at the top we are lacking the sleep").
+    var asksSleep: Bool { sectionList.contains(.sleep) }
+
+    /// Re-opening a saved moment EDITS it (same row, upsert on the slot). Last night always shows the latest saved sleep: the
+    /// morning moment's, whichever check-in this is.
     func prefill() async {
         let gutPrefill = Task { await self.prefillGut() }   // the evening's digestion loads alongside the moment
         do {
             let member = try await members.currentMember()
-            let moments = try await checkins.todayMoments(patientId: member.patientId)
+            let moments = try await checkins.moments(patientId: member.patientId, day: targetDay)
+            let morning = CheckinEngine.moment(for: .morning, in: moments)
+            morningMoment = morning
             if let existing = CheckinEngine.moment(for: slot, in: moments) {
                 answers = CheckinEngine.answersFromMoment(existing)
                 catalogPills = CheckinEngine.catalogPills(from: existing)
                 isEditing = true
+                lock.loaded(saved: true)
                 #if DEBUG
                 // The showcase's "check-in in progress" screenshot: answers on screen, but a first check-in.
-                if Showcase.isCheckinInProgress { isEditing = false }
+                if Showcase.isCheckinInProgress { isEditing = false; lock.loaded(saved: false) }
                 #endif
-            } else if slot == .morning, let wearables, let night = await wearables.lastNightAnySource(patientId: member.patientId) {
-                // A first morning save: last night from Apple Health on this phone, else from a wearable
-                // that synced server-side. Neither → the member sets the clock themselves.
-                applyWearableNight(night)
+            }
+            if asksSleep, slot != .morning, let morning, morning.hasSleep {
+                // The night was already told: the daily check-in shows the morning's answers, not a copy of its own.
+                answers[.sleep] = CheckinEngine.answersFromMoment(morning)[.sleep] ?? .empty
+            }
+            // A night only this slot's own (older) row holds is not "already saved" where it now belongs: the first save moves it
+            // to the morning slot, so replacing that row without sleep can never lose it.
+            let nightLivesOnTheMorning = morning?.hasSleep ?? false
+            sleepBaseline = (asksSleep && slot != .morning && !nightLivesOnTheMorning) ? .empty : (answers[.sleep] ?? .empty)
+            if asksSleep, let wearables {
+                // Last night from Apple Health on this phone, else from a wearable that synced server-side.
+                // It fills only a night nobody has answered yet; an answered one keeps the member's times.
+                // Neither source → the member slides the dial themselves.
+                if let night = await wearables.lastNightAnySource(patientId: member.patientId) {
+                    useRecordedNight(night)
+                } else {
+                    syncNight(patientId: member.patientId, wearables: wearables)
+                }
+                // Apple Health on this phone: push the night to CM OS now too, so the practice sees it this morning.
+                if wearables.isConnected { Task { await wearables.sync() } }
             }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.prefill")
@@ -106,15 +156,57 @@ final class CheckinMomentViewModel {
         (catalogPills[group.rawValue] ?? []).contains(key)
     }
 
+    /// Sleep is one shared answer: saved to the MORNING slot, from either check-in, and only when the member changed it.
+    var sleepNeedsSave: Bool {
+        guard asksSleep else { return false }
+        let sleep = answers[.sleep] ?? .empty
+        guard sleep != sleepBaseline else { return false }
+        var onlySleep = FunctionalAnswers.blank
+        onlySleep[.sleep] = sleep
+        return CheckinEngine.answersHaveContent(slot: .morning, answers: onlySleep, catalogPills: [:], note: nil)
+    }
+
+    private func storeSleep(patientId: String) async throws {
+        let sleep = answers[.sleep] ?? .empty
+        _ = try await checkins.saveSleep(sleep, existingMorning: morningMoment, patientId: patientId, day: day)
+        sleepBaseline = sleep
+    }
+
+    /// The morning screen's sleep part: last night alone, to the morning slot. True when nothing failed (nothing to save is fine).
+    func saveSleep() async -> Bool {
+        saveError = nil
+        guard sleepNeedsSave else { return true }
+        isSaving = true
+        defer { isSaving = false }
+        do {
+            let member = try await members.currentMember()
+            try await storeSleep(patientId: member.patientId)
+            lock.didSave()
+            return true
+        } catch let error as AppError {
+            Log.error(error, in: Log.data, context: "checkin.saveSleep")
+            if case .unauthorized = error { await auth.handleUnauthorized(); return false }
+            saveError = error.userMessage
+            return false
+        } catch {
+            saveError = String(describing: error)
+            return false
+        }
+    }
+
     /// True when saved. False leaves the answers in place with an error — or, when nothing was answered at all,
     /// with `nothingAnswered` set and nothing sent (it used to return true there and close as if saved).
+    /// Last night goes to the MORNING slot (see `saveSleep`); the moment saved here — the daily one — never carries its own copy.
     /// The evening saves twice — the moment, then the day's digestion. The moment write is an upsert on
     /// the slot, so a retry after a failed gut write costs nothing and duplicates nothing.
     func save() async -> Bool {
         saveError = nil
         nothingAnswered = false
+        let dailyAnswers = CheckinService.withoutSleep(answers)
         let gutHasContent = gut.map { GutEngine.hasAnyAnswer($0.answers) || $0.redFlags.any } ?? false
-        guard CheckinEngine.answersHaveContent(slot: slot, answers: answers, catalogPills: catalogPills, note: note) || gutHasContent else {
+        let dailyHasContent = CheckinEngine.answersHaveContent(slot: slot, answers: dailyAnswers, catalogPills: catalogPills, note: note)
+        let savesSleep = sleepNeedsSave
+        guard dailyHasContent || gutHasContent || savesSleep else {
             nothingAnswered = true
             return false
         }
@@ -122,7 +214,10 @@ final class CheckinMomentViewModel {
         defer { isSaving = false }
         do {
             let member = try await members.currentMember()
-            _ = try await checkins.save(slot: slot, answers: answers, catalogPills: catalogPills, note: note, patientId: member.patientId)
+            if savesSleep { try await storeSleep(patientId: member.patientId) }
+            if dailyHasContent {
+                _ = try await checkins.save(slot: slot, answers: dailyAnswers, catalogPills: catalogPills, note: note, patientId: member.patientId, day: day)
+            }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "checkin.save")
             if case .unauthorized = error { await auth.handleUnauthorized(); return false }
@@ -136,7 +231,14 @@ final class CheckinMomentViewModel {
             saveError = gut.saveError
             return false
         }
+        lock.didSave()
         return true
+    }
+
+    /// Something to save on this screen: a moment's answers, the digestion, or a changed night.
+    var hasAnythingToSave: Bool {
+        let gutHasContent = gut.map { GutEngine.hasAnyAnswer($0.answers) || $0.redFlags.any } ?? false
+        return CheckinEngine.answersHaveContent(slot: slot, answers: CheckinService.withoutSleep(answers), catalogPills: catalogPills, note: note) || gutHasContent || sleepNeedsSave
     }
 
     /// The evening's one note: it rides with the moment AND with the digestion detail, so the practitioner
@@ -148,17 +250,20 @@ final class CheckinMomentViewModel {
 
     // MARK: Sections (moment-sections.ts)
 
-    enum Section: Hashable { case sleep, intent, priority, feeling, markers, digestion, context }
+    enum Section: Hashable { case sleep, dayFeeling, markers, digestion, context }
 
-    /// Morning = the night behind you, the day ahead, and how you feel walking into it — the mood card with its
-    /// "how did it show up?" (motivated, anxious…) and "what shaped it?" (owner, 2026-10-12: back as before
-    /// 2026-09-17). Evening = the day you lived, digestion included.
+    /// Morning = last night, then "Feeling for the day" (the morning screen draws that card itself; the old intent / priority /
+    /// mood sections are retired, owner-validated 2026-11-12). Evening = the DAILY functional check-in: last night first
+    /// (owner, 2026-11-10), then the day, digestion included. Last night is ONE answer, kept on the morning slot: the daily
+    /// screen shows it and saves a change there, and its own submission carries no sleep.
     /// Midday is never offered any more; a legacy row opened from a deep link still renders what it holds.
-    var sections: [Section] {
+    var sections: [Section] { sectionList }
+
+    static func sections(for slot: MomentSlot) -> [Section] {
         switch slot {
-        case .morning: [.sleep, .intent, .priority, .feeling]
+        case .morning: [.sleep, .dayFeeling]
         case .midday: [.markers, .context]
-        case .evening: [.markers, .digestion, .context]
+        case .evening: [.sleep, .markers, .digestion, .context]
         }
     }
 
@@ -166,7 +271,7 @@ final class CheckinMomentViewModel {
         switch slot {
         case .morning: String(localized: "checkin.morning.greeting", defaultValue: "Good morning")
         case .midday: String(localized: "checkin.midday.greeting", defaultValue: "This afternoon")
-        case .evening: String(localized: "checkin.evening.greeting", defaultValue: "This evening")
+        case .evening: String(localized: "checkin.daily.greeting", defaultValue: "Daily functional check-in")
         }
     }
 
@@ -175,13 +280,16 @@ final class CheckinMomentViewModel {
         switch slot {
         case .morning: return String(localized: "checkin.morning.intro", defaultValue: "A few quick reads to open the day. Answer what you feel like · anything you skip is fine.")
         case .midday: return String(localized: "checkin.midday.intro", defaultValue: "A short pause in the middle of the day. Only what you feel like sharing.")
-        case .evening: return String(localized: "checkin.evening.intro", defaultValue: "A moment to look back on the day. Nothing here is required.")
+        case .evening: return String(localized: "checkin.daily.intro", defaultValue: "Last night, your day and your digestion. Answer what you feel like · anything you skip is fine.")
         }
     }
 
     var markersTitle: String {
-        slot == .evening
-            ? String(localized: "checkin.markers.evening", defaultValue: "How was your day?")
+        // A caught-up day (`day` set) is over: "How was your day?".
+        slot == .evening && day != nil
+            ? String(localized: "checkin.markers.yesterday", defaultValue: "How was your day?")
+            : slot == .evening
+            ? String(localized: "checkin.markers.daily", defaultValue: "How is your day?")
             : String(localized: "checkin.markers.later", defaultValue: "How are you feeling right now?")
     }
 }

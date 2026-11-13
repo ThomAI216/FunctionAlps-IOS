@@ -8,14 +8,15 @@
 //
 // WHAT IT ASKS FOR. Per 100 g of the food as named — a composition table's unit, which the model recalls far better
 // than an arbitrary portion — and the server scales it to the identified grams with the resolver's own rounding, so a
-// portion edit scales the same way. Only the nutrients something reads: the macros, the three the scorer uses
-// (saturated fat, sugar, omega-3), the 21 the app's coverage trend shows, and sodium. A nutrient the model does not
+// portion edit scales the same way. Only the nutrients something reads: the macros, every nutrient the catalogue has a column for
+// (micro-keys.ts), which includes the three the scorer uses and the 21 the app's coverage trend shows. A nutrient the model does not
 // know stays null ("not measured"), never 0. A USDA category from a fixed list lets meal-scores classify the food
 // from data, as it does for a database row.
 //
 // WHAT IT IS NOT. A measurement: `basis: "ai"`, `food_item_id: null`. A food the model cannot price (timeout, bad
 // JSON, implausible numbers, "not a food") comes back null and the caller prices it from the database instead.
 import type { ResolvedItem } from "./food-resolver.ts"
+import { CATALOGUE_MICRO_KEYS } from "./micro-keys.ts"
 
 /** The categories meal-scores reads (`categoryGroup`): USDA titles, matched case-insensitively. */
 export const AI_CATEGORIES = [
@@ -29,13 +30,9 @@ export const AI_CATEGORIES = [
 const MACRO_KEYS = ["energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g"] as const
 type MacroKey = typeof MACRO_KEYS[number]
 
-/** Per-100 g nutrients asked for, in the units of the database columns (EPA/DHA in mg, as the resolver renames them). */
-export const AI_MICRO_KEYS = [
-  "sugar_g", "saturated_fat_g", "omega3_g", "ala_g", "epa_mg", "dha_mg",
-  "vitamin_a_mcg", "vitamin_c_mg", "vitamin_d_mcg", "vitamin_e_mg", "vitamin_k2_mcg", "b12_mcg", "folate_mcg",
-  "biotin_mcg", "choline_mg", "calcium_mg", "iron_mg", "magnesium_mg", "phosphorus_mg", "potassium_mg",
-  "sodium_mg", "zinc_mg", "selenium_mcg", "iodine_mcg",
-] as const
+/** Per-100 g nutrients asked for: the catalogue's own list (micro-keys.ts), so the AI path and a matched row carry the
+ *  same keys. Units are the database columns' (EPA/DHA in mg, as the resolver renames them). */
+export const AI_MICRO_KEYS = CATALOGUE_MICRO_KEYS
 
 export const AI_PRICING_SYSTEM = `You are a food-composition reference, like USDA FoodData Central and the French CIQUAL table.
 For the ONE food the user names, as eaten (cooked or raw as the name says), give its typical nutrient content PER 100 g.

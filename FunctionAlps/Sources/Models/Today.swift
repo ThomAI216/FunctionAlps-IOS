@@ -13,6 +13,14 @@ struct TodaySnapshot: Sendable, Equatable {
     var history: [DailyCheckin] = []
     /// Server-computed scores; nil when the engine could not be reached (Home still renders).
     var scores: MemberScores? = nil
+    /// A "Feeling for the day" was saved for today (`patient_day_feelings`). A member who answered only that has done the
+    /// morning check-in. False when none was saved or the read failed.
+    var dayFeelingSaved: Bool = false
+
+    /// A slot is done when its moment is saved; the MORNING also counts a saved day feeling.
+    func isDone(_ slot: MomentSlot) -> Bool {
+        CheckinEngine.slotIsDone(moments, slot) || (slot == .morning && dayFeelingSaved)
+    }
 
     var totalCalories: Double { meals.compactMap(\.totalCalories).reduce(0, +) }
     var totalProteinG: Double { meals.compactMap(\.totalProteinG).reduce(0, +) }
@@ -59,6 +67,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let patientNote: String?
     /// `micronutrient_totals` — per-meal micro sums keyed like the edge functions write them (`vitamin_c_mg`…).
     let micros: [String: Double]
+    /// `resolution_meta.micro_coverage` — how many nutrients this meal measured; nil on meals analysed before it existed.
+    let microCoverage: MealMicroCoverage?
     /// `analysis_coverage` — the model's verdict on the photos: "full", "partial", or nil when never judged.
     let analysisCoverage: String?
     /// `protocol_flags` — the Protocol Lens matches `analyze-meal` stored; nil = never computed (no active protocol / legacy row).
@@ -84,7 +94,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         patientNote: String? = nil,
         micros: [String: Double] = [:],
         analysisCoverage: String? = nil,
-        protocolFlags: [ProtocolLens.Flag]? = nil
+        protocolFlags: [ProtocolLens.Flag]? = nil,
+        microCoverage: MealMicroCoverage? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -103,6 +114,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.scores = scores
         self.patientNote = patientNote
         self.micros = micros
+        self.microCoverage = microCoverage
         self.analysisCoverage = analysisCoverage
         self.protocolFlags = protocolFlags
     }
@@ -139,9 +151,11 @@ struct MealItem: Sendable, Equatable, Codable {
     var basis: String?
     /// Per-item micros from the resolver (`saturated_fat_g`, `sugar_g`, `omega3_g` feed the scorer).
     var micros: [String: Double]
+    /// The server added or changed this item from the member's learned habits (`from_habit: true`); absent on old rows and most items.
+    var fromHabit: Bool?
 
     init(name: String, estimatedGrams: Double? = nil, kcal: Double? = nil, proteinG: Double? = nil, carbsG: Double? = nil, fatG: Double? = nil, fiberG: Double? = nil, flags: [String] = [],
-         needsReview: Bool = false, portionLabel: String? = nil, category: String? = nil, basis: String? = nil, micros: [String: Double] = [:]) {
+         needsReview: Bool = false, portionLabel: String? = nil, category: String? = nil, basis: String? = nil, micros: [String: Double] = [:], fromHabit: Bool? = nil) {
         self.name = name
         self.estimatedGrams = estimatedGrams
         self.kcal = kcal
@@ -155,9 +169,10 @@ struct MealItem: Sendable, Equatable, Codable {
         self.category = category
         self.basis = basis
         self.micros = micros
+        self.fromHabit = fromHabit
     }
 
-    private enum CodingKeys: String, CodingKey { case name, estimatedGrams, kcal, proteinG, carbsG, fatG, fiberG, flags, needsReview, portionLabel, category, basis, micros }
+    private enum CodingKeys: String, CodingKey { case name, estimatedGrams, kcal, proteinG, carbsG, fatG, fiberG, flags, needsReview, portionLabel, category, basis, micros, fromHabit }
 
     /// Only the affirmative / present cases are written, so a row never carries a `needs_review: false` that reads as checked.
     func encode(to encoder: any Encoder) throws {
@@ -175,6 +190,7 @@ struct MealItem: Sendable, Equatable, Codable {
         try c.encodeIfPresent(category, forKey: .category)
         try c.encodeIfPresent(basis, forKey: .basis)
         if !micros.isEmpty { try c.encode(micros, forKey: .micros) }
+        if fromHabit == true { try c.encode(true, forKey: .fromHabit) }
     }
 
     /// Lenient on purpose: model output occasionally carries numbers as strings or omits fields,
@@ -193,6 +209,7 @@ struct MealItem: Sendable, Equatable, Codable {
         portionLabel = (try? c.decodeIfPresent(String.self, forKey: .portionLabel)).flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 }
         category = try? c.decodeIfPresent(String.self, forKey: .category)
         basis = try? c.decodeIfPresent(String.self, forKey: .basis)
+        fromHabit = try? c.decodeIfPresent(Bool.self, forKey: .fromHabit)
         micros = SnakeKeys.normalise(((try? c.decodeIfPresent([String: Double?].self, forKey: .micros)) ?? nil)?.compactMapValues { $0 } ?? [:])
     }
 

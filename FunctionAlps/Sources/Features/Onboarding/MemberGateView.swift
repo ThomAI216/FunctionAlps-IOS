@@ -45,7 +45,7 @@ struct MemberGateView: View {
                 GateMessageView(
                     symbol: "person.crop.circle.badge.questionmark",
                     title: String(localized: "gate.notRegistered.title", defaultValue: "We couldn't find your membership"),
-                    message: String(localized: "gate.notRegistered.body", defaultValue: "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to data@functionalps.ch and we'll sort it out."),
+                    message: String(localized: "gate.notRegistered.body", defaultValue: "Your account exists but isn't linked to a FunctionAlps member yet. Try again in a moment, or write to thomas@functionalps.ch and we'll sort it out."),
                     primary: String(localized: "action.retry", defaultValue: "Try again"),
                     onPrimary: { Task { await resolve() } },
                     secondary: String(localized: "profile.signOut", defaultValue: "Sign out"),
@@ -57,7 +57,7 @@ struct MemberGateView: View {
                 GateMessageView(
                     symbol: "person.crop.circle.badge.exclamationmark",
                     title: String(localized: "gate.registeredElsewhere.title", defaultValue: "This email already has an account"),
-                    message: String(localized: "gate.registeredElsewhere.body", defaultValue: "You registered before with \(MemberService.signInMethodPhrase(providers: providers)). Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to data@functionalps.ch."),
+                    message: String(localized: "gate.registeredElsewhere.body", defaultValue: "You registered before with \(MemberService.signInMethodPhrase(providers: providers)). Sign out, then sign in that way: everything you recorded is waiting there. If you get stuck, write to thomas@functionalps.ch."),
                     primary: String(localized: "profile.signOut", defaultValue: "Sign out"),
                     onPrimary: { Task { await dependencies.auth.signOut() } },
                     secondary: String(localized: "action.retry", defaultValue: "Try again"),
@@ -95,7 +95,9 @@ struct MemberGateView: View {
     private func resolve() async {
         let m: Member
         do {
-            m = try await dependencies.members.currentMember()
+            // Always a fresh read here (never the cache): every gate decision is the server's, and this pass
+            // is also what re-primes the cache the rest of the app reads for the next minutes.
+            m = try await dependencies.members.currentMember(forceRefresh: true)
         } catch MemberService.MemberError.notRegistered {
             stage = .notRegistered
             return
@@ -112,8 +114,17 @@ struct MemberGateView: View {
         }
         member = m
 
+        // Access window and consents do not depend on each other — only on the patient id — so they are read
+        // together. Decisions below are still taken in the same order (access first, then consents).
+        let profile = dependencies.profile, account = dependencies.account
+        let patientId = m.patientId
+        async let accessRead: AppAccess = profile.access(patientId: patientId)
+        async let consentsRead: Result<AccountService.ConsentsBundle, Error> = {
+            do { return .success(try await account.consents()) } catch { return .failure(error) }
+        }()
+        let (access, consentsResult) = await (accessRead, consentsRead)
+
         // Access window — FAIL-OPEN: a read error is "allowed, unknown", never a locked door.
-        let access = await dependencies.profile.access(patientId: m.patientId)
         if !access.allowed {
             stage = .accessClosed(access)
             return
@@ -121,15 +132,14 @@ struct MemberGateView: View {
 
         // Consents. Nothing approved yet ⇒ no rows ⇒ nothing to accept ⇒ the gate must not block
         // (fail-open here and ONLY here). A read failure blocks with a retry — the screen shows it.
-        do {
-            let b = try await dependencies.account.consents()
+        switch consentsResult {
+        case .success(let b):
             bundle = b
-            let requiredOpen = b.consents.contains { $0.required && !$0.accepted }
-            if requiredOpen {
+            if b.consents.contains(where: { $0.required && !$0.accepted }) {
                 stage = .consent
                 return
             }
-        } catch {
+        case .failure:
             bundle = nil
             stage = .consent
             return

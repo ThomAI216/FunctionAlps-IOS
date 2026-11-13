@@ -8,6 +8,10 @@ enum Route: Hashable {
     case checkin(MomentSlot)
     case track(String)
     case read(String)
+    /// One Foundation Track day's reads, on their own page (Library → a day with several reads).
+    case libraryDay(Int)
+    /// A habit's video, played in the app (Library → Watch).
+    case libraryVideo(LibraryVideo)
     /// The mini track of what the practice sent with its messages ("Your practitioner's picks").
     case sentTrack
     /// One personal mini track the practice built for this member (`patient_tracks`), by its id.
@@ -16,13 +20,31 @@ enum Route: Hashable {
     case episode(String)
     // Profile tab subpages (the Expo `(screens)/profile-*`, `guide`, `privacy-*`, `legal/*`)
     case carePlan
+    /// The client's care plan screens (CLINICAL 2026-11-12): one objective, "Why we're doing this", "Your situation &
+    /// evolution", and the journey (more than one programme).
+    case clientObjective(String)
+    case carePlanWhy
+    case carePlanSituation
+    case carePlanJourney
+    case carePlanFocus(String)
+    case carePlanAction(String)
     /// One action of the plan (a habit), opened on its action card.
     case action(String)
+    /// One supplement's page (Home's "Supplements today", the Plan's list), by its plan id.
+    case supplement(String)
     /// The bank of foundation actions a member may add themselves, and one card of it.
     case actionBank
     case bankCard(String)
+    /// One of today's-focus habits (`habit_bank` id), opened from Home's "Do it now": the action card with the two focus buttons under it.
+    case focusCard(String)
+    /// The kickoff morning routine, walked one step per screen.
+    case kickoff
+    /// Today's focus as a page: where the morning check-in lands once it is saved (owner, 2026-11-13).
+    case todayFocus
     /// A Foundation Track action's card (`habit_bank` id), on the version the day shows (`easy` · `standard` · `further`).
     case trackCard(String, face: String)
+    /// One Foundation Track habit's page (Home's actions card → "See the habit"), by its action key.
+    case habit(String)
     /// The Foundation Track's approved day-7 summary.
     case trackSummary
     /// The Foundation Track's day as its own page (Home's track card opens it).
@@ -60,6 +82,16 @@ enum Route: Hashable {
     case labResults
     case labResult(String)
     case labMarker(releaseId: String, markerId: String)
+    /// What the care team released to the member: reports, lab reports, resources, invoices.
+    case documents
+    // Trends rework (2026-11-10): one signal's page, one device's page (`TrendsEngine.appleHealthKey` or a vendor key),
+    // and the patterns the practitioner shared.
+    case trendSignal(TrendSignal)
+    case trendDevice(String)
+    case trendPatterns
+    /// "About <signal>": the practice's explanation of one signal (`SignalAboutKey`: sleep · energy · focus · mood · stress ·
+    /// digestion · score), from its Trends row, its page, or the Functional score card.
+    case signalAbout(String)
 }
 
 @MainActor
@@ -100,6 +132,23 @@ final class AppRouter {
     /// Set by Home's mic: Messages opens with the composer focused and dictation started; consumed once.
     var pendingDictation = false
 
+    /// The morning check-in's end screen: a check-in on top of the selected stack steps aside for `route`, so Back returns
+    /// to where the check-in was opened from, not into a finished check-in.
+    func replaceCheckin(with route: Route) {
+        switch tab {
+        case .home: Self.swapCheckin(&homePath, with: route)
+        case .trends: Self.swapCheckin(&trendsPath, with: route)
+        case .food: Self.swapCheckin(&foodPath, with: route)
+        case .library: Self.swapCheckin(&libraryPath, with: route)
+        case .profile: Self.swapCheckin(&profilePath, with: route)
+        }
+    }
+
+    private static func swapCheckin(_ path: inout [Route], with route: Route) {
+        if let last = path.last, case .checkin = last { path.removeLast() }
+        path.append(route)
+    }
+
     /// Home's messages card: push Messages on the current stack (back returns to where the member was).
     func openMessages(dictate: Bool = false) {
         pendingDictation = dictate
@@ -119,9 +168,9 @@ final class AppRouter {
     }
 
     /// `functionalps://…` from a notification or a link: switch tab, then push.
-    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends · scores · action/<habitId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
-    ///   bank[/<cardId>] · messages · careplan · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
-    ///   foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
+    ///   checkin/<morning|midday|evening> · meal/<id>[?rate=1] · food · trends[/signal/<key>|/device/<key>|/patterns|/about/<signal|score>] · scores · action/<habitId> · supplements · supplement/<planId> · library[/<slug>] · library/show/<slug> · library/sent · library/track/<uuid> ·
+    ///   bank[/<cardId>] · focus/today · focus/kickoff · focus/card/<cardId> · messages · careplan · documents · results[/<id>] · devices · settings · home · foundation (the track's day, on Home) ·
+    ///   habit/<key> (a track habit's page) · foundation/summary (the approved day-7 summary) · foundation/day (the track's day, as its own page)
     func open(_ url: URL) {
         guard url.scheme == "functionalps" else { return }
         let parts = ([url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" })
@@ -139,16 +188,44 @@ final class AppRouter {
         case "food":
             tab = .food; foodPath = []
             pendingCapture = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.contains { $0.name == "capture" && $0.value == "1" } ?? false
-        case "trends": tab = .trends; trendsPath = []
+        case "trends":
+            // trends · trends/signal/<sleep|energy|focus|mood|stress|digestion> · trends/device/<apple_health|oura|…> · trends/patterns · trends/about/<signal|score>
+            tab = .trends; trendsPath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "signal", rest.count > 1, let signal = TrendSignal(rawValue: rest[1]) {
+                trendsPath = [.trendSignal(signal)]
+            } else if rest.first == "device", rest.count > 1, !rest[1].isEmpty {
+                trendsPath = [.trendDevice(rest[1])]
+            } else if rest.first == "patterns" {
+                trendsPath = [.trendPatterns]
+            } else if rest.first == "about", rest.count > 1, let key = SignalAboutKey(rawValue: rest[1]) {
+                trendsPath = [.signalAbout(key.rawValue)]
+            }
         case "scores": tab = .trends; trendsPath = [.scores]
         case "action":
             // action/<habitId> — one action of the plan, on its card (a reminder can open it).
             tab = .home; homePath = []
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.action(id)) }
+        case "habit":
+            // habit/<action key> — one Foundation Track habit's page.
+            tab = .home; homePath = []
+            if let key = parts.dropFirst().first, !key.isEmpty { homePath.append(.habit(key)) }
+        case "supplements": tab = .home; homePath = []   // a supplement reminder's tap: Home, where today's list is
+        case "supplement":
+            // supplement/<planId> — one supplement's page.
+            tab = .home; homePath = []
+            if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.supplement(id)) }
         case "bank":
             // bank · bank/<cardId> — the foundation action bank, or one card in it.
             tab = .home; homePath = [.actionBank]
             if let id = parts.dropFirst().first, !id.isEmpty { homePath.append(.bankCard(id)) }
+        case "focus":
+            // focus/kickoff — the kickoff morning routine · focus/card/<cardId> — one of today's focus habits, with the two focus buttons.
+            tab = .home; homePath = []
+            let rest = Array(parts.dropFirst())
+            if rest.first == "kickoff" { homePath.append(.kickoff) }
+            else if rest.first == "today" { homePath.append(.todayFocus) }
+            else if rest.first == "card", rest.count > 1, !rest[1].isEmpty { homePath.append(.focusCard(rest[1])) }
         case "library":
             // library · library/<slug> — the Library, or one article in it · library/show/<slug> — one show episode
             // (an experiment reminder lands there) · library/track/<uuid> — one personal mini track (an email link lands there).
@@ -164,11 +241,17 @@ final class AppRouter {
                 // While the show is coming soon (`ShowFeature`), an episode link lands on the Library itself.
                 if ShowFeature.episodesReachable(), rest.count > 1, !rest[1].isEmpty { libraryPath.append(.episode(rest[1])) }
             } else if let slug = rest.first, !slug.isEmpty {
+                #if DEBUG
+                // The showcase's video shot: the player, pushed as a tap on a Watch tile would.
+                if Showcase.isOn, slug == "watch" { libraryPath.append(.libraryVideo(ShowcaseLibrary.video)) } else { libraryPath.append(.read(slug)) }
+                #else
                 libraryPath.append(.read(slug))
+                #endif
             }
         case "profile": tab = .profile; profilePath = []
         case "messages": tab = .profile; profilePath = [.messages]
         case "careplan": tab = .profile; profilePath = [.carePlan]
+        case "documents": tab = .profile; profilePath = [.documents]
         case "results":
             // results · results/<releaseId> — the "your results are ready" push lands on the release itself.
             tab = .profile; profilePath = [.labResults]
@@ -236,6 +319,7 @@ final class AppRouter {
         case .profile: profilePath.last
         }
         if case .read = top { return true }
+        if case .libraryVideo = top { return true }
         return false
     }
 }
@@ -315,6 +399,7 @@ struct MainTabView: View {
             if phase == .active {
                 Task { router.libraryBadge = await dependencies.messaging.unopenedSentCount() }
                 Task { await dependencies.unlocks.refresh() }
+                Task { await dependencies.supplements.load() }   // a new day's ticks, and its reminders
             }
         }
         // Notifications: taps and links land here; the badge clears whenever the app comes forward.
@@ -324,6 +409,7 @@ struct MainTabView: View {
             if ShowFeature.comingSoon { Task { await ShowReminders().cancelAll() } }
             AppDelegate.router = router
             AppDelegate.notifications = dependencies.notifications
+            AppDelegate.supplements = dependencies.supplements
             if let url = AppDelegate.pendingRoute {
                 AppDelegate.pendingRoute = nil
                 Task { @MainActor in
@@ -366,14 +452,27 @@ struct MainTabView: View {
         case .checkin(let slot): CheckinMomentView(slot: slot)
         case .track(let slug): TrackView(slug: slug)
         case .read(let slug): ReaderView(slug: slug)
+        case .libraryDay(let day): LibraryDayView(day: day)
+        case .libraryVideo(let video): LibraryVideoView(video: video)
         case .sentTrack: SentTrackView()
         case .personalTrack(let id): PersonalTrackView(trackId: id)
         case .episode(let slug): ShowEpisodeView(slug: slug)
-        case .carePlan: CarePlanView()
+        case .carePlan: CarePlanEntryView()
+        case .clientObjective(let id): ClientObjectiveView(objectiveId: id)
+        case .carePlanWhy: ClientWhyView()
+        case .carePlanSituation: ClientSituationView()
+        case .carePlanJourney: ClientJourneyView()
+        case .carePlanFocus(let id): HabitDetailView(habitId: id, kind: .focus)
+        case .carePlanAction(let id): HabitDetailView(habitId: id, kind: .action)
         case .action(let habitId): ActionCardView(source: .habit(habitId))
+        case .supplement(let id): SupplementPage(supplementId: id)
         case .actionBank: ActionBankView()
         case .bankCard(let cardId): ActionCardView(source: .bankCard(cardId))
+        case .focusCard(let cardId): ActionCardView(source: .focusCard(cardId))
+        case .kickoff: KickoffRoutineView()
+        case .todayFocus: TodayFocusView()
         case .trackCard(let cardId, let face): ActionCardView(source: .trackCard(cardId, face: face))
+        case .habit(let key): HabitPageView(key: key)
         case .trackSummary: TrackSummaryView()
         case .trackDay: TrackDayPage()
         case .baseline: BaselineEditView()
@@ -402,8 +501,13 @@ struct MainTabView: View {
         case .bodySignal(let s): SignalDetailView(kind: .body(s))
         case .gutSignal(let s): SignalDetailView(kind: .gut(s))
         case .labResults: LabResultsView()
+        case .documents: DocumentsView()
         case .labResult(let id): LabResultView(releaseId: id)
         case .labMarker(let releaseId, let markerId): LabMarkerView(releaseId: releaseId, markerId: markerId)
+        case .trendSignal(let signal): TrendSignalDetailView(signal: signal)
+        case .trendDevice(let key): WearableSourceDetailView(deviceKey: key)
+        case .trendPatterns: MemberPatternsView()
+        case .signalAbout(let key): SignalAboutView(key: key)
         }
     }
 }

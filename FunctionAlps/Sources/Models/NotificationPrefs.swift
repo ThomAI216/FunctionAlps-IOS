@@ -17,6 +17,9 @@ struct NotificationPrefs: Sendable, Equatable {
     var messagesEnabled = true
     var reportsEnabled = true
     var carePlanEnabled = true
+    /// Supplement reminders: ON unless the member turns them off, one grouped reminder per moment at these times.
+    var supplementRemindersEnabled = true
+    var supplementTimes = SupplementTimes()
     var quietHoursEnabled = true
     var quietStart = "22:00"
     var quietEnd = "07:30"
@@ -54,6 +57,9 @@ struct NotificationPrefsRow: Codable, Sendable {
     var messagesEnabled: Bool?
     var reportsEnabled: Bool?
     var carePlanEnabled: Bool?
+    var supplementRemindersEnabled: Bool?
+    /// jsonb `{"morning":"08:00","noon":"12:30","evening":"19:00","bedtime":"22:00"}`.
+    var supplementTimes: SupplementTimes?
     var quietHoursEnabled: Bool?
     var quietHoursStart: String?
     var quietHoursEnd: String?
@@ -65,7 +71,7 @@ struct NotificationPrefsRow: Codable, Sendable {
     var devicePlatform: String?
     var appVersion: String?
 
-    static let columns = "patient_id,morning_checkin_enabled,morning_checkin_time,midday_checkin_enabled,midday_checkin_time,daily_checkin_reminder_enabled,daily_checkin_time,meal_reminders_enabled,post_meal_followup_enabled,weekly_summary_enabled,messages_enabled,reports_enabled,care_plan_enabled,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,push_enabled,timezone"
+    static let columns = "patient_id,morning_checkin_enabled,morning_checkin_time,midday_checkin_enabled,midday_checkin_time,daily_checkin_reminder_enabled,daily_checkin_time,meal_reminders_enabled,post_meal_followup_enabled,weekly_summary_enabled,messages_enabled,reports_enabled,care_plan_enabled,supplement_reminders_enabled,supplement_times,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,push_enabled,timezone"
 
     var prefs: NotificationPrefs {
         var p = NotificationPrefs()
@@ -81,6 +87,8 @@ struct NotificationPrefsRow: Codable, Sendable {
         p.messagesEnabled = messagesEnabled ?? p.messagesEnabled
         p.reportsEnabled = reportsEnabled ?? p.reportsEnabled
         p.carePlanEnabled = carePlanEnabled ?? p.carePlanEnabled
+        p.supplementRemindersEnabled = supplementRemindersEnabled ?? p.supplementRemindersEnabled
+        p.supplementTimes = supplementTimes ?? p.supplementTimes
         p.quietHoursEnabled = quietHoursEnabled ?? p.quietHoursEnabled
         p.quietStart = NotificationPrefs.hhmm(quietHoursStart, fallback: p.quietStart)
         p.quietEnd = NotificationPrefs.hhmm(quietHoursEnd, fallback: p.quietEnd)
@@ -98,6 +106,7 @@ struct NotificationPrefsRow: Codable, Sendable {
             dailyCheckinReminderEnabled: p.eveningEnabled, dailyCheckinTime: p.eveningTime + ":00",
             mealRemindersEnabled: p.mealRemindersEnabled, postMealFollowupEnabled: p.postMealFollowupEnabled,
             weeklySummaryEnabled: p.weeklySummaryEnabled, messagesEnabled: p.messagesEnabled, reportsEnabled: p.reportsEnabled, carePlanEnabled: p.carePlanEnabled,
+            supplementRemindersEnabled: p.supplementRemindersEnabled, supplementTimes: p.supplementTimes,
             quietHoursEnabled: p.quietHoursEnabled, quietHoursStart: p.quietStart + ":00", quietHoursEnd: p.quietEnd + ":00",
             pushEnabled: p.pushEnabled, timezone: p.timezone
         )

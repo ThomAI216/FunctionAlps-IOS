@@ -85,7 +85,7 @@ private struct FATabBarGlass: ViewModifier {
         } else {
             content
                 .background(Color.white.opacity(0.20), in: Capsule())
-                .overlay { Capsule().strokeBorder(Color.white.opacity(0.55), lineWidth: 1) }
+                .overlay { Capsule().strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5) }
                 .shadow(color: .black.opacity(0.28), radius: 14, y: 8)
         }
     }
