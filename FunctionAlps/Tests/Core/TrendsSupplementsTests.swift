@@ -35,15 +35,15 @@ struct TrendsSupplementsTests {
         #expect(strip[0].moments.map(\.moment) == ["morning", "evening"])
     }
 
-    @Test("A 14-day window shows every day; counts are days fully taken of days due and over")
+    @Test("A 14-day window shows every day; counts are days fully taken of the days due, today included")
     func fortnight() throws {
         let rows = TrendsEngine.supplementRows(try supplements(fixture()), window: .fortnight)
         let row = try #require(rows.first)
         #expect(row.days.count == 14)
-        // Days 1-8 taken (8), day 9 partial, day 10 not due, days 11-13 missed, today pending (not counted):
-        // due = 8 + 1 + 3 = 12
+        // Days 1-8 taken (8), day 9 partial, day 10 not due, days 11-13 missed, today pending (counted, as on the
+        // supplement page): due = 14 - 1 = 13
         #expect(row.taken == 8)
-        #expect(row.due == 12)
+        #expect(row.due == 13)
     }
 
     @Test("A 7-day window keeps the last seven days; a 28-day window can only show the 14 the server counts")
@@ -52,9 +52,9 @@ struct TrendsSupplementsTests {
         let week = try #require(TrendsEngine.supplementRows(list, window: .week).first)
         #expect(week.days.count == 7)
         #expect(week.days.first?.date == "2026-11-08")
-        // 8 taken? no: day 8 taken, day 9 partial, 10 not due, 11-13 missed
+        // day 8 taken, day 9 partial, 10 not due, 11-13 missed, today due
         #expect(week.taken == 1)
-        #expect(week.due == 5)
+        #expect(week.due == 6)
         let month = try #require(TrendsEngine.supplementRows(list, window: .month).first)
         #expect(month.days.count == 14)
     }

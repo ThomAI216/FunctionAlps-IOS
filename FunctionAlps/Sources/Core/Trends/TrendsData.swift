@@ -81,7 +81,8 @@ enum TrendsEngine {
         let id: String
         let name: String
         let days: [Supplement.StripDay]
-        /// Days where everything due was taken, of the days due and over (today still to take is not counted).
+        /// Days where everything due was taken, of the days due in the window, today included: the same
+        /// "10 of 14 days" the supplement page shows (owner, 2026-11-13).
         let taken: Int
         let due: Int
     }
@@ -92,7 +93,7 @@ enum TrendsEngine {
             guard let strip = s.observance?.strip, !strip.isEmpty else { return nil }
             let days = Array(strip.suffix(window.days))
             let marks = days.map(SupplementLogic.mark)
-            let due = marks.filter { $0 == .taken || $0 == .partial || $0 == .missed }.count
+            let due = days.filter(\.due).count
             return SupplementRow(id: s.id, name: s.name, days: days, taken: marks.filter { $0 == .taken }.count, due: due)
         }
     }
