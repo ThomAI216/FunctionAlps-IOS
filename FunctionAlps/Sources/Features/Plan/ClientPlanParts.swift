@@ -45,12 +45,14 @@ struct CPLabel: View {
 struct CPProgressBar: View {
     let fraction: Double
     var height: CGFloat = 5
+    /// An accent for the bar (the supplements' observance band); nil = the plan's green.
+    var tint: Color? = nil
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule().fill(FAColor.forestMist.opacity(0.7))
-                Capsule().fill(FAColor.accent).frame(width: max(height, geo.size.width * min(max(fraction, 0), 1)))
+                Capsule().fill(tint.map { $0.opacity(0.18) } ?? FAColor.forestMist.opacity(0.7))
+                Capsule().fill(tint ?? FAColor.accent).frame(width: max(height, geo.size.width * min(max(fraction, 0), 1)))
             }
         }
         .frame(height: height)

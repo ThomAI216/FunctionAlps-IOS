@@ -352,6 +352,15 @@ protocol FunctionAlpsBackend: Sendable {
 
     /// One notification row's content-free pointers (`data_json`) — where a tap on a push without a route belongs.
     func notificationData(id: String) async throws -> JSONValue?
+
+    // MARK: Supplements (CM OS migration 333; every figure computed server-side)
+
+    /// `member_supplements()`: the member's supplements — what the practice prescribed (patient-visible, approved),
+    /// today's ticks and the observance (days, taken, percent, band, 14-day strip). Default: none.
+    func supplements() async throws -> [Supplement]
+    /// `member_log_supplement(p_plan, p_moment, p_taken, p_day)`: ticks (or un-ticks) one moment. Idempotent. `day` nil =
+    /// today; the server accepts only today or yesterday (`22023` otherwise). `planId` is the supplement's `id`.
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
@@ -479,4 +488,6 @@ extension FunctionAlpsBackend {
     func saveEveningFollowup(patientId: String, day: String, followup: EveningFollowup) async throws {}
     func gutDays(patientId: String, since: String) async throws -> [GutDay] { [] }
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
+    func supplements() async throws -> [Supplement] { [] }
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {}
 }

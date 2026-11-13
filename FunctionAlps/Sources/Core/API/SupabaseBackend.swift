@@ -1614,6 +1614,24 @@ struct SupabaseBackend: FunctionAlpsBackend {
         try await rest.upsert("patient_daily_checkins", onConflict: "patient_id,checkin_date", body: row, snakeCase: false)
     }
 
+    // MARK: Supplements (member_supplements · member_log_supplement)
+
+    private struct LogSupplementBody: Encodable, Sendable {
+        let pPlan: String
+        let pMoment: String
+        let pTaken: Bool
+        /// `YYYY-MM-DD`; nil is omitted, and the function's default (today) applies.
+        let pDay: String?
+    }
+
+    func supplements() async throws -> [Supplement] {
+        try await rest.rpc("member_supplements", body: EmptyBody())
+    }
+
+    func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {
+        _ = try await rest.rpcRaw("member_log_supplement", body: LogSupplementBody(pPlan: planId, pMoment: moment.rawValue, pTaken: taken, pDay: day))
+    }
+
     // MARK: Notifications (patient_notification_preferences)
 
     func notificationPrefs(patientId: String) async throws -> NotificationPrefsRow? {
