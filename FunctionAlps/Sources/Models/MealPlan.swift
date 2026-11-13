@@ -131,7 +131,10 @@ struct RecipeCard: Sendable, Equatable {
     let id: String
     let title: String
     let bodyMd: String
-    let steps: [String]
+    let steps: [RecipeStep]
+    /// `recipes.why_line` and `recipes.description`: read when the columns exist, else nil.
+    let whyLine: String?
+    let description: String?
     let servings: Double?
     let prepMinutes: Int?
     let cookMinutes: Int?
@@ -139,6 +142,13 @@ struct RecipeCard: Sendable, Equatable {
     let variantKind: String?
     let ingredients: [RecipeIngredient]
     let nutrition: RecipeNutrition?
+}
+
+/// One method step. `phase` is nil for an older row that holds a plain string.
+struct RecipeStep: Sendable, Equatable {
+    enum Phase: String, Sendable { case prep, cook }
+    let phase: Phase?
+    let text: String
 }
 
 struct RecipeIngredient: Sendable, Equatable, Identifiable {

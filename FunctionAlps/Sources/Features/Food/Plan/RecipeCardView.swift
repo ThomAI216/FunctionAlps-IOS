@@ -34,7 +34,7 @@ final class RecipeCardModel {
             if let card = try await service.recipe(id: meal.recipe.id) {
                 state = .loaded(card)
                 servings = RecipeLogic.defaultServings(meal: meal, recipe: card)
-                part = RecipeLogic.method(bodyMd: card.bodyMd, steps: card.steps).preparation.isEmpty ? .cooking : .preparation
+                part = RecipeLogic.method(steps: card.steps).preparation.isEmpty ? .cooking : .preparation
             } else {
                 state = .empty
             }
@@ -102,6 +102,7 @@ struct RecipeCardView: View {
         }
     }
 
+    private var recipeCard: RecipeCard? { model?.state.value }
     private var day: PlanDay? { plan.range?.days.first { $0.date == open.date } }
     private var planAllowsSwap: Bool { plan.canSwap(on: day) }
     private var isToday: Bool { open.date == plan.range?.from }
@@ -114,7 +115,7 @@ struct RecipeCardView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     topBar
                     hero(meal)
-                    if let note = meal.note { whyCard(note) }
+                    if let why = (recipeCard?.whyLine ?? meal.note) { whyCard(why) }
                     recipeBody(meal, model: model)
                 }
                 .padding(.horizontal, 18)
@@ -148,6 +149,9 @@ struct RecipeCardView: View {
             Text(meal.mealType.localizedName.uppercased() + (isToday ? " · " + String(localized: "plan.recipe.today", defaultValue: "today") : ""))
                 .font(FATypography.label).tracking(0.9).foregroundStyle(FAColor.forestSoft)
             Text(meal.recipe.title).font(FATypography.display(26, relativeTo: .title)).foregroundStyle(FAColor.ink)
+            if let blurb = recipeCard?.description {
+                Text(blurb).font(FATypography.body).foregroundStyle(FAColor.inkSecondary)
+            }
             HStack(spacing: 14) {
                 if let prep = PlanLogic.minutesLabel(meal.recipe.prepMinutes) {
                     Label(String(localized: "recipe.prepMeta", defaultValue: "Prep \(prep)"), systemImage: "clock")
@@ -287,16 +291,16 @@ struct RecipeCardView: View {
 
     @ViewBuilder
     private func method(_ card: RecipeCard, model: RecipeCardModel) -> some View {
-        let m = RecipeLogic.method(bodyMd: card.bodyMd, steps: card.steps)
+        let m = RecipeLogic.method(steps: card.steps)
         if !m.isEmpty {
             FACard {
                 VStack(alignment: .leading, spacing: 12) {
                     if m.isSplit {
                         FASegmentedControl(options: RecipeMethodPart.allCases, selection: model.part, title: \.title) { model.part = $0 }
                     } else {
-                        TrendLabel(text: String(localized: "recipe.method", defaultValue: "Method"))
+                        TrendLabel(text: String(localized: "recipe.method", defaultValue: "Steps"))
                     }
-                    let steps = m.isSplit ? (model.part == .preparation ? m.preparation : m.cooking) : (m.preparation + m.cooking)
+                    let steps = m.isSplit ? (model.part == .preparation ? m.preparation : m.cooking) : m.all
                     ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                         HStack(alignment: .firstTextBaseline, spacing: 10) {
                             Text("\(index + 1)").font(FATypography.sans(13, .bold, relativeTo: .footnote)).foregroundStyle(FAColor.forestSoft)

@@ -80,46 +80,24 @@ enum RecipeLogic {
     struct Method: Sendable, Equatable {
         var preparation: [String]
         var cooking: [String]
+        /// Steps from an older row that carry no phase.
+        var plain: [String]
 
-        var isEmpty: Bool { preparation.isEmpty && cooking.isEmpty }
-        /// The segmented control shows only when both halves exist.
+        var isEmpty: Bool { preparation.isEmpty && cooking.isEmpty && plain.isEmpty }
+        /// The Preparation | Cooking control shows only when both halves exist.
         var isSplit: Bool { !preparation.isEmpty && !cooking.isEmpty }
+        /// Everything in recipe order when there is no split.
+        var all: [String] { preparation + cooking + plain }
     }
 
-    /// Preparation | Cooking. The recipe text may carry `## Preparation` and `## Cooking` headings; when it does the
-    /// steps under each fall in their half. Otherwise the recipe's step list is the method, shown as one list.
-    static func method(bodyMd: String, steps: [String]) -> Method {
-        var prep: [String] = []
-        var cook: [String] = []
-        var current: Int?   // 0 prep, 1 cook, nil other
-        var sawHeading = false
-        for rawLine in bodyMd.split(whereSeparator: \.isNewline) {
-            let line = rawLine.trimmingCharacters(in: .whitespaces)
-            if line.isEmpty { continue }
-            if line.hasPrefix("#") {
-                let title = line.drop(while: { $0 == "#" }).trimmingCharacters(in: .whitespaces).lowercased()
-                if title.contains("prepar") { current = 0; sawHeading = true }
-                else if ["cook", "bake", "roast", "method", "direction", "instruction"].contains(where: title.contains) { current = 1; sawHeading = true }
-                else { current = nil }
-                continue
-            }
-            guard let section = current else { continue }
-            let step = stripListMarker(line)
-            if step.isEmpty { continue }
-            if section == 0 { prep.append(step) } else { cook.append(step) }
-        }
-        if sawHeading, !(prep.isEmpty && cook.isEmpty) { return Method(preparation: prep, cooking: cook) }
-        return Method(preparation: [], cooking: steps.map(stripListMarker).filter { !$0.isEmpty })
-    }
-
-    private static func stripListMarker(_ line: String) -> String {
-        var s = line.trimmingCharacters(in: .whitespaces)
-        if s.hasPrefix("- ") || s.hasPrefix("* ") || s.hasPrefix("• ") { s = String(s.dropFirst(2)) }
-        else if let dot = s.firstIndex(where: { $0 == "." || $0 == ")" }), dot > s.startIndex,
-                s[s.startIndex..<dot].allSatisfy(\.isNumber), s.index(after: dot) < s.endIndex, s[s.index(after: dot)] == " " {
-            s = String(s[s.index(dot, offsetBy: 2)...])
-        }
-        return s.trimmingCharacters(in: .whitespaces)
+    /// Preparation | Cooking from each step's `phase` (`prep` / `cook`). Steps without a phase (older rows hold plain
+    /// strings) form one "Steps" list. The recipe text (`body_md`) is not parsed.
+    static func method(steps: [RecipeStep]) -> Method {
+        Method(
+            preparation: steps.filter { $0.phase == .prep }.map(\.text),
+            cooking: steps.filter { $0.phase == .cook }.map(\.text),
+            plain: steps.filter { $0.phase == nil }.map(\.text)
+        )
     }
 
     // MARK: Make it…

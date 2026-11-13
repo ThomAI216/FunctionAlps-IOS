@@ -61,30 +61,29 @@ struct RecipeLogicTests {
         #expect(RecipeLogic.ingredientName(line("3", qty: 3, unit: nil)) == "3")
     }
 
-    @Test func methodSplitsOnPreparationAndCookingHeadings() {
-        let body = """
-        Intro text that is not a step.
-
-        ## Preparation
-        1. Rinse the lentils.
-        2. Chop the herbs.
-
-        ## Cooking
-        - Simmer for 20 minutes.
-        - Toss with lemon.
-        """
-        let m = RecipeLogic.method(bodyMd: body, steps: ["ignored"])
+    @Test func methodSplitsOnEachStepsPhase() {
+        let m = RecipeLogic.method(steps: [
+            RecipeStep(phase: .prep, text: "Rinse the lentils."), RecipeStep(phase: .cook, text: "Simmer for 20 minutes."),
+            RecipeStep(phase: .prep, text: "Chop the herbs."), RecipeStep(phase: .cook, text: "Toss with lemon."),
+        ])
         #expect(m.preparation == ["Rinse the lentils.", "Chop the herbs."])
         #expect(m.cooking == ["Simmer for 20 minutes.", "Toss with lemon."])
+        #expect(m.plain.isEmpty)
         #expect(m.isSplit)
     }
 
-    @Test func methodFallsBackToTheStepList() {
-        let m = RecipeLogic.method(bodyMd: "Just a paragraph about the dish.", steps: ["1. Mix.", "Bake."])
-        #expect(m.preparation.isEmpty)
-        #expect(m.cooking == ["Mix.", "Bake."])
+    @Test func plainStringStepsAreOneList() {
+        let m = RecipeLogic.method(steps: [RecipeStep(phase: nil, text: "Mix."), RecipeStep(phase: nil, text: "Bake.")])
+        #expect(m.plain == ["Mix.", "Bake."])
         #expect(!m.isSplit)
-        #expect(RecipeLogic.method(bodyMd: "", steps: []).isEmpty)
+        #expect(m.all == ["Mix.", "Bake."])
+        #expect(RecipeLogic.method(steps: []).isEmpty)
+    }
+
+    @Test func aSingleSidedRecipeIsNotSplit() {
+        let m = RecipeLogic.method(steps: [RecipeStep(phase: .cook, text: "Roast.")])
+        #expect(!m.isSplit)
+        #expect(m.all == ["Roast."])
     }
 
     @Test func makeItListsOnlyVersionsNotTheOneInForce() {

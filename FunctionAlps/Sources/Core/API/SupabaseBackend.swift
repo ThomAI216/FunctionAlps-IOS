@@ -2221,10 +2221,15 @@ extension SupabaseBackend {
 
     /// The recipe and its lines, both under the member's own RLS (approved, member-visible, never a book recipe).
     func recipeCard(id: String) async throws -> RecipeCard? {
-        let recipe: MealPlanWire.Recipe? = try await rest.selectOne("recipes", query: [
-            PG.select("id,title,body_md,steps,servings,prep_minutes,cook_minutes,yield_text,variant_kind,computed_nutrition"),
-            PG.eq("id", id),
-        ])
+        // `why_line` and `description` arrive in a later migration: ask for them, and fall back to the base columns
+        // while the database does not have them yet (an unknown column fails the select with a validation error).
+        let base = "id,title,body_md,steps,servings,prep_minutes,cook_minutes,yield_text,variant_kind,computed_nutrition"
+        let recipe: MealPlanWire.Recipe?
+        do {
+            recipe = try await rest.selectOne("recipes", query: [PG.select(base + ",why_line,description"), PG.eq("id", id)])
+        } catch AppError.validation {
+            recipe = try await rest.selectOne("recipes", query: [PG.select(base), PG.eq("id", id)])
+        }
         guard let recipe else { return nil }
         let lines: [MealPlanWire.Ingredient] = try await rest.select("recipe_ingredients", query: [
             PG.select("id,raw_text,qty,unit_code,is_to_taste,is_optional,prep_note"),

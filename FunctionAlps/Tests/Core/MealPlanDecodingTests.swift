@@ -81,20 +81,23 @@ struct MealPlanDecodingTests {
 
     @Test func decodesARecipeWithOddJsonbShapes() throws {
         let recipe = try JSON.decode(MealPlanWire.Recipe.self, from: Data("""
-        {"id":"r1","title":"Lentil salad","body_md":"## Preparation\\n1. Rinse.","steps":["Mix", {"text":"Serve"}, 5],"servings":2,"prep_minutes":10,"cook_minutes":null,
+        {"id":"r1","title":"Lentil salad","body_md":"## Preparation\\n1. Rinse.","steps":["Mix", {"phase":"cook","text":"Serve"}, {"phase":"prep","text":"Chop"}, {"phase":"odd","text":"Wait"}, 5],"why_line":"Fibre for your gut","description":"A warm salad.","servings":2,"prep_minutes":10,"cook_minutes":null,
          "yield_text":null,"variant_kind":null,
          "computed_nutrition":{"kcal":412,"protein_g":24.1,"carbs_g":50,"fat_g":12,"fiber_g":14,
             "micros":{"vitamin_c_mg":12.5,"zinc_mg":null},
             "coverage":{"vitamin_c_mg":1,"zinc_mg":0,"iron_mg":0.5,"magnesium_mg":0.97}}}
         """.utf8))
         let card = recipe.model(ingredients: [])
-        #expect(card.steps == ["Mix", "Serve"])
+        #expect(card.steps == [RecipeStep(phase: nil, text: "Mix"), RecipeStep(phase: .cook, text: "Serve"),
+                               RecipeStep(phase: .prep, text: "Chop"), RecipeStep(phase: nil, text: "Wait")])
+        #expect(card.whyLine == "Fibre for your gut")
+        #expect(card.description == "A warm salad.")
         let n = try #require(card.nutrition)
         #expect(n.proteinG == 24.1)
         #expect(n.total == 4)
         #expect(n.measured == 3)
         #expect(n.wellCovered == 2)
         let bare = try JSON.decode(MealPlanWire.Recipe.self, from: Data(#"{"id":"r2","steps":"not an array","computed_nutrition":"x"}"#.utf8)).model(ingredients: [])
-        #expect(bare.steps.isEmpty && bare.nutrition == nil)
+        #expect(bare.steps.isEmpty && bare.nutrition == nil && bare.whyLine == nil)
     }
 }

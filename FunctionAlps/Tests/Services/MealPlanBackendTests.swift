@@ -73,6 +73,18 @@ struct MealPlanBackendTests {
         #expect(lines.contains("order=sort_order.asc"))
     }
 
+    @Test func recipeCardFallsBackWhenWhyLineAndDescriptionDoNotExistYet() async throws {
+        let transport = MockTransport()
+        transport.enqueue(status: 400, json: #"{"code":"42703","message":"column recipes.why_line does not exist"}"#)
+        transport.enqueue(status: 200, json: #"[{"id":"r1","title":"Lentil salad","steps":[{"phase":"prep","text":"Rinse"}]}]"#)
+        transport.enqueue(status: 200, json: "[]")
+        let card = try #require(try await make(transport).recipeCard(id: "r1"))
+        #expect(card.steps == [RecipeStep(phase: .prep, text: "Rinse")])
+        #expect(card.whyLine == nil)
+        #expect(transport.requests[0].url.query?.contains("why_line") == true)
+        #expect(transport.requests[1].url.query?.contains("why_line") == false)
+    }
+
     @Test func aMissingRecipeIsNilNotAnError() async throws {
         let transport = MockTransport()
         transport.enqueue(status: 200, json: "[]")

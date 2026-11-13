@@ -132,22 +132,29 @@ enum MealPlanWire {
 
     // MARK: recipes + recipe_ingredients
 
-    /// `steps` is a jsonb array: strings, or objects with a `text`. Anything else reads as no step.
+    /// `steps` is a jsonb array of `{phase: "prep" | "cook", text}`; an older row holds plain strings.
+    /// Anything else reads as no step.
     struct Step: Decodable, Sendable {
+        let phase: String?
         let text: String?
 
         init(from decoder: any Decoder) throws {
             let single = try decoder.singleValueContainer()
             if let s = try? single.decode(String.self) {
-                text = s
+                phase = nil; text = s
             } else if let o = try? single.decode(StepObject.self) {
-                text = o.text ?? o.step ?? o.instruction
+                phase = o.phase; text = o.text
             } else {
-                text = nil
+                phase = nil; text = nil
             }
         }
 
-        private struct StepObject: Decodable, Sendable { let text: String?; let step: String?; let instruction: String? }
+        private struct StepObject: Decodable, Sendable { let phase: String?; let text: String? }
+
+        var model: RecipeStep? {
+            guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else { return nil }
+            return RecipeStep(phase: phase.flatMap(RecipeStep.Phase.init(rawValue:)), text: text)
+        }
     }
 
     /// The numbers only: the micros and coverage dictionaries are counted, never read by key.
@@ -182,9 +189,11 @@ enum MealPlanWire {
         let yieldText: String?
         let variantKind: String?
         let computedNutrition: NutritionRow?
+        let whyLine: String?
+        let description: String?
 
         private enum CodingKeys: String, CodingKey {
-            case id, title, bodyMd, steps, servings, prepMinutes, cookMinutes, yieldText, variantKind, computedNutrition
+            case id, title, bodyMd, steps, servings, prepMinutes, cookMinutes, yieldText, variantKind, computedNutrition, whyLine, description
         }
 
         init(from decoder: any Decoder) throws {
@@ -200,12 +209,14 @@ enum MealPlanWire {
             yieldText = try? c.decodeIfPresent(String.self, forKey: .yieldText)
             variantKind = try? c.decodeIfPresent(String.self, forKey: .variantKind)
             computedNutrition = (try? c.decodeIfPresent(NutritionRow.self, forKey: .computedNutrition)) ?? nil
+            whyLine = (try? c.decodeIfPresent(String.self, forKey: .whyLine))?.nilIfEmpty
+            description = (try? c.decodeIfPresent(String.self, forKey: .description))?.nilIfEmpty
         }
 
         func model(ingredients: [Ingredient]) -> RecipeCard {
             RecipeCard(
                 id: id, title: title ?? "", bodyMd: bodyMd ?? "",
-                steps: (steps ?? []).compactMap { $0.text?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty },
+                steps: (steps ?? []).compactMap(\.model), whyLine: whyLine, description: description,
                 servings: servings, prepMinutes: prepMinutes, cookMinutes: cookMinutes, yieldText: yieldText,
                 variantKind: variantKind, ingredients: ingredients.map(\.model), nutrition: computedNutrition?.model
             )
