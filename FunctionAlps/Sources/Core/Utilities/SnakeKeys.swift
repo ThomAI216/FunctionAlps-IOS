@@ -19,6 +19,11 @@ enum SnakeKeys {
         return out
     }
 
+    /// What `convertFromSnakeCase` makes of a key (`sfa_4_0_g` → `sfa40G`); a camel key is returned as is.
+    static func camel(_ key: String) -> String {
+        key  // stub: tests first
+    }
+
     static func normalise(_ map: [String: Double]) -> [String: Double] {
         var out: [String: Double] = [:]
         out.reserveCapacity(map.count)
