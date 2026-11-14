@@ -169,13 +169,43 @@ enum MealNutrients {
     /// New meals (`by_key` present): traces = total 0 and `below_limit ≥ by_key`; partial = `by_key < 1`.
     /// Old meals: no traces (nothing recorded them), partial = the legacy `micro_coverage.partial` list.
     static func source(meal: MealLog, knownKeys: [String]) -> Source {
-        Source()  // stub: tests first
+        let index = canonicalIndex(knownKeys)
+        let totals = canonicalised(meal.micros, index)
+        var source = Source(totals: totals)
+        if let rawByKey = meal.microCoverage?.byKey {
+            let byKey = canonicalised(rawByKey, index)
+            let below = canonicalised(meal.microCoverage?.belowLimit ?? [:], index)
+            for (key, total) in totals {
+                let share = byKey[key] ?? 0
+                if total == 0, let b = below[key], b > 0, b >= share {
+                    source.traces.insert(key)
+                } else if share < 1 {
+                    source.partial.insert(key)
+                }
+            }
+        } else {
+            let listed = Set((meal.microCoverage?.partial ?? []).map { canonical($0, in: index) })
+            source.partial = listed.intersection(totals.keys)
+        }
+        return source
     }
 
     /// A day: the analysed meals summed. Traces only when every meal carrying the key had it as traces; partial
     /// when a meal lacks the key or carried a partial sum.
     static func source(day meals: [MealLog], knownKeys: [String]) -> Source {
-        Source()  // stub: tests first
+        let sources = meals.filter(\.isAnalysed).map { source(meal: $0, knownKeys: knownKeys) }
+        var out = Source()
+        let keys = Set(sources.flatMap { $0.totals.keys })
+        for key in keys {
+            let carrying = sources.filter { $0.totals[key] != nil }
+            out.totals[key] = carrying.reduce(0) { $0 + ($1.totals[key] ?? 0) }
+            if carrying.allSatisfy({ $0.traces.contains(key) }) {
+                out.traces.insert(key)
+            } else if carrying.count < sources.count || carrying.contains(where: { $0.partial.contains(key) }) {
+                out.partial.insert(key)
+            }
+        }
+        return out
     }
 
     // MARK: Sections
@@ -208,7 +238,33 @@ enum MealNutrients {
         translated: (String) -> String? = { _ in nil },
         fallback: (String) -> String? = { _ in nil }
     ) -> [Section] {
-        []  // stub: tests first
+        var entries: [Entry] = []
+        if catalogue.definitions.isEmpty {
+            for (i, key) in MicroPresence.catalogueKeys.enumerated() {
+                guard let group = legacyGroups[key], let name = (preferTranslated ? translated(key) : nil) ?? fallback(key) else { continue }
+                entries.append(Entry(key: key, group: group, unit: unit(fromKey: key), name: name, order: i, amountOnly: amountOnlyKeys.contains(key)))
+            }
+        } else {
+            var definitions: [String: NutrientDefinition] = [:]
+            for d in catalogue.definitions where definitions[d.key] == nil { definitions[d.key] = d }
+            for d in catalogue.definitions where !macroKeys.contains(d.key) {
+                guard definitions[d.key] == d, let group = Self.group(forCode: d.groupCode) else { continue }
+                let name = (preferTranslated ? translated(d.key) : nil) ?? (d.name.isEmpty ? fallback(d.key) : d.name)
+                guard let name else { continue }
+                let amountOnly = amountOnlyGroups.contains(d.groupCode) || amountOnlyKeys.contains(d.key) || d.holdReason != nil
+                entries.append(Entry(key: d.key, group: group, unit: d.unit, name: name, order: d.sortOrder, amountOnly: amountOnly))
+            }
+            for (i, alias) in legacyAliases.sorted(by: { $0.key < $1.key }).enumerated() {
+                let legacy = alias.key, target = alias.value
+                guard definitions[legacy] == nil, source.totals[legacy] != nil, source.totals[target] == nil else { continue }
+                guard let name = (preferTranslated ? translated(legacy) : nil) ?? definitions[target]?.name ?? fallback(legacy) else { continue }
+                entries.append(Entry(key: legacy, group: .fattyAcids, unit: unit(fromKey: legacy), name: name, order: Int.max - legacyAliases.count + i, amountOnly: false))
+            }
+        }
+        return Group.allCases.compactMap { group in
+            let rows = entries.filter { $0.group == group }.sorted { $0.order < $1.order }.map { row($0, source: source, catalogue: catalogue, sex: sex) }
+            return rows.isEmpty ? nil : Section(group: group, rows: rows)
+        }
     }
 
     private static func row(_ e: Entry, source: Source, catalogue: NutrientCatalogue, sex: MemberProfile.Sex?) -> Row {
@@ -239,7 +295,22 @@ enum MealNutrients {
         translated: (String) -> String? = { _ in nil },
         fallback: (String) -> String? = { _ in nil }
     ) -> [Metric] {
-        []  // stub: tests first
+        guard let stored = meal.nutrientMetrics else { return [] }
+        let byKey = canonicalised(stored, canonicalIndex(metricKeys))
+        return metricKeys.compactMap { key in
+            let d = catalogue.definitions.first { $0.key == key }
+            guard let name = (preferTranslated ? translated(key) : nil) ?? d?.name ?? fallback(key) else { return nil }
+            let unit = d?.unit ?? (key.hasSuffix("_mg") ? "mg" : "ratio")
+            let state: MetricState
+            if let m = byKey[key] {
+                if m.isComplete { state = m.value.map { MetricState.value($0) } ?? .noData } else { state = .partial }
+            } else {
+                state = .noData
+            }
+            var percent: Int?
+            if case .value(let v) = state { percent = percentOfReference(v, key: key, unit: unit, sex: sex, references: catalogue.references) }
+            return Metric(key: key, name: name, unit: unit, state: state, percentOfReference: percent)
+        }
     }
 
     // MARK: Reference intakes
@@ -247,15 +318,26 @@ enum MealNutrients {
     /// The adult row for the member's sex (else the "any" row), PRI before AI. Unknown sex: the "any" row only —
     /// no sex is assumed. Nil when no row fits.
     static func reference(for key: String, sex: MemberProfile.Sex?, in references: [NutrientReference]) -> NutrientReference? {
-        nil  // stub: tests first
+        let adult = references.filter { $0.nutrientKey == key && $0.lifeStage == "adult" }
+        let code: String?
+        if sex == .male { code = "male" } else if sex == .female { code = "female" } else { code = nil }
+        let sexed = code.map { c in adult.filter { $0.sex == c } } ?? []
+        let pool = sexed.isEmpty ? adult.filter { $0.sex == "any" } : sexed
+        func rank(_ r: NutrientReference) -> Int { r.kind == "PRI" ? 0 : r.kind == "AI" ? 1 : 2 }
+        return pool.min { (rank($0), $0.setCode) < (rank($1), $1.setCode) }
     }
 
     /// Mass units convert (g · mg · mcg); any other unit must match exactly. Nil = not comparable.
     static func convert(_ amount: Double, from: String, to: String) -> Double? {
-        nil  // stub: tests first
+        let f = from.lowercased(), t = to.lowercased()
+        if f == t { return amount }
+        let inMg: [String: Double] = ["g": 1000, "mg": 1, "mcg": 0.001, "ug": 0.001, "µg": 0.001, "μg": 0.001]
+        guard let a = inMg[f], let b = inMg[t] else { return nil }
+        return amount * a / b
     }
 
     static func percentOfReference(_ value: Double, key: String, unit: String, sex: MemberProfile.Sex?, references: [NutrientReference]) -> Int? {
-        nil  // stub: tests first
+        guard let ref = reference(for: key, sex: sex, in: references), let target = convert(ref.amount, from: ref.unit, to: unit), target > 0 else { return nil }
+        return Int((value / target * 100).rounded())
     }
 }

@@ -55865,6 +55865,340 @@
           }
         }
       }
+    },
+    "meal.nutrients.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrients"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutriments"
+          }
+        }
+      }
+    },
+    "meal.nutrients.group.aminoAcids": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amino acids"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acides aminés"
+          }
+        }
+      }
+    },
+    "meal.nutrients.group.fattyAcids": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatty acids"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acides gras"
+          }
+        }
+      }
+    },
+    "meal.nutrients.group.carotenoids": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carotenoids"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caroténoïdes"
+          }
+        }
+      }
+    },
+    "meal.nutrients.group.other": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres"
+          }
+        }
+      }
+    },
+    "meal.nutrients.traces": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traces"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traces"
+          }
+        }
+      }
+    },
+    "meal.nutrients.partial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partial"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partiel"
+          }
+        }
+      }
+    },
+    "meal.nutrients.ofReference": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% of daily reference"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %% de la référence journalière"
+          }
+        }
+      }
+    },
+    "micros.catalogue.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All nutrients today"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les nutriments du jour"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.omega3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-3"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.sodium": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sodium"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sodium"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.alcohol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alcohol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alcool"
+          }
+        }
+      }
+    },
+    "meal.nutrients.metric.ratio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-6 : omega-3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oméga-6 : oméga-3"
+          }
+        }
+      }
+    },
+    "meal.nutrients.metric.epaDha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EPA + DHA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EPA + DHA"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.sugar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugars, total"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.saturatedFat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saturated fat (SFA)"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.omega6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omega-6"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.vitaminK1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin K1 (phylloquinone)"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.thiamin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thiamin (B1)"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.riboflavin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riboflavin (B2)"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.niacin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niacin (B3)"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.b6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vitamin B6"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.copper": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copper"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.manganese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manganese"
+          }
+        }
+      }
+    },
+    "meal.nutrients.name.chromium": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chromium"
+          }
+        }
+      }
     }
   }
 }

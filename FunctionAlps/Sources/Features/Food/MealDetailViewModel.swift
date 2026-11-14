@@ -10,18 +10,24 @@ final class MealDetailViewModel {
     var isDeleting = false
     var errorMessage: String?
     private(set) var reaction: MealReaction?
+    /// The nutrient dictionary + reference intakes; nil while loading (`NutrientCatalogue.empty` when unreadable).
+    private(set) var catalogue: NutrientCatalogue?
+    /// The member's sex, for the reference intake; nil = unknown (only "any" references apply).
+    private(set) var sex: MemberProfile.Sex?
     /// Corrections, days later — the same editor as the capture page.
     let edit: MealEditModel
 
     private let mealId: String
     private let meals: MealService
     private let auth: AuthService
+    private let members: MemberService
     private var watcher: MealWatcher?
 
     init(mealId: String, meals: MealService, members: MemberService, auth: AuthService) {
         self.mealId = mealId
         self.meals = meals
         self.auth = auth
+        self.members = members
         edit = MealEditModel(mealId: mealId, meals: meals, members: members)
     }
 
@@ -36,6 +42,7 @@ final class MealDetailViewModel {
             noteDraft = meal.patientNote ?? ""
             reaction = await meals.reaction(mealId: mealId)
             if meal.status.isWorking { watch() }
+            if catalogue == nil { await loadCatalogue() }
         } catch let error as AppError {
             Log.error(error, in: Log.data, context: "meal.load")
             if case .unauthorized = error { await auth.handleUnauthorized(); return }
@@ -43,6 +50,12 @@ final class MealDetailViewModel {
         } catch {
             if state.value == nil { state = .failed(.unknown(detail: String(describing: error))) }
         }
+    }
+
+    /// Once per screen: the dictionary and references never fail the meal (`MealService.nutrientCatalogue`).
+    private func loadCatalogue() async {
+        sex = (try? await members.currentMember())?.profile?.sex
+        catalogue = await meals.nutrientCatalogue()
     }
 
     /// A meal still being analysed keeps refreshing until it settles (Realtime, polling underneath).
