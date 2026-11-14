@@ -37,7 +37,8 @@ struct MealCatalogueDecodingTests {
         #expect(coverage.catalogueMeasured == 80)
         #expect(meal.nutrientMetrics?["omega6_omega3_ratio"] == MealNutrientMetric(value: 4.2, status: "complete", coverage: 1))
         #expect(meal.nutrientMetrics?["epa_dha_mg"]?.isComplete == false)
-        let query = try #require(transport.requests.first?.url.query)
+        // `url.query` is percent-encoded ("->" travels as "-%3E"); compare the decoded text.
+        let query = try #require(transport.requests.first?.url.query?.removingPercentEncoding)
         #expect(query.contains("nutrient_metrics:resolution_meta->nutrient_metrics"))
 
         // End to end: the decoder mangles `sfa_4_0_g`; the source recovers it, with its share.
