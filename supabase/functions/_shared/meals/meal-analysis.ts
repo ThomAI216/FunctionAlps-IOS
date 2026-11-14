@@ -34,6 +34,7 @@ import { sanitizeFlags, type FoodFlagKey } from "./meal-flags.ts"
 import { aliasKey, isPlaceholder, resolveItems, type EmbeddingSession, type ResolvedItem } from "./food-resolver.ts"
 import { priceItemsWithOpenAI } from "./ai-pricing.ts"
 import { computeMicroCoverage } from "./micro-keys.ts"
+import { catalogueLines, mergeCatalogueNutrients, type CatalogueMerge } from "./catalogue-nutrients.ts"
 import { priceSovereign, type Candidate, type ReferenceDb, type SovereignCounts, type SovereignTarget } from "./sovereign-pricing.ts"
 import { matchProtocols, type ProtocolFlag } from "./protocol-foods.ts"
 import { sanitiseCoverage, sanitiseCoverageNote, type Coverage } from "./meal-coverage.ts"
@@ -714,6 +715,9 @@ export type PricedMeal = {
     /** Sovereign only: how each food was priced. */
     counts?: SovereignCounts
   }
+  /** The full-catalogue merge (catalogue-nutrients.ts): micro_coverage additions, metrics, version, error. Absent on
+   *  an empty meal. `micros` above is already its `micronutrient_totals`. */
+  catalogue?: CatalogueMerge<MergedItem>
 }
 
 /** A fresh object every call — the result is handed straight to JSON.stringify
@@ -863,7 +867,7 @@ export async function priceMeal(
   // macros were actually computed at (roundGrams, the declared precision floor);
   // showing the model's raw grams beside a price computed from a rounded one
   // would put two different portions on the same row.
-  const items: MergedItem[] = resolved.map((r, i) => {
+  const mergedItems: MergedItem[] = resolved.map((r, i) => {
     const flags = identified[i]?.flags ?? []
     return {
       ...r,
@@ -879,7 +883,7 @@ export async function priceMeal(
   // food" (an aggregate placeholder such as "dinner items"), and a placeholder
   // is not a zero-calorie ingredient — it is not an ingredient. Letting one into
   // the sum would license the caller to treat it as one.
-  const priced = items.filter((it) => it.basis !== "unknown")
+  const priced = mergedItems.filter((it) => it.basis !== "unknown")
   const sum = (k: "kcal" | "protein_g" | "carbs_g" | "fat_g" | "fiber_g") =>
     priced.reduce((a, it) => a + (typeof it[k] === "number" ? it[k] : 0), 0)
   const totals: MealTotals = {
@@ -890,29 +894,40 @@ export async function priceMeal(
     fiber_g: Math.round(sum("fiber_g")),
   }
 
-  // Whole-meal micros = the sum of the per-item micros the resolver returned.
+  // MICROS FROM THE FULL CATALOGUE (food_lines_nutrition_cat), ONE call for every catalogue line of the meal. The items
+  // matched to an nb_food_items row (and decomposed recipes made of them) take that row's whole nutrient set — amino
+  // acids, fatty acids, carotenoids — instead of its 34 cached columns; macros are not touched. `ai` and `estimated`
+  // items are not sent and keep exactly what they had. Only food ids and grams go to our own Postgres.
   //
-  // A nutrient that is null on EVERY contributing item stays null. "Nobody
-  // measured iodine in any of these foods" and "there is no iodine in this meal"
-  // are different claims, and collapsing the first into 0 is the fabrication this
-  // whole restructure exists to stop. Where at least one item carries a number,
-  // the nulls are simply not added — same rule the resolver already uses when it
-  // sums a decomposed recipe.
-  const micros: Record<string, number | null> = {}
-  for (const it of items) {
-    for (const [k, v] of Object.entries(it.micros ?? {})) {
-      if (v === null) {
-        if (!(k in micros)) micros[k] = null
-        continue
-      }
-      micros[k] = (micros[k] ?? 0) + v
+  // A failed call is never a failed meal: the items keep the micros they were priced with (today's behaviour) and
+  // `resolution_meta.catalogue_error` says why. PostgREST errors are values — destructured and checked.
+  //
+  // Totals: a key is summed over the items that carry a number for it; a key no item carries is ABSENT, never 0 and
+  // no longer null. "Nobody measured iodine here" and "there is no iodine" are different claims.
+  const lines = catalogueLines(mergedItems)
+  let catalogueResult: unknown = null
+  let catalogueError: string | undefined
+  if (lines.length) {
+    try {
+      const { data, error } = await db.rpc("food_lines_nutrition_cat", { p_lines: lines, p_servings: 1 })
+      if (error) catalogueError = sanitiseError(error.message, "CATALOGUE")
+      else catalogueResult = data
+    } catch (e) {
+      catalogueError = sanitiseError(e, "CATALOGUE")
     }
+    if (catalogueError) console.warn(`[priceMeal] catalogue micros unavailable, keeping priced micros: ${catalogueError}`)
   }
+  const catalogue = mergeCatalogueNutrients(mergedItems, catalogueResult)
+  if (catalogueError) catalogue.catalogue_error = catalogueError
+  const items = catalogue.items
+  // resolved_foods carries the same per-item micros as the items, so a reader of either sees one set of numbers.
+  const resolvedOut = resolved.map((r, i) => (items[i] === mergedItems[i] ? r : { ...r, micros: items[i].micros }))
+  const micros = catalogue.micronutrient_totals
 
   // The rules engine sees the PRICED macros — the reference database's (directly, or
   // chosen by the sovereign path), an Infomaniak or OpenAI per-100 g estimate where
   // no row fits — never the identification model's guesses (it is told not to give any).
-  return { items, resolved, totals, micros, scores: scoreMeal(items), pricing }
+  return { items, resolved: resolvedOut, totals, micros, scores: scoreMeal(items), pricing, catalogue }
 }
 
 // ---------------------------------------------------------------------------
@@ -984,7 +999,11 @@ export function completionPatch(
       basis,
       needs_review: priced.resolved.filter((r) => r.needs_review).length,
       // How much of the nutrient list this meal really measured. Additive: totals above are summed as before.
-      micro_coverage: computeMicroCoverage(priced.items),
+      // + by_key / below_limit / catalogue_tracked / catalogue_measured from the full-catalogue merge.
+      micro_coverage: { ...computeMicroCoverage(priced.items), ...(priced.catalogue?.micro_coverage ?? {}) },
+      ...(priced.catalogue?.catalogue_version ? { catalogue_version: priced.catalogue.catalogue_version } : {}),
+      ...(priced.catalogue?.nutrient_metrics ? { nutrient_metrics: priced.catalogue.nutrient_metrics } : {}),
+      ...(priced.catalogue?.catalogue_error ? { catalogue_error: priced.catalogue.catalogue_error } : {}),
       ...(priced.pricing ? { pricing: priced.pricing } : {}),
       resolved_at: now.toISOString(),
     },

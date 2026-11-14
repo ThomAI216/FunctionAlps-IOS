@@ -5,6 +5,10 @@
 // paths cannot drift apart again (before: the AI path asked for 24, so an AI-priced food silently lacked 10).
 // Keys use the catalogue's unit-suffix naming; EPA and DHA are `_mg` because the resolver converts `epa_g/dha_g` to mg.
 //
+// Since 2026-11-14 a meal's catalogue-matched items take their micros from the full catalogue instead
+// (catalogue-nutrients.ts, food_lines_nutrition_cat): these 34 keys come back there under the same names and units,
+// plus every other catalogue nutrient. The 34 columns remain the fallback when that call fails and for branded products.
+//
 // ⚠ PURE LEAF: no imports at all, so tests and any bundle can load it. If the catalogue gains a nutrient column, add it
 // HERE and nowhere else.
 export const CATALOGUE_MICRO_KEYS = [
