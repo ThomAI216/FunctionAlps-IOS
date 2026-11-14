@@ -2,7 +2,7 @@ import SwiftUI
 
 /// A logged meal, days later — the Expo `meal-detail/[id].tsx`: the photo with the name over it,
 /// the macro line, the ingredients with their flags, how it felt, the member's own words, the three
-/// score cards (tap to understand), then delete.
+/// score cards (tap to understand), the full nutrient catalogue, then delete.
 struct MealDetailView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
@@ -76,6 +76,10 @@ struct MealDetailView: View {
                         .accessibilityHint(String(localized: "meal.felt.hint", defaultValue: "Rate how this meal felt"))
                     noteCard(meal, model).padding(.top, 16)
                     if let scores = meal.scores, !model.edit.editing { scoreCards(scores).opacity(model.edit.reanalyzing ? 0.4 : 1) }
+                    // The stored meal, not the local edit: the catalogue totals are the server's.
+                    if loaded.isAnalysed, !model.edit.editing {
+                        nutrientsCard(loaded, model).padding(.top, 16).opacity(model.edit.reanalyzing ? 0.4 : 1)
+                    }
                     Button { router.push(.messagesAbout(mealId: meal.id, name: meal.name)) } label: {
                         HStack(spacing: 7) {
                             Image(systemName: "bubble.left").font(.system(size: 13, weight: .semibold))
@@ -271,6 +275,23 @@ struct MealDetailView: View {
                 } else {
                     Text(String(localized: "meal.note.placeholder", defaultValue: "How did it feel? Where were you? Anything you want your nutritionist to know."))
                         .font(FATypography.callout).foregroundStyle(FAColor.inkMuted)
+                }
+            }
+        }
+    }
+
+    /// The full nutrient catalogue of the meal (`MealNutrients`), grouped; a spinner while the dictionary loads.
+    @ViewBuilder
+    private func nutrientsCard(_ meal: MealLog, _ model: MealDetailViewModel) -> some View {
+        let title = String(localized: "meal.nutrients.title", defaultValue: "Nutrients")
+        if let catalogue = model.catalogue {
+            NutrientBreakdownCard(title: title, breakdown: .meal(meal, catalogue: catalogue, sex: model.sex))
+        } else {
+            FACard {
+                HStack {
+                    sectionLabel(title)
+                    Spacer()
+                    ProgressView()
                 }
             }
         }

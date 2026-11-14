@@ -16,6 +16,10 @@ protocol FunctionAlpsBackend: Sendable {
     // MARK: Meals (Phase D)
 
     func meal(id: String) async throws -> MealLog?
+    /// `nb_nutrients`: the food catalogue's dictionary (key, English name, group, unit, order, hold).
+    func nutrientDictionary() async throws -> [NutrientDefinition]
+    /// `nutrient_reference_intakes_daily`, adult rows: the reference a meal's % is read against.
+    func nutrientReferenceIntakes() async throws -> [NutrientReference]
     /// Inserts the minimal `queued` row and returns its id. The meal is real from this moment;
     /// nothing analysis-derived is written by the client (the server owns every later status).
     func createPendingMeal(_ input: PendingMealInput) async throws -> String
@@ -514,5 +518,9 @@ extension FunctionAlpsBackend {
     func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome { throw AppError.unknown(detail: "meal plan not supported") }
     func recipeCard(id: String) async throws -> RecipeCard? { nil }
     func groceryList() async throws -> GroceryList { .empty }
+
+    // Full nutrient catalogue: a backend that does not model it reads as "no dictionary" (legacy names, no %).
+    func nutrientDictionary() async throws -> [NutrientDefinition] { [] }
+    func nutrientReferenceIntakes() async throws -> [NutrientReference] { [] }
     func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws { throw AppError.unknown(detail: "meal plan not supported") }
 }

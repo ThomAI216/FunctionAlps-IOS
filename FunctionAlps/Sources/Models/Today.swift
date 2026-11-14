@@ -74,6 +74,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let analysisCoverage: String?
     /// `protocol_flags` — the Protocol Lens matches `analyze-meal` stored; nil = never computed (no active protocol / legacy row).
     let protocolFlags: [ProtocolLens.Flag]?
+    /// `resolution_meta.nutrient_metrics` — omega-6 : omega-3, EPA + DHA… with their completeness; nil on meals analysed before it existed.
+    let nutrientMetrics: [String: MealNutrientMetric]?
 
     init(
         id: String,
@@ -96,7 +98,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         micros: [String: Double] = [:],
         analysisCoverage: String? = nil,
         protocolFlags: [ProtocolLens.Flag]? = nil,
-        microCoverage: MealMicroCoverage? = nil
+        microCoverage: MealMicroCoverage? = nil,
+        nutrientMetrics: [String: MealNutrientMetric]? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -118,6 +121,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.microCoverage = microCoverage
         self.analysisCoverage = analysisCoverage
         self.protocolFlags = protocolFlags
+        self.nutrientMetrics = nutrientMetrics
     }
 
     var photoPath: String? { photoPaths.first }

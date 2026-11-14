@@ -8,6 +8,8 @@ final class NutritionScreenModel {
     private(set) var member: Member?
     private(set) var meals: [MealLog] = []
     private(set) var checkin: DailyCheckin?
+    /// The nutrient dictionary + reference intakes for the full list; nil until read (`.empty` when unreadable).
+    private(set) var catalogue: NutrientCatalogue?
     private(set) var loaded = false
     private(set) var errorMessage: String?
     private let calendar = Calendar.current
@@ -25,6 +27,7 @@ final class NutritionScreenModel {
             async let day: DailyCheckin? = { try? await backend.dailyCheckin(patientId: patientId, day: today) }()
             meals = try await recent
             checkin = await day
+            catalogue = await mealService.nutrientCatalogue()
             errorMessage = nil
         } catch let error as AppError {
             errorMessage = error.userMessage
@@ -56,6 +59,13 @@ final class NutritionScreenModel {
 
     /// Nutrient keys that have a value today; the others are "no data", not a shortfall.
     var availableNutrientKeys: Set<String> { Set(todayStatuses.filter { $0.value.hasValue }.keys) }
+
+    /// Today's analysed meals across the full nutrient catalogue; nil until the dictionary is read or with no analysed meal.
+    var dayBreakdown: NutrientBreakdown? {
+        let meals = todayMeals
+        guard let catalogue, meals.contains(where: \.isAnalysed) else { return nil }
+        return .day(meals, catalogue: catalogue, sex: sex)
+    }
 
     /// "N of 34 measured" over today's meals; nil when no meal carries a value.
     var microSummary: MicroPresence.Summary? { MicroPresence.summary(meals: todayMeals) }

@@ -38,6 +38,10 @@ env:
   NO_JWT: 'wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-reconcile push-send legal-page analyze-meal retry-meal-analysis preprocess-meal generate-report generate-periodic-report generate-daily-report'
   WEARABLES: 'wearable-oauth-start wearable-oauth-callback wearable-vendor-webhook wearable-vendor-sync wearable-vendor-disconnect wearable-reconcile'
   MEALS: 'analyze-meal retry-meal-analysis'
+  # delete-account (GDPR erasure, moved here from FunctionAlps-APP on 2026-11-13) is deliberately NOT in NO_JWT:
+  # its live verify_jwt is TRUE (checked against the project, v46). It is deployed by path like the rest, and by
+  # the shared modules only it imports (_shared/email.ts, sender-profiles.ts, member-records-purge.ts).
+  DELETE_ACCOUNT: 'delete-account'
 
 jobs:
   deploy:
@@ -66,6 +70,7 @@ jobs:
             LIST="$(echo "$CHANGED" | sed -n 's#^supabase/functions/\([^_/][^/]*\)/.*#\1#p' | grep -v '^bundle$' | sort -u | tr '\n' ' ' || true)"
             if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/wearables/'; then LIST="$LIST $WEARABLES"; fi
             if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/meals/'; then LIST="$LIST $MEALS"; fi
+            if echo "$CHANGED" | grep -qE '^supabase/functions/_shared/(email|sender-profiles|member-records-purge)\.ts$'; then LIST="$LIST $DELETE_ACCOUNT"; fi
             LIST="$(echo "$LIST" | tr ' ' '\n' | sed '/^$/d' | sort -u | tr '\n' ' ')"
           fi
           echo "list=$LIST" >> "$GITHUB_OUTPUT"

@@ -27,6 +27,11 @@ struct MicronutrientsView: View {
                             GroupCard(group: group, sex: model.sex, consumed: consumed, statuses: model.todayStatuses) { router.push(.microGroup(group.key.rawValue)) }
                                 .padding(.bottom, 12)
                         }
+                        // Every nutrient of the food catalogue, not only the 21 above: amounts, "No data", "Traces".
+                        if let day = model.dayBreakdown {
+                            NutrientBreakdownCard(title: String(localized: "micros.catalogue.title", defaultValue: "All nutrients today"), breakdown: day)
+                                .padding(.top, 8)
+                        }
                     }
                     .padding(.horizontal, 18)
                     .padding(.bottom, FASpacing.navBarClearance)

@@ -16,6 +16,15 @@ struct AppErrorTests {
         #expect(AppError.fromStatus(409, body: body) == .validation(message: "duplicate key value"))
     }
 
+    /// `delete-account` answers every failure with 409 and a plain "contact support" message; the delete
+    /// sheet shows `userMessage`, so the member must read that message, not a generic one.
+    @Test func deleteAccountConflictShowsTheServerMessage() {
+        let body = Data(#"{"deleted":false,"code":"erasure_failed","error":"Part of your data was erased. Contact support@functionalps.ch.","message":"Part of your data was erased. Contact support@functionalps.ch.","step":"storage"}"#.utf8)
+        let error = AppError.fromStatus(409, body: body)
+        #expect(error == .validation(message: "Part of your data was erased. Contact support@functionalps.ch."))
+        #expect(error.userMessage == "Part of your data was erased. Contact support@functionalps.ch.")
+    }
+
     @Test func userMessagesNeverLeakDetail() {
         let error = AppError.decoding(detail: "keyNotFound(CodingKeys(stringValue: \"access_token\"))")
         #expect(!error.userMessage.contains("access_token"))
