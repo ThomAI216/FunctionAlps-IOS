@@ -296,7 +296,11 @@ enum MealNutrients {
         fallback: (String) -> String? = { _ in nil }
     ) -> [Metric] {
         guard let stored = meal.nutrientMetrics else { return [] }
-        let byKey = canonicalised(stored, canonicalIndex(metricKeys))
+        let omegaTotals = ["omega3_total_g", "omega6_total_g"]
+        let byKey = canonicalised(stored, canonicalIndex(metricKeys + omegaTotals))
+        // The catalogue function leaves the ratio out when a food lacks omega-3 data. With omega totals stored the
+        // meal has some omega data, so the ratio is a partial reading, not an absent one.
+        let ratioLeftOut = byKey["omega6_omega3_ratio"] == nil && omegaTotals.contains { byKey[$0] != nil }
         return metricKeys.compactMap { key in
             let d = catalogue.definitions.first { $0.key == key }
             guard let name = (preferTranslated ? translated(key) : nil) ?? d?.name ?? fallback(key) else { return nil }
@@ -304,6 +308,8 @@ enum MealNutrients {
             let state: MetricState
             if let m = byKey[key] {
                 if m.isComplete { state = m.value.map { MetricState.value($0) } ?? .noData } else { state = .partial }
+            } else if key == "omega6_omega3_ratio" && ratioLeftOut {
+                state = .partial
             } else {
                 state = .noData
             }
