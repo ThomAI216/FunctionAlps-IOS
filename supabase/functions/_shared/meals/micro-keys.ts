@@ -29,7 +29,7 @@ export type MicroCoverage = {
   partial: string[]
 }
 
-const FROM_CATALOGUE = new Set(["exact", "learned", "matched", "decomposed"])
+export const FROM_CATALOGUE: ReadonlySet<string> = new Set(["exact", "learned", "matched", "decomposed"])
 
 /**
  * Coverage of a meal's micronutrients. Reads the items only; it does not touch how totals are summed.
