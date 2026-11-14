@@ -136,6 +136,18 @@ struct MealNutrientsTests {
         #expect(missing.map(\.state) == [.noData, .noData])
     }
 
+    @Test("The function leaves the ratio out when a food lacks omega-3: with omega totals stored, the ratio is Partial, not No data")
+    func ratioLeftOutIsPartial() {
+        // Real shape (6 of 10 recent meals, 2026-11-14): omega totals present, no omega6_omega3_ratio key.
+        let meal = Self.meal([:], metrics: [
+            "omega3_total_g": MealNutrientMetric(value: 0.4, status: "partial", coverage: 0.7),
+            "omega6_total_g": MealNutrientMetric(value: 2.6, status: "partial", coverage: 0.8),
+            "epa_dha_mg": MealNutrientMetric(value: 30, status: "partial", coverage: 0.7),
+        ])
+        let metrics = MealNutrients.metrics(meal: meal, catalogue: Self.catalogue(), sex: nil)
+        #expect(metrics.map(\.state) == [.partial, .partial])
+    }
+
     @Test("A complete EPA + DHA gets a % of its reference; a meal from before metrics shows none")
     func metricPercent() {
         let meal = Self.meal([:], metrics: ["epa_dha_mg": MealNutrientMetric(value: 125, status: "complete", coverage: 1)])
