@@ -31,7 +31,8 @@ struct TodaySnapshot: Sendable, Equatable {
 /// One `nb_meal_logs` row as the member-facing app understands it.
 struct MealLog: Identifiable, Sendable, Equatable {
     enum MealType: String, Sendable, CaseIterable { case breakfast, lunch, dinner, snack, other }
-    enum Source: String, Sendable { case photo, text, voice }
+    /// `plan` is a meal the server logged from the clinician's plan ("I ate this"); it has no photo and no analysis.
+    enum Source: String, Sendable { case photo, text, voice, plan }
 
     /// Mirrors the live `nb_meal_logs_analysis_status_check` constraint:
     /// queued → identifying → pricing → complete | needs_input | failed.
@@ -73,6 +74,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
     let analysisCoverage: String?
     /// `protocol_flags` — the Protocol Lens matches `analyze-meal` stored; nil = never computed (no active protocol / legacy row).
     let protocolFlags: [ProtocolLens.Flag]?
+    /// `resolution_meta.nutrient_metrics` — omega-6 : omega-3, EPA + DHA… with their completeness; nil on meals analysed before it existed.
+    let nutrientMetrics: [String: MealNutrientMetric]?
 
     init(
         id: String,
@@ -95,7 +98,8 @@ struct MealLog: Identifiable, Sendable, Equatable {
         micros: [String: Double] = [:],
         analysisCoverage: String? = nil,
         protocolFlags: [ProtocolLens.Flag]? = nil,
-        microCoverage: MealMicroCoverage? = nil
+        microCoverage: MealMicroCoverage? = nil,
+        nutrientMetrics: [String: MealNutrientMetric]? = nil
     ) {
         self.id = id
         self.loggedAt = loggedAt
@@ -117,6 +121,7 @@ struct MealLog: Identifiable, Sendable, Equatable {
         self.microCoverage = microCoverage
         self.analysisCoverage = analysisCoverage
         self.protocolFlags = protocolFlags
+        self.nutrientMetrics = nutrientMetrics
     }
 
     var photoPath: String? { photoPaths.first }
@@ -347,7 +352,8 @@ struct RelogSource: Sendable, Equatable {
     let scores: MealScores?
 
     init(meal m: MealLog) {
-        name = m.displayName; mealType = m.mealType ?? MealService.mealType(at: Date(), calendar: .current); source = m.source ?? .photo
+        // "Log again" on a planned meal has no plan slot to claim: it is a plain text log, never a second "from your plan".
+        name = m.displayName; mealType = m.mealType ?? MealService.mealType(at: Date(), calendar: .current); source = m.source == .plan ? .text : (m.source ?? .photo)
         items = m.items; kcal = m.totalCalories; proteinG = m.totalProteinG; carbsG = m.totalCarbsG; fatG = m.totalFatG
         fiberG = m.totalFiberG; micros = m.micros; scores = m.scores
     }

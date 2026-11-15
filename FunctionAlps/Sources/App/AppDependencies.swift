@@ -14,6 +14,8 @@ final class AppDependencies {
     let freshness: DataFreshness
     let dashboard: DashboardService
     let meals: MealService
+    /// The clinician's meal plan: days, "I ate this", swaps, recipe cards, groceries.
+    let mealPlan: MealPlanService
     let checkins: CheckinService
     let library: LibraryService
     /// "The FunctionAlps Show" in the Library (CLINICAL library API + experiment progress).
@@ -74,6 +76,7 @@ final class AppDependencies {
         self.members = members
         self.dashboard = DashboardService(backend: backend)
         self.meals = MealService(backend: backend, freshness: freshness)
+        self.mealPlan = MealPlanService(backend: backend, freshness: freshness)
         self.checkins = CheckinService(backend: backend, freshness: freshness)
         self.library = LibraryService(backend: backend)
         self.shows = ShowService(backend: backend)

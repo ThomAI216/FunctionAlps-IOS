@@ -26,8 +26,9 @@ export interface Nutrient {
   unit: string
   tagline: string
   description: string
-  rdaMale: number
-  rdaFemale: number
+  // null = no EFSA reference (vitamin K2): listed, but left out of coverage averages and gaps.
+  rdaMale: number | null
+  rdaFemale: number | null
   consumed: 0, // v1: starts at 0, updated from meal logs. _mockConsumed:number   // today (mock)
   weekTrend: number[] // 7-day values (Mon→Sun)
   foodSources: FoodSource[]
@@ -186,8 +187,8 @@ export const NUTRIENTS: Nutrient[] = [
     unit: 'mcg',
     tagline: 'Calcium director',
     description: 'K2 activates proteins that direct calcium to bones (not arteries). Often deficient in Western diets. Works synergistically with D3 · both are needed together.',
-    rdaMale: 120,
-    rdaFemale: 90,
+    rdaMale: null, // EFSA sets no K2 reference (120/90 mcg is the vitamin K1 intake)
+    rdaFemale: null,
     consumed: 0,
     weekTrend: [25, 40, 15, 55, 30, 20, 35],
     foodSources: [
@@ -583,22 +584,25 @@ export function getConsumedFromLogs(meals: Array<{ micros?: MealMicros }>): Reco
 // Helper: calculate group average coverage percentage
 export function getGroupCoverage(groupKey: NutrientGroupKey, sex: 'male' | 'female' = 'female', consumedOverride?: Record<string, number>): number {
   const nutrients = getNutrientsByGroup(groupKey)
-  if (nutrients.length === 0) return 0
-  const coverages = nutrients.map((n) => {
+  const coverages = nutrients.flatMap((n) => {
     const target = sex === 'male' ? n.rdaMale : n.rdaFemale
+    if (target == null) return []
     const consumed = consumedOverride?.[n.key] ?? n.consumed
-    return Math.min(consumed / target, 1)
+    return [Math.min(consumed / target, 1)]
   })
+  if (coverages.length === 0) return 0
   return Math.round((coverages.reduce((a, b) => a + b, 0) / coverages.length) * 100)
 }
 
 // Helper: overall micronutrient coverage
 export function getOverallCoverage(sex: 'male' | 'female' = 'female', consumedOverride?: Record<string, number>): number {
-  const coverages = NUTRIENTS.map((n) => {
+  const coverages = NUTRIENTS.flatMap((n) => {
     const target = sex === 'male' ? n.rdaMale : n.rdaFemale
+    if (target == null) return []
     const consumed = consumedOverride?.[n.key] ?? n.consumed
-    return Math.min(consumed / target, 1)
+    return [Math.min(consumed / target, 1)]
   })
+  if (coverages.length === 0) return 0
   return Math.round((coverages.reduce((a, b) => a + b, 0) / coverages.length) * 100)
 }
 
@@ -610,11 +614,11 @@ export function getNutrientGaps(
   consumedOverride?: Record<string, number>
 ): (Nutrient & { pct: number })[] {
   return NUTRIENTS
-    .map((n) => {
+    .flatMap((n) => {
       const target = sex === 'male' ? n.rdaMale : n.rdaFemale
+      if (target == null) return []
       const consumed = consumedOverride?.[n.key] ?? n.consumed
-      const pct = consumed / target
-      return { ...n, pct }
+      return [{ ...n, pct: consumed / target }]
     })
     .filter((n) => n.pct < threshold)
     .sort((a, b) => a.pct - b.pct)

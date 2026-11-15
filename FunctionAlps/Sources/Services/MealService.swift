@@ -64,6 +64,16 @@ struct MealService: Sendable {
         try await backend.meal(id: id)
     }
 
+    /// The nutrient dictionary and the reference intakes. Never throws: a read that fails degrades to the legacy
+    /// names and no % (`NutrientCatalogue.empty`), never to a broken meal screen.
+    func nutrientCatalogue() async -> NutrientCatalogue {
+        async let definitions = try? backend.nutrientDictionary()
+        async let references = try? backend.nutrientReferenceIntakes()
+        let d = await definitions
+        let r = await references
+        return NutrientCatalogue(definitions: d ?? [], references: r ?? [])
+    }
+
     /// How the meal felt afterwards, when the member rated it (`nb_meal_reactions`).
     /// The pattern engine's rows for the score explainers. Never throws: no patterns reads as none yet.
     func patterns(patientId: String) async -> [UserPattern] {

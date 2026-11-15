@@ -108,7 +108,9 @@ struct SupabaseBackend: FunctionAlpsBackend {
     ]
 
     /// Plus one key out of the `resolution_meta` jsonb, not the whole record (it also holds the model's food list and timings).
-    private static let mealColumns = (baseMealColumns + ["micro_coverage:resolution_meta->micro_coverage"]).joined(separator: ",")
+    private static let mealColumns = (baseMealColumns + [
+        "micro_coverage:resolution_meta->micro_coverage", "nutrient_metrics:resolution_meta->nutrient_metrics",
+    ]).joined(separator: ",")
 
     /// Runs the meal read with the coverage key; a database without `resolution_meta` fails the select, so the plain
     /// columns are the fallback (the meals still load, just without the coverage note).
@@ -117,18 +119,82 @@ struct SupabaseBackend: FunctionAlpsBackend {
     }
 
     /// `resolution_meta.micro_coverage` as `analyze-meal` writes it. Any other shape reads as "not recorded".
+    /// The full-catalogue fields (`by_key`, `below_limit`, `catalogue_*`) are additive: absent or odd → nil.
     private struct MicroCoverageRow: Decodable, Sendable {
         let tracked: Int
         let measured: Int
         let items: Int
         let itemsFromCatalogue: Int
         let partial: [String]
-        var model: MealMicroCoverage { MealMicroCoverage(tracked: tracked, measured: measured, items: items, itemsFromCatalogue: itemsFromCatalogue, partial: partial) }
+        let byKey: [String: Double]?
+        let belowLimit: [String: Double]?
+        let catalogueTracked: Int?
+        let catalogueMeasured: Int?
+
+        private enum CodingKeys: String, CodingKey {
+            case tracked, measured, items, itemsFromCatalogue, partial, byKey, belowLimit, catalogueTracked, catalogueMeasured
+        }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            tracked = try c.decode(Int.self, forKey: .tracked)
+            measured = try c.decode(Int.self, forKey: .measured)
+            items = try c.decode(Int.self, forKey: .items)
+            itemsFromCatalogue = try c.decode(Int.self, forKey: .itemsFromCatalogue)
+            partial = try c.decode([String].self, forKey: .partial)
+            // Share maps keyed like `micronutrient_totals`: the decoder camel-cases their keys, so normalise them back.
+            byKey = ((try? c.decodeIfPresent([String: Double?].self, forKey: .byKey)) ?? nil).map { SnakeKeys.normalise($0.compactMapValues { $0 }) }
+            belowLimit = ((try? c.decodeIfPresent([String: Double?].self, forKey: .belowLimit)) ?? nil).map { SnakeKeys.normalise($0.compactMapValues { $0 }) }
+            catalogueTracked = (try? c.decodeIfPresent(Int.self, forKey: .catalogueTracked)) ?? nil
+            catalogueMeasured = (try? c.decodeIfPresent(Int.self, forKey: .catalogueMeasured)) ?? nil
+        }
+
+        var model: MealMicroCoverage {
+            MealMicroCoverage(
+                tracked: tracked, measured: measured, items: items, itemsFromCatalogue: itemsFromCatalogue, partial: partial,
+                byKey: byKey, belowLimit: belowLimit, catalogueTracked: catalogueTracked, catalogueMeasured: catalogueMeasured
+            )
+        }
     }
 
-    /// A realtime payload carries the whole `resolution_meta`, a REST read only the aliased `micro_coverage`.
+    /// One `resolution_meta.nutrient_metrics` entry. A missing status reads as partial, never as complete.
+    private struct NutrientMetricRow: Decodable, Sendable {
+        let value: Double?
+        let status: String?
+        let coverage: Double?
+
+        private enum CodingKeys: String, CodingKey { case value, status, coverage }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            value = (try? c.decodeIfPresent(Double.self, forKey: .value)) ?? nil
+            status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? nil
+            coverage = (try? c.decodeIfPresent(Double.self, forKey: .coverage)) ?? nil
+        }
+
+        var model: MealNutrientMetric { MealNutrientMetric(value: value, status: status ?? "partial", coverage: coverage) }
+    }
+
+    /// The metrics map with the backend's own keys (the decoder camel-cases them); nil when not recorded.
+    private static func nutrientMetrics(_ rows: [String: NutrientMetricRow?]?) -> [String: MealNutrientMetric]? {
+        guard let rows else { return nil }
+        var out: [String: MealNutrientMetric] = [:]
+        for (key, row) in rows { if let row { out[SnakeKeys.snake(key)] = row.model } }
+        return out
+    }
+
+    /// A realtime payload carries the whole `resolution_meta`, a REST read only the aliased keys.
     private struct ResolutionMetaRow: Decodable, Sendable {
         let microCoverage: MicroCoverageRow?
+        let nutrientMetrics: [String: NutrientMetricRow?]?
+
+        private enum CodingKeys: String, CodingKey { case microCoverage, nutrientMetrics }
+
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            microCoverage = (try? c.decodeIfPresent(MicroCoverageRow.self, forKey: .microCoverage)) ?? nil
+            nutrientMetrics = (try? c.decodeIfPresent([String: NutrientMetricRow?].self, forKey: .nutrientMetrics)) ?? nil
+        }
     }
 
     private struct MealRow: Decodable, Sendable {
@@ -155,12 +221,13 @@ struct SupabaseBackend: FunctionAlpsBackend {
         let analysisCoverage: String?
         let protocolFlags: [ProtocolLens.Flag]?
         let microCoverage: MealMicroCoverage?
+        let nutrientMetrics: [String: MealNutrientMetric]?
 
         private enum CodingKeys: String, CodingKey {
             case id, loggedAt, mealType, name, source, analysisStatus, analysisLastError
             case totalCalories, totalProteinG, totalCarbsG, totalFatG, totalFiberG
             case photoUrl, photoUrls, aiIdentifiedFoods, inflammationScore, glycemicScore, gutScore, patientNote, micronutrientTotals
-            case analysisCoverage, protocolFlags, microCoverage, resolutionMeta
+            case analysisCoverage, protocolFlags, microCoverage, nutrientMetrics, resolutionMeta
         }
 
         init(from decoder: any Decoder) throws {
@@ -194,6 +261,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
             let direct = (try? c.decodeIfPresent(MicroCoverageRow.self, forKey: .microCoverage)) ?? nil
             let viaMeta = (try? c.decodeIfPresent(ResolutionMetaRow.self, forKey: .resolutionMeta)) ?? nil
             microCoverage = (direct ?? viaMeta?.microCoverage)?.model
+            let directMetrics = (try? c.decodeIfPresent([String: NutrientMetricRow?].self, forKey: .nutrientMetrics)) ?? nil
+            nutrientMetrics = SupabaseBackend.nutrientMetrics(directMetrics ?? viaMeta?.nutrientMetrics)
         }
 
         var model: MealLog {
@@ -221,7 +290,8 @@ struct SupabaseBackend: FunctionAlpsBackend {
                 micros: micronutrientTotals,
                 analysisCoverage: analysisCoverage == "full" || analysisCoverage == "partial" ? analysisCoverage : nil,
                 protocolFlags: protocolFlags,
-                microCoverage: microCoverage
+                microCoverage: microCoverage,
+                nutrientMetrics: nutrientMetrics
             )
         }
     }
@@ -244,6 +314,52 @@ struct SupabaseBackend: FunctionAlpsBackend {
             try await rest.selectOne("nb_meal_logs", query: [PG.select(columns), PG.eq("id", id)])
         }
         return row?.model
+    }
+
+    // MARK: Nutrient dictionary (nb_nutrients · nutrient_reference_intakes_daily)
+
+    private struct NutrientRow: Decodable, Sendable {
+        let key: String
+        let name: String?
+        let groupCode: String?
+        let unit: String?
+        let sortOrder: Int?
+        let holdReason: String?
+    }
+
+    /// The catalogue's dictionary, by name. Members read it under `nb_nutrients_authenticated_read`.
+    func nutrientDictionary() async throws -> [NutrientDefinition] {
+        let rows: [NutrientRow] = try await rest.select("nb_nutrients", query: [
+            PG.select("key,name,group_code,unit,sort_order,hold_reason"),
+            PG.order("sort_order"),
+        ])
+        return rows.compactMap { r in
+            guard let name = r.name, let group = r.groupCode, let unit = r.unit else { return nil }
+            return NutrientDefinition(key: r.key, name: name, groupCode: group, unit: unit, sortOrder: r.sortOrder ?? Int.max, holdReason: r.holdReason)
+        }
+    }
+
+    private struct ReferenceRow: Decodable, Sendable {
+        let nutrientKey: String?
+        let setCode: String?
+        let sex: String?
+        let lifeStage: String?
+        let kind: String?
+        let amount: Double?
+        let unit: String?
+    }
+
+    /// Adult reference intakes (the view already keeps only the rows meant for patients). A row missing a field is dropped.
+    func nutrientReferenceIntakes() async throws -> [NutrientReference] {
+        let rows: [ReferenceRow] = try await rest.select("nutrient_reference_intakes_daily", query: [
+            PG.select("nutrient_key,set_code,sex,life_stage,kind,amount,unit"),
+            PG.eq("life_stage", "adult"),
+        ])
+        return rows.compactMap { r in
+            guard let key = r.nutrientKey, let code = r.setCode, let sex = r.sex, let stage = r.lifeStage, let kind = r.kind,
+                  let amount = r.amount, let unit = r.unit else { return nil }
+            return NutrientReference(nutrientKey: key, setCode: code, sex: sex, lifeStage: stage, kind: kind, amount: amount, unit: unit)
+        }
     }
 
     private struct ProtocolRow: Decodable, Sendable { let protocolKey: String?; let strictness: String?; let patientVisibility: String? }
@@ -2200,5 +2316,108 @@ struct SupabaseBackend: FunctionAlpsBackend {
     func notificationData(id: String) async throws -> JSONValue? {
         let data = try await rest.selectRaw("patient_notifications", query: [PG.select("data_json"), PG.eq("id", id), PG.limit(1)])
         return try TrackJSON.decode([NotificationDataWire].self, from: data).first?.data
+    }
+}
+
+// MARK: - Meal plan, recipes, groceries (menus programme, P6)
+//
+// Everything the plan shows is decided on the server: `member_meal_plan` returns each day with the member's own
+// swaps applied and the meals that break their exclusions flagged; "I ate this" is one RPC that writes the
+// meal log; the grocery list is derived. The app reads, taps and formats. Table and RPC names stay in this file.
+
+extension SupabaseBackend {
+    private struct PlanBody: Encodable, Sendable { let pFrom: String?; let pTo: String? }
+    private struct SlotDateBody: Encodable, Sendable { let pSlot: String; let pPlanDate: String }
+    private struct CandidatesBody: Encodable, Sendable { let pSlot: String; let pPlanDate: String; let pAnyMeal: Bool; let pLimit: Int }
+    private struct SwapBody: Encodable, Sendable { let pSlot: String; let pRecipe: String; let pPlanDate: String }
+
+    func mealPlan() async throws -> MealPlanRange {
+        let wire: MealPlanWire.Plan = try await rest.rpc("member_meal_plan", body: PlanBody(pFrom: nil, pTo: nil))
+        return wire.model
+    }
+
+    func logPlannedMeal(slotId: String, planDate: String) async throws -> PlannedMealLog {
+        let reply: MealPlanWire.LogReply = try await rest.rpc("member_log_planned_meal", body: SlotDateBody(pSlot: slotId, pPlanDate: planDate))
+        return reply.model
+    }
+
+    func swapCandidates(slotId: String, planDate: String, anyMeal: Bool) async throws -> [SwapCandidate] {
+        let rows: [MealPlanWire.CandidateRow] = try await rest.rpc(
+            "member_swap_candidates", body: CandidatesBody(pSlot: slotId, pPlanDate: planDate, pAnyMeal: anyMeal, pLimit: 60))
+        return rows.map(\.model)
+    }
+
+    func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome {
+        let reply: MealPlanWire.SwapReply = try await rest.rpc("member_swap_meal", body: SwapBody(pSlot: slotId, pRecipe: recipeId, pPlanDate: planDate))
+        return reply.model
+    }
+
+    /// The recipe and its lines, both under the member's own RLS (approved, member-visible, never a book recipe).
+    func recipeCard(id: String) async throws -> RecipeCard? {
+        // `why_line` and `description` arrive in a later migration: ask for them, and fall back to the base columns
+        // while the database does not have them yet (an unknown column fails the select with a validation error).
+        let base = "id,title,body_md,steps,servings,prep_minutes,cook_minutes,yield_text,variant_kind,computed_nutrition"
+        let recipe: MealPlanWire.Recipe?
+        do {
+            recipe = try await rest.selectOne("recipes", query: [PG.select(base + ",why_line,description"), PG.eq("id", id)])
+        } catch AppError.validation {
+            recipe = try await rest.selectOne("recipes", query: [PG.select(base), PG.eq("id", id)])
+        }
+        guard let recipe else { return nil }
+        let lines: [MealPlanWire.Ingredient] = try await rest.select("recipe_ingredients", query: [
+            PG.select("id,raw_text,qty,unit_code,is_to_taste,is_optional,prep_note"),
+            PG.eq("recipe_id", id), PG.order("sort_order"),
+        ])
+        return recipe.model(ingredients: lines)
+    }
+
+    func groceryList() async throws -> GroceryList {
+        let wire: MealPlanWire.Grocery = try await rest.rpc("member_grocery_list", body: EmptyBody())
+        return wire.model
+    }
+
+    /// One row per (plan week, food): the same ticks on the web and on the phone. A write with `checked_at` null
+    /// is an untick; it keeps the row (and any "I have this") instead of deleting it.
+    private struct FoodTickBody: Encodable, Sendable {
+        let patientId: String
+        let planId: String
+        let periodStart: String
+        let foodItemId: String
+        let checkedAt: String?
+
+        private enum CodingKeys: String, CodingKey { case patientId, planId, periodStart, foodItemId, customLabel, checkedAt }
+
+        func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(patientId, forKey: .patientId)
+            try c.encode(planId, forKey: .planId)
+            try c.encode(periodStart, forKey: .periodStart)
+            try c.encode(foodItemId, forKey: .foodItemId)
+            try c.encodeNil(forKey: .customLabel)
+            try c.encode(checkedAt, forKey: .checkedAt)   // explicit null clears the tick
+        }
+    }
+
+    private struct CustomTickBody: Encodable, Sendable {
+        let checkedAt: String?
+        private enum CodingKeys: String, CodingKey { case checkedAt }
+        func encode(to encoder: any Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(checkedAt, forKey: .checkedAt)
+        }
+    }
+
+    func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws {
+        let stamp = checked ? ISO8601.string(Date()) : nil
+        switch target {
+        case .food(let foodId):
+            guard let planId = list.planId, let start = list.periodStart else { throw AppError.notFound }
+            try await rest.upsert(
+                "member_grocery_state", onConflict: "patient_id,plan_id,period_start,food_item_id,custom_label",
+                body: [FoodTickBody(patientId: patientId, planId: planId, periodStart: start, foodItemId: foodId, checkedAt: stamp)]
+            )
+        case .custom(let id):
+            try await rest.update("member_grocery_state", query: [PG.eq("id", id)], body: CustomTickBody(checkedAt: stamp))
+        }
     }
 }

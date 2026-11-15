@@ -659,7 +659,7 @@ struct LogMealCard: View {
                             ? String(localized: "food.meal.unfavorite.a11y", defaultValue: "Remove \(meal.displayName) from favorites")
                             : String(localized: "food.meal.favorite.a11y", defaultValue: "Add \(meal.displayName) to favorites"))
                     Spacer(minLength: 0)
-                    Text(when)
+                    Text(meal.source == .plan ? when + " · " + String(localized: "food.meal.fromPlan", defaultValue: "from your plan") : when)
                         .font(FATypography.sans(9.5, relativeTo: .caption2))
                         .foregroundStyle(FoodPalette.muted)
                 }

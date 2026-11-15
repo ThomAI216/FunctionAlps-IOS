@@ -77,11 +77,11 @@ struct NutritionMathTests {
         #expect(NutritionMath.coveragePercent(consumed: 30, target: 90) == 33)
         #expect(NutritionMath.coveragePercent(consumed: 120, target: 90) == 133)
         let consumed: [String: Double] = ["vitamin_c": 90, "vitamin_d3": 25]
-        // Vitamins group: 8 nutrients, C 100 % + D3 50 % → 150 / 8 = 18.75 → 19
-        #expect(NutritionMath.groupCoverage(.vitamins, sex: .male, consumed: consumed) == 19)
+        // Vitamins group: 8 listed, 7 scored (K2 has no reference), C 100 % + D3 50 % → 150 / 7 = 21.4 → 21
+        #expect(NutritionMath.groupCoverage(.vitamins, sex: .male, consumed: consumed) == 21)
         let gaps = NutritionMath.gaps(threshold: 0.7, sex: .male, limit: 3, consumed: consumed)
         #expect(gaps.count == 3 && gaps.allSatisfy { $0.pct < 0.7 } && gaps[0].pct <= gaps[1].pct)
-        #expect(NutritionMath.gaps(threshold: 0.7, sex: .male, limit: 99, consumed: consumed).count == 20)
+        #expect(NutritionMath.gaps(threshold: 0.7, sex: .male, limit: 99, consumed: consumed).count == 19)
     }
 
     @Test("The targets write: explicit nulls for cleared counts, targets only when customised")

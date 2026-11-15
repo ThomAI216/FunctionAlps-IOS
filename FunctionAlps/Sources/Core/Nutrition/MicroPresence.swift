@@ -11,6 +11,13 @@ struct MealMicroCoverage: Sendable, Equatable {
     let itemsFromCatalogue: Int
     /// Keys with a value on some foods but not all (their total is a partial sum).
     let partial: [String]
+    /// Full catalogue (`by_key`): share 0…1 of the meal's priced weight carrying each key. Nil on older meals.
+    var byKey: [String: Double]? = nil
+    /// `below_limit`: share 0…1 of the priced weight whose value for the key is "traces" / below the limit.
+    var belowLimit: [String: Double]? = nil
+    /// `catalogue_tracked` / `catalogue_measured`: counts over every key of the full catalogue.
+    var catalogueTracked: Int? = nil
+    var catalogueMeasured: Int? = nil
 }
 
 /// Presence rules for micronutrients: "no value" is not zero, and "some meals" is not "all meals".

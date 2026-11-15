@@ -76,4 +76,24 @@ struct MicroCoverageTests {
         let src = RelogSource(meal: meal)
         #expect(src.name == "Bowl" && src.mealType == .lunch && src.kcal == 420 && src.items.count == 1 && src.scores?.digestion == 3 && src.micros["iron_mg"] == 2)
     }
+
+    @Test func vitaminK2HasNoReferenceAndStaysOutOfCoverageAndGaps() {
+        // EFSA sets no reference for K2 (120/90 µg is the vitamin K1 intake), so it is listed but never scored.
+        let k2 = MicroCoverage.nutrients.first { $0.key == "vitamin_k2" }
+        #expect(k2 != nil)
+        #expect(k2?.rdaMale == nil && k2?.rdaFemale == nil)
+        let cat = NutrientCatalog.nutrient("vitamin_k2")
+        #expect(cat != nil)
+        #expect(cat?.target(sex: .male) == nil && cat?.target(sex: nil) == nil)
+        // K2 alone has data: nothing to average, so no coverage at all.
+        let k2Only = MealLog(id: "k", loggedAt: Date(), micros: ["vitamin_k2_mcg": 5])
+        #expect(MicroCoverage.overallDetail(meals: [k2Only], sex: .female) == nil)
+        // With vitamin C at 100 %, a K2 value neither raises nor lowers the mean and does not count as included.
+        let both = MealLog(id: "b", loggedAt: Date(), micros: ["vitamin_c_mg": 75, "vitamin_k2_mcg": 0])
+        #expect(MicroCoverage.overallDetail(meals: [both], sex: .female) == MicroCoverage.Overall(percent: 100, included: 1, total: 21))
+        // A real 0 of K2 is not a gap.
+        let gaps = NutritionMath.gaps(threshold: 0.75, sex: .female, limit: 30, consumed: ["vitamin_k2": 0], available: ["vitamin_k2"])
+        #expect(gaps.isEmpty)
+        #expect(NutritionMath.groupCoverage(.vitamins, sex: .female, consumed: ["vitamin_k2": 0, "vitamin_c": 75]) > 0)
+    }
 }

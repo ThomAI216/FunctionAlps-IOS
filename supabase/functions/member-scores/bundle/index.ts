@@ -124,8 +124,8 @@ var NUTRIENTS = [
     name: "Vitamin K2",
     groupKey: "vitamins",
     unit: "mcg",
-    rdaMale: 120,
-    rdaFemale: 90,
+    rdaMale: null,
+    rdaFemale: null,
     consumed: 0,
   },
   {
@@ -297,16 +297,20 @@ function getConsumedFromLogs(meals) {
   return consumed;
 }
 function getOverallCoverage(sex = "female", consumedOverride) {
-  let coverages = NUTRIENTS.map((n) => {
-    let target = sex === "male" ? n.rdaMale : n.rdaFemale, consumed = consumedOverride?.[n.key] ?? n.consumed;
-    return Math.min(consumed / target, 1);
+  let coverages = NUTRIENTS.flatMap((n) => {
+    let target = sex === "male" ? n.rdaMale : n.rdaFemale;
+    if (target == null) return [];
+    let consumed = consumedOverride?.[n.key] ?? n.consumed;
+    return [Math.min(consumed / target, 1)];
   });
+  if (coverages.length === 0) return 0;
   return Math.round(coverages.reduce((a, b) => a + b, 0) / coverages.length * 100);
 }
 function getNutrientGaps(threshold = 0.7, sex = "female", maxGaps = 4, consumedOverride) {
-  return NUTRIENTS.map((n) => {
-    let target = sex === "male" ? n.rdaMale : n.rdaFemale, pct = (consumedOverride?.[n.key] ?? n.consumed) / target;
-    return { ...n, pct };
+  return NUTRIENTS.flatMap((n) => {
+    let target = sex === "male" ? n.rdaMale : n.rdaFemale;
+    if (target == null) return [];
+    return [{ ...n, pct: (consumedOverride?.[n.key] ?? n.consumed) / target }];
   }).filter((n) => n.pct < threshold).sort((a, b) => a.pct - b.pct).slice(0, maxGaps);
 }
 

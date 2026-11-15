@@ -16,6 +16,10 @@ protocol FunctionAlpsBackend: Sendable {
     // MARK: Meals (Phase D)
 
     func meal(id: String) async throws -> MealLog?
+    /// `nb_nutrients`: the food catalogue's dictionary (key, English name, group, unit, order, hold).
+    func nutrientDictionary() async throws -> [NutrientDefinition]
+    /// `nutrient_reference_intakes_daily`, adult rows: the reference a meal's % is read against.
+    func nutrientReferenceIntakes() async throws -> [NutrientReference]
     /// Inserts the minimal `queued` row and returns its id. The meal is real from this moment;
     /// nothing analysis-derived is written by the client (the server owns every later status).
     func createPendingMeal(_ input: PendingMealInput) async throws -> String
@@ -361,6 +365,22 @@ protocol FunctionAlpsBackend: Sendable {
     /// `member_log_supplement(p_plan, p_moment, p_taken, p_day)`: ticks (or un-ticks) one moment. Idempotent. `day` nil =
     /// today; the server accepts only today or yesterday (`22023` otherwise). `planId` is the supplement's `id`.
     func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws
+
+    // MARK: Meal plan, recipes, groceries (menus programme)
+    /// `member_meal_plan`: the days from the member's today, the plan's meals after their own swaps.
+    func mealPlan() async throws -> MealPlanRange
+    /// `member_log_planned_meal`: the server writes the meal log ("I ate this"); idempotent per meal and day.
+    func logPlannedMeal(slotId: String, planDate: String) async throws -> PlannedMealLog
+    /// `member_swap_candidates`: recipes that fit this member, same meal type first unless `anyMeal`.
+    func swapCandidates(slotId: String, planDate: String, anyMeal: Bool) async throws -> [SwapCandidate]
+    /// `member_swap_meal` for one day.
+    func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome
+    /// A readable recipe with its lines; nil when the member may not read it.
+    func recipeCard(id: String) async throws -> RecipeCard?
+    /// `member_grocery_list` for the plan week in force.
+    func groceryList() async throws -> GroceryList
+    /// A tick on the member's grocery state (`member_grocery_state`), shared with the web.
+    func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
@@ -490,4 +510,17 @@ extension FunctionAlpsBackend {
     func signalExplanations(locale: String) async throws -> [SignalExplanation] { [] }
     func supplements() async throws -> [Supplement] { [] }
     func logSupplement(planId: String, moment: SupplementMoment, taken: Bool, day: String?) async throws {}
+
+    // Menus programme (P6): defaults so test doubles and the showcase backend need no edits.
+    func mealPlan() async throws -> MealPlanRange { .empty }
+    func logPlannedMeal(slotId: String, planDate: String) async throws -> PlannedMealLog { throw AppError.unknown(detail: "meal plan not supported") }
+    func swapCandidates(slotId: String, planDate: String, anyMeal: Bool) async throws -> [SwapCandidate] { [] }
+    func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome { throw AppError.unknown(detail: "meal plan not supported") }
+    func recipeCard(id: String) async throws -> RecipeCard? { nil }
+    func groceryList() async throws -> GroceryList { .empty }
+
+    // Full nutrient catalogue: a backend that does not model it reads as "no dictionary" (legacy names, no %).
+    func nutrientDictionary() async throws -> [NutrientDefinition] { [] }
+    func nutrientReferenceIntakes() async throws -> [NutrientReference] { [] }
+    func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws { throw AppError.unknown(detail: "meal plan not supported") }
 }

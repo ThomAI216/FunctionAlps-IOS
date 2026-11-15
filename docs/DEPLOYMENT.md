@@ -527,6 +527,8 @@ hedge at 10 s (`ANALYZE_MEAL_TIMEOUT_MS` / `ANALYZE_MEAL_HEDGE_MS` still overrid
    reset them to `queued` with `analysis_attempts = 0`.
 Rollback: unset `MEAL_AI_PROVIDER` (next cold start is back on Infomaniak).
 
+**Meal pricing from the full catalogue (2026-11-14, not deployed).** `analyze-meal` now also calls the RPC `food_lines_nutrition_cat` once per meal for catalogue-matched foods and stores more keys in `micronutrient_totals` plus `resolution_meta.{catalogue_version, nutrient_metrics, micro_coverage.by_key…}`; on RPC failure it keeps the old micros and records `catalogue_error`. It deploys with the pair on merge to `main`; no secret or migration is involved. Code: `supabase/functions/_shared/meals/catalogue-nutrients.ts`.
+
 ## TestFlight distribution to members (2026-09-28)
 
 Members are **external** testers in the group **BetaTesters**. Until 2026-09-28 the `beta` lane uploaded and stopped:
