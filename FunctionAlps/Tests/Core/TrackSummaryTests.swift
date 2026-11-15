@@ -80,6 +80,11 @@ struct TrackSummaryTests {
         #expect(NotificationRouting.route(data: try json(#"{"route": "https://example.com", "items": []}"#)) == nil)
         #expect(NotificationRouting.route(data: try json(#"{"items": [{"kind": "report", "report_id": "r", "report_event": "new_report"}]}"#)) == nil)
         #expect(NotificationRouting.route(data: nil) == nil)
+        // A shared bank resource: by its own route, else by the item's slug (library/<slug>, never library/show/).
+        let bank = try json(#"{"items": [{"kind": "bank_resource", "title": "T", "slug": "card-sleep-basics", "href": "/dashboard/bibliotheque/card-sleep-basics", "from": "Alessandra"}], "count": 1}"#)
+        #expect(NotificationRouting.route(data: bank)?.absoluteString == "functionalps://library/card-sleep-basics")
+        #expect(NotificationRouting.route(data: try json(#"{"items": [{"kind": "bank_resource", "slug": "a/b"}]}"#)) == nil)
+        #expect(NotificationRouting.route(data: try json(#"{"route": "functionalps://library/card-x", "items": []}"#))?.absoluteString == "functionalps://library/card-x")
     }
 
     @Test("functionalps://foundation/summary opens the summary on Home; foundation alone opens Home")

@@ -88,7 +88,7 @@ struct ClientComplaint: Decodable, Sendable, Equatable, Identifiable {
 }
 
 /// One reading attached to a hypothesis (`member_care_plan_hypotheses.resources[]`): `kind` is `library` | `study` |
-/// `url`, `ref` is a web address for `url`/`study` and a library id for `library`. A malformed entry decodes with
+/// `url`, `ref` is a web address for `url`/`study` and a kb_nodes SLUG for `library` (the web reads it the same way). A malformed entry decodes with
 /// every field nil, so one stray row never fails the plan.
 struct ClientResource: Decodable, Sendable, Equatable {
     var kind: String?
@@ -117,8 +117,7 @@ struct ClientResource: Decodable, Sendable, Equatable {
     /// The trimmed title; a resource with none is not shown.
     var displayTitle: String { (title ?? "").trimmingCharacters(in: .whitespacesAndNewlines) }
 
-    /// A tappable address only for `url`/`study` whose `ref` is an http(s) URL. `library` refs (and anything else)
-    /// have no link until a library route exists.
+    /// A tappable address only for `url`/`study` whose `ref` is an http(s) URL. Library refs go through `libraryRoute`.
     var link: URL? {
         guard kind == "url" || kind == "study" else { return nil }
         guard let ref = ref?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -126,6 +125,15 @@ struct ClientResource: Decodable, Sendable, Equatable {
               scheme == "http" || scheme == "https" else { return nil }
         return url
     }
+
+    /// `library` refs are kb_nodes slugs (not ids): the app's own library reader opens them (`functionalps://library/<slug>`).
+    var libraryRoute: URL? {
+        guard kind == "library", let ref else { return nil }
+        return NotificationRouting.libraryRoute(slug: ref)
+    }
+
+    /// What a tap opens: the web address of a study/url, or the library reader for a library slug.
+    var tapTarget: URL? { link ?? libraryRoute }
 
     /// What the "To read" list shows: every titled resource, in order (linked or plain).
     static func readable(_ resources: [ClientResource]?) -> [ClientResource] {

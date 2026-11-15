@@ -218,6 +218,13 @@ struct ClientCarePlanLogicTests {
         #expect(shown.filter { $0.link != nil }.map(\.displayTitle) == ["A", "B"], "library, non-http(s) and unparsable refs stay plain titles")
     }
 
+    @Test func libraryRefsAreSlugsAndOpenTheLibraryReader() throws {
+        let json = #"[{"kind":"library","ref":"card-sleep-basics","title":"A"},{"kind":"library","ref":"not a slug","title":"B"},{"kind":"library","ref":"../x","title":"C"},{"kind":"study","ref":"https://pubmed.ncbi.nlm.nih.gov/1/","title":"D"}]"#
+        let items = try JSON.decode([ClientResource].self, from: Data(json.utf8))
+        #expect(items.map { $0.tapTarget?.absoluteString } == ["functionalps://library/card-sleep-basics", nil, nil, "https://pubmed.ncbi.nlm.nih.gov/1/"])
+        #expect(items[0].link == nil, "a library ref is never a web link")
+    }
+
     private func day(_ n: Int, energy: Int?) -> DailyCheckin {
         DailyCheckin(day: String(format: "2026-11-%02d", n), functionalCompletedAt: nil, gutCompletedAt: nil, energy: energy, mood: 50, sleep: nil, calmness: nil, gutOverall: nil)
     }

@@ -58,7 +58,7 @@ private struct HypothesisCard: View {
                         VStack(alignment: .leading, spacing: 2) {
                             CPLabel(String(localized: "clientplan.why.read", defaultValue: "To read"))
                             ForEach(Array(links.enumerated()), id: \.offset) { _, resource in
-                                if let url = resource.link {
+                                if let url = resource.tapTarget {
                                     Button { openURL(url) } label: {
                                         HStack(spacing: 6) {
                                             Image(systemName: "arrow.up.right.square").font(.system(size: 12)).accessibilityHidden(true)
