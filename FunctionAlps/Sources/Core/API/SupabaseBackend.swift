@@ -2376,6 +2376,18 @@ extension SupabaseBackend {
         return wire.model
     }
 
+    func exampleWeek() async throws -> MealPlanRange {
+        let wire: MealPlanWire.Plan = try await rest.rpc("todo_example_week", body: EmptyBody())
+        return wire.model
+    }
+
+    func exampleGroceries() async throws -> GroceryList {
+        let wire: MealPlanWire.Grocery = try await rest.rpc("todo_example_groceries", body: EmptyBody())
+        return wire.model
+    }
+
+    func hasDeliveredPlan() async throws -> Bool { false }
+
     /// One row per (plan week, food): the same ticks on the web and on the phone. A write with `checked_at` null
     /// is an untick; it keeps the row (and any "I have this") instead of deleting it.
     private struct FoodTickBody: Encodable, Sendable {

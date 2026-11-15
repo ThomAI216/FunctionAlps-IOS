@@ -381,6 +381,12 @@ protocol FunctionAlpsBackend: Sendable {
     func groceryList() async throws -> GroceryList
     /// A tick on the member's grocery state (`member_grocery_state`), shared with the web.
     func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws
+    /// `member_example_week`: the Foundational week, same shape as `member_meal_plan`, nominal dates.
+    func exampleWeek() async throws -> MealPlanRange
+    /// `member_example_groceries`: the Foundational week's shopping. Read only: nothing is ever written for it.
+    func exampleGroceries() async throws -> GroceryList
+    /// `member_plan_recipe_ids()` returned at least one id: the member has a delivered, approved, visible plan (any dates).
+    func hasDeliveredPlan() async throws -> Bool
 }
 
 /// The `nb_meal_reactions` insert. Symptoms are 0–10 (a "fine" meal saves zeros); `overall` nil = unknown.
@@ -518,6 +524,9 @@ extension FunctionAlpsBackend {
     func swapPlannedMeal(slotId: String, recipeId: String, planDate: String) async throws -> SwapOutcome { throw AppError.unknown(detail: "meal plan not supported") }
     func recipeCard(id: String) async throws -> RecipeCard? { nil }
     func groceryList() async throws -> GroceryList { .empty }
+    func exampleWeek() async throws -> MealPlanRange { .empty }
+    func exampleGroceries() async throws -> GroceryList { .empty }
+    func hasDeliveredPlan() async throws -> Bool { true }
 
     // Full nutrient catalogue: a backend that does not model it reads as "no dictionary" (legacy names, no %).
     func nutrientDictionary() async throws -> [NutrientDefinition] { [] }

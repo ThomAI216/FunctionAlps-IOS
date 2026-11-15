@@ -88,12 +88,12 @@ enum GroceryLogic {
                     )
                 })
             }
-            return GroceryList(planId: list.planId, periodStart: list.periodStart, periodEnd: list.periodEnd, aisles: aisles, custom: list.custom)
+            return GroceryList(planId: list.planId, periodStart: list.periodStart, periodEnd: list.periodEnd, aisles: aisles, custom: list.custom, example: list.example)
         case .custom(let id):
             let custom = list.custom.map { item in
                 item.id == id ? GroceryCustomItem(id: item.id, label: item.label, qtyText: item.qtyText, aisleCode: item.aisleCode, checked: checked) : item
             }
-            return GroceryList(planId: list.planId, periodStart: list.periodStart, periodEnd: list.periodEnd, aisles: list.aisles, custom: custom)
+            return GroceryList(planId: list.planId, periodStart: list.periodStart, periodEnd: list.periodEnd, aisles: list.aisles, custom: custom, example: list.example)
         }
     }
 

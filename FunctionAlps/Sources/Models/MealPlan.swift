@@ -12,6 +12,9 @@ struct MealPlanRange: Sendable, Equatable {
     let to: String
     let plans: [PlanSummary]
     let days: [PlanDay]
+    /// `member_example_week`: the Foundational week, a reference week that belongs to no member. Its dates are nominal
+    /// (2001-01-01 to 2001-01-07): show weekday names only, never a date.
+    var example: Bool = false
 
     static let empty = MealPlanRange(from: "", to: "", plans: [], days: [])
 
@@ -65,6 +68,9 @@ struct PlannedMeal: Sendable, Equatable, Identifiable {
     let alternativeIds: [String]
     /// The meal log of "I ate this" for this day, when there is one.
     let loggedMealId: String?
+
+    /// The Foundational week's two snacks of a day carry one of these ("High-protein", "Complex carb"): the member eats one or the other.
+    var optionLabel: String? = nil
 
     var id: String { slotId }
     var isLogged: Bool { loggedMealId != nil }
@@ -187,6 +193,9 @@ struct GroceryList: Sendable, Equatable {
     let aisles: [GroceryAisle]
     /// The member's own lines (web).
     let custom: [GroceryCustomItem]
+    /// `member_example_groceries`: the Foundational week's list. Its `planId` is the example's id, never a plan of the member's:
+    /// nothing is ever written for it, and ticks stay on the device.
+    var example: Bool = false
 
     static let empty = GroceryList(planId: nil, periodStart: nil, periodEnd: nil, aisles: [], custom: [])
 

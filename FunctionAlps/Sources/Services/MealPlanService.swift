@@ -33,6 +33,11 @@ struct MealPlanService: Sendable {
 
     func groceries() async throws -> GroceryList { try await backend.groceryList() }
 
+    /// The Foundational week. Read only: `setChecked` refuses a list that is the example.
+    func exampleWeek() async throws -> MealPlanRange { try await backend.exampleWeek() }
+    func exampleGroceries() async throws -> GroceryList { try await backend.exampleGroceries() }
+    func hasDeliveredPlan() async throws -> Bool { try await backend.hasDeliveredPlan() }
+
     func setChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws {
         try await backend.setGroceryChecked(patientId: patientId, list: list, target: target, checked: checked)
     }
