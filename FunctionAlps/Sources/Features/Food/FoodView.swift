@@ -5,11 +5,13 @@ struct FoodView: View {
     @Environment(AppDependencies.self) private var dependencies
     @State private var model: FoodViewModel?
     @State private var plan: MealPlanViewModel?
+    /// The Foundational week: its own view model, so the member's plan is never mixed with it.
+    @State private var example: MealPlanViewModel?
 
     var body: some View {
         ZStack {
-            if let model, let plan {
-                FoodScreen(model: model, plan: plan)
+            if let model, let plan, let example {
+                FoodScreen(model: model, plan: plan, example: example)
             }
         }
         .faWall()
@@ -23,6 +25,8 @@ struct FoodView: View {
                 // "I ate this" shows the same toast as "Log again"; an undo from the plan reloads the meals.
                 p.onLogged = { [weak m] id, name, kcal in m?.planMealLogged(mealId: id, name: name, kcal: kcal) }
                 p.onMealsChanged = { [weak m] in Task { await m?.load(refresh: true) } }
+                example = MealPlanViewModel(service: dependencies.mealPlan, meals: dependencies.meals, members: dependencies.members,
+                                            auth: dependencies.auth, example: true)
                 model = m
                 plan = p
                 async let planLoad: Void = p.load()
@@ -38,6 +42,8 @@ struct FoodView: View {
 private struct FoodScreen: View {
     @Bindable var model: FoodViewModel
     @Bindable var plan: MealPlanViewModel
+    @Bindable var example: MealPlanViewModel
+    @State private var showFoundational = false
     @Environment(AppRouter.self) private var router
     @Environment(AppDependencies.self) private var dependencies
     @State private var capture = MealCaptureCoordinator()
@@ -60,6 +66,13 @@ private struct FoodScreen: View {
             }
             .sheet(item: $plan.openMeal) { open in
                 RecipeCardView(plan: plan, open: open)
+            }
+            // The example's recipe cards open here when it sits inline (no plan yet); from the entry's own sheet they open there.
+            .sheet(item: Binding(get: { showFoundational ? nil : example.openMeal }, set: { example.openMeal = $0 })) { open in
+                RecipeCardView(plan: example, open: open, banner: .noPlan)
+            }
+            .sheet(isPresented: $showFoundational) {
+                FoundationalWeekSheet(example: example) { showFoundational = false }
             }
             .sheet(item: Binding(
                 get: { plan.swapRequest?.origin == .list ? plan.swapRequest : nil },
@@ -121,9 +134,21 @@ private struct FoodScreen: View {
                         captureCard.padding(.top, 14)
                         recent(content).padding(.top, 22)
                     case .plan:
-                        PlanView(plan: plan)
+                        if plan.placement == .replacesPlan {
+                            FoundationalBannerView(banner: .noPlan).padding(.bottom, 14)
+                            PlanView(plan: example, banner: .noPlan)
+                        } else {
+                            PlanView(plan: plan)
+                            FoundationalWeekEntry { showFoundational = true }
+                        }
                     case .groceries:
-                        GroceriesView(plan: plan)
+                        if plan.placement == .replacesPlan {
+                            FoundationalBannerView(banner: .noPlan).padding(.bottom, 14)
+                            GroceriesView(plan: example)
+                        } else {
+                            GroceriesView(plan: plan)
+                            FoundationalWeekEntry { showFoundational = true }
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -135,6 +160,10 @@ private struct FoodScreen: View {
                 await model.load(refresh: true)
                 await plan.load(refresh: true)
                 if section == .groceries { await plan.loadGroceries(refresh: true) }
+                if plan.placement == .replacesPlan || showFoundational {
+                    await example.load(refresh: true)
+                    await example.loadGroceries(refresh: true)
+                }
             }
         }
     }

@@ -56199,6 +56199,230 @@
           }
         }
       }
+    },
+    "foundational.banner.noPlan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundational week: an example of how your meal plan will look. Your practitioner will build your own."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine de base : un exemple de ce à quoi ressemblera votre plan de repas. Votre praticien construira le vôtre."
+          }
+        }
+      }
+    },
+    "foundational.banner.reference": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundational week: a reference week from FunctionAlps. Your own plan is under Plan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine de base : une semaine de référence de FunctionAlps. Votre propre plan se trouve sous Plan."
+          }
+        }
+      }
+    },
+    "foundational.disabled.noPlan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available once your own plan is ready"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponible dès que votre propre plan est prêt"
+          }
+        }
+      }
+    },
+    "foundational.disabled.reference": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available on your own plan, not on the reference week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponible sur votre propre plan, pas sur la semaine de référence"
+          }
+        }
+      }
+    },
+    "foundational.entry.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundational week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine de base"
+          }
+        }
+      }
+    },
+    "foundational.entry.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A reference week of meals and groceries from FunctionAlps."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une semaine de référence de repas et de courses, proposée par FunctionAlps."
+          }
+        }
+      }
+    },
+    "foundational.entry.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the reference week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre la semaine de référence"
+          }
+        }
+      }
+    },
+    "foundational.snack.choice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snack: one or the other"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collation : l'une ou l'autre"
+          }
+        }
+      }
+    },
+    "foundational.tab.week": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semaine"
+          }
+        }
+      }
+    },
+    "foundational.tab.groceries": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groceries"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Courses"
+          }
+        }
+      }
+    },
+    "foundational.error.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load the Foundational week"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger la semaine de base"
+          }
+        }
+      }
+    },
+    "foundational.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to show yet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à afficher pour le moment"
+          }
+        }
+      }
+    },
+    "foundational.empty.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Foundational week is not available right now. Try again later."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La semaine de base n'est pas disponible pour le moment. Réessayez plus tard."
+          }
+        }
+      }
+    },
+    "foundational.groceries.covers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The whole week, both snack options of every day"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toute la semaine, avec les deux options de collation de chaque jour"
+          }
+        }
+      }
     }
   }
 }

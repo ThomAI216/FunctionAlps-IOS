@@ -7,6 +7,12 @@ struct GroceriesView: View {
     @Bindable var plan: MealPlanViewModel
 
     var body: some View {
+        stateBody
+            .task { if plan.isExample, plan.groceries.value == nil { await plan.loadGroceries() } }
+    }
+
+    @ViewBuilder
+    private var stateBody: some View {
         switch plan.groceries {
         case .loading:
             FALoadingState().frame(height: 240)
@@ -15,6 +21,13 @@ struct GroceriesView: View {
                 Task { await plan.loadGroceries() }
             }
             .frame(height: 280)
+        case .empty where plan.isExample:
+            FAEmptyState(
+                title: String(localized: "foundational.empty.title", defaultValue: "Nothing to show yet"),
+                message: String(localized: "foundational.empty.message", defaultValue: "The Foundational week is not available right now. Try again later."),
+                systemImage: "leaf"
+            )
+            .padding(.vertical, 40)
         case .empty:
             FAEmptyState(
                 title: String(localized: "grocery.empty.title", defaultValue: "No grocery list yet"),
@@ -56,17 +69,23 @@ struct GroceriesView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(String(localized: "grocery.title", defaultValue: "Your groceries")).font(FATypography.title).foregroundStyle(FAColor.ink)
                         .accessibilityAddTraits(.isHeader)
-                    if let period = GroceryLogic.periodLabel(start: list.periodStart, end: list.periodEnd) {
+                    if list.example {
+                        // Nominal dates: no period, just what the list covers.
+                        Text(String(localized: "foundational.groceries.covers", defaultValue: "The whole week, both snack options of every day"))
+                            .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+                    } else if let period = GroceryLogic.periodLabel(start: list.periodStart, end: list.periodEnd) {
                         Text(String(localized: "grocery.period", defaultValue: "\(period) · from your plan"))
                             .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
                     }
                 }
                 Spacer()
-                Button { plan.showShareSheet = true } label: {
-                    Image(systemName: "square.and.arrow.up").font(.system(size: 18, weight: .semibold)).foregroundStyle(FAColor.brand)
-                        .frame(width: 44, height: 44)
+                if !list.example {
+                    Button { plan.showShareSheet = true } label: {
+                        Image(systemName: "square.and.arrow.up").font(.system(size: 18, weight: .semibold)).foregroundStyle(FAColor.brand)
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel(String(localized: "grocery.share", defaultValue: "Save or share the list"))
                 }
-                .accessibilityLabel(String(localized: "grocery.share", defaultValue: "Save or share the list"))
             }
             ProgressView(value: Double(counts.inBasket), total: Double(max(counts.total, 1)))
                 .tint(FAColor.forestSoft)

@@ -70,6 +70,8 @@ final class RecipeCardModel {
 struct RecipeCardView: View {
     @Bindable var plan: MealPlanViewModel
     let open: OpenMeal
+    /// Which reason to show when this card belongs to the Foundational week (read only).
+    var banner: FoundationalBanner = .noPlan
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @State private var model: RecipeCardModel?
@@ -105,7 +107,7 @@ struct RecipeCardView: View {
     private var recipeCard: RecipeCard? { model?.state.value }
     private var day: PlanDay? { plan.range?.days.first { $0.date == open.date } }
     private var planAllowsSwap: Bool { plan.canSwap(on: day) }
-    private var isToday: Bool { open.date == plan.range?.from }
+    private var isToday: Bool { !plan.isExample && open.date == plan.range?.from }
     private var showCalories: Bool { plan.summary(for: day)?.showCalories ?? false }
 
     @ViewBuilder
@@ -139,13 +141,10 @@ struct RecipeCardView: View {
 
     private func hero(_ meal: PlannedMeal) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            ZStack {
-                LinearGradient(colors: [FAColor.forestMist, FAColor.forestGlow], startPoint: .topLeading, endPoint: .bottomTrailing)
-                Image(systemName: "fork.knife").font(.system(size: 38, weight: .light)).foregroundStyle(FAColor.forest.opacity(0.55))
-            }
-            .frame(height: 150)
-            .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous))
-            .accessibilityHidden(true)
+            RecipePhoto(urlString: meal.recipe.imagePath, accessibilityTitle: meal.recipe.title)
+                .frame(height: 150)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.lg, style: .continuous))
             Text(meal.mealType.localizedName.uppercased() + (isToday ? " · " + String(localized: "plan.recipe.today", defaultValue: "today") : ""))
                 .font(FATypography.label).tracking(0.9).foregroundStyle(FAColor.forestSoft)
             Text(meal.recipe.title).font(FATypography.display(26, relativeTo: .title)).foregroundStyle(FAColor.ink)
@@ -352,8 +351,16 @@ struct RecipeCardView: View {
 
     @ViewBuilder
     private func actions(_ meal: PlannedMeal) -> some View {
+        VStack(spacing: 6) {
+        if plan.isExample {
+            FAButton(title: String(localized: "plan.ateThis", defaultValue: "I ate this"), isEnabled: false) {}
+            Label(banner.disabledReason, systemImage: "lock")
+                .font(FATypography.caption).foregroundStyle(FAColor.inkSecondary)
+        }
         HStack(spacing: 10) {
-            if meal.isLogged {
+            if plan.isExample {
+                EmptyView()
+            } else if meal.isLogged {
                 Label(String(localized: "plan.eaten", defaultValue: "Logged from your plan"), systemImage: "checkmark.circle.fill")
                     .font(FATypography.sans(13, .semibold, relativeTo: .footnote)).foregroundStyle(FAColor.forestSoft)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -368,6 +375,7 @@ struct RecipeCardView: View {
                     plan.askSwap(meal, on: open.date, from: .card)
                 }
             }
+        }
         }
         .padding(.horizontal, 18).padding(.vertical, 10)
         .background(.clear)

@@ -12,11 +12,12 @@ enum MealPlanWire {
         let to: String?
         let plans: [PlanRow]?
         let days: [DayRow]?
+        let example: Bool?
 
         var model: MealPlanRange {
             MealPlanRange(
                 from: from ?? days?.first?.date ?? "", to: to ?? "",
-                plans: (plans ?? []).map(\.model), days: (days ?? []).map(\.model)
+                plans: (plans ?? []).map(\.model), days: (days ?? []).map(\.model), example: example ?? false
             )
         }
     }
@@ -83,6 +84,7 @@ enum MealPlanWire {
         let excluded: Bool?
         let alternativeIds: [String]?
         let loggedMealId: String?
+        let optionLabel: String?
 
         var model: PlannedMeal {
             PlannedMeal(
@@ -91,7 +93,8 @@ enum MealPlanWire {
                 note: note?.trimmingCharacters(in: .whitespacesAndNewlines).nonBlank,
                 portions: portions, servings: servings, swapped: swapped ?? false, swapKind: swapKind,
                 recipe: recipe.model, prescribedId: prescribed?.id, prescribedTitle: prescribed?.title,
-                excluded: excluded ?? false, alternativeIds: alternativeIds ?? [], loggedMealId: loggedMealId
+                excluded: excluded ?? false, alternativeIds: alternativeIds ?? [], loggedMealId: loggedMealId,
+                optionLabel: optionLabel?.nonBlank
             )
         }
     }
@@ -246,10 +249,11 @@ enum MealPlanWire {
         let periodEnd: String?
         let aisles: [AisleRow]?
         let custom: [CustomRow]?
+        let example: Bool?
 
         var model: GroceryList {
             GroceryList(planId: planId, periodStart: periodStart, periodEnd: periodEnd,
-                        aisles: (aisles ?? []).map(\.model), custom: (custom ?? []).map(\.model))
+                        aisles: (aisles ?? []).map(\.model), custom: (custom ?? []).map(\.model), example: example ?? false)
         }
     }
 

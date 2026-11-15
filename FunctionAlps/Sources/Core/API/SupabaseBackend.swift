@@ -2377,16 +2377,21 @@ extension SupabaseBackend {
     }
 
     func exampleWeek() async throws -> MealPlanRange {
-        let wire: MealPlanWire.Plan = try await rest.rpc("todo_example_week", body: EmptyBody())
+        let wire: MealPlanWire.Plan = try await rest.rpc("member_example_week", body: EmptyBody())
         return wire.model
     }
 
     func exampleGroceries() async throws -> GroceryList {
-        let wire: MealPlanWire.Grocery = try await rest.rpc("todo_example_groceries", body: EmptyBody())
+        let wire: MealPlanWire.Grocery = try await rest.rpc("member_example_groceries", body: EmptyBody())
         return wire.model
     }
 
-    func hasDeliveredPlan() async throws -> Bool { false }
+    /// `member_plan_recipe_ids()` is a set-returning function: PostgREST answers a list of ids (or of one-key objects).
+    func hasDeliveredPlan() async throws -> Bool {
+        let data = try await rest.rpcRaw("member_plan_recipe_ids", body: EmptyBody())
+        guard let list = try? JSONSerialization.jsonObject(with: data) as? [Any] else { return false }
+        return !list.isEmpty
+    }
 
     /// One row per (plan week, food): the same ticks on the web and on the phone. A write with `checked_at` null
     /// is an untick; it keeps the row (and any "I have this") instead of deleting it.
@@ -2420,6 +2425,8 @@ extension SupabaseBackend {
     }
 
     func setGroceryChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws {
+        // The Foundational week belongs to no member: ticks on it stay on the device.
+        guard !list.example else { throw AppError.unknown(detail: "the example week is read only") }
         let stamp = checked ? ISO8601.string(Date()) : nil
         switch target {
         case .food(let foodId):

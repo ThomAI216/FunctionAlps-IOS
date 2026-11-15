@@ -49,12 +49,18 @@ final class MealPlanViewModel {
     /// The member's meal logs changed under the plan (an undo): the Food screen reloads them.
     @ObservationIgnored var onMealsChanged: (@MainActor () -> Void)?
 
+    /// `member_plan_recipe_ids()` had at least one id (read with the plan); nil until known, or when the check failed.
+    private(set) var hasDeliveredPlan: Bool?
+    /// This view model holds the Foundational week, not the member's own plan: nothing in it can be eaten, swapped or saved.
+    let isExample: Bool
+
     private let service: MealPlanService
     private let meals: MealService
     private let members: MemberService
     private let auth: AuthService
 
-    init(service: MealPlanService, meals: MealService, members: MemberService, auth: AuthService) {
+    init(service: MealPlanService, meals: MealService, members: MemberService, auth: AuthService, example: Bool = false) {
+        self.isExample = example
         self.service = service
         self.meals = meals
         self.members = members
@@ -87,7 +93,10 @@ final class MealPlanViewModel {
         range?.days.first { $0.date == date }?.meals.first { $0.slotId == slotId }
     }
 
-    func canSwap(on day: PlanDay?) -> Bool { summary(for: day)?.allowSwaps ?? false }
+    func canSwap(on day: PlanDay?) -> Bool { !isExample && (summary(for: day)?.allowSwaps ?? false) }
+
+    /// Where the Foundational week shows for this member (own plan view model only).
+    var placement: FoundationalWeek.Placement { FoundationalWeek.placement(hasDeliveredPlan: hasDeliveredPlan) }
 
     func isBusy(_ slotId: String) -> Bool { busySlots.contains(slotId) }
 
@@ -96,7 +105,17 @@ final class MealPlanViewModel {
     func load(refresh: Bool = false) async {
         if !refresh, plan.value == nil { plan = .loading }
         do {
-            let range = try await service.plan()
+            let range: MealPlanRange
+            if isExample {
+                range = try await service.exampleWeek()
+            } else {
+                // The plan and "does the member have one" are read together, so the screen never flashes the wrong one.
+                let service = self.service
+                async let presence = try? await service.hasDeliveredPlan()
+                async let own = service.plan()
+                hasDeliveredPlan = await presence
+                range = try await own
+            }
             if range.isEmpty {
                 plan = .empty
                 selectedDate = nil
@@ -111,7 +130,7 @@ final class MealPlanViewModel {
 
     /// "I ate this": the server writes the meal log; the toast offers Undo (which deletes it through the existing path).
     func ateThis(_ meal: PlannedMeal, on date: String) {
-        guard !busySlots.contains(meal.slotId), !meal.isLogged else { return }
+        guard !isExample, !busySlots.contains(meal.slotId), !meal.isLogged else { return }
         busySlots.insert(meal.slotId)
         let showCalories = summary(for: range?.days.first { $0.date == date })?.showCalories ?? false
         Task {
@@ -131,7 +150,7 @@ final class MealPlanViewModel {
 
     /// Takes a logged planned meal back: the log is deleted through the same path as the toast's Undo.
     func undoLogged(_ meal: PlannedMeal) {
-        guard let id = meal.loggedMealId, !busySlots.contains(meal.slotId) else { return }
+        guard !isExample, let id = meal.loggedMealId, !busySlots.contains(meal.slotId) else { return }
         busySlots.insert(meal.slotId)
         Task {
             defer { busySlots.remove(meal.slotId) }
@@ -142,6 +161,7 @@ final class MealPlanViewModel {
     }
 
     func askSwap(_ meal: PlannedMeal, on date: String, from origin: SwapRequest.Origin) {
+        guard !isExample else { return }
         swapRequest = SwapRequest(meal: meal, date: date, origin: origin)
     }
 
@@ -150,7 +170,7 @@ final class MealPlanViewModel {
     func loadGroceries(refresh: Bool = false) async {
         if !refresh, groceries.value == nil { groceries = .loading }
         do {
-            let list = try await service.groceries()
+            let list = isExample ? try await service.exampleGroceries() : try await service.groceries()
             groceries = list.isEmpty ? .empty : .loaded(list)
         } catch {
             await handle(error, context: "groceries.load", keepScreen: groceries.value != nil, grocery: true)
@@ -161,6 +181,8 @@ final class MealPlanViewModel {
     func toggle(_ target: GroceryTarget, checked: Bool) {
         guard let before = groceries.value else { return }
         groceries = .loaded(GroceryLogic.setting(target, checked: checked, in: before))
+        // The Foundational week keeps its ticks on the device: nothing is saved, nothing can fail.
+        if isExample || before.example { return }
         Task {
             do {
                 let member = try await members.currentMember()

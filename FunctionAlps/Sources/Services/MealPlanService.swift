@@ -39,6 +39,7 @@ struct MealPlanService: Sendable {
     func hasDeliveredPlan() async throws -> Bool { try await backend.hasDeliveredPlan() }
 
     func setChecked(patientId: String, list: GroceryList, target: GroceryTarget, checked: Bool) async throws {
+        guard !list.example else { return }
         try await backend.setGroceryChecked(patientId: patientId, list: list, target: target, checked: checked)
     }
 }

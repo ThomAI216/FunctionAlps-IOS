@@ -3,16 +3,33 @@ import SwiftUI
 /// Food › Plan: the day strip and the day's planned meals. Each row can be eaten ("I ate this"), swapped, or opened.
 struct PlanView: View {
     @Bindable var plan: MealPlanViewModel
+    /// Set when this view shows the Foundational week: which banner explains why nothing can be eaten or swapped.
+    var banner: FoundationalBanner = .noPlan
 
     var body: some View {
+        stateBody
+            .task { if plan.isExample, plan.plan.value == nil { await plan.load() } }
+    }
+
+    @ViewBuilder
+    private var stateBody: some View {
         switch plan.plan {
         case .loading:
             FALoadingState().frame(height: 240)
         case .failed(let error):
-            FAErrorState(title: String(localized: "plan.error.title", defaultValue: "Couldn't load your plan"), message: error.userMessage) {
+            FAErrorState(title: plan.isExample
+                            ? String(localized: "foundational.error.title", defaultValue: "Couldn't load the Foundational week")
+                            : String(localized: "plan.error.title", defaultValue: "Couldn't load your plan"), message: error.userMessage) {
                 Task { await plan.load() }
             }
             .frame(height: 280)
+        case .empty where plan.isExample:
+            FAEmptyState(
+                title: String(localized: "foundational.empty.title", defaultValue: "Nothing to show yet"),
+                message: String(localized: "foundational.empty.message", defaultValue: "The Foundational week is not available right now. Try again later."),
+                systemImage: "leaf"
+            )
+            .padding(.vertical, 40)
         case .empty:
             FAEmptyState(
                 title: String(localized: "plan.empty.title", defaultValue: "No meal plan yet"),
@@ -27,9 +44,12 @@ struct PlanView: View {
 
     private func content(_ range: MealPlanRange) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            DayStrip(days: range.days, today: range.from, selected: plan.selectedDate) { plan.selectedDate = $0 }
+            DayStrip(days: range.days, today: range.from, selected: plan.selectedDate, example: plan.isExample) { plan.selectedDate = $0 }
             if let day = plan.selectedDay {
                 dayHeading(day, range: range)
+                if plan.isExample {
+                    ExampleDayMeals(day: day, banner: banner) { meal in plan.openMeal = OpenMeal(slotId: meal.slotId, date: day.date) }
+                } else {
                 LazyVStack(spacing: 10) {
                     ForEach(day.meals) { meal in
                         PlannedMealRow(
@@ -44,6 +64,7 @@ struct PlanView: View {
                         )
                     }
                 }
+                }
                 if day.meals.isEmpty {
                     Text(String(localized: "plan.day.empty", defaultValue: "Nothing planned for this day."))
                         .font(FATypography.callout).foregroundStyle(FAColor.inkSecondary)
@@ -55,7 +76,11 @@ struct PlanView: View {
     private func dayHeading(_ day: PlanDay, range: MealPlanRange) -> some View {
         let isToday = day.date == range.from
         let heading = PlanLogic.dayHeading(for: day.date)
-        return Text(isToday ? String(localized: "plan.day.today", defaultValue: "Today · \(heading)") : heading)
+        // The Foundational week has nominal dates: a weekday name, never a date and never "today".
+        let text = plan.isExample
+            ? (FoundationalWeek.weekday(for: day.date) ?? "")
+            : (isToday ? String(localized: "plan.day.today", defaultValue: "Today · \(heading)") : heading)
+        return Text(text)
             .font(FATypography.headline)
             .foregroundStyle(FAColor.ink)
             .accessibilityAddTraits(.isHeader)
@@ -67,6 +92,7 @@ private struct DayStrip: View {
     let days: [PlanDay]
     let today: String
     let selected: String?
+    var example = false
     let onSelect: (String) -> Void
 
     var body: some View {
@@ -74,12 +100,18 @@ private struct DayStrip: View {
             HStack(spacing: 8) {
                 ForEach(days) { day in
                     let on = day.date == selected
-                    let label = PlanLogic.stripLabel(for: day.date)
+                    let label = example
+                        ? (weekday: FoundationalWeek.weekday(for: day.date, abbreviated: true) ?? "", number: "")
+                        : PlanLogic.stripLabel(for: day.date)
                     Button { onSelect(day.date) } label: {
                         VStack(spacing: 2) {
                             Text(label.weekday.uppercased()).font(FATypography.label).tracking(0.6)
-                            Text(label.number).font(FATypography.sans(17, .bold, relativeTo: .headline))
-                            Circle().fill(day.date == today ? FAColor.forestSoft : .clear).frame(width: 5, height: 5)
+                            if example {
+                                Text(String(label.weekday.prefix(1)).uppercased()).font(FATypography.sans(17, .bold, relativeTo: .headline))
+                            } else {
+                                Text(label.number).font(FATypography.sans(17, .bold, relativeTo: .headline))
+                            }
+                            Circle().fill(!example && day.date == today ? FAColor.forestSoft : .clear).frame(width: 5, height: 5)
                         }
                         .foregroundStyle(on ? Color.white : FAColor.ink)
                         .frame(width: 48, height: 64)
@@ -87,7 +119,7 @@ private struct DayStrip: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(PlanLogic.dayHeading(for: day.date))
+                    .accessibilityLabel(example ? (FoundationalWeek.weekday(for: day.date) ?? "") : PlanLogic.dayHeading(for: day.date))
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
             }
@@ -111,6 +143,10 @@ struct PlannedMealRow: View {
         FACard {
             VStack(alignment: .leading, spacing: 10) {
                 Button(action: onOpen) {
+                    HStack(spacing: 12) {
+                    RecipePhoto(urlString: meal.recipe.imagePath)
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: FACornerRadius.sm, style: .continuous))
                     VStack(alignment: .leading, spacing: 3) {
                         Text(slotLabel.uppercased()).font(FATypography.label).tracking(0.9).foregroundStyle(FAColor.inkSecondary)
                         Text(meal.recipe.title).font(FATypography.sans(16, .semibold, relativeTo: .headline)).foregroundStyle(FAColor.ink)
@@ -126,6 +162,7 @@ struct PlannedMealRow: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
